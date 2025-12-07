@@ -1,104 +1,306 @@
-# New Nx Repository
+# PETO – Monorepo (Nx + AWS CDK + Serverless Lambdas)
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+PETO es un gestor de mascotas con enfoque en salud, vacunas, visitas veterinarias, grooming, co-propiedad, documentos y recordatorios automáticos.
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+---
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/js?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+## Descripción general
 
-## Generate a library
+PETO permite a los usuarios administrar toda la información relacionada con sus mascotas:
 
-```sh
-npx nx g @nx/js:lib packages/pkg1 --publishable --importPath=@my-org/pkg1
+- Perfil de mascota (datos generales, especie, raza, notas, foto)
+- Manejo de múltiples dueños (PRIMARY y SECONDARY)
+- Eventos de salud:
+  - Vacunas
+  - Visitas veterinarias
+  - Grooming / baños
+- Carga y almacenamiento de documentos (S3)
+- Recordatorios automáticos de vacunas mediante EventBridge
+- Catálogos (especies, razas, vacunas)
+- Autenticación con Amazon Cognito
+- Base de datos en DynamoDB usando Single-Table Design
+
+El proyecto está diseñado como un SaaS serverless, modular, escalable y de bajo costo.
+
+---
+
+## Tecnologías principales
+
+### Backend / Infraestructura
+- AWS CDK (TypeScript)
+- AWS Lambda (Node.js 20)
+- API Gateway HTTP API
+- DynamoDB (Single Table)
+- S3 (archivos y documentos)
+- SES (envío de correos)
+- Cognito (autenticación)
+- EventBridge (tareas programadas)
+
+### Frontend
+- Angular 21 (SPA)
+- Nx como gestor del monorepo
+
+### Herramientas internas
+- Nx Monorepo
+- TypeScript
+- Eslint + Prettier
+- Jest para pruebas unitarias
+- GitHub Actions o AWS CodeBuild para CI/CD
+
+---
+
+## Arquitectura general (resumen)
+
+La arquitectura está compuesta por:
+
+- Monorepo Nx separando frontend, infraestructura y backend.
+- Librerías modulares (auth, pets, owners, events, catalogs, uploads, reminders).
+- CDK dividido en stacks independientes.
+- DynamoDB como single-table, diseñando claves para patrones de acceso reales.
+- Lambdas pequeñas, enfocadas en una responsabilidad.
+- API Gateway con JWT Authorizer basado en Cognito.
+- S3 para documentos y fotos.
+- EventBridge para recordatorios automáticos.
+
+---
+
+## Estructura de carpetas
+
+### Root
+
+```bash
+peto/
+├── apps/
+├── libs/
+├── tools/
+├── nx.json
+├── package.json
+├── tsconfig.base.json
+└── ARCHITECTURE.md
+
 ```
 
-## Run tasks
+---
 
-To build the library use:
+## APPS
 
-```sh
-npx nx build pkg1
+### Frontend
+
+```bash
+apps/web/
+├── src/
+└── project.json
 ```
 
-To run any task with Nx use:
+### Infraestructura (CDK)
 
-```sh
-npx nx <target> <project-name>
+```bash
+apps/peto-cdk/
+├── bin/
+│   └── peto.ts
+├── lib/
+│   ├── core-infra.stack.ts
+│   ├── auth.stack.ts
+│   ├── api-auth.stack.ts
+│   ├── api-pets.stack.ts
+│   ├── api-owners.stack.ts
+│   ├── api-events.stack.ts
+│   ├── api-catalogs.stack.ts
+│   ├── uploads.stack.ts
+│   └── reminders.stack.ts
+└── project.json
 ```
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+---
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## LIBS (Backend por módulo)
 
-## Versioning and releasing
+### Autenticación
 
-To version and release the library use
-
-```
-npx nx release
+```bash
+libs/api-auth/
 ```
 
-Pass `--dry-run` to see what would happen without actually releasing the library.
+### Pets
 
-[Learn more about Nx release &raquo;](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Keep TypeScript project references up to date
-
-Nx automatically updates TypeScript [project references](https://www.typescriptlang.org/docs/handbook/project-references.html) in `tsconfig.json` files to ensure they remain accurate based on your project dependencies (`import` or `require` statements). This sync is automatically done when running tasks such as `build` or `typecheck`, which require updated references to function correctly.
-
-To manually trigger the process to sync the project graph dependencies information to the TypeScript project references, run the following command:
-
-```sh
-npx nx sync
+```bash
+libs/api-pets/
 ```
 
-You can enforce that the TypeScript project references are always in the correct state when running in CI by adding a step to your CI job configuration that runs the following command:
+### Owners
 
-```sh
-npx nx sync:check
+```bash
+libs/api-owners/
 ```
 
-[Learn more about nx sync](https://nx.dev/reference/nx-commands#sync)
+### Events (vacunas, visitas, grooming, timeline)
 
-## Nx Cloud
-
-Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
-
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-### Set up CI (non-Github Actions CI)
-
-**Note:** This is only required if your CI provider is not GitHub Actions.
-
-Use the following command to configure a CI workflow for your workspace:
-
-```sh
-npx nx g ci-workflow
+```bash
+libs/api-events/
 ```
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+### Catálogos
 
-## Install Nx Console
+```bash
+libs/api-catalogs/
+```
 
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+### Uploads (S3)
 
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+```bash
+libs/api-uploads/
+```
 
-## Useful links
+### Reminders (EventBridge)
 
-Learn more:
+```bash
+libs/api-reminders/
+```
 
-- [Learn more about this workspace setup](https://nx.dev/nx-api/js?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## LIBS (Dominio y utilidades)
 
-And join the Nx community:
+### Modelos del dominio
 
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+```bash
+libs/domain-model/
+```
+
+### Utilidades DynamoDB
+
+```bash
+libs/utils-dynamo/
+```
+
+### Constructos CDK reutilizables
+
+```bash
+libs/infra-constructs/
+```
+
+### Utilidades generales
+
+```bash
+libs/shared-utils/
+```
+
+---
+
+## Herramientas NX
+
+```bash
+tools/
+├── scripts/
+│   ├── deploy.ts
+│   ├── build-all.ts
+│   └── clean.ts
+└── generators/
+├── lambda/
+└── stack/
+```
+
+---
+
+## Principios de desarrollo
+
+### 1. Serverless First
+- Lambdas pequeñas y enfocadas.
+- Infraestructura como código usando CDK.
+- Alta escalabilidad y disponibilidad sin gestionar servidores.
+
+### 2. Single-Table DynamoDB
+- Estructura centrada en patrones de acceso.
+- Uso de PK/SK y GSIs según consultas.
+- Evitar múltiples tablas para reducir costos y aumentar performance.
+
+### 3. Modularidad con Nx
+- Cada módulo tiene su propio bounded context.
+- Código compartido en libs reutilizables.
+- Builds incrementales y rápidos.
+
+### 4. Seguridad desde el diseño
+- Cognito para autenticación
+- API Gateway Authorizer
+- Validación estricta de inputs
+
+### 5. Desarrollo incremental
+- Cada feature es un stack independiente.
+- Facilita mantenimiento y despliegues aislados.
+
+### 6. Performance
+- Node.js 20 limpio
+- Minimizar dependencias
+- Cargar solo lo necesario para cada Lambda
+
+---
+
+## Testing
+
+### Pruebas Unitarias
+- Se usa Jest.
+- Cada Lambda debe incluir tests básicos.
+- Utilidades compartidas deben tener cobertura mínima.
+
+### QA Manual
+Basado en acceptance criteria del backlog:
+
+- Autenticación
+- Pets
+- Owners
+- Events
+- Uploads
+- Reminders
+- Catálogos
+
+---
+
+## CI/CD
+
+Recomendado:
+
+- GitHub Actions con:
+  - Lint
+  - Test
+  - Build
+  - CDK Synth
+
+### Deploy manual
+
+```bash
+npx nx run peto-cdk:deploy
+```
+
+---
+
+## Convenciones de código
+
+- TypeScript estricto
+- camelCase para variables
+- PascalCase para constructos y clases
+- Validaciones tempranas
+- Handlers sin lógica pesada (usar libs)
+- Una responsabilidad por archivo
+- Prettier obligatorio
+
+---
+
+## Guía para contribuir
+
+1. Crear una rama: ```feat/***```
+2. Escribir o actualizar tests si aplica.
+3. Formatear código: ```npx nx format```
+4. Crear Pull Request.
+5. Hacer merge solo cuando todo pase correctamente.
+
+---
+
+## Siguientes pasos
+
+El archivo ```ARCHITECTURE.md``` incluirá:
+
+- Diagramas C4 (niveles 1 a 3)
+- Diagrama detallado del backend
+- Esquema de DynamoDB Single Table
+- Flujos de autenticación
+- Flujos de co-dueños y permisos
+- Flujos de recordatorios
+- Diagrama CDK por stack
