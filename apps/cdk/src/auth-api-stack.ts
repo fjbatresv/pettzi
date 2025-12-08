@@ -4,12 +4,12 @@ import {
   StackProps,
   Duration,
   aws_iam as iam,
+  Tags
 } from 'aws-cdk-lib';
 import * as apigwv2 from 'aws-cdk-lib/aws-apigatewayv2';
 import {
   HttpLambdaIntegration,
 } from 'aws-cdk-lib/aws-apigatewayv2-integrations';
-import { HttpUserPoolAuthorizer } from 'aws-cdk-lib/aws-apigatewayv2-authorizers';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction, OutputFormat } from 'aws-cdk-lib/aws-lambda-nodejs';
@@ -24,6 +24,7 @@ export interface AuthApiStackProps extends StackProps {
   userPool: UserPool;
   userPoolClient: UserPoolClient;
   table: dynamodb.Table;
+  depsLayer?: lambda.ILayerVersion;
 }
 
 export class AuthApiStack extends Stack {
@@ -33,6 +34,7 @@ export class AuthApiStack extends Stack {
     super(scope, id, props);
 
     const stage = this.node.tryGetContext('stage') ?? process.env.STAGE ?? 'dev';
+    Tags.of(this).add('project', 'peto');
 
     const commonEnv = {
       COGNITO_USER_POOL_ID: props.userPool.userPoolId,
@@ -40,31 +42,32 @@ export class AuthApiStack extends Stack {
       STAGE: stage,
     };
 
+    const handlerPath = (...segments: string[]) =>
+      path.resolve(__dirname, '../../../../../..', ...segments);
+
     const registerFn = this.createAuthFn(
       'RegisterHandler',
-      path.resolve(__dirname, '../../../../libs/api-auth/src/register.handler.ts'),
-      commonEnv
+      handlerPath('libs/api-auth/src/register.handler.ts'),
+      commonEnv,
+      props.depsLayer
     );
     const loginFn = this.createAuthFn(
       'LoginHandler',
-      path.resolve(__dirname, '../../../../libs/api-auth/src/login.handler.ts'),
-      commonEnv
+      handlerPath('libs/api-auth/src/login.handler.ts'),
+      commonEnv,
+      props.depsLayer
     );
     const forgotPasswordFn = this.createAuthFn(
       'ForgotPasswordHandler',
-      path.resolve(
-        __dirname,
-        '../../../../libs/api-auth/src/forgot-password.handler.ts'
-      ),
-      commonEnv
+      handlerPath('libs/api-auth/src/forgot-password.handler.ts'),
+      commonEnv,
+      props.depsLayer
     );
     const confirmForgotPasswordFn = this.createAuthFn(
       'ConfirmForgotPasswordHandler',
-      path.resolve(
-        __dirname,
-        '../../../../libs/api-auth/src/confirm-forgot-password.handler.ts'
-      ),
-      commonEnv
+      handlerPath('libs/api-auth/src/confirm-forgot-password.handler.ts'),
+      commonEnv,
+      props.depsLayer
     );
 
     const cognitoActions = [
@@ -86,15 +89,6 @@ export class AuthApiStack extends Stack {
         })
       );
     });
-
-    const authorizer = new HttpUserPoolAuthorizer(
-      'AuthJwtAuthorizer',
-      props.userPool,
-      {
-        userPoolClients: [props.userPoolClient],
-        identitySource: ['$request.header.Authorization'],
-      }
-    );
 
     this.httpApi = new apigwv2.HttpApi(this, 'AuthHttpApi', {
       apiName: `PetoAuthApi-${stage}`,
@@ -138,21 +132,28 @@ export class AuthApiStack extends Stack {
   private createAuthFn(
     id: string,
     entry: string,
-    environment: Record<string, string>
+    environment: Record<string, string>,
+    depsLayer?: lambda.ILayerVersion
   ): NodejsFunction {
+    const layers = depsLayer ? [depsLayer] : [];
+
     return new NodejsFunction(this, id, {
-      runtime: lambda.Runtime.NODEJS_20_X,
+      runtime: lambda.Runtime.NODEJS_24_X,
       entry,
       handler: 'handler',
       bundling: {
-        target: 'node20',
+        target: 'node24',
         format: OutputFormat.CJS,
         platform: 'node',
+        externalModules: depsLayer
+          ? ['@aws-sdk/client-cognito-identity-provider']
+          : [],
         sourcesContent: false,
         keepNames: true,
       },
       timeout: Duration.seconds(10),
       environment,
+      layers,
     });
   }
 }

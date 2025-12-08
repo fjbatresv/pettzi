@@ -1,0 +1,12 @@
+{
+  "name": "cognito-deps-layer",
+  "version": "0.0.1",
+  "private": true,
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=24"
+  },
+  "dependencies": {
+    "@aws-sdk/client-cognito-identity-provider": "^3.694.0"
+  }
+}

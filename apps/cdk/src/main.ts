@@ -2,6 +2,7 @@ import 'source-map-support/register';
 import { config as dotenvConfig } from 'dotenv';
 import { App } from 'aws-cdk-lib';
 import { CoreInfraStack } from './core-infra-stack';
+import { LayersStack } from './layers-stack';
 import { AuthStack } from './auth-stack';
 import { AuthApiStack } from './auth-api-stack';
 
@@ -29,6 +30,13 @@ console.log('CDK using AWS region:', region || '(default)');
 
 const app = new App();
 
+const layers = new LayersStack(app, 'PetoLayersStack', {
+  env: { account, region },
+  stackName: 'PetoLayersStack',
+  description: `Peto shared layers (${stage})`,
+  stage,
+});
+
 const core = new CoreInfraStack(app, 'PetoCoreInfraStack', {
   env: { account, region },
   stage,
@@ -49,6 +57,7 @@ new AuthApiStack(app, 'PetoAuthApiStack', {
   userPool: auth.userPool,
   userPoolClient: auth.userPoolClient,
   table: core.table,
+  depsLayer: layers.cognitoDepsLayer,
 });
 
 app.synth();
