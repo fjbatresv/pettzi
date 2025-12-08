@@ -16,6 +16,12 @@ module.exports = {
   transform: {
     '^.+\\.[tj]s$': ['@swc/jest', swcJestConfig],
   },
+  moduleNameMapper: {
+    '^@peto/utils-dynamo/(.*)$': '<rootDir>/../utils-dynamo/src/$1',
+    '^@peto/utils-dynamo$': '<rootDir>/../utils-dynamo/src/index',
+    '^@peto/domain-model/(.*)$': '<rootDir>/../domain-model/src/$1',
+    '^@peto/domain-model$': '<rootDir>/../domain-model/src/index',
+  },
   moduleFileExtensions: ['ts', 'js', 'html'],
   coverageDirectory: 'test-output/jest/coverage',
 };

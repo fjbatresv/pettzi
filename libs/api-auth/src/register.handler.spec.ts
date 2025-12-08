@@ -1,13 +1,15 @@
-var sendMock: jest.Mock;
-
 jest.mock('@aws-sdk/client-cognito-identity-provider', () => {
   const mockSend = jest.fn();
-  sendMock = mockSend;
   return {
     CognitoIdentityProviderClient: jest.fn(() => ({ send: mockSend })),
     SignUpCommand: jest.fn((input) => input),
+    __sendMock: mockSend,
   };
 });
+
+const { __sendMock: sendMock } = jest.requireMock(
+  '@aws-sdk/client-cognito-identity-provider'
+) as { __sendMock: jest.Mock };
 
 import { handler } from './register.handler';
 

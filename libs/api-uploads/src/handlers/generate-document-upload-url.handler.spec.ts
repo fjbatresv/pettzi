@@ -1,0 +1,83 @@
+import { APIGatewayProxyEventV2 } from 'aws-lambda';
+import { GetCommand } from '@aws-sdk/lib-dynamodb';
+import { handler } from './generate-document-upload-url.handler';
+
+jest.mock('@aws-sdk/lib-dynamodb', () => {
+  const actual = jest.requireActual('@aws-sdk/lib-dynamodb');
+  const send = jest.fn();
+  return {
+    ...actual,
+    DynamoDBDocumentClient: { from: () => ({ send }) },
+    __sendMock: send,
+  };
+});
+
+jest.mock('@aws-sdk/client-s3', () => {
+  const send = jest.fn();
+  return {
+    S3Client: jest.fn(() => ({ send })),
+    PutObjectCommand: jest.fn((input) => input),
+    __s3SendMock: send,
+  };
+});
+
+jest.mock('@aws-sdk/s3-request-presigner', () => ({
+  getSignedUrl: jest.fn().mockResolvedValue('https://signed-url'),
+}));
+
+const { __sendMock: ddbSendMock } = jest.requireMock('@aws-sdk/lib-dynamodb') as {
+  __sendMock: jest.Mock;
+};
+
+describe('generate-document-upload-url.handler', () => {
+  const baseEvent: APIGatewayProxyEventV2 = {
+    version: '2.0',
+    routeKey: '',
+    rawPath: '',
+    rawQueryString: '',
+    headers: {},
+    requestContext: {
+      accountId: '',
+      apiId: '',
+      domainName: '',
+      domainPrefix: '',
+      http: {
+        method: 'POST',
+        path: '/pets/pet-1/uploads/document',
+        protocol: 'HTTP/1.1',
+        sourceIp: '',
+        userAgent: '',
+      },
+      requestId: '',
+      routeKey: '',
+      stage: '$default',
+      time: '',
+      timeEpoch: 0,
+      authorizer: {
+        jwt: { claims: { sub: 'owner-1' }, scopes: [] },
+      },
+    },
+    isBase64Encoded: false,
+  };
+
+  beforeEach(() => {
+    process.env.PETO_TABLE_NAME = 'PetoTable';
+    process.env.PETO_DOCS_BUCKET_NAME = 'docs-bucket';
+    ddbSendMock.mockReset();
+  });
+
+  it('returns a presigned upload URL', async () => {
+    ddbSendMock.mockResolvedValue({ Item: { PK: 'PET#pet-1', SK: 'OWNER#owner-1' } });
+
+    const res = await handler({
+      ...baseEvent,
+      pathParameters: { petId: 'pet-1' },
+      body: JSON.stringify({ contentType: 'application/pdf' }),
+    });
+
+    expect(res.statusCode).toBe(201);
+    const body = JSON.parse(res.body ?? '{}');
+    expect(body.uploadUrl).toContain('https://signed-url');
+    expect(body.fileKey).toContain('pets/pet-1/documents/');
+  });
+});

@@ -68,7 +68,7 @@ describe('process-due-reminders.handler', () => {
 
     sesSendMock.mockResolvedValue({});
 
-    await handler({}, {} as any, () => {});
+    await handler({}, {} as any, jest.fn());
 
     expect(sesSendMock).toHaveBeenCalledTimes(1);
     expect(ddbSendMock).toHaveBeenCalled();

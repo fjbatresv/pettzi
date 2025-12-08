@@ -1,0 +1,8 @@
+{
+  "name": "peto-ses-deps",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "@aws-sdk/client-ses": "^3.694.0"
+  }
+}

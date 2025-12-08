@@ -1,19 +1,21 @@
 import { handler } from './get-pet.handler';
 import { PetSpecies, toItemPet } from '@peto/domain-model';
 
-var sendMock: jest.Mock;
-
 jest.mock('@aws-sdk/lib-dynamodb', () => {
   const mockSend = jest.fn();
-  sendMock = mockSend;
   class Cmd {
     constructor(public input: any) {}
   }
   return {
     DynamoDBDocumentClient: { from: () => ({ send: mockSend }) },
     GetCommand: Cmd,
+    __sendMock: mockSend,
   };
 });
+
+const { __sendMock: sendMock } = jest.requireMock('@aws-sdk/lib-dynamodb') as {
+  __sendMock: jest.Mock;
+};
 
 describe('get-pet.handler', () => {
   beforeEach(() => sendMock.mockReset());
