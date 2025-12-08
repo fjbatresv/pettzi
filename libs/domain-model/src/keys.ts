@@ -2,7 +2,6 @@ import {
   buildUserPk,
   buildUserProfileSk,
   buildPetPk,
-  buildPetProfileSk,
   buildPetOwnerSk as buildOwnerFragment,
   buildEventSk,
   buildReminderVaccinationGsiSk,
@@ -28,6 +27,9 @@ export const buildPetSkMetadata = (): string => 'METADATA';
 export const buildPetOwnerPk = (petId: PetId): string => buildPetPk(petId);
 export const buildPetOwnerSk = (ownerId: OwnerId): string =>
   buildOwnerFragment(ownerId);
+export const buildPetOwnerGsi1Pk = (ownerId: OwnerId): string =>
+  buildOwnerFragment(ownerId);
+export const buildPetOwnerGsi1Sk = (petId: PetId): string => buildPetPk(petId);
 
 export const buildPetEventPk = (petId: PetId): string => buildPetPk(petId);
 export const buildPetEventSk = (

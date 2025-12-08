@@ -14,6 +14,8 @@ export class LayersStack extends Stack {
     super(scope, id, props);
 
     Tags.of(this).add('project', 'peto');
+    Tags.of(this).add('AppManagerCFNStackKey', id);
+
 
     const stage = (props?.stage ?? process.env.STAGE ?? 'dev')
       .toLowerCase()

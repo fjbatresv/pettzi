@@ -19,6 +19,8 @@ export class AuthStack extends Stack {
     super(scope, id, props);
 
     Tags.of(this).add('project', 'peto');
+    Tags.of(this).add('AppManagerCFNStackKey', id);
+
 
     this.userPool = new UserPool(this, 'PetoUserPool', {
       selfSignUpEnabled: true,

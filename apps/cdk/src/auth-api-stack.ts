@@ -7,10 +7,8 @@ import {
   Tags
 } from 'aws-cdk-lib';
 import * as apigwv2 from 'aws-cdk-lib/aws-apigatewayv2';
-import {
-  HttpLambdaIntegration,
-} from 'aws-cdk-lib/aws-apigatewayv2-integrations';
-import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
+import { HttpLambdaIntegration } from 'aws-cdk-lib/aws-apigatewayv2-integrations';
+import { HttpUserPoolAuthorizer } from 'aws-cdk-lib/aws-apigatewayv2-authorizers';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction, OutputFormat } from 'aws-cdk-lib/aws-lambda-nodejs';
 import {
@@ -23,18 +21,20 @@ import * as path from 'path';
 export interface AuthApiStackProps extends StackProps {
   userPool: UserPool;
   userPoolClient: UserPoolClient;
-  table: dynamodb.Table;
   depsLayer?: lambda.ILayerVersion;
 }
 
 export class AuthApiStack extends Stack {
   public readonly httpApi: apigwv2.HttpApi;
+  public readonly authorizer: HttpUserPoolAuthorizer;
 
   constructor(scope: Construct, id: string, props: AuthApiStackProps) {
     super(scope, id, props);
 
     const stage = this.node.tryGetContext('stage') ?? process.env.STAGE ?? 'dev';
     Tags.of(this).add('project', 'peto');
+    Tags.of(this).add('AppManagerCFNStackKey', id);
+
 
     const commonEnv = {
       COGNITO_USER_POOL_ID: props.userPool.userPoolId,
@@ -44,6 +44,15 @@ export class AuthApiStack extends Stack {
 
     const handlerPath = (...segments: string[]) =>
       path.resolve(__dirname, '../../../../../..', ...segments);
+
+    this.authorizer = new HttpUserPoolAuthorizer(
+      'AuthJwtAuthorizer',
+      props.userPool,
+      {
+        userPoolClients: [props.userPoolClient],
+        identitySource: ['$request.header.Authorization'],
+      },
+    );
 
     const registerFn = this.createAuthFn(
       'RegisterHandler',
@@ -93,6 +102,8 @@ export class AuthApiStack extends Stack {
     this.httpApi = new apigwv2.HttpApi(this, 'AuthHttpApi', {
       apiName: `PetoAuthApi-${stage}`,
       description: `Auth API for Peto (${stage})`,
+      defaultAuthorizer: this.authorizer,
+      createDefaultStage: true,
     });
 
     this.httpApi.addRoutes({
@@ -140,6 +151,7 @@ export class AuthApiStack extends Stack {
     return new NodejsFunction(this, id, {
       runtime: lambda.Runtime.NODEJS_24_X,
       entry,
+      functionName: id,
       handler: 'handler',
       bundling: {
         target: 'node24',

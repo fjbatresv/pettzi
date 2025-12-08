@@ -31,6 +31,10 @@ export interface Pet {
   breed?: string;
   birthDate?: Date;
   notes?: string;
+  color?: string;
+  weightKg?: number;
+  isArchived?: boolean;
+  archivedAt?: Date;
   createdAt: Date;
   updatedAt?: Date;
 }
