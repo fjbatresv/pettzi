@@ -1,12 +1,8 @@
-import {
-  AccountRecovery,
-  RemovalPolicy,
-  Stack,
-  StackProps,
-} from 'aws-cdk-lib';
+import { RemovalPolicy, Stack, StackProps, Tags } from 'aws-cdk-lib';
 import {
   UserPool,
   UserPoolClient,
+  AccountRecovery,
   VerificationEmailStyle,
 } from 'aws-cdk-lib/aws-cognito';
 import { Construct } from 'constructs';
@@ -21,6 +17,8 @@ export class AuthStack extends Stack {
 
   constructor(scope: Construct, id: string, props?: AuthStackProps) {
     super(scope, id, props);
+
+    Tags.of(this).add('project', 'peto');
 
     this.userPool = new UserPool(this, 'PetoUserPool', {
       selfSignUpEnabled: true,

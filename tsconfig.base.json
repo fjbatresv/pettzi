@@ -5,6 +5,7 @@
     "emitDeclarationOnly": true,
     "importHelpers": true,
     "isolatedModules": true,
+    "baseUrl": ".",
     "lib": ["es2022"],
     "module": "nodenext",
     "moduleResolution": "nodenext",
@@ -16,6 +17,10 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "es2022",
-    "customConditions": ["@org/source"]
+    "customConditions": ["@org/source"],
+    "paths": {
+      "@peto/utils-dynamo": ["libs/utils-dynamo/src/index.ts"],
+      "@peto/utils-dynamo/*": ["libs/utils-dynamo/src/*"]
+    }
   }
 }
