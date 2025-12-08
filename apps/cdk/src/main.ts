@@ -2,6 +2,8 @@ import 'source-map-support/register';
 import { config as dotenvConfig } from 'dotenv';
 import { App } from 'aws-cdk-lib';
 import { CoreInfraStack } from './core-infra-stack';
+import { AuthStack } from './auth-stack';
+import { AuthApiStack } from './auth-api-stack';
 
 dotenvConfig({
     path: '../../.env',
@@ -27,11 +29,26 @@ console.log('CDK using AWS region:', region || '(default)');
 
 const app = new App();
 
-new CoreInfraStack(app, 'PetoCoreInfraStack', {
+const core = new CoreInfraStack(app, 'PetoCoreInfraStack', {
   env: { account, region },
   stage,
   stackName: `PetoCoreInfraStack`,
   description: `Peto core infrastructure (${stage})`,
+});
+
+const auth = new AuthStack(app, 'PetoAuthStack', {
+  env: { account, region },
+  stackName: 'PetoAuthStack',
+  description: `Peto auth (${stage})`,
+});
+
+new AuthApiStack(app, 'PetoAuthApiStack', {
+  env: { account, region },
+  stackName: 'PetoAuthApiStack',
+  description: `Peto auth API (${stage})`,
+  userPool: auth.userPool,
+  userPoolClient: auth.userPoolClient,
+  table: core.table,
 });
 
 app.synth();
