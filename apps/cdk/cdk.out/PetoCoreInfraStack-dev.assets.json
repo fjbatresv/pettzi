@@ -1,0 +1,36 @@
+{
+  "version": "48.0.0",
+  "files": {
+    "faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6": {
+      "displayName": "PetoCoreInfraStack-dev/Custom::S3AutoDeleteObjectsCustomResourceProvider Code",
+      "source": {
+        "path": "asset.faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6",
+        "packaging": "zip"
+      },
+      "destinations": {
+        "605134457500-us-east-1-a018a536": {
+          "bucketName": "cdk-hnb659fds-assets-605134457500-us-east-1",
+          "objectKey": "faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6.zip",
+          "region": "us-east-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::605134457500:role/cdk-hnb659fds-file-publishing-role-605134457500-us-east-1"
+        }
+      }
+    },
+    "c1048c0053d619374da84687aacb92cc176429d6e2c1d08724e6055af23bc6ef": {
+      "displayName": "PetoCoreInfraStack-dev Template",
+      "source": {
+        "path": "PetoCoreInfraStack-dev.template.json",
+        "packaging": "file"
+      },
+      "destinations": {
+        "605134457500-us-east-1-774e659a": {
+          "bucketName": "cdk-hnb659fds-assets-605134457500-us-east-1",
+          "objectKey": "c1048c0053d619374da84687aacb92cc176429d6e2c1d08724e6055af23bc6ef.json",
+          "region": "us-east-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::605134457500:role/cdk-hnb659fds-file-publishing-role-605134457500-us-east-1"
+        }
+      }
+    }
+  },
+  "dockerImages": {}
+}

@@ -3,5 +3,41 @@
   "compileOnSave": false,
   "files": [],
   "references": [
+    {
+      "path": "./libs/api-pets"
+    },
+    {
+      "path": "./libs/api-owners"
+    },
+    {
+      "path": "./libs/api-events"
+    },
+    {
+      "path": "./libs/api-catalogs"
+    },
+    {
+      "path": "./libs/api-uploads"
+    },
+    {
+      "path": "./libs/api-reminders"
+    },
+    {
+      "path": "./libs/domain-model"
+    },
+    {
+      "path": "./libs/shared-utils"
+    },
+    {
+      "path": "./libs/infra-constructs"
+    },
+    {
+      "path": "./libs/utils-dynamo"
+    },
+    {
+      "path": "./libs/api-auth"
+    },
+    {
+      "path": "./apps/cdk"
+    }
   ]
 }
