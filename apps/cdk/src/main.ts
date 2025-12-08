@@ -10,6 +10,7 @@ import { EventsApiStack } from './events-api-stack';
 import { RemindersApiStack } from './reminders-api-stack';
 import { UploadsApiStack } from './uploads-api-stack';
 import { OwnersApiStack } from './owners-api-stack';
+import { CatalogsApiStack } from './catalogs-api-stack';
 
 dotenvConfig({
     path: '../../.env',
@@ -122,6 +123,16 @@ new OwnersApiStack(app, 'PetoOwnersApiStack', {
   userPoolClient: auth.userPoolClient,
   sharedLayer: layers.cognitoDepsLayer,
   ddbLayer: layers.ddbDepsLayer,
+  stage,
+});
+
+new CatalogsApiStack(app, 'PetoCatalogsApiStack', {
+  env: { account, region },
+  stackName: 'PetoCatalogsApiStack',
+  description: `Peto catalogs API (${stage})`,
+  userPool: auth.userPool,
+  userPoolClient: auth.userPoolClient,
+  sharedLayer: layers.cognitoDepsLayer,
   stage,
 });
 
