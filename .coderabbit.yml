@@ -1,0 +1,39 @@
+version: 1
+project:
+  name: "PETO – Pet Health Manager"
+  description: "Serverless SaaS for pet health and ownership management (Nx + CDK + Lambda Node 24 + DynamoDB)."
+
+review:
+  enabled: true
+  auto_review:
+    enabled: true
+    on:
+      - pull_request_opened
+      - pull_request_synchronized
+      - pull_request_reopened
+  rules:
+    - name: "Architecture & Boundaries"
+      description: "Ensure domain logic stays in domain-model, shared utils in utils-dynamo/shared-utils, and Lambdas remain thin HTTP handlers."
+    - name: "Node 24 & AWS Lambda"
+      description: "Check that all new/modified Lambda code targets Node.js 24.x, uses AWS SDK v3, and avoids heavy dependencies inside handlers."
+    - name: "DynamoDB Single Table"
+      description: "Validate PK/SK/GSI1 usage follows TABLE_DESIGN.md and key builders/mappers from @peto/domain-model."
+    - name: "HTTP Error Format"
+      description: "Ensure all API handlers use @peto/utils-dynamo/http and return the standard error response shape."
+
+preferences:
+  max_comments: 50
+  summarize_findings: true
+  language: "es"
+  tone: "constructive"
+
+paths:
+  include:
+    - "apps/**"
+    - "libs/**"
+    - "mintlify/**"
+  exclude:
+    - "dist/**"
+    - "cdk.out/**"
+    - "node_modules/**"
+    - "**/*.d.ts"

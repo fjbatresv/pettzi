@@ -161,7 +161,8 @@ export class AuthApiStack extends Stack {
           ? ['@aws-sdk/client-cognito-identity-provider']
           : [],
         sourcesContent: false,
-        keepNames: true,
+        keepNames: false,
+        minify: true,
       },
       timeout: Duration.seconds(10),
       environment,
