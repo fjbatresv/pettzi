@@ -26,6 +26,7 @@ import {
   UserAccount,
 } from './types';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type DynamoItem = Record<string, any>;
 
 const requireField = (value: unknown, name: string) => {

@@ -78,9 +78,9 @@ describe('domain-model mappers', () => {
       toItemPet({
         petId: 'pet-1',
         name: '', // missing species
-        species: undefined as any,
+        species: undefined as unknown as any,
         createdAt: new Date(),
-      } as any),
+      } as unknown as any),
     ).toThrow();
   });
 });
