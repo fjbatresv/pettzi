@@ -130,9 +130,7 @@ export class PetsApiStack extends Stack {
         target: 'node24',
         format: OutputFormat.CJS,
         platform: 'node',
-        externalModules: depsLayer
-          ? ['@peto/domain-model', '@peto/utils-dynamo']
-          : [],
+        externalModules: [],
         sourcesContent: false,
         keepNames: false,
         minify: true,
