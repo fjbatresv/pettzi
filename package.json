@@ -5,7 +5,8 @@
   "scripts": {
     "prepare": "husky install",
     "lint:affected": "nx affected --target=lint --parallel=3 --base=origin/main --head=HEAD",
-    "test:affected": "nx affected --target=test --parallel=1 --runInBand --base=origin/main --head=HEAD --skip-nx-cache"
+    "test:affected": "nx affected --target=test --parallel=1 --runInBand --base=origin/main --head=HEAD --skip-nx-cache",
+    "docs": "cd mintlify && npx mintlify dev"
   },
   "private": true,
   "engines": {
@@ -23,19 +24,20 @@
     "@swc/core": "^1.15.3",
     "@swc/helpers": "~0.5.11",
     "@swc/jest": "~0.2.38",
+    "@types/aws-lambda": "^8.10.138",
     "@types/jest": "^30.0.0",
     "@types/node": "20.19.9",
-    "@types/aws-lambda": "^8.10.138",
     "aws-cdk-lib": "^2.154.0",
     "constructs": "^10.3.0",
     "esbuild": "^0.27.1",
     "eslint": "^9.8.0",
     "eslint-config-prettier": "^10.0.0",
+    "husky": "^9.1.6",
     "jest": "^30.0.2",
     "jest-environment-node": "^30.0.2",
     "jest-util": "^30.0.2",
-    "husky": "^9.1.6",
     "jsonc-eslint-parser": "^2.1.0",
+    "mintlify": "^4.2.226",
     "nx": "22.0.0",
     "prettier": "^2.6.2",
     "ts-jest": "^29.4.0",

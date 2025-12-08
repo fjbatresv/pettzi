@@ -134,7 +134,8 @@ export class PetsApiStack extends Stack {
           ? ['@peto/domain-model', '@peto/utils-dynamo']
           : [],
         sourcesContent: false,
-        keepNames: true,
+        keepNames: false,
+        minify: true,
       },
       timeout: Duration.seconds(10),
       environment,

@@ -1,0 +1,23 @@
+{
+  "name": "PETO – API Docs",
+  "theme": "mint",
+  "logo": "/logo.png",
+  "colors": {
+    "primary": "#0f766e"
+  },
+  "navigation": {
+    "pages": ["docs/overview", "docs/auth", "docs/pets"]
+  },
+  "openapi": [
+    {
+      "id": "auth",
+      "name": "Auth API",
+      "path": "../libs/api-auth/openapi/auth.yml"
+    },
+    {
+      "id": "pets",
+      "name": "Pets API",
+      "path": "../libs/api-pets/openapi/pets.yml"
+    }
+  ]
+}
