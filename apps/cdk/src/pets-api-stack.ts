@@ -14,6 +14,8 @@ export interface PetsApiStackProps extends StackProps {
   depsLayer?: lambda.ILayerVersion;
   userPool: UserPool;
   userPoolClient: UserPoolClient;
+  s3Layer?: lambda.ILayerVersion;
+  ddbLayer?: lambda.ILayerVersion;
 }
 
 export class PetsApiStack extends Stack {
@@ -38,31 +40,31 @@ export class PetsApiStack extends Stack {
       'CreatePetHandler',
       handlerPath('libs/api-pets/src/handlers/create-pet.handler.ts'),
       commonEnv,
-      props.depsLayer,
+      [props.depsLayer, props.s3Layer, props.ddbLayer],
     );
     const listPetsFn = this.createFn(
       'ListPetsHandler',
       handlerPath('libs/api-pets/src/handlers/list-pets.handler.ts'),
       commonEnv,
-      props.depsLayer,
+      [props.depsLayer, props.s3Layer, props.ddbLayer],
     );
     const getPetFn = this.createFn(
       'GetPetHandler',
       handlerPath('libs/api-pets/src/handlers/get-pet.handler.ts'),
       commonEnv,
-      props.depsLayer,
+      [props.depsLayer, props.s3Layer, props.ddbLayer],
     );
     const updatePetFn = this.createFn(
       'UpdatePetHandler',
       handlerPath('libs/api-pets/src/handlers/update-pet.handler.ts'),
       commonEnv,
-      props.depsLayer,
+      [props.depsLayer, props.s3Layer, props.ddbLayer],
     );
     const archivePetFn = this.createFn(
       'ArchivePetHandler',
       handlerPath('libs/api-pets/src/handlers/archive-pet.handler.ts'),
       commonEnv,
-      props.depsLayer,
+      [props.depsLayer, props.s3Layer, props.ddbLayer],
     );
 
     props.table.grantReadWriteData(createPetFn);
@@ -118,9 +120,11 @@ export class PetsApiStack extends Stack {
     id: string,
     entry: string,
     environment: Record<string, string>,
-    depsLayer?: lambda.ILayerVersion,
+    layersInput: Array<lambda.ILayerVersion | undefined>,
   ): NodejsFunction {
-    const layers = depsLayer ? [depsLayer] : [];
+    const layers = layersInput.filter(
+      (l): l is lambda.ILayerVersion => Boolean(l)
+    );
 
     return new NodejsFunction(this, id, {
       runtime: lambda.Runtime.NODEJS_24_X,
@@ -130,7 +134,17 @@ export class PetsApiStack extends Stack {
         target: 'node24',
         format: OutputFormat.CJS,
         platform: 'node',
-        externalModules: [],
+        externalModules: layers.length
+          ? [
+              '@peto/domain-model',
+              '@peto/utils-dynamo',
+              '@peto/shared-utils',
+              '@aws-sdk/client-s3',
+              '@aws-sdk/s3-request-presigner',
+              '@aws-sdk/client-dynamodb',
+              '@aws-sdk/lib-dynamodb',
+            ]
+          : [],
         sourcesContent: false,
         keepNames: false,
         minify: true,
