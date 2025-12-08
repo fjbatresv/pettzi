@@ -1,0 +1,49 @@
+import { APIGatewayProxyEventV2 } from 'aws-lambda';
+import { handler } from './get-species.handler';
+
+describe('get-species.handler', () => {
+  const baseEvent: APIGatewayProxyEventV2 = {
+    version: '2.0',
+    routeKey: '',
+    rawPath: '',
+    rawQueryString: '',
+    headers: {},
+    requestContext: {
+      accountId: '',
+      apiId: '',
+      domainName: '',
+      domainPrefix: '',
+      http: {
+        method: 'GET',
+        path: '/catalogs/species',
+        protocol: 'HTTP/1.1',
+        sourceIp: '',
+        userAgent: '',
+      },
+      requestId: '',
+      routeKey: '',
+      stage: '$default',
+      time: '',
+      timeEpoch: 0,
+      authorizer: {
+        jwt: { claims: { sub: 'owner-1' }, scopes: [] },
+      },
+    },
+    isBase64Encoded: false,
+  };
+
+  it('returns species', async () => {
+    const res = await handler(baseEvent);
+    expect(res.statusCode).toBe(200);
+    const body = JSON.parse(res.body ?? '{}');
+    expect(body.species?.length).toBeGreaterThan(0);
+  });
+
+  it('requires auth', async () => {
+    const res = await handler({
+      ...baseEvent,
+      requestContext: { ...baseEvent.requestContext, authorizer: undefined },
+    });
+    expect(res.statusCode).toBe(401);
+  });
+});
