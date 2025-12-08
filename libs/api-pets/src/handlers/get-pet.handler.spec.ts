@@ -1,0 +1,50 @@
+import { handler } from './get-pet.handler';
+import { PetSpecies, toItemPet } from '@peto/domain-model';
+
+var sendMock: jest.Mock;
+
+jest.mock('@aws-sdk/lib-dynamodb', () => {
+  const mockSend = jest.fn();
+  sendMock = mockSend;
+  class Cmd {
+    constructor(public input: any) {}
+  }
+  return {
+    DynamoDBDocumentClient: { from: () => ({ send: mockSend }) },
+    GetCommand: Cmd,
+  };
+});
+
+describe('get-pet.handler', () => {
+  beforeEach(() => sendMock.mockReset());
+
+  it('returns pet when owner link exists', async () => {
+    sendMock
+      .mockResolvedValueOnce({ Item: { PK: 'PET#pet-1', SK: 'OWNER#owner-1' } })
+      .mockResolvedValueOnce({
+        Item: toItemPet({
+          petId: 'pet-1',
+          ownerId: 'owner-1',
+          name: 'Fido',
+          species: PetSpecies.DOG,
+          createdAt: new Date(),
+        }),
+      });
+
+    const res = await handler({
+      pathParameters: { petId: 'pet-1' },
+      requestContext: { authorizer: { jwt: { claims: { sub: 'owner-1' } } } },
+    } as any);
+
+    expect(res.statusCode).toBe(200);
+  });
+
+  it('unauthorized when not owner', async () => {
+    sendMock.mockResolvedValueOnce({ Item: undefined });
+    const res = await handler({
+      pathParameters: { petId: 'pet-1' },
+      requestContext: { authorizer: { jwt: { claims: { sub: 'owner-1' } } } },
+    } as any);
+    expect(res.statusCode).toBe(401);
+  });
+});

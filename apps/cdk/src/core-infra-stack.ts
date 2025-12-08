@@ -17,6 +17,8 @@ export class CoreInfraStack extends Stack {
     const stage = props.stage.toLowerCase().replaceAll(/[^a-z0-9-]/g, '-');
 
     Tags.of(this).add('project', 'peto');
+    Tags.of(this).add('AppManagerCFNStackKey', id);
+
 
     this.table = new dynamodb.Table(this, 'PetoTable', {
       tableName: `peto-table-${stage}`,

@@ -5,6 +5,7 @@ import { CoreInfraStack } from './core-infra-stack';
 import { LayersStack } from './layers-stack';
 import { AuthStack } from './auth-stack';
 import { AuthApiStack } from './auth-api-stack';
+import { PetsApiStack } from './pets-api-stack';
 
 dotenvConfig({
     path: '../../.env',
@@ -56,8 +57,17 @@ new AuthApiStack(app, 'PetoAuthApiStack', {
   description: `Peto auth API (${stage})`,
   userPool: auth.userPool,
   userPoolClient: auth.userPoolClient,
+  depsLayer: layers.cognitoDepsLayer,
+});
+
+new PetsApiStack(app, 'PetoPetsApiStack', {
+  env: { account, region },
+  stackName: 'PetoPetsApiStack',
+  description: `Peto pets API (${stage})`,
   table: core.table,
   depsLayer: layers.cognitoDepsLayer,
+  userPool: auth.userPool,
+  userPoolClient: auth.userPoolClient,
 });
 
 app.synth();
