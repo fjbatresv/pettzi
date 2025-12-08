@@ -6,6 +6,8 @@ import { LayersStack } from './layers-stack';
 import { AuthStack } from './auth-stack';
 import { AuthApiStack } from './auth-api-stack';
 import { PetsApiStack } from './pets-api-stack';
+import { EventsApiStack } from './events-api-stack';
+import { RemindersApiStack } from './reminders-api-stack';
 
 dotenvConfig({
     path: '../../.env',
@@ -68,6 +70,29 @@ new PetsApiStack(app, 'PetoPetsApiStack', {
   depsLayer: layers.cognitoDepsLayer,
   userPool: auth.userPool,
   userPoolClient: auth.userPoolClient,
+});
+
+new EventsApiStack(app, 'PetoEventsApiStack', {
+  env: { account, region },
+  stackName: 'PetoEventsApiStack',
+  description: `Peto events API (${stage})`,
+  table: core.table,
+  sharedLayer: layers.cognitoDepsLayer,
+  userPool: auth.userPool,
+  userPoolClient: auth.userPoolClient,
+  stage,
+});
+
+new RemindersApiStack(app, 'PetoRemindersApiStack', {
+  env: { account, region },
+  stackName: 'PetoRemindersApiStack',
+  description: `Peto reminders API (${stage})`,
+  table: core.table,
+  sharedLayer: layers.cognitoDepsLayer,
+  userPool: auth.userPool,
+  userPoolClient: auth.userPoolClient,
+  stage,
+  remindersEmailFrom: process.env.REMINDERS_EMAIL_FROM ?? 'no-reply@peto.dev',
 });
 
 app.synth();

@@ -51,6 +51,7 @@ export interface PetEvent {
   petId: PetId;
   eventType: EventType;
   eventDate: Date;
+  title?: string;
   notes?: string;
   metadata?: Record<string, unknown>;
   createdAt: Date;
