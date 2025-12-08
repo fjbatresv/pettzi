@@ -2,7 +2,11 @@
   "name": "Peto",
   "version": "0.0.1",
   "license": "PRIVATE",
-  "scripts": {},
+  "scripts": {
+    "prepare": "husky install",
+    "lint:affected": "nx affected --target=lint --parallel=3 --base=origin/main --head=HEAD",
+    "test:affected": "nx affected --target=test --parallel=1 --runInBand --base=origin/main --head=HEAD --skip-nx-cache"
+  },
   "private": true,
   "engines": {
     "node": ">=24"
@@ -30,6 +34,7 @@
     "jest": "^30.0.2",
     "jest-environment-node": "^30.0.2",
     "jest-util": "^30.0.2",
+    "husky": "^9.1.6",
     "jsonc-eslint-parser": "^2.1.0",
     "nx": "22.0.0",
     "prettier": "^2.6.2",
