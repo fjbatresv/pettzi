@@ -1,0 +1,134 @@
+{
+  "name": "cdk",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "targets": {
+      "build": {
+        "executor": "@nx/esbuild:esbuild",
+        "outputs": [
+          "{options.outputPath}"
+        ],
+        "defaultConfiguration": "production",
+        "options": {
+          "platform": "node",
+          "outputPath": "dist/apps/cdk",
+          "format": [
+            "cjs"
+          ],
+          "bundle": false,
+          "main": "apps/cdk/src/main.ts",
+          "tsConfig": "apps/cdk/tsconfig.app.json",
+          "assets": [
+            "apps/cdk/src/assets"
+          ],
+          "esbuildOptions": {
+            "sourcemap": true,
+            "outExtension": {
+              ".js": ".js"
+            }
+          }
+        },
+        "configurations": {
+          "development": {},
+          "production": {
+            "esbuildOptions": {
+              "sourcemap": false,
+              "outExtension": {
+                ".js": ".js"
+              }
+            }
+          }
+        }
+      },
+      "prune-lockfile": {
+        "dependsOn": [
+          "build"
+        ],
+        "cache": true,
+        "executor": "@nx/js:prune-lockfile",
+        "outputs": [
+          "{workspaceRoot}/dist/apps/cdk/package.json",
+          "{workspaceRoot}/dist/apps/cdk/package-lock.json"
+        ],
+        "options": {
+          "buildTarget": "build"
+        }
+      },
+      "copy-workspace-modules": {
+        "dependsOn": [
+          "build"
+        ],
+        "cache": true,
+        "outputs": [
+          "{workspaceRoot}/dist/apps/cdk/workspace_modules"
+        ],
+        "executor": "@nx/js:copy-workspace-modules",
+        "options": {
+          "buildTarget": "build"
+        }
+      },
+      "prune": {
+        "dependsOn": [
+          "prune-lockfile",
+          "copy-workspace-modules"
+        ],
+        "executor": "nx:noop"
+      },
+      "synth": {
+        "dependsOn": [
+          "build"
+        ],
+        "executor": "nx:run-commands",
+        "options": {
+          "cwd": "apps/cdk",
+          "command": "npx cdk synth -o ../../dist/cdk.out",
+          "forwardAllArgs": true
+        }
+      },
+      "deploy": {
+        "dependsOn": [
+          "build"
+        ],
+        "executor": "nx:run-commands",
+        "options": {
+          "cwd": "apps/cdk",
+          "command": "npx cdk deploy --require-approval never -o ../../dist/cdk.out",
+          "forwardAllArgs": true
+        }
+      },
+      "serve": {
+        "continuous": true,
+        "executor": "@nx/js:node",
+        "defaultConfiguration": "development",
+        "dependsOn": [
+          "build"
+        ],
+        "options": {
+          "buildTarget": "cdk:build",
+          "runBuildTargetDependencies": false
+        },
+        "configurations": {
+          "development": {
+            "buildTarget": "cdk:build:development"
+          },
+          "production": {
+            "buildTarget": "cdk:build:production"
+          }
+        }
+      },
+      "bootstrap": {
+        "executor": "nx:run-commands",
+        "options": {
+          "cwd": "apps/cdk",
+          "command": "npx aws-cdk bootstrap -o ../../dist/cdk.out",
+          "forwardAllArgs": true
+        }
+      }
+    }
+  },
+  "devDependencies": {
+    "aws-cdk": "^2.1033.0",
+    "dotenv": "^16.4.7"
+  }
+}
