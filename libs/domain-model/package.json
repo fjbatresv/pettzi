@@ -28,6 +28,6 @@
   },
   "dependencies": {
     "tslib": "^2.3.0",
-    "@peto/utils-dynamo": "workspace:*"
+    "@peto/utils-dynamo": "file:../utils-dynamo"
   }
 }

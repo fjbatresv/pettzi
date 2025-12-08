@@ -6,7 +6,7 @@ import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction, OutputFormat } from 'aws-cdk-lib/aws-lambda-nodejs';
-import { UserPool } from 'aws-cdk-lib/aws-cognito';
+import { UserPool, UserPoolClient } from 'aws-cdk-lib/aws-cognito';
 import { Construct } from 'constructs';
 import * as path from 'path';
 
@@ -14,6 +14,7 @@ export interface UploadsApiStackProps extends StackProps {
   table: dynamodb.Table;
   docsBucket: s3.Bucket;
   userPool: UserPool;
+  userPoolClient: UserPoolClient;
   sharedLayer?: lambda.ILayerVersion;
   s3Layer?: lambda.ILayerVersion;
   ddbLayer?: lambda.ILayerVersion;
@@ -81,13 +82,10 @@ export class UploadsApiStack extends Stack {
     props.docsBucket.grantReadWrite(downloadUrlFn);
     props.docsBucket.grantReadWrite(deleteFileFn);
 
-    const authorizer = new HttpUserPoolAuthorizer(
-      'UploadsJwtAuthorizer',
-      props.userPool,
-      {
-        identitySource: ['$request.header.Authorization'],
-      },
-    );
+    const authorizer = new HttpUserPoolAuthorizer('UploadsJwtAuthorizer', props.userPool, {
+      identitySource: ['$request.header.Authorization'],
+      userPoolClients: [props.userPoolClient],
+    });
 
     this.httpApi = new apigwv2.HttpApi(this, 'UploadsHttpApi', {
       apiName: `PetoUploadsApi-${props.stage}`,

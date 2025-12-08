@@ -9,6 +9,7 @@ import { PetsApiStack } from './pets-api-stack';
 import { EventsApiStack } from './events-api-stack';
 import { RemindersApiStack } from './reminders-api-stack';
 import { UploadsApiStack } from './uploads-api-stack';
+import { OwnersApiStack } from './owners-api-stack';
 
 dotenvConfig({
     path: '../../.env',
@@ -105,8 +106,21 @@ new UploadsApiStack(app, 'PetoUploadsApiStack', {
   table: core.table,
   docsBucket: core.docsBucket,
   userPool: auth.userPool,
+  userPoolClient: auth.userPoolClient,
   sharedLayer: layers.cognitoDepsLayer,
   s3Layer: layers.s3DepsLayer,
+  ddbLayer: layers.ddbDepsLayer,
+  stage,
+});
+
+new OwnersApiStack(app, 'PetoOwnersApiStack', {
+  env: { account, region },
+  stackName: 'PetoOwnersApiStack',
+  description: `Peto owners API (${stage})`,
+  table: core.table,
+  userPool: auth.userPool,
+  userPoolClient: auth.userPoolClient,
+  sharedLayer: layers.cognitoDepsLayer,
   ddbLayer: layers.ddbDepsLayer,
   stage,
 });
