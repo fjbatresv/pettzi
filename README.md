@@ -310,6 +310,8 @@ El archivo ```ARCHITECTURE.md``` incluirá:
 - Pages live under `mintlify/docs/*.mdx` with OpenAPI specs in `libs/api-*/openapi/*.yml`.
 
 ## Current backend stacks
+- PetoApplicationStack (AppRegistry app/metadata)
+- PetoAppRegistryAssociationsStack (associates stacks to AppRegistry)
 - CoreInfraStack (DynamoDB PetoTable, docs bucket)
 - AuthStack (Cognito user pool + client)
 - LayersStack (SDK layers: cognito, s3, ses, ddb)

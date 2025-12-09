@@ -13,6 +13,8 @@ import { OwnersApiStack } from './owners-api-stack';
 import { CatalogsApiStack } from './catalogs-api-stack';
 import { ApiDomainStack } from './api-domain-stack';
 import { SesTemplatesStack } from './ses-templates-stack';
+import { PetoApplicationStack } from './application-stack';
+import { AppRegistryAssociationsStack } from './app-registry-associations-stack';
 
 dotenvConfig({
     path: '../../.env',
@@ -26,6 +28,7 @@ const apiDomainName = process.env.API_DOMAIN_NAME;
 const apiHostedZoneName = process.env.API_HOSTED_ZONE_NAME;
 const apiHostedZoneId = process.env.API_HOSTED_ZONE_ID;
 const sesFromEmail = process.env.SES_FROM_EMAIL ?? 'no-reply@peto.app';
+const appRegistryApplicationName = process.env.APPREG_APPLICATION_NAME ?? 'PetoPlatform';
 
 // Ensure SDK picks the intended profile when not provided via CLI.
 process.env.AWS_PROFILE = profile;
@@ -42,7 +45,17 @@ console.log('CDK using AWS region:', region || '(default)');
 
 const app = new App();
 
-new SesTemplatesStack(app, 'PetoSesTemplatesStack', {
+const appRegistry = new PetoApplicationStack(app, 'PetoApplicationStack', {
+  env: { account, region },
+  stackName: 'PetoApplicationStack',
+  description: `Peto application metadata (${stage})`,
+  applicationName: appRegistryApplicationName,
+  applicationDescription: `PETO platform (${stage})`,
+});
+
+const resolvedAppArn = appRegistry.applicationArn;
+
+const sesTemplates = new SesTemplatesStack(app, 'PetoSesTemplatesStack', {
   env: { account, region },
   stackName: 'PetoSesTemplatesStack',
   description: `Peto SES templates (${stage})`,
@@ -154,8 +167,8 @@ const catalogsApi = new CatalogsApiStack(app, 'PetoCatalogsApiStack', {
   stage,
 });
 
-if (apiDomainName && apiHostedZoneName) {
-  new ApiDomainStack(app, 'PetoApiDomainStack', {
+const apiDomain = apiDomainName && apiHostedZoneName
+  ? new ApiDomainStack(app, 'PetoApiDomainStack', {
     env: { account, region },
     stackName: 'PetoApiDomainStack',
     description: `Peto API custom domain (${stage})`,
@@ -169,7 +182,29 @@ if (apiDomainName && apiHostedZoneName) {
     remindersApi: remindersApi.httpApi,
     uploadsApi: uploadsApi.httpApi,
     catalogsApi: catalogsApi.httpApi,
-  });
-}
+  })
+  : undefined;
+
+new AppRegistryAssociationsStack(app, 'PetoAppRegistryAssociationsStack', {
+  env: { account, region },
+  stackName: 'PetoAppRegistryAssociationsStack',
+  description: `Peto AppRegistry associations (${stage})`,
+  applicationArn: resolvedAppArn,
+  applicationName: appRegistryApplicationName,
+  stacks: [
+    core,
+    auth,
+    layers,
+    authApi,
+    petsApi,
+    eventsApi,
+    remindersApi,
+    uploadsApi,
+    ownersApi,
+    catalogsApi,
+    sesTemplates,
+    ...(apiDomain ? [apiDomain] : []),
+  ],
+}).addDependency(appRegistry);
 
 app.synth();

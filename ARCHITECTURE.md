@@ -434,3 +434,7 @@ Los stacks de CDK se organizan de forma modular:
 - ApiDomainStack: custom domain + API mappings + Route53 alias.
 
 For deeper docs see Mintlify under `mintlify/docs`.
+
+## AppRegistry
+- `PetoApplicationStack` define la aplicación y atributos en Service Catalog AppRegistry.
+- `PetoAppRegistryAssociationsStack` asocia todos los stacks (core, auth, layers, APIs, SES, dominio) a la aplicación para observabilidad y trazabilidad.
