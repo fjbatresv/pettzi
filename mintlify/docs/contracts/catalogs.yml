@@ -1,0 +1,132 @@
+openapi: 3.0.3
+info:
+  title: PETO Catalogs API
+  version: "1.0.0"
+security:
+  - bearerAuth: []
+paths:
+  /species:
+    get:
+      summary: List species
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Species list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpeciesListResponse'
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+  /breeds:
+    get:
+      summary: List breeds
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: species
+          required: false
+          schema: { type: string }
+      responses:
+        '200':
+          description: Breeds list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BreedsListResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+  /vaccines:
+    get:
+      summary: List vaccines
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: species
+          required: false
+          schema: { type: string }
+      responses:
+        '200':
+          description: Vaccines list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VaccinesListResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    SpeciesItem:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+    BreedItem:
+      type: object
+      properties:
+        id: { type: string }
+        speciesId: { type: string }
+        name: { type: string }
+    VaccineItem:
+      type: object
+      properties:
+        id: { type: string }
+        speciesId: { type: string }
+        name: { type: string }
+        description: { type: string }
+    SpeciesListResponse:
+      type: object
+      properties:
+        species:
+          type: array
+          items:
+            $ref: '#/components/schemas/SpeciesItem'
+    BreedsListResponse:
+      type: object
+      properties:
+        breeds:
+          type: array
+          items:
+            $ref: '#/components/schemas/BreedItem'
+    VaccinesListResponse:
+      type: object
+      properties:
+        vaccines:
+          type: array
+          items:
+            $ref: '#/components/schemas/VaccineItem'
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code: { type: string }
+            message: { type: string }
+            details:
+              type: object
+              additionalProperties: true
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    ServerError:
+      description: Internal error
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }

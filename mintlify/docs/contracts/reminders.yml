@@ -1,0 +1,163 @@
+openapi: 3.0.3
+info:
+  title: PETO Reminders API
+  version: "1.0.0"
+  description: Endpoints for listing and processing pet reminders.
+servers:
+  - url: https://api.peto.example.com
+paths:
+  /:
+    get:
+      summary: List reminders for the authenticated owner
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: fromDate
+          schema:
+            type: string
+            format: date
+          required: false
+        - in: query
+          name: toDate
+          schema:
+            type: string
+            format: date
+          required: false
+      responses:
+        "200":
+          description: Reminders returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reminders:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PetReminder'
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "500":
+          $ref: '#/components/responses/ServerError'
+  /pets/{petId}:
+    get:
+      summary: List reminders for a pet
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: petId
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: fromDate
+          schema:
+            type: string
+            format: date
+          required: false
+        - in: query
+          name: toDate
+          schema:
+            type: string
+            format: date
+          required: false
+      responses:
+        "200":
+          description: Reminders returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reminders:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PetReminder'
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "500":
+          $ref: '#/components/responses/ServerError'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    PetReminder:
+      type: object
+      properties:
+        reminderId:
+          type: string
+        petId:
+          type: string
+        eventId:
+          type: string
+          nullable: true
+        dueDate:
+          type: string
+          format: date-time
+        message:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - reminderId
+        - petId
+        - dueDate
+        - createdAt
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              type: object
+              additionalProperties: true
+  responses:
+    BadRequest:
+      description: Invalid input
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    ServerError:
+      description: Internal error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+security:
+  - bearerAuth: []

@@ -1,0 +1,197 @@
+openapi: 3.0.3
+info:
+  title: PETO Uploads API
+  version: "1.0.0"
+security:
+  - bearerAuth: []
+paths:
+  /pets/{petId}/photo:
+    post:
+      summary: Generate presigned upload URL for a pet photo
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: petId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateUploadUrlRequest'
+      responses:
+        '201':
+          description: Upload URL generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenerateUploadUrlResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+  /pets/{petId}/document:
+    post:
+      summary: Generate presigned upload URL for a pet document
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: petId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateUploadUrlRequest'
+      responses:
+        '201':
+          description: Upload URL generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenerateUploadUrlResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+  /pets/{petId}:
+    get:
+      summary: List files for a pet
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: petId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Files listed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListFilesResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+  /pets/{petId}/{fileKey}/download-url:
+    get:
+      summary: Generate download URL for a file
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: petId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: fileKey
+          required: true
+          schema: { type: string }
+          description: URL-encoded S3 key
+      responses:
+        '200':
+          description: Download URL generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenerateDownloadUrlResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+  /pets/{petId}/{fileKey}:
+    delete:
+      summary: Delete a file
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: petId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: fileKey
+          required: true
+          schema: { type: string }
+          description: URL-encoded S3 key
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    GenerateUploadUrlRequest:
+      type: object
+      properties:
+        contentType:
+          type: string
+    GenerateUploadUrlResponse:
+      type: object
+      properties:
+        uploadUrl: { type: string }
+        fileKey: { type: string }
+        expiresAt: { type: string, format: date-time }
+        contentType: { type: string }
+      required: [uploadUrl, fileKey, expiresAt, contentType]
+    FileInfo:
+      type: object
+      properties:
+        key: { type: string }
+        size: { type: integer, format: int64 }
+        lastModified: { type: string, format: date-time }
+        type:
+          type: string
+          enum: [PHOTO, DOCUMENT]
+    ListFilesResponse:
+      type: object
+      properties:
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/FileInfo'
+    GenerateDownloadUrlResponse:
+      type: object
+      properties:
+        downloadUrl: { type: string }
+        expiresAt: { type: string, format: date-time }
+      required: [downloadUrl, expiresAt]
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code: { type: string }
+            message: { type: string }
+            details:
+              type: object
+              additionalProperties: true
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    ServerError:
+      description: Internal error
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }

@@ -6,7 +6,10 @@
     "primary": "#0f766e"
   },
   "navigation": {
-    "groups": [
+    "tabs":[
+      {
+        "tab": "Home",
+        "groups": [
       {
         "group": "Getting Started",
         "pages": [
@@ -53,42 +56,65 @@
         ]
       }
     ]
+      },
+    {
+      "tab": "Auth API",
+      "openapi": "docs/contracts/auth.json"
+    },
+    {
+      "tab": "Pets API",
+      "openapi": "docs/contracts/pets.yml"
+    },
+    {
+      "tab": "Owners API",
+      "openapi": "docs/contracts/owners.yml"
+    },
+    {
+      "tab": "Events API",
+      "openapi": "docs/contracts/events.yml"
+    },
+    {
+      "tab": "Reminders API",
+      "openapi": "docs/contracts/reminders.yml"
+    },
+    {
+      "tab": "Uploads API",
+      "openapi": "docs/contracts/uploads.yml"
+    },
+    {
+      "tab": "Catalogs API",
+      "openapi": "docs/contracts/catalogs.yml"
+    }
+    ]
   },
   "openapi": [
     {
-      "id": "auth",
       "name": "Auth API",
-      "path": "../libs/api-auth/openapi/auth.yml"
+      "path": "docs/contracts/auth.json"
     },
     {
-      "id": "pets",
       "name": "Pets API",
-      "path": "../libs/api-pets/openapi/pets.yml"
+      "path": "docs/contracts/pets.yml"
     },
     {
-      "id": "owners",
       "name": "Owners API",
-      "path": "../libs/api-owners/openapi/owners.yml"
+      "path": "docs/contracts/owners.yml"
     },
     {
-      "id": "events",
       "name": "Events API",
-      "path": "../libs/api-events/openapi/events.yml"
+      "path": "docs/contracts/events.yml"
     },
     {
-      "id": "reminders",
       "name": "Reminders API",
-      "path": "../libs/api-reminders/openapi/reminders.yml"
+      "path": "docs/contracts/reminders.yml"
     },
     {
-      "id": "uploads",
       "name": "Uploads API",
-      "path": "../libs/api-uploads/openapi/uploads.yml"
+      "path": "docs/contracts/uploads.yml"
     },
     {
-      "id": "catalogs",
       "name": "Catalogs API",
-      "path": "../libs/api-catalogs/openapi/catalogs.yml"
+      "path": "docs/contracts/catalogs.yml"
     }
   ]
 }
