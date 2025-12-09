@@ -20,6 +20,7 @@ export interface RemindersApiStackProps extends StackProps {
   ddbLayer?: lambda.ILayerVersion;
   stage?: string;
   remindersEmailFrom: string;
+  reminderTemplateName?: string;
 }
 
 export class RemindersApiStack extends Stack {
@@ -39,6 +40,9 @@ export class RemindersApiStack extends Stack {
       PETO_TABLE_NAME: props.table.tableName,
       STAGE: stage,
       REMINDERS_EMAIL_FROM: props.remindersEmailFrom,
+      ...(props.reminderTemplateName
+        ? { SES_REMINDER_TEMPLATE_NAME: props.reminderTemplateName }
+        : {}),
     };
 
     const listRemindersFn = this.createFn(
@@ -66,7 +70,7 @@ export class RemindersApiStack extends Stack {
 
     processDueFn.addToRolePolicy(
       new iam.PolicyStatement({
-        actions: ['ses:SendEmail', 'ses:SendRawEmail'],
+        actions: ['ses:SendEmail', 'ses:SendRawEmail', 'ses:SendTemplatedEmail'],
         resources: ['*'],
       })
     );
@@ -88,12 +92,12 @@ export class RemindersApiStack extends Stack {
     });
 
     this.httpApi.addRoutes({
-      path: '/reminders',
+      path: '/',
       methods: [apigwv2.HttpMethod.GET],
       integration: new HttpLambdaIntegration('ListRemindersIntegration', listRemindersFn),
     });
     this.httpApi.addRoutes({
-      path: '/reminders/pets/{petId}',
+      path: '/pets/{petId}',
       methods: [apigwv2.HttpMethod.GET],
       integration: new HttpLambdaIntegration('ListPetRemindersIntegration', listPetRemindersFn),
     });

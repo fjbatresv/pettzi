@@ -5,7 +5,7 @@ info:
 security:
   - bearerAuth: []
 paths:
-  /events/pets/{petId}:
+  /pets/{petId}:
     post:
       summary: Create event
       security: [{ bearerAuth: [] }]
@@ -52,7 +52,7 @@ paths:
                       $ref: '#/components/schemas/PetEvent'
         '401': { $ref: '#/components/responses/Unauthorized' }
         '500': { $ref: '#/components/responses/ServerError' }
-  /events/pets/{petId}/{eventId}:
+  /pets/{petId}/{eventId}:
     get:
       summary: Get event
       security: [{ bearerAuth: [] }]

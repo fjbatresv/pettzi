@@ -86,6 +86,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
       Put: {
         TableName: PETO_TABLE_NAME,
         Item: toItemPetReminder(reminder),
+        ConditionExpression: 'attribute_not_exists(PK)',
       },
     });
   }

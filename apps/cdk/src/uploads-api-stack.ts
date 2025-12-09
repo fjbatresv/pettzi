@@ -95,27 +95,27 @@ export class UploadsApiStack extends Stack {
     });
 
     this.httpApi.addRoutes({
-      path: '/uploads/pets/{petId}/photo',
+      path: '/pets/{petId}/photo',
       methods: [apigwv2.HttpMethod.POST],
       integration: new HttpLambdaIntegration('PhotoUploadIntegration', photoUploadFn),
     });
     this.httpApi.addRoutes({
-      path: '/uploads/pets/{petId}/document',
+      path: '/pets/{petId}/document',
       methods: [apigwv2.HttpMethod.POST],
       integration: new HttpLambdaIntegration('DocumentUploadIntegration', docUploadFn),
     });
     this.httpApi.addRoutes({
-      path: '/uploads/pets/{petId}',
+      path: '/pets/{petId}',
       methods: [apigwv2.HttpMethod.GET],
       integration: new HttpLambdaIntegration('ListFilesIntegration', listFilesFn),
     });
     this.httpApi.addRoutes({
-      path: '/uploads/pets/{petId}/{fileKey}/download-url',
+      path: '/pets/{petId}/{fileKey}/download-url',
       methods: [apigwv2.HttpMethod.GET],
       integration: new HttpLambdaIntegration('DownloadUrlIntegration', downloadUrlFn),
     });
     this.httpApi.addRoutes({
-      path: '/uploads/pets/{petId}/{fileKey}',
+      path: '/pets/{petId}/{fileKey}',
       methods: [apigwv2.HttpMethod.DELETE],
       integration: new HttpLambdaIntegration('DeleteFileIntegration', deleteFileFn),
     });

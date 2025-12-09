@@ -6,7 +6,7 @@ info:
 security:
   - bearerAuth: []
 paths:
-  /pets:
+  /:
     post:
       summary: Create pet
       security:
@@ -50,7 +50,7 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/ServerError'
-  /pets/{petId}:
+  /{petId}:
     get:
       summary: Get pet by id
       security:

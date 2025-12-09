@@ -1,6 +1,6 @@
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
 import { GetCommand } from '@aws-sdk/lib-dynamodb';
-import { ok, notFound, unauthorized, serverError } from '@peto/utils-dynamo/http';
+import { ok, notFound, serverError } from '@peto/utils-dynamo/http';
 import {
   buildOwnerProfilePk,
   buildOwnerProfileSk,

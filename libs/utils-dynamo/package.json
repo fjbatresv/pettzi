@@ -11,6 +11,16 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "default": "./dist/index.js"
+    },
+    "./http": {
+      "types": "./dist/http.d.ts",
+      "import": "./dist/http.js",
+      "default": "./dist/http.js"
+    },
+    "./key": {
+      "types": "./dist/key.d.ts",
+      "import": "./dist/key.js",
+      "default": "./dist/key.js"
     }
   },
   "nx": {

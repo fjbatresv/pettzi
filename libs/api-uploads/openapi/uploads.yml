@@ -5,7 +5,7 @@ info:
 security:
   - bearerAuth: []
 paths:
-  /uploads/pets/{petId}/photo:
+  /pets/{petId}/photo:
     post:
       summary: Generate presigned upload URL for a pet photo
       security: [{ bearerAuth: [] }]
@@ -30,7 +30,7 @@ paths:
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '500': { $ref: '#/components/responses/ServerError' }
-  /uploads/pets/{petId}/document:
+  /pets/{petId}/document:
     post:
       summary: Generate presigned upload URL for a pet document
       security: [{ bearerAuth: [] }]
@@ -55,7 +55,7 @@ paths:
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '500': { $ref: '#/components/responses/ServerError' }
-  /uploads/pets/{petId}:
+  /pets/{petId}:
     get:
       summary: List files for a pet
       security: [{ bearerAuth: [] }]
@@ -74,7 +74,7 @@ paths:
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '500': { $ref: '#/components/responses/ServerError' }
-  /uploads/pets/{petId}/{fileKey}/download-url:
+  /pets/{petId}/{fileKey}/download-url:
     get:
       summary: Generate download URL for a file
       security: [{ bearerAuth: [] }]
@@ -98,7 +98,7 @@ paths:
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '500': { $ref: '#/components/responses/ServerError' }
-  /uploads/pets/{petId}/{fileKey}:
+  /pets/{petId}/{fileKey}:
     delete:
       summary: Delete a file
       security: [{ bearerAuth: [] }]

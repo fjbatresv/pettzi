@@ -4,6 +4,10 @@ import {
   SignUpCommand,
 } from '@aws-sdk/client-cognito-identity-provider';
 import {
+  SESClient,
+  SendTemplatedEmailCommand,
+} from '@aws-sdk/client-ses';
+import {
   badRequest,
   conflict,
   created,
@@ -16,6 +20,7 @@ interface RegisterPayload {
 }
 
 const cognito = new CognitoIdentityProviderClient({});
+const ses = new SESClient({});
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   if (!event.body) {
@@ -43,6 +48,21 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         UserAttributes: [{ Name: 'email', Value: email }],
       })
     );
+
+    if (process.env.SES_FROM_EMAIL && process.env.SES_WELCOME_TEMPLATE_NAME) {
+      try {
+        await ses.send(
+          new SendTemplatedEmailCommand({
+            Source: process.env.SES_FROM_EMAIL,
+            Destination: { ToAddresses: [email] },
+            Template: process.env.SES_WELCOME_TEMPLATE_NAME,
+            TemplateData: JSON.stringify({ userName: email }),
+          })
+        );
+      } catch (sesErr) {
+        console.error('Failed to send welcome email', sesErr);
+      }
+    }
 
     return created({ message: 'User registered. Please confirm your email.' });
   } catch (error: any) {
