@@ -15,18 +15,22 @@ npx nx run cdk:build:production
 ```
 
 ## Deploy stacks (typical order)
-1. `PetoLayersStack`
-2. `PetoCoreInfraStack`
-3. `PetoAuthStack`
-4. API stacks: `PetoAuthApiStack`, `PetoPetsApiStack`, `PetoOwnersApiStack`, `PetoEventsApiStack`, `PetoRemindersApiStack`, `PetoUploadsApiStack`, `PetoCatalogsApiStack`
-5. `PetoSesTemplatesStack`
-6. `PetoApiDomainStack`
+1. `PetoApplicationStack` (AppRegistry app)
+2. `PetoLayersStack`
+3. `PetoCoreInfraStack`
+4. `PetoAuthStack`
+5. API stacks: `PetoAuthApiStack`, `PetoPetsApiStack`, `PetoOwnersApiStack`, `PetoEventsApiStack`, `PetoRemindersApiStack`, `PetoUploadsApiStack`, `PetoCatalogsApiStack`
+6. `PetoSesTemplatesStack`
+7. `PetoApiDomainStack`
+8. `PetoAppRegistryAssociationsStack` (associations to AppRegistry)
 
 Command example:
 ```bash
-npx nx run cdk:deploy -- PetoCoreInfraStack PetoAuthStack
+npx nx run cdk:deploy -- PetoApplicationStack
+npx nx run cdk:deploy -- PetoLayersStack PetoCoreInfraStack PetoAuthStack
 npx nx run cdk:deploy -- PetoPetsApiStack PetoOwnersApiStack
 npx nx run cdk:deploy -- PetoApiDomainStack
+npx nx run cdk:deploy -- PetoAppRegistryAssociationsStack
 ```
 
 ## Env vars per stack (high level)
