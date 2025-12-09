@@ -19,7 +19,9 @@
         "pages": [
           "docs/architecture-overview",
           "docs/data-model",
-          "docs/bounded-contexts"
+          "docs/bounded-contexts",
+          "docs/architecture-diagram",
+          "docs/architecture-c4"
         ]
       },
       {
