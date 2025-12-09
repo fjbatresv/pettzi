@@ -1,16 +1,11 @@
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
 import { QueryCommand } from '@aws-sdk/lib-dynamodb';
-import {
-  ok,
-  badRequest,
-  serverError,
-} from '@peto/utils-dynamo/http';
+import { ok, serverError } from '@peto/utils-dynamo/http';
 import {
   buildPetReminderPk,
   fromItemPetReminder,
 } from '@peto/domain-model';
 import {
-  assertOwnership,
   docClient,
   getOwnerId,
   listPetIdsForOwner,

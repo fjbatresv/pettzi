@@ -14,7 +14,6 @@ const ses = new SESClient({});
 export const handler: Handler = async () => {
   const today = new Date().toISOString().slice(0, 10);
   const fromAddress = process.env.REMINDERS_EMAIL_FROM;
-
   try {
     const res = await docClient.send(
       new QueryCommand({
@@ -32,6 +31,8 @@ export const handler: Handler = async () => {
     for (const reminder of reminders) {
       try {
         if (fromAddress) {
+          const eventType = (reminder as any).eventType ?? 'Reminder';
+          const notes = (reminder as any).notes ?? '';
           await ses.send(
             new SendEmailCommand({
               Source: fromAddress,
@@ -40,7 +41,11 @@ export const handler: Handler = async () => {
                 Subject: { Data: `PETO reminder for ${reminder.petId}` },
                 Body: {
                   Text: {
-                    Data: `Reminder for pet ${reminder.petId} due on ${reminder.dueDate.toISOString()}`,
+                    Data: `Reminder (${eventType}) for pet ${reminder.petId} due on ${
+                      typeof reminder.dueDate === 'string'
+                        ? reminder.dueDate
+                        : reminder.dueDate?.toISOString()
+                    }. ${notes}`,
                   },
                 },
               },

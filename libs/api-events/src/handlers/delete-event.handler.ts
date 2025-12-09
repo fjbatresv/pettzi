@@ -5,7 +5,6 @@ import {
   buildPetEventPk,
   buildPetEventSk,
   buildPetReminderPk,
-  fromItemPetEvent,
 } from '@peto/domain-model';
 import { assertOwnership, docClient, getOwnerId, PETO_TABLE_NAME } from './common';
 

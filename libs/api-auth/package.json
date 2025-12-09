@@ -30,6 +30,7 @@
     "tslib": "^2.3.0",
     "@aws-sdk/client-cognito-identity-provider": "^3.694.0",
     "@types/aws-lambda": "^8.10.138",
-    "@peto/utils-dynamo": "file:../utils-dynamo"
+    "@peto/utils-dynamo": "file:../utils-dynamo",
+    "@aws-sdk/client-ses": "^3.694.0"
   }
 }

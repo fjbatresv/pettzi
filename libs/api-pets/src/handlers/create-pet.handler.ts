@@ -4,7 +4,7 @@ import {
   DynamoDBDocumentClient,
   TransactWriteCommand,
 } from '@aws-sdk/lib-dynamodb';
-import { ok, created, badRequest, serverError } from '@peto/utils-dynamo/http';
+import { created, badRequest, serverError } from '@peto/utils-dynamo/http';
 import {
   Pet,
   PetOwner,

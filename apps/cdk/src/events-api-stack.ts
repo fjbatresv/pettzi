@@ -88,29 +88,28 @@ export class EventsApiStack extends Stack {
       createDefaultStage: true,
     });
 
-    // Prefix with /events to avoid collisions with pets API when sharing a custom domain.
     this.httpApi.addRoutes({
-      path: '/events/pets/{petId}',
+      path: '/pets/{petId}',
       methods: [apigwv2.HttpMethod.POST],
       integration: new HttpLambdaIntegration('CreateEventIntegration', createEventFn),
     });
     this.httpApi.addRoutes({
-      path: '/events/pets/{petId}',
+      path: '/pets/{petId}',
       methods: [apigwv2.HttpMethod.GET],
       integration: new HttpLambdaIntegration('ListEventsIntegration', listEventsFn),
     });
     this.httpApi.addRoutes({
-      path: '/events/pets/{petId}/{eventId}',
+      path: '/pets/{petId}/{eventId}',
       methods: [apigwv2.HttpMethod.GET],
       integration: new HttpLambdaIntegration('GetEventIntegration', getEventFn),
     });
     this.httpApi.addRoutes({
-      path: '/events/pets/{petId}/{eventId}',
+      path: '/pets/{petId}/{eventId}',
       methods: [apigwv2.HttpMethod.PATCH],
       integration: new HttpLambdaIntegration('UpdateEventIntegration', updateEventFn),
     });
     this.httpApi.addRoutes({
-      path: '/events/pets/{petId}/{eventId}',
+      path: '/pets/{petId}/{eventId}',
       methods: [apigwv2.HttpMethod.DELETE],
       integration: new HttpLambdaIntegration('DeleteEventIntegration', deleteEventFn),
     });

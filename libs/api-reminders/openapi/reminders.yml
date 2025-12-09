@@ -6,7 +6,7 @@ info:
 servers:
   - url: https://api.peto.example.com
 paths:
-  /reminders:
+  /:
     get:
       summary: List reminders for the authenticated owner
       security:
@@ -42,7 +42,7 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         "500":
           $ref: '#/components/responses/ServerError'
-  /reminders/pets/{petId}:
+  /pets/{petId}:
     get:
       summary: List reminders for a pet
       security:

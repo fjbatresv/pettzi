@@ -3,7 +3,6 @@ import { GetCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { ok, badRequest, notFound, serverError } from '@peto/utils-dynamo/http';
 import {
   buildPetEventPk,
-  buildPetEventSk,
   fromItemPetEvent,
 } from '@peto/domain-model';
 import { assertOwnership, docClient, getOwnerId, PETO_TABLE_NAME } from './common';

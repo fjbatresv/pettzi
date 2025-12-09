@@ -11,6 +11,8 @@ import { RemindersApiStack } from './reminders-api-stack';
 import { UploadsApiStack } from './uploads-api-stack';
 import { OwnersApiStack } from './owners-api-stack';
 import { CatalogsApiStack } from './catalogs-api-stack';
+import { ApiDomainStack } from './api-domain-stack';
+import { SesTemplatesStack } from './ses-templates-stack';
 
 dotenvConfig({
     path: '../../.env',
@@ -20,6 +22,10 @@ const stage = process.env.STAGE ?? process.env.CDK_STAGE ?? 'dev';
 const profile = process.env.CDK_PROFILE ?? process.env.AWS_PROFILE ?? 'default';
 const account = process.env.CDK_DEFAULT_ACCOUNT;
 const region = process.env.CDK_DEFAULT_REGION ?? process.env.AWS_REGION ?? 'us-east-1';
+const apiDomainName = process.env.API_DOMAIN_NAME;
+const apiHostedZoneName = process.env.API_HOSTED_ZONE_NAME;
+const apiHostedZoneId = process.env.API_HOSTED_ZONE_ID;
+const sesFromEmail = process.env.SES_FROM_EMAIL ?? 'no-reply@peto.app';
 
 // Ensure SDK picks the intended profile when not provided via CLI.
 process.env.AWS_PROFILE = profile;
@@ -35,6 +41,13 @@ console.log('CDK using AWS profile:', profile || '(not set)');
 console.log('CDK using AWS region:', region || '(default)');
 
 const app = new App();
+
+new SesTemplatesStack(app, 'PetoSesTemplatesStack', {
+  env: { account, region },
+  stackName: 'PetoSesTemplatesStack',
+  description: `Peto SES templates (${stage})`,
+  fromEmail: sesFromEmail,
+});
 
 const layers = new LayersStack(app, 'PetoLayersStack', {
   env: { account, region },
@@ -56,16 +69,20 @@ const auth = new AuthStack(app, 'PetoAuthStack', {
   description: `Peto auth (${stage})`,
 });
 
-new AuthApiStack(app, 'PetoAuthApiStack', {
+const authApi = new AuthApiStack(app, 'PetoAuthApiStack', {
   env: { account, region },
   stackName: 'PetoAuthApiStack',
   description: `Peto auth API (${stage})`,
   userPool: auth.userPool,
   userPoolClient: auth.userPoolClient,
   depsLayer: layers.cognitoDepsLayer,
+  sesLayer: layers.sesDepsLayer,
+  sesFromEmail,
+  welcomeTemplateName: SesTemplatesStack.WELCOME_TEMPLATE,
+  resetTemplateName: SesTemplatesStack.RESET_TEMPLATE,
 });
 
-new PetsApiStack(app, 'PetoPetsApiStack', {
+const petsApi = new PetsApiStack(app, 'PetoPetsApiStack', {
   env: { account, region },
   stackName: 'PetoPetsApiStack',
   description: `Peto pets API (${stage})`,
@@ -75,7 +92,7 @@ new PetsApiStack(app, 'PetoPetsApiStack', {
   userPoolClient: auth.userPoolClient,
 });
 
-new EventsApiStack(app, 'PetoEventsApiStack', {
+const eventsApi = new EventsApiStack(app, 'PetoEventsApiStack', {
   env: { account, region },
   stackName: 'PetoEventsApiStack',
   description: `Peto events API (${stage})`,
@@ -86,7 +103,7 @@ new EventsApiStack(app, 'PetoEventsApiStack', {
   stage,
 });
 
-new RemindersApiStack(app, 'PetoRemindersApiStack', {
+const remindersApi = new RemindersApiStack(app, 'PetoRemindersApiStack', {
   env: { account, region },
   stackName: 'PetoRemindersApiStack',
   description: `Peto reminders API (${stage})`,
@@ -98,9 +115,10 @@ new RemindersApiStack(app, 'PetoRemindersApiStack', {
   userPoolClient: auth.userPoolClient,
   stage,
   remindersEmailFrom: process.env.REMINDERS_EMAIL_FROM ?? 'no-reply@peto.dev',
+  reminderTemplateName: SesTemplatesStack.REMINDER_TEMPLATE,
 });
 
-new UploadsApiStack(app, 'PetoUploadsApiStack', {
+const uploadsApi = new UploadsApiStack(app, 'PetoUploadsApiStack', {
   env: { account, region },
   stackName: 'PetoUploadsApiStack',
   description: `Peto uploads API (${stage})`,
@@ -114,7 +132,7 @@ new UploadsApiStack(app, 'PetoUploadsApiStack', {
   stage,
 });
 
-new OwnersApiStack(app, 'PetoOwnersApiStack', {
+const ownersApi = new OwnersApiStack(app, 'PetoOwnersApiStack', {
   env: { account, region },
   stackName: 'PetoOwnersApiStack',
   description: `Peto owners API (${stage})`,
@@ -126,7 +144,7 @@ new OwnersApiStack(app, 'PetoOwnersApiStack', {
   stage,
 });
 
-new CatalogsApiStack(app, 'PetoCatalogsApiStack', {
+const catalogsApi = new CatalogsApiStack(app, 'PetoCatalogsApiStack', {
   env: { account, region },
   stackName: 'PetoCatalogsApiStack',
   description: `Peto catalogs API (${stage})`,
@@ -135,5 +153,23 @@ new CatalogsApiStack(app, 'PetoCatalogsApiStack', {
   sharedLayer: layers.cognitoDepsLayer,
   stage,
 });
+
+if (apiDomainName && apiHostedZoneName) {
+  new ApiDomainStack(app, 'PetoApiDomainStack', {
+    env: { account, region },
+    stackName: 'PetoApiDomainStack',
+    description: `Peto API custom domain (${stage})`,
+    domainName: apiDomainName,
+    hostedZoneName: apiHostedZoneName,
+    hostedZoneId: apiHostedZoneId,
+    authApi: authApi.httpApi,
+    petsApi: petsApi.httpApi,
+    ownersApi: ownersApi.httpApi,
+    eventsApi: eventsApi.httpApi,
+    remindersApi: remindersApi.httpApi,
+    uploadsApi: uploadsApi.httpApi,
+    catalogsApi: catalogsApi.httpApi,
+  });
+}
 
 app.synth();

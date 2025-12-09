@@ -22,6 +22,10 @@ export interface AuthApiStackProps extends StackProps {
   userPool: UserPool;
   userPoolClient: UserPoolClient;
   depsLayer?: lambda.ILayerVersion;
+  sesLayer?: lambda.ILayerVersion;
+  sesFromEmail?: string;
+  welcomeTemplateName?: string;
+  resetTemplateName?: string;
 }
 
 export class AuthApiStack extends Stack {
@@ -40,6 +44,13 @@ export class AuthApiStack extends Stack {
       COGNITO_USER_POOL_ID: props.userPool.userPoolId,
       COGNITO_USER_POOL_CLIENT_ID: props.userPoolClient.userPoolClientId,
       STAGE: stage,
+      ...(props.sesFromEmail ? { SES_FROM_EMAIL: props.sesFromEmail } : {}),
+      ...(props.welcomeTemplateName
+        ? { SES_WELCOME_TEMPLATE_NAME: props.welcomeTemplateName }
+        : {}),
+      ...(props.resetTemplateName
+        ? { SES_RESET_TEMPLATE_NAME: props.resetTemplateName }
+        : {}),
     };
 
     const handlerPath = (...segments: string[]) =>
@@ -58,25 +69,29 @@ export class AuthApiStack extends Stack {
       'RegisterHandler',
       handlerPath('libs/api-auth/src/register.handler.ts'),
       commonEnv,
-      props.depsLayer
+      props.depsLayer,
+      props.sesLayer
     );
     const loginFn = this.createAuthFn(
       'LoginHandler',
       handlerPath('libs/api-auth/src/login.handler.ts'),
       commonEnv,
-      props.depsLayer
+      props.depsLayer,
+      props.sesLayer
     );
     const forgotPasswordFn = this.createAuthFn(
       'ForgotPasswordHandler',
       handlerPath('libs/api-auth/src/forgot-password.handler.ts'),
       commonEnv,
-      props.depsLayer
+      props.depsLayer,
+      props.sesLayer
     );
     const confirmForgotPasswordFn = this.createAuthFn(
       'ConfirmForgotPasswordHandler',
       handlerPath('libs/api-auth/src/confirm-forgot-password.handler.ts'),
       commonEnv,
-      props.depsLayer
+      props.depsLayer,
+      props.sesLayer
     );
 
     const cognitoActions = [
@@ -97,6 +112,14 @@ export class AuthApiStack extends Stack {
           resources: [props.userPool.userPoolArn],
         })
       );
+      if (props.sesFromEmail) {
+        fn.addToRolePolicy(
+          new iam.PolicyStatement({
+            actions: ['ses:SendEmail', 'ses:SendTemplatedEmail', 'ses:SendRawEmail'],
+            resources: ['*'],
+          })
+        );
+      }
     });
 
     this.httpApi = new apigwv2.HttpApi(this, 'AuthHttpApi', {
@@ -107,17 +130,17 @@ export class AuthApiStack extends Stack {
     });
 
     this.httpApi.addRoutes({
-      path: '/auth/register',
+      path: '/register',
       methods: [apigwv2.HttpMethod.POST],
       integration: new HttpLambdaIntegration('RegisterIntegration', registerFn),
     });
     this.httpApi.addRoutes({
-      path: '/auth/login',
+      path: '/login',
       methods: [apigwv2.HttpMethod.POST],
       integration: new HttpLambdaIntegration('LoginIntegration', loginFn),
     });
     this.httpApi.addRoutes({
-      path: '/auth/forgot-password',
+      path: '/forgot-password',
       methods: [apigwv2.HttpMethod.POST],
       integration: new HttpLambdaIntegration(
         'ForgotPasswordIntegration',
@@ -125,7 +148,7 @@ export class AuthApiStack extends Stack {
       ),
     });
     this.httpApi.addRoutes({
-      path: '/auth/confirm-forgot-password',
+      path: '/confirm-forgot-password',
       methods: [apigwv2.HttpMethod.POST],
       integration: new HttpLambdaIntegration(
         'ConfirmForgotPasswordIntegration',
@@ -144,9 +167,12 @@ export class AuthApiStack extends Stack {
     id: string,
     entry: string,
     environment: Record<string, string>,
-    depsLayer?: lambda.ILayerVersion
+    depsLayer?: lambda.ILayerVersion,
+    sesLayer?: lambda.ILayerVersion
   ): NodejsFunction {
-    const layers = depsLayer ? [depsLayer] : [];
+    const layers = [depsLayer, sesLayer].filter(
+      (l): l is lambda.ILayerVersion => Boolean(l)
+    );
 
     return new NodejsFunction(this, id, {
       runtime: lambda.Runtime.NODEJS_24_X,
@@ -157,8 +183,8 @@ export class AuthApiStack extends Stack {
         target: 'node24',
         format: OutputFormat.CJS,
         platform: 'node',
-        externalModules: depsLayer
-          ? ['@aws-sdk/client-cognito-identity-provider']
+        externalModules: layers.length
+          ? ['@aws-sdk/client-cognito-identity-provider', '@aws-sdk/client-ses']
           : [],
         sourcesContent: false,
         keepNames: false,

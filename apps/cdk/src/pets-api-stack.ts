@@ -90,27 +90,27 @@ export class PetsApiStack extends Stack {
     });
 
     this.httpApi.addRoutes({
-      path: '/pets',
+      path: '/',
       methods: [apigwv2.HttpMethod.POST],
       integration: new HttpLambdaIntegration('CreatePetIntegration', createPetFn),
     });
     this.httpApi.addRoutes({
-      path: '/pets',
+      path: '/',
       methods: [apigwv2.HttpMethod.GET],
       integration: new HttpLambdaIntegration('ListPetsIntegration', listPetsFn),
     });
     this.httpApi.addRoutes({
-      path: '/pets/{petId}',
+      path: '/{petId}',
       methods: [apigwv2.HttpMethod.GET],
       integration: new HttpLambdaIntegration('GetPetIntegration', getPetFn),
     });
     this.httpApi.addRoutes({
-      path: '/pets/{petId}',
+      path: '/{petId}',
       methods: [apigwv2.HttpMethod.PATCH],
       integration: new HttpLambdaIntegration('UpdatePetIntegration', updatePetFn),
     });
     this.httpApi.addRoutes({
-      path: '/pets/{petId}',
+      path: '/{petId}',
       methods: [apigwv2.HttpMethod.DELETE],
       integration: new HttpLambdaIntegration('ArchivePetIntegration', archivePetFn),
     });

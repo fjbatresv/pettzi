@@ -13,7 +13,6 @@ import {
   parseJson,
   ensureOwnerExists,
 } from './common';
-import { PETO_TABLE_NAME } from './common';
 
 interface AddOwnerRequest {
   ownerId?: string;
@@ -48,7 +47,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   }
 
   try {
-    const callerLink = await assertOwnerOfPet(petId, callerOwnerId, OwnerRole.PRIMARY);
+    await assertOwnerOfPet(petId, callerOwnerId, OwnerRole.PRIMARY);
 
     await ensureOwnerExists(payload.ownerId);
 

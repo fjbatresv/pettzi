@@ -28,7 +28,10 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 
   try {
     const vaccines = speciesFilter
-      ? catalogVaccines.filter((v) => !v.speciesId || v.speciesId === speciesFilter)
+      ? catalogVaccines.filter((v) => {
+          const speciesId = (v as any).speciesId as string | undefined;
+          return !speciesId || speciesId === speciesFilter;
+        })
       : catalogVaccines;
     return ok({ vaccines });
   } catch (error) {
