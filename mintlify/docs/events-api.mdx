@@ -1,0 +1,24 @@
+---
+title: Events API
+---
+
+# Events API
+
+- Code: `libs/api-events`
+- Stack: `apps/cdk/src/events-api-stack.ts`
+- Base path: `/events`
+- Internal routes:
+  - `POST /pets/{petId}`
+  - `GET /pets/{petId}`
+  - `GET /pets/{petId}/{eventId}`
+  - `PATCH /pets/{petId}/{eventId}`
+  - `DELETE /pets/{petId}/{eventId}`
+
+## Auth & ownership
+- Cognito JWT required; ownership of the pet validated before operations.
+
+## Reminders linkage
+- Events may create/update associated reminders when `nextReminderDate` is provided.
+
+## OpenAPI
+- Spec: `libs/api-events/openapi/events.yml`.

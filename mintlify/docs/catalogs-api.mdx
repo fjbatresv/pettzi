@@ -1,0 +1,22 @@
+---
+title: Catalogs API
+---
+
+# Catalogs API
+
+- Code: `libs/api-catalogs`
+- Stack: `apps/cdk/src/catalogs-api-stack.ts`
+- Base path: `/catalogs`
+- Internal routes:
+  - `GET /species`
+  - `GET /breeds?species=<species>`
+  - `GET /vaccines?species=<species>`
+
+## Auth
+- Cognito JWT required (read-only).
+
+## Data source
+- In-memory catalogs from `@peto/domain-model/catalogs` (no DB writes).
+
+## OpenAPI
+- Spec: `libs/api-catalogs/openapi/catalogs.yml`.

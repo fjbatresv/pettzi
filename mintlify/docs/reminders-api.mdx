@@ -1,0 +1,18 @@
+---
+title: Reminders API
+---
+
+# Reminders API
+
+- Code: `libs/api-reminders`
+- Stack: `apps/cdk/src/reminders-api-stack.ts`
+- Base path: `/reminders`
+- Internal routes:
+  - `GET /` (list reminders for caller across pets)
+  - `GET /pets/{petId}` (reminders for one pet)
+
+## Scheduler
+- EventBridge rule triggers `process-due-reminders` Lambda daily; uses DynamoDB GSI1 and SES for notifications.
+
+## OpenAPI
+- Spec: `libs/api-reminders/openapi/reminders.yml`.

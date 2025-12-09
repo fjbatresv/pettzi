@@ -1,0 +1,22 @@
+---
+title: Pets API
+---
+
+# Pets API
+
+- Code: `libs/api-pets`
+- Stack: `apps/cdk/src/pets-api-stack.ts`
+- Base path (custom domain): `/pets`
+- Internal routes:
+  - `POST /` (create)
+  - `GET /` (list caller’s pets)
+  - `GET /{petId}`
+  - `PATCH /{petId}`
+  - `DELETE /{petId}` (archive/soft delete)
+
+## Auth & ownership
+- Cognito JWT required.
+- Ownership enforced via PetOwner links (PRIMARY/SECONDARY).
+
+## OpenAPI
+- Spec: `libs/api-pets/openapi/pets.yml`.

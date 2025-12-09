@@ -1,0 +1,37 @@
+---
+title: Architecture Overview
+---
+
+# Architecture Overview
+
+PETO is a serverless SaaS for pet health/ownership. The backend is built with Nx + AWS CDK v2 and runs on Lambda (Node.js 24.x) behind API Gateway HTTP APIs.
+
+## Main components
+- **Auth**: Cognito User Pool + User Pool Client; Auth API handles login/register/forgot/confirm.
+- **Pets**: CRUD for pets and ownership links.
+- **Owners**: Multi-owner model (PRIMARY/SECONDARY) per pet.
+- **Events**: Health/timeline events per pet; optional reminders.
+- **Reminders**: Scheduled notifications via EventBridge + SES.
+- **Uploads**: S3 presigned URLs for pet photos/documents.
+- **Catalogs**: Read-only species/breeds/vaccines.
+
+## Infra (CDK stacks)
+- `CoreInfraStack`: DynamoDB single table (PetoTable), S3 docs bucket.
+- `AuthStack`: Cognito user pool + client.
+- `LayersStack`: Lambda layers with SDK deps.
+- API stacks: one HttpApi + Lambdas per bounded context.
+- `SesTemplatesStack`: SES templates (welcome, reset, reminders).
+- `ApiDomainStack`: Custom domain + API mappings (basePath per context).
+
+## Data storage
+- DynamoDB single-table design with PK/SK and GSI1 for reminders.
+- S3 bucket for uploads.
+- No traditional RDBMS; all business data in DynamoDB.
+
+## Messaging & scheduling
+- EventBridge scheduled rule triggers reminder processor.
+- SES for transactional emails (welcome, password reset, reminders).
+
+## Authentication & authz
+- Cognito JWT via HTTP API JWT authorizers.
+- Ownership checks at Lambda level (PetOwner links).

@@ -1,12 +1,56 @@
 {
-  "name": "PETO – API Docs",
+  "name": "PETO Backend",
   "theme": "mint",
   "logo": "/logo.png",
   "colors": {
     "primary": "#0f766e"
   },
   "navigation": {
-    "pages": ["docs/overview", "docs/auth", "docs/pets"]
+    "groups": [
+      {
+        "group": "Getting Started",
+        "pages": [
+          "docs/overview",
+          "docs/quickstart"
+        ]
+      },
+      {
+        "group": "Architecture",
+        "pages": [
+          "docs/architecture-overview",
+          "docs/data-model",
+          "docs/bounded-contexts"
+        ]
+      },
+      {
+        "group": "APIs",
+        "pages": [
+          "docs/auth-api",
+          "docs/pets-api",
+          "docs/owners-api",
+          "docs/events-api",
+          "docs/reminders-api",
+          "docs/uploads-api",
+          "docs/catalogs-api"
+        ]
+      },
+      {
+        "group": "Infrastructure",
+        "pages": [
+          "docs/stacks-overview",
+          "docs/custom-domain",
+          "docs/ses-templates"
+        ]
+      },
+      {
+        "group": "Development",
+        "pages": [
+          "docs/local-dev",
+          "docs/testing",
+          "docs/deployment"
+        ]
+      }
+    ]
   },
   "openapi": [
     {
@@ -18,6 +62,31 @@
       "id": "pets",
       "name": "Pets API",
       "path": "../libs/api-pets/openapi/pets.yml"
+    },
+    {
+      "id": "owners",
+      "name": "Owners API",
+      "path": "../libs/api-owners/openapi/owners.yml"
+    },
+    {
+      "id": "events",
+      "name": "Events API",
+      "path": "../libs/api-events/openapi/events.yml"
+    },
+    {
+      "id": "reminders",
+      "name": "Reminders API",
+      "path": "../libs/api-reminders/openapi/reminders.yml"
+    },
+    {
+      "id": "uploads",
+      "name": "Uploads API",
+      "path": "../libs/api-uploads/openapi/uploads.yml"
+    },
+    {
+      "id": "catalogs",
+      "name": "Catalogs API",
+      "path": "../libs/api-catalogs/openapi/catalogs.yml"
     }
   ]
 }

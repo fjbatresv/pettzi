@@ -1,0 +1,24 @@
+---
+title: Local Development
+---
+
+# Local Development
+
+## Install
+```bash
+npm install
+```
+
+## Nx commands
+- `npx nx test <project>` – run unit tests (Jest).
+- `npx nx build <project>` – type-check/build.
+- `npx nx run-many --target=test --all` – run all tests.
+
+## Working against dev environment
+- Use deployed dev stage; set `.env` with `AWS_PROFILE`, `AWS_REGION`, `STAGE`, `API_DOMAIN_NAME`.
+- APIs live under the custom domain + basePath (`/auth`, `/pets`, etc.).
+- Frontend (Angular) can point to those URLs; pass Cognito JWT in `Authorization` header.
+
+## Optional tools
+- You can use `aws sso login --profile <profile>` before running CDK/Nx deploys.
+- No local Dynamo/S3 is required; tests are mocked.

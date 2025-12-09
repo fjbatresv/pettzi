@@ -1,0 +1,19 @@
+---
+title: SES Templates
+---
+
+# SES Templates
+
+Provisioned by `SesTemplatesStack`:
+- **PetoWelcomeEmail** – used after signup (Auth API). Vars: `{{userName}}`.
+- **PetoPasswordResetEmail** – used for reset flows (Auth). Vars: `{{resetLink}}`, `{{userName}}`.
+- **PetoReminderNotificationEmail** – used by reminder processor. Vars: `{{petName}}`, `{{eventType}}`, `{{eventDate}}`, `{{notes}}`.
+- **PetoEventNotificationEmail** (optional for future event notices). Vars similar to reminder.
+
+Env vars used by Lambdas:
+- `SES_FROM_EMAIL`
+- `SES_WELCOME_TEMPLATE_NAME`
+- `SES_RESET_TEMPLATE_NAME`
+- `SES_REMINDER_TEMPLATE_NAME`
+
+Permissions: relevant Lambdas get `ses:SendEmail`/`ses:SendTemplatedEmail` via their CDK stacks.

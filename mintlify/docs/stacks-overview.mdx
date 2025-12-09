@@ -1,0 +1,18 @@
+---
+title: Stacks Overview
+---
+
+# Stacks Overview
+
+- **CoreInfraStack**: DynamoDB `PetoTable` (PK/SK + GSI1), S3 docs bucket.
+- **AuthStack**: Cognito User Pool + User Pool Client.
+- **LayersStack**: Lambda layers with AWS SDK deps (cognito, s3, ses, ddb).
+- **AuthApiStack**: Auth HttpApi + auth Lambdas.
+- **PetsApiStack**: Pets HttpApi + pet Lambdas.
+- **OwnersApiStack**: Owners HttpApi + ownership Lambdas.
+- **EventsApiStack**: Events HttpApi + event Lambdas.
+- **RemindersApiStack**: Reminders HttpApi + scheduler (EventBridge -> SES).
+- **UploadsApiStack**: Uploads HttpApi + presigned URL Lambdas.
+- **CatalogsApiStack**: Catalogs HttpApi (read-only).
+- **SesTemplatesStack**: SES templates (welcome, reset, reminder, event).
+- **ApiDomainStack**: Custom domain + API mappings (basePath per context) + Route53 alias.

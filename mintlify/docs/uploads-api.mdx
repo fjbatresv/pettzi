@@ -1,0 +1,24 @@
+---
+title: Uploads API
+---
+
+# Uploads API
+
+- Code: `libs/api-uploads`
+- Stack: `apps/cdk/src/uploads-api-stack.ts`
+- Base path: `/uploads`
+- Internal routes:
+  - `POST /pets/{petId}/photo` (presigned PUT)
+  - `POST /pets/{petId}/document` (presigned PUT)
+  - `GET /pets/{petId}` (list files)
+  - `GET /pets/{petId}/{fileKey}/download-url` (presigned GET)
+  - `DELETE /pets/{petId}/{fileKey}` (optional delete)
+
+## Auth & ownership
+- Cognito JWT required; caller must be owner of the pet (PetOwner link).
+
+## S3 strategy
+- Keys: `pets/<petId>/photos/<uuid>.<ext>` or `pets/<petId>/documents/<uuid>.<ext>`.
+
+## OpenAPI
+- Spec: `libs/api-uploads/openapi/uploads.yml`.
