@@ -1,0 +1,215 @@
+openapi: 3.0.3
+info:
+  title: PETO Events API
+  version: "1.0.0"
+security:
+  - bearerAuth: []
+paths:
+  /pets/{petId}:
+    post:
+      summary: Create event
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: petId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEventRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PetEvent'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    get:
+      summary: List events
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: petId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Events
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  events:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PetEvent'
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+  /pets/{petId}/{eventId}:
+    get:
+      summary: Get event
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: petId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: eventId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Event
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PetEvent'
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    patch:
+      summary: Update event
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: petId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: eventId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEventRequest'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PetEvent'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    delete:
+      summary: Delete event
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: petId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: eventId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    PetEvent:
+      type: object
+      required: [petId, eventId, eventType, eventDate, createdAt]
+      properties:
+        petId: { type: string }
+        eventId: { type: string }
+        eventType:
+          type: string
+          enum: [VACCINE, VET_VISIT, GROOMING, OTHER]
+        eventDate: { type: string, format: date-time }
+        title: { type: string }
+        notes: { type: string }
+        metadata:
+          type: object
+          additionalProperties: true
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    CreateEventRequest:
+      type: object
+      required: [eventType, date]
+      properties:
+        eventType:
+          type: string
+          enum: [VACCINE, VET_VISIT, GROOMING, OTHER]
+        date: { type: string, format: date-time }
+        title: { type: string }
+        notes: { type: string }
+        nextReminderDate: { type: string, format: date-time }
+        metadata:
+          type: object
+          additionalProperties: true
+    UpdateEventRequest:
+      type: object
+      properties:
+        eventType:
+          type: string
+          enum: [VACCINE, VET_VISIT, GROOMING, OTHER]
+        eventDate: { type: string, format: date-time }
+        title: { type: string }
+        notes: { type: string }
+        nextReminderDate: { type: string, format: date-time }
+        metadata:
+          type: object
+          additionalProperties: true
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code: { type: string }
+            message: { type: string }
+            details:
+              type: object
+              additionalProperties: true
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    ServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }

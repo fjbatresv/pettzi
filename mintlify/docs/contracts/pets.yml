@@ -1,0 +1,265 @@
+openapi: 3.0.3
+info:
+  title: PETO Pets API
+  version: "1.0.0"
+  description: CRUD operations for pets.
+security:
+  - bearerAuth: []
+paths:
+  /:
+    post:
+      summary: Create pet
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePetRequest'
+      responses:
+        '201':
+          description: Pet created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    get:
+      summary: List pets for current owner
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of pets
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pets:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PetSummary'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /{petId}:
+    get:
+      summary: Get pet by id
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Pet
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    patch:
+      summary: Update pet metadata
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePetRequest'
+      responses:
+        '200':
+          description: Updated pet
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    delete:
+      summary: Archive pet
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Pet archived
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  pet:
+                    $ref: '#/components/schemas/Pet'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Pet:
+      type: object
+      required: [petId, name, species, createdAt]
+      properties:
+        petId:
+          type: string
+        ownerId:
+          type: string
+        name:
+          type: string
+        species:
+          type: string
+          enum: [DOG, CAT, BIRD, REPTILE, OTHER]
+        breed:
+          type: string
+        birthDate:
+          type: string
+          format: date-time
+        notes:
+          type: string
+        color:
+          type: string
+        weightKg:
+          type: number
+        isArchived:
+          type: boolean
+        archivedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    PetSummary:
+      type: object
+      required: [petId, name, species]
+      properties:
+        petId:
+          type: string
+        name:
+          type: string
+        species:
+          type: string
+          enum: [DOG, CAT, BIRD, REPTILE, OTHER]
+        breed:
+          type: string
+    CreatePetRequest:
+      type: object
+      required: [name, species]
+      properties:
+        name:
+          type: string
+        species:
+          type: string
+          enum: [DOG, CAT, BIRD, REPTILE, OTHER]
+        breed:
+          type: string
+        birthDate:
+          type: string
+          format: date
+        notes:
+          type: string
+        color:
+          type: string
+        weightKg:
+          type: number
+    UpdatePetRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        breed:
+          type: string
+        birthDate:
+          type: string
+          format: date
+        notes:
+          type: string
+        color:
+          type: string
+        weightKg:
+          type: number
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              type: object
+              additionalProperties: true
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    ServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
