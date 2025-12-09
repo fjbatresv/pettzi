@@ -1,0 +1,22 @@
+---
+title: Testing
+---
+
+# Testing
+
+## Unit tests (Jest)
+- Each `libs/api-*` has Jest specs mocking AWS SDK v3 clients (DynamoDB, S3, SES, Cognito).
+- Test happy paths, validation errors, auth/ownership checks, and error responses using `@peto/utils-dynamo/http`.
+
+## Commands
+- `npx nx test <project>`
+- `npx nx run-many --target=test --all`
+
+## Tips
+- Keep handlers thin; move logic to helpers for easier mocking.
+- Ensure responses match the shared error shape:
+```json
+{
+  "error": { "code": "CODE", "message": "..." }
+}
+```

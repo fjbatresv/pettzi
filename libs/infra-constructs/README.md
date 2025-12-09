@@ -9,3 +9,20 @@ Run `nx build infra-constructs` to build the library.
 ## Running unit tests
 
 Run `nx test infra-constructs` to execute the unit tests via [Jest](https://jestjs.io).
+
+# @peto/infra-constructs
+
+## Purpose
+Shared infrastructure helpers/constructs for CDK (if/when needed by stacks).
+
+## Responsibilities
+- Reusable CDK constructs/utilities
+
+## Key deps
+- aws-cdk-lib, constructs
+
+## Tests
+- `npx nx test infra-constructs`
+
+## Docs
+- Mintlify: `docs/stacks-overview`

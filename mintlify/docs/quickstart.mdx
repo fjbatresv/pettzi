@@ -1,0 +1,34 @@
+---
+title: Quickstart
+---
+
+# Quickstart
+
+## Prerequisites
+- Node.js 24.x (required by Lambdas and Nx builds).
+- Nx CLI (`npx nx --version`).
+- AWS account with credentials configured; CDK bootstrapped in the target account/region.
+- `.env` at repo root with `STAGE`, `AWS_PROFILE`, `AWS_REGION`, `API_DOMAIN_NAME`, `API_HOSTED_ZONE_NAME`, `SES_FROM_EMAIL`, `REMINDERS_EMAIL_FROM` as needed.
+
+## Install
+```bash
+npm install
+```
+
+## Useful Nx commands
+- `npx nx graph` – visualize projects and deps.
+- `npx nx test <project>` – run tests (Jest).
+- `npx nx build <project>` – type-check/build library.
+- `npx nx run cdk:deploy -- <StackName>` – deploy a specific CDK stack.
+
+## Deploy order (dev/stage)
+1. `PetoLayersStack` (shared SDK layers)
+2. `PetoCoreInfraStack` (DynamoDB, S3)
+3. `PetoAuthStack` (Cognito)
+4. API stacks: `PetoAuthApiStack`, `PetoPetsApiStack`, `PetoOwnersApiStack`, `PetoEventsApiStack`, `PetoRemindersApiStack`, `PetoUploadsApiStack`, `PetoCatalogsApiStack`
+5. `PetoSesTemplatesStack` (SES templates)
+6. `PetoApiDomainStack` (custom domain + API mappings)
+
+## Local tips
+- Work against a deployed dev environment; endpoints will live under the custom domain base paths (e.g. `/auth`, `/pets`, etc.).
+- Use `npx nx run-many --target=test --all` before PRs.

@@ -1,0 +1,37 @@
+---
+title: Deployment
+---
+
+# Deployment
+
+## Prerequisites
+- AWS credentials / SSO.
+- CDK bootstrapped in target account/region.
+- `.env` with `STAGE`, `AWS_PROFILE`, `AWS_REGION`, `API_DOMAIN_NAME`, `API_HOSTED_ZONE_NAME`, `SES_FROM_EMAIL`.
+
+## Build
+```bash
+npx nx run cdk:build:production
+```
+
+## Deploy stacks (typical order)
+1. `PetoLayersStack`
+2. `PetoCoreInfraStack`
+3. `PetoAuthStack`
+4. API stacks: `PetoAuthApiStack`, `PetoPetsApiStack`, `PetoOwnersApiStack`, `PetoEventsApiStack`, `PetoRemindersApiStack`, `PetoUploadsApiStack`, `PetoCatalogsApiStack`
+5. `PetoSesTemplatesStack`
+6. `PetoApiDomainStack`
+
+Command example:
+```bash
+npx nx run cdk:deploy -- PetoCoreInfraStack PetoAuthStack
+npx nx run cdk:deploy -- PetoPetsApiStack PetoOwnersApiStack
+npx nx run cdk:deploy -- PetoApiDomainStack
+```
+
+## Env vars per stack (high level)
+- Core: none beyond STAGE.
+- Auth API: `SES_FROM_EMAIL`, template names if overriding defaults.
+- Reminders: `REMINDERS_EMAIL_FROM`, `SES_REMINDER_TEMPLATE_NAME`.
+- Uploads: `PETO_DOCS_BUCKET_NAME` (set by stack).
+- Domain: `API_DOMAIN_NAME`, `API_HOSTED_ZONE_NAME`, `API_HOSTED_ZONE_ID` (optional).

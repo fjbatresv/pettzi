@@ -1,0 +1,20 @@
+---
+title: Owners API
+---
+
+# Owners API
+
+- Code: `libs/api-owners`
+- Stack: `apps/cdk/src/owners-api-stack.ts`
+- Base path: `/owners`
+- Internal routes:
+  - `GET /me`
+  - `GET /pets/{petId}/owners`
+  - `POST /pets/{petId}/owners` (add co-owner, PRIMARY only)
+  - `DELETE /pets/{petId}/owners/{ownerId}` (remove secondary, PRIMARY only)
+
+## Auth & ownership
+- Cognito JWT required; caller must be owner of the pet; some ops require PRIMARY role.
+
+## OpenAPI
+- Spec: `libs/api-owners/openapi/owners.yml`.

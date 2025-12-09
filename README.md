@@ -304,3 +304,20 @@ El archivo ```ARCHITECTURE.md``` incluirá:
 - Flujos de co-dueños y permisos
 - Flujos de recordatorios
 - Diagrama CDK por stack
+
+## Documentation
+- Mintlify docs (local): `cd mintlify && npx mintlify dev`
+- Pages live under `mintlify/docs/*.mdx` with OpenAPI specs in `libs/api-*/openapi/*.yml`.
+
+## Current backend stacks
+- CoreInfraStack (DynamoDB PetoTable, docs bucket)
+- AuthStack (Cognito user pool + client)
+- LayersStack (SDK layers: cognito, s3, ses, ddb)
+- Auth/Pets/Owners/Events/Reminders/Uploads/Catalogs API stacks (one HttpApi per bounded context)
+- SesTemplatesStack (welcome/reset/reminder templates)
+- ApiDomainStack (custom domain + basePath mappings per API)
+
+## Runtime / tooling
+- Node.js 24.x (required)
+- Nx for build/test/deploy (`npx nx <target> <project>`)
+- CDK v2 for infra (`npx nx run cdk:deploy -- <StackName>`)

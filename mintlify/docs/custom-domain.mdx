@@ -1,0 +1,20 @@
+---
+title: Custom Domain
+---
+
+# Custom Domain & API Mappings
+
+`ApiDomainStack` provisions:
+- Custom domain (e.g. `api.peto.app`).
+- ACM certificate (DNS validated).
+- API mappings (HTTP API):
+  - `/auth` → Auth HttpApi
+  - `/pets` → Pets HttpApi
+  - `/owners` → Owners HttpApi
+  - `/events` → Events HttpApi
+  - `/reminders` → Reminders HttpApi
+  - `/uploads` → Uploads HttpApi
+  - `/catalogs` → Catalogs HttpApi
+- Route53 alias record to the domain.
+
+**Important**: Internal routes omit the basePath; OpenAPI specs match internal routes. The basePath is added only via API mapping on the custom domain.

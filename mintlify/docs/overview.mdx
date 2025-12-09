@@ -1,15 +1,19 @@
-# PETO Overview
+---
+title: Overview
+---
 
-PETO is a serverless pet health manager built on an Nx monorepo with AWS CDK v2, Lambda (Node.js 24.x), API Gateway, Cognito for auth, and DynamoDB single-table design (`PetoTable` with PK/SK and GSI1).
+# PETO Backend Overview
 
-## Architecture
-- **Nx monorepo**: apps (CDK) and libs (auth, pets, domain-model, utils-dynamo).
-- **CDK stacks**: CoreInfra (DynamoDB + S3), Auth (Cognito), Auth API, Pets API.
-- **Lambdas**: Node.js 24.x, thin handlers using domain-model mappers and utils-dynamo http helpers.
-- **Data**: DynamoDB single table per `TABLE_DESIGN.md` in `@peto/domain-model`.
-- **Docs**: OpenAPI specs for Auth and Pets are included below.
+PETO is a serverless SaaS for pet health and ownership management:
+- Manage pets, owners (PRIMARY/SECONDARY), events, reminders.
+- Store documents and photos in S3 via presigned URLs.
+- Send transactional emails (welcome, reset, reminders) via SES.
 
-## APIs
-- Auth API (JWT via Cognito).
-- Pets API (CRUD for pets).
-- More APIs will be added following the same patterns.
+Tech highlights:
+- Nx monorepo, Node.js 24.x Lambdas.
+- AWS CDK v2, DynamoDB single-table, S3, Cognito, SES, EventBridge.
+- One HTTP API per bounded context, mapped under a shared custom domain.
+
+Bounded contexts:
+- Auth, Pets, Owners, Events, Reminders, Uploads, Catalogs.
+- Domain model and utilities shared through Lambda layers and libraries.

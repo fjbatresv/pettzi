@@ -415,3 +415,22 @@ Los stacks de CDK se organizan de forma modular:
 	•	•	Roles adicionales (veterinarios, grooming shops).
 	•	•	Planes de suscripción.
 	•	•	Multi-tenant por organización.
+## Custom domain strategy
+- One HttpApi per bounded context; basePath mapping applied via ApiDomainStack.
+- Base paths: /auth, /pets, /owners, /events, /reminders, /uploads, /catalogs.
+- Internal routes and OpenAPI specs omit the basePath (added only at mapping).
+
+## Email & notifications
+- SES templates provisioned by SesTemplatesStack (welcome, reset, reminders).
+- Auth API sends welcome/reset emails via SES (templated); Reminders processor emails due reminders.
+- EventBridge scheduled rule triggers reminder processor daily.
+
+## Infra recap (CDK)
+- CoreInfraStack: DynamoDB PetoTable (single-table + GSI1), S3 docs bucket.
+- AuthStack: Cognito user pool + client.
+- LayersStack: SDK layers (cognito, s3, ses, ddb).
+- API stacks: Auth/Pets/Owners/Events/Reminders/Uploads/Catalogs (HttpApi + Lambdas).
+- SesTemplatesStack: SES templates.
+- ApiDomainStack: custom domain + API mappings + Route53 alias.
+
+For deeper docs see Mintlify under `mintlify/docs`.

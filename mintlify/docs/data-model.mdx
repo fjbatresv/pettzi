@@ -1,0 +1,66 @@
+---
+title: Data Model
+---
+
+# Data Model (DynamoDB single table)
+
+We use a single DynamoDB table **PetoTable** with PK/SK and GSI1 (GSI1PK/GSI1SK). Key builders and mappers live in `@peto/domain-model`.
+
+## Key patterns (examples)
+- **Owner**  
+  PK: `OWNER#<ownerId>`  
+  SK: `PROFILE`
+
+- **Pet**  
+  PK: `PET#<petId>`  
+  SK: `METADATA`
+
+- **PetOwner link**  
+  PK: `PET#<petId>`  
+  SK: `OWNER#<ownerId>`  
+  role: PRIMARY | SECONDARY
+
+- **PetEvent**  
+  PK: `PET#<petId>`  
+  SK: `EVENT#<eventId>`
+
+- **PetReminder**  
+  PK: `PET#<petId>`  
+  SK: `REMINDER#<reminderId>`  
+  GSI1PK: `REMINDER_DUE#<yyyy-mm-dd>`  
+  GSI1SK: `PET#<petId>#EVENT#<eventId>`
+
+## Sample items
+```json
+{
+  "PK": "PET#123",
+  "SK": "METADATA",
+  "name": "Gaia",
+  "species": "DOG",
+  "birthDate": "2020-01-01",
+  "createdAt": "2024-10-01T12:00:00Z"
+}
+```
+
+```json
+{
+  "PK": "PET#123",
+  "SK": "OWNER#owner-1",
+  "role": "PRIMARY",
+  "createdAt": "2024-10-01T12:00:00Z"
+}
+```
+
+```json
+{
+  "PK": "PET#123",
+  "SK": "REMINDER#rem-1",
+  "GSI1PK": "REMINDER_DUE#2024-12-31",
+  "GSI1SK": "PET#123#EVENT#evt-1",
+  "dueDate": "2024-12-31",
+  "message": "Vaccine booster"
+}
+```
+
+## Catalog data
+Read-only catalogs (species, breeds, vaccines) live in `@peto/domain-model/catalogs` and are exposed by the Catalogs API.
