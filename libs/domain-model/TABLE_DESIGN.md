@@ -1,7 +1,7 @@
-# PetoTable – Single Table Design (Domain Model)
+# PettziTable – Single Table Design (Domain Model)
 
 Runtime: Node.js 24.x (Lambdas)  
-Keys use helpers from `@peto/utils-dynamo/key`.
+Keys use helpers from `@pettzi/utils-dynamo/key`.
 
 ## Key patterns
 

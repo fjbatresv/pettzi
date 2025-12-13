@@ -6,8 +6,8 @@ import {
   buildReminderGsi1Pk,
   buildPetReminderPk,
   buildPetReminderSk,
-} from '@peto/domain-model';
-import { docClient, PETO_TABLE_NAME } from './common';
+} from '@pettzi/domain-model';
+import { docClient, PETTZI_TABLE_NAME } from './common';
 
 const ses = new SESClient({});
 
@@ -17,7 +17,7 @@ export const handler: Handler = async () => {
   try {
     const res = await docClient.send(
       new QueryCommand({
-        TableName: PETO_TABLE_NAME,
+        TableName: PETTZI_TABLE_NAME,
         IndexName: 'GSI1',
         KeyConditionExpression: 'GSI1PK = :pk AND begins_with(GSI1SK, :sk)',
         ExpressionAttributeValues: {
@@ -38,7 +38,7 @@ export const handler: Handler = async () => {
               Source: fromAddress,
               Destination: { ToAddresses: [fromAddress] },
               Message: {
-                Subject: { Data: `PETO reminder for ${reminder.petId}` },
+                Subject: { Data: `PETTZI reminder for ${reminder.petId}` },
                 Body: {
                   Text: {
                     Data: `Reminder (${eventType}) for pet ${reminder.petId} due on ${
@@ -55,7 +55,7 @@ export const handler: Handler = async () => {
 
         await docClient.send(
           new UpdateCommand({
-            TableName: PETO_TABLE_NAME,
+            TableName: PETTZI_TABLE_NAME,
             Key: {
               PK: buildPetReminderPk(reminder.petId),
               SK: buildPetReminderSk(reminder.reminderId),

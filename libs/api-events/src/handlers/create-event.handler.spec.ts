@@ -1,6 +1,6 @@
 import { APIGatewayProxyEventV2 } from 'aws-lambda';
 import { GetCommand, TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
-import { EventType } from '@peto/domain-model';
+import { EventType } from '@pettzi/domain-model';
 import { handler } from './create-event.handler';
 
 jest.mock('@aws-sdk/lib-dynamodb', () => {
@@ -49,7 +49,7 @@ describe('create-event.handler', () => {
   };
 
   beforeEach(() => {
-    process.env.PETO_TABLE_NAME = 'PetoTable';
+    process.env.PETTZI_TABLE_NAME = 'PettziTable';
     sendMock.mockReset();
   });
 

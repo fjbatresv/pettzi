@@ -10,7 +10,7 @@ Run `nx build api-events` to build the library.
 
 Run `nx test api-events` to execute the unit tests via [Jest](https://jestjs.io).
 
-# @peto/api-events
+# @pettzi/api-events
 
 ## Purpose
 Manage pet events (vaccines, vet visits, grooming) and optional reminders.
@@ -21,13 +21,13 @@ Manage pet events (vaccines, vet visits, grooming) and optional reminders.
 - Optional creation/update of reminders from event payload
 
 ## Key deps
-- `@peto/domain-model`, `@peto/utils-dynamo`, AWS SDK v3 (DynamoDB)
+- `@pettzi/domain-model`, `@pettzi/utils-dynamo`, AWS SDK v3 (DynamoDB)
 
 ## Tests
 - `npx nx test api-events`
 
 ## Deploy/usage
-- Deployed by `PetoEventsApiStack`
+- Deployed by `PettziEventsApiStack`
 
 ## Docs
 - Mintlify: `docs/events-api`

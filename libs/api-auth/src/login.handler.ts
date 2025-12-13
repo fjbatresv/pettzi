@@ -8,7 +8,7 @@ import {
   ok,
   serverError,
   unauthorized,
-} from '@peto/utils-dynamo/http';
+} from '@pettzi/utils-dynamo/http';
 
 interface LoginPayload {
   email?: string;

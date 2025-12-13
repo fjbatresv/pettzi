@@ -1,5 +1,5 @@
 {
-  "name": "@peto/api-events",
+  "name": "@pettzi/api-events",
   "version": "0.0.1",
   "private": true,
   "main": "./dist/index.js",
@@ -31,7 +31,7 @@
     "@aws-sdk/client-dynamodb": "^3.694.0",
     "@aws-sdk/lib-dynamodb": "^3.694.0",
     "@types/aws-lambda": "^8.10.138",
-    "@peto/utils-dynamo": "file:../utils-dynamo",
-    "@peto/domain-model": "file:../domain-model"
+    "@pettzi/utils-dynamo": "file:../utils-dynamo",
+    "@pettzi/domain-model": "file:../domain-model"
   }
 }

@@ -2,12 +2,12 @@
 title: Bounded Contexts
 ---
 
-- **Auth** (`libs/api-auth`, `PetoAuthApiStack`): Cognito-backed login/register/forgot/confirm.
-- **Pets** (`libs/api-pets`, `PetoPetsApiStack`): CRUD for pets; links to owners.
-- **Owners** (`libs/api-owners`, `PetoOwnersApiStack`): Multi-ownership (PRIMARY/SECONDARY), add/remove co-owners, owner profile.
-- **Events** (`libs/api-events`, `PetoEventsApiStack`): Timeline events per pet; optional reminder linkage.
-- **Reminders** (`libs/api-reminders`, `PetoRemindersApiStack`): List reminders and scheduled processor (EventBridge + SES).
-- **Uploads** (`libs/api-uploads`, `PetoUploadsApiStack`): Presigned URLs for photos/docs in S3.
-- **Catalogs** (`libs/api-catalogs`, `PetoCatalogsApiStack`): Read-only species/breeds/vaccines.
+- **Auth** (`libs/api-auth`, `PettziAuthApiStack`): Cognito-backed login/register/forgot/confirm.
+- **Pets** (`libs/api-pets`, `PettziPetsApiStack`): CRUD for pets; links to owners.
+- **Owners** (`libs/api-owners`, `PettziOwnersApiStack`): Multi-ownership (PRIMARY/SECONDARY), add/remove co-owners, owner profile.
+- **Events** (`libs/api-events`, `PettziEventsApiStack`): Timeline events per pet; optional reminder linkage.
+- **Reminders** (`libs/api-reminders`, `PettziRemindersApiStack`): List reminders and scheduled processor (EventBridge + SES).
+- **Uploads** (`libs/api-uploads`, `PettziUploadsApiStack`): Presigned URLs for photos/docs in S3.
+- **Catalogs** (`libs/api-catalogs`, `PettziCatalogsApiStack`): Read-only species/breeds/vaccines.
 - **Domain Model** (`libs/domain-model`): Types, key builders, mappers, catalogs, Dynamo key strategy.
 - **Shared Utils** (`libs/utils-dynamo`, `libs/shared-utils`): HTTP helpers, Dynamo helpers, misc utilities.

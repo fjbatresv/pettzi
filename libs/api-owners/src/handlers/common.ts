@@ -12,7 +12,7 @@ import {
   unauthorized,
   forbidden,
   notFound,
-} from '@peto/utils-dynamo/http';
+} from '@pettzi/utils-dynamo/http';
 import {
   buildPetOwnerPk,
   buildPetOwnerSk,
@@ -23,9 +23,9 @@ import {
   PetOwner,
   OwnerRole,
   fromItemOwnerProfile,
-} from '@peto/domain-model';
+} from '@pettzi/domain-model';
 
-export const PETO_TABLE_NAME = process.env.PETO_TABLE_NAME ?? '';
+export const PETTZI_TABLE_NAME = process.env.PETTZI_TABLE_NAME ?? '';
 
 export const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 
@@ -43,7 +43,7 @@ export const getCallerOwnerId = (event: APIGatewayProxyEventV2): string => {
 export const ensureOwnerExists = async (ownerId: OwnerId) => {
   const res = await ddb.send(
     new GetCommand({
-      TableName: PETO_TABLE_NAME,
+      TableName: PETTZI_TABLE_NAME,
       Key: {
         PK: buildOwnerProfilePk(ownerId),
         SK: buildOwnerProfileSk(),
@@ -63,7 +63,7 @@ export const assertOwnerOfPet = async (
 ) => {
   const res = await ddb.send(
     new GetCommand({
-      TableName: PETO_TABLE_NAME,
+      TableName: PETTZI_TABLE_NAME,
       Key: {
         PK: buildPetOwnerPk(petId),
         SK: buildPetOwnerSk(ownerId),
@@ -82,7 +82,7 @@ export const assertOwnerOfPet = async (
 export const listOwnersForPet = async (petId: PetId): Promise<PetOwner[]> => {
   const res = await ddb.send(
     new QueryCommand({
-      TableName: PETO_TABLE_NAME,
+      TableName: PETTZI_TABLE_NAME,
       KeyConditionExpression: 'PK = :pk AND begins_with(SK, :sk)',
       ExpressionAttributeValues: {
         ':pk': buildPetOwnerPk(petId),
@@ -96,7 +96,7 @@ export const listOwnersForPet = async (petId: PetId): Promise<PetOwner[]> => {
 export const linkExists = async (petId: PetId, ownerId: OwnerId) => {
   const res = await ddb.send(
     new GetCommand({
-      TableName: PETO_TABLE_NAME,
+      TableName: PETTZI_TABLE_NAME,
       Key: {
         PK: buildPetOwnerPk(petId),
         SK: buildPetOwnerSk(ownerId),
@@ -109,7 +109,7 @@ export const linkExists = async (petId: PetId, ownerId: OwnerId) => {
 export const createLink = async (link: Record<string, any>) =>
   ddb.send(
     new PutCommand({
-      TableName: PETO_TABLE_NAME,
+      TableName: PETTZI_TABLE_NAME,
       Item: link,
       ConditionExpression: 'attribute_not_exists(PK)',
     })
@@ -118,7 +118,7 @@ export const createLink = async (link: Record<string, any>) =>
 export const deleteLink = async (petId: PetId, ownerId: OwnerId) =>
   ddb.send(
     new DeleteCommand({
-      TableName: PETO_TABLE_NAME,
+      TableName: PETTZI_TABLE_NAME,
       Key: {
         PK: buildPetOwnerPk(petId),
         SK: buildPetOwnerSk(ownerId),

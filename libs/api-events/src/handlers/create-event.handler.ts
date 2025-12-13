@@ -1,14 +1,14 @@
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
 import { TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
-import { created, badRequest, serverError } from '@peto/utils-dynamo/http';
+import { created, badRequest, serverError } from '@pettzi/utils-dynamo/http';
 import {
   PetEvent,
   PetReminder,
   EventType,
   toItemPetEvent,
   toItemPetReminder,
-} from '@peto/domain-model';
-import { docClient, getOwnerId, parseJson, assertOwnership, PETO_TABLE_NAME } from './common';
+} from '@pettzi/domain-model';
+import { docClient, getOwnerId, parseJson, assertOwnership, PETTZI_TABLE_NAME } from './common';
 
 interface CreateEventRequest {
   eventType: EventType;
@@ -65,7 +65,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   const items = [
     {
       Put: {
-        TableName: PETO_TABLE_NAME,
+        TableName: PETTZI_TABLE_NAME,
         Item: toItemPetEvent(petEvent),
         ConditionExpression: 'attribute_not_exists(PK)',
       },
@@ -84,7 +84,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     };
     items.push({
       Put: {
-        TableName: PETO_TABLE_NAME,
+        TableName: PETTZI_TABLE_NAME,
         Item: toItemPetReminder(reminder),
         ConditionExpression: 'attribute_not_exists(PK)',
       },

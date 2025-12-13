@@ -1,8 +1,8 @@
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { badRequest, ok, serverError, unauthorized } from '@peto/utils-dynamo/http';
-import { assertOwnership, getOwnerId, nowPlusSeconds, PETO_DOCS_BUCKET_NAME } from './common';
+import { badRequest, ok, serverError, unauthorized } from '@pettzi/utils-dynamo/http';
+import { assertOwnership, getOwnerId, nowPlusSeconds, PETTZI_DOCS_BUCKET_NAME } from './common';
 
 const s3 = new S3Client({});
 
@@ -32,7 +32,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     const downloadUrl = await getSignedUrl(
       s3,
       new GetObjectCommand({
-        Bucket: PETO_DOCS_BUCKET_NAME,
+        Bucket: PETTZI_DOCS_BUCKET_NAME,
         Key: fileKey,
       }),
       { expiresIn }

@@ -10,7 +10,7 @@ Run `nx build api-pets` to build the library.
 
 Run `nx test api-pets` to execute the unit tests via [Jest](https://jestjs.io).
 
-# @peto/api-pets
+# @pettzi/api-pets
 
 ## Purpose
 CRUD and lifecycle for pets, tied to owner links.
@@ -21,13 +21,13 @@ CRUD and lifecycle for pets, tied to owner links.
 - Use DynamoDB single-table keys from domain-model
 
 ## Key deps
-- `@peto/domain-model`, `@peto/utils-dynamo`, AWS SDK v3 (DynamoDB)
+- `@pettzi/domain-model`, `@pettzi/utils-dynamo`, AWS SDK v3 (DynamoDB)
 
 ## Tests
 - `npx nx test api-pets`
 
 ## Deploy/usage
-- Deployed by `PetoPetsApiStack`
+- Deployed by `PettziPetsApiStack`
 
 ## Docs
 - Mintlify: `docs/pets-api`

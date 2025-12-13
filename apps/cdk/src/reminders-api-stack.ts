@@ -30,14 +30,14 @@ export class RemindersApiStack extends Stack {
     super(scope, id, props);
 
     const stage = this.node.tryGetContext('stage') ?? props.stage ?? process.env.STAGE ?? 'dev';
-    Tags.of(this).add('project', 'peto');
+    Tags.of(this).add('project', 'pettzi');
     Tags.of(this).add('AppManagerCFNStackKey', id);
 
     const handlerPath = (...segments: string[]) =>
       path.resolve(__dirname, '../../../../../..', ...segments);
 
     const commonEnv = {
-      PETO_TABLE_NAME: props.table.tableName,
+      PETTZI_TABLE_NAME: props.table.tableName,
       STAGE: stage,
       REMINDERS_EMAIL_FROM: props.remindersEmailFrom,
       ...(props.reminderTemplateName
@@ -85,8 +85,8 @@ export class RemindersApiStack extends Stack {
     );
 
     this.httpApi = new apigwv2.HttpApi(this, 'RemindersHttpApi', {
-      apiName: `PetoRemindersApi-${stage}`,
-      description: `Reminders API for Peto (${stage})`,
+      apiName: `PettziRemindersApi-${stage}`,
+      description: `Reminders API for Pettzi (${stage})`,
       defaultAuthorizer: authorizer,
       createDefaultStage: true,
     });
@@ -109,7 +109,7 @@ export class RemindersApiStack extends Stack {
 
     new CfnOutput(this, 'RemindersApiUrl', {
       value: this.httpApi.apiEndpoint,
-      exportName: `PetoRemindersApiUrl-${stage}`,
+      exportName: `PettziRemindersApiUrl-${stage}`,
     });
   }
 
@@ -125,9 +125,9 @@ export class RemindersApiStack extends Stack {
     const external =
       layers.length > 0
         ? [
-            '@peto/domain-model',
-            '@peto/utils-dynamo',
-            '@peto/shared-utils',
+            '@pettzi/domain-model',
+            '@pettzi/utils-dynamo',
+            '@pettzi/shared-utils',
             '@aws-sdk/client-ses',
             '@aws-sdk/client-dynamodb',
             '@aws-sdk/lib-dynamodb',

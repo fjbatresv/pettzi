@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: PETO Catalogs API
+  title: PETTZI Catalogs API
   version: "1.0.0"
 security:
   - bearerAuth: []

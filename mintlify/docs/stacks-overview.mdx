@@ -4,7 +4,7 @@ title: Stacks Overview
 
 # Stacks Overview
 
-- **CoreInfraStack**: DynamoDB `PetoTable` (PK/SK + GSI1), S3 docs bucket.
+- **CoreInfraStack**: DynamoDB `PettziTable` (PK/SK + GSI1), S3 docs bucket.
 - **AuthStack**: Cognito User Pool + User Pool Client.
 - **LayersStack**: Lambda layers with AWS SDK deps (cognito, s3, ses, ddb).
 - **AuthApiStack**: Auth HttpApi + auth Lambdas.
@@ -16,5 +16,5 @@ title: Stacks Overview
 - **CatalogsApiStack**: Catalogs HttpApi (read-only).
 - **SesTemplatesStack**: SES templates (welcome, reset, reminder, event).
 - **ApiDomainStack**: Custom domain + API mappings (basePath per context) + Route53 alias.
-- **PetoApplicationStack**: AppRegistry application + attribute group for the whole platform.
-- **PetoAppRegistryAssociationsStack**: Associates all stacks to the AppRegistry application.
+- **PettziApplicationStack**: AppRegistry application + attribute group for the whole platform.
+- **PettziAppRegistryAssociationsStack**: Associates all stacks to the AppRegistry application.

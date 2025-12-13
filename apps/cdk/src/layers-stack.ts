@@ -16,7 +16,7 @@ export class LayersStack extends Stack {
   constructor(scope: Construct, id: string, props?: LayersStackProps) {
     super(scope, id, props);
 
-    Tags.of(this).add('project', 'peto');
+    Tags.of(this).add('project', 'pettzi');
     Tags.of(this).add('AppManagerCFNStackKey', id);
 
 
@@ -30,28 +30,28 @@ export class LayersStack extends Stack {
       'CognitoDepsLayer',
       path.join(layerRoot, 'cognito-deps'),
       `cognito SDK deps (${stage})`,
-      `peto-cognito-deps-${stage}`,
+      `pettzi-cognito-deps-${stage}`,
     );
 
     this.s3DepsLayer = this.createLayer(
       'S3DepsLayer',
       path.join(layerRoot, 's3-deps'),
       `S3 SDK deps (${stage})`,
-      `peto-s3-deps-${stage}`,
+      `pettzi-s3-deps-${stage}`,
     );
 
     this.sesDepsLayer = this.createLayer(
       'SesDepsLayer',
       path.join(layerRoot, 'ses-deps'),
       `SES SDK deps (${stage})`,
-      `peto-ses-deps-${stage}`,
+      `pettzi-ses-deps-${stage}`,
     );
 
     this.ddbDepsLayer = this.createLayer(
       'DdbDepsLayer',
       path.join(layerRoot, 'ddb-deps'),
       `DDB SDK deps (${stage})`,
-      `peto-ddb-deps-${stage}`,
+      `pettzi-ddb-deps-${stage}`,
     );
   }
 

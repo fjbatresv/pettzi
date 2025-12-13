@@ -14,8 +14,8 @@
         
         %% --- Networking & Entry ---
         subgraph Networking["Networking & Entry"]
-            Route53["Amazon Route 53\nZona peto.app"]
-            ApiDomain["API Gateway Custom Domain\napi.peto.app\n(ApiDomainStack)"]
+            Route53["Amazon Route 53\nZona pettzi.app"]
+            ApiDomain["API Gateway Custom Domain\napi.pettzi.app\n(ApiDomainStack)"]
             ApiMappings["API Mappings\n/auth, /pets, /owners, /events, /reminders, /uploads, /catalogs"]
         end
 
@@ -67,7 +67,7 @@
 
         %% --- Data Stores ---
         subgraph Data["Data Stores"]
-            PetoTable["Amazon DynamoDB\nPetoTable (Single-table)"]
+            PettziTable["Amazon DynamoDB\nPettziTable (Single-table)"]
             DocsBucket["Amazon S3\nDocs & Photos Bucket"]
         end
 
@@ -80,7 +80,7 @@
 
         %% --- Governance / Registry ---
         subgraph Governance["Governance & Registry"]
-            AppRegistry["AWS Service Catalog AppRegistry\nPetoApplicationStack\n(Application + Attributes + Stack Associations)"]
+            AppRegistry["AWS Service Catalog AppRegistry\nPettziApplicationStack\n(Application + Attributes + Stack Associations)"]
         end
 
     end
@@ -108,39 +108,39 @@
 
     %% Pets
     PetsApi --> PetsLambdas
-    PetsLambdas --> PetoTable
+    PetsLambdas --> PettziTable
     PetsLambdas -.-> LambdaLayers
 
     %% Owners
     OwnersApi --> OwnersLambdas
-    OwnersLambdas --> PetoTable
+    OwnersLambdas --> PettziTable
     OwnersLambdas -.-> LambdaLayers
 
     %% Events
     EventsApi --> EventsLambdas
-    EventsLambdas --> PetoTable
+    EventsLambdas --> PettziTable
     EventsLambdas -.-> LambdaLayers
 
     %% Reminders API (gestión)
     RemindersApi --> RemindersLambdas
-    RemindersLambdas --> PetoTable
+    RemindersLambdas --> PettziTable
     RemindersLambdas -.-> LambdaLayers
 
     %% Reminders Worker (batch diario)
     EventBridgeRule --> RemindersWorker
-    RemindersWorker --> PetoTable
+    RemindersWorker --> PettziTable
     RemindersWorker --> SES
     RemindersWorker -.-> LambdaLayers
 
     %% Uploads
     UploadsApi --> UploadsLambdas
     UploadsLambdas --> DocsBucket
-    UploadsLambdas --> PetoTable
+    UploadsLambdas --> PettziTable
     UploadsLambdas -.-> LambdaLayers
 
     %% Catalogs
     CatalogsApi --> CatalogsLambdas
-    CatalogsLambdas --> PetoTable
+    CatalogsLambdas --> PettziTable
     CatalogsLambdas -.-> LambdaLayers
 
     %% SES Templates
@@ -148,7 +148,7 @@
 
     %% Governance associations (lógico)
     AppRegistry --> Cognito
-    AppRegistry --> PetoTable
+    AppRegistry --> PettziTable
     AppRegistry --> DocsBucket
     AppRegistry --> AuthApi
     AppRegistry --> PetsApi

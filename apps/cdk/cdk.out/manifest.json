@@ -1,19 +1,19 @@
 {
   "version": "48.0.0",
   "artifacts": {
-    "PetoCoreInfraStack-dev.assets": {
+    "PettziCoreInfraStack-dev.assets": {
       "type": "cdk:asset-manifest",
       "properties": {
-        "file": "PetoCoreInfraStack-dev.assets.json",
+        "file": "PettziCoreInfraStack-dev.assets.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
       }
     },
-    "PetoCoreInfraStack-dev": {
+    "PettziCoreInfraStack-dev": {
       "type": "aws:cloudformation:stack",
       "environment": "aws://605134457500/us-east-1",
       "properties": {
-        "templateFile": "PetoCoreInfraStack-dev.template.json",
+        "templateFile": "PettziCoreInfraStack-dev.template.json",
         "terminationProtection": false,
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::605134457500:role/cdk-hnb659fds-deploy-role-605134457500-us-east-1",
@@ -22,7 +22,7 @@
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
-          "PetoCoreInfraStack-dev.assets"
+          "PettziCoreInfraStack-dev.assets"
         ],
         "lookupRole": {
           "arn": "arn:${AWS::Partition}:iam::605134457500:role/cdk-hnb659fds-lookup-role-605134457500-us-east-1",
@@ -31,79 +31,79 @@
         }
       },
       "dependencies": [
-        "PetoCoreInfraStack-dev.assets"
+        "PettziCoreInfraStack-dev.assets"
       ],
       "metadata": {
-        "/PetoCoreInfraStack-dev/PetoTable": [
+        "/PettziCoreInfraStack-dev/PettziTable": [
           {
             "type": "aws:cdk:hasPhysicalName",
             "data": {
-              "Ref": "PetoTableE75AFDF0"
+              "Ref": "PettziTableE75AFDF0"
             }
           }
         ],
-        "/PetoCoreInfraStack-dev/PetoTable/Resource": [
+        "/PettziCoreInfraStack-dev/PettziTable/Resource": [
           {
             "type": "aws:cdk:logicalId",
-            "data": "PetoTableE75AFDF0"
+            "data": "PettziTableE75AFDF0"
           }
         ],
-        "/PetoCoreInfraStack-dev/DocsBucket/Resource": [
+        "/PettziCoreInfraStack-dev/DocsBucket/Resource": [
           {
             "type": "aws:cdk:logicalId",
             "data": "DocsBucketECEA003F"
           }
         ],
-        "/PetoCoreInfraStack-dev/DocsBucket/Policy/Resource": [
+        "/PettziCoreInfraStack-dev/DocsBucket/Policy/Resource": [
           {
             "type": "aws:cdk:logicalId",
             "data": "DocsBucketPolicy7BCF1FB7"
           }
         ],
-        "/PetoCoreInfraStack-dev/DocsBucket/AutoDeleteObjectsCustomResource/Default": [
+        "/PettziCoreInfraStack-dev/DocsBucket/AutoDeleteObjectsCustomResource/Default": [
           {
             "type": "aws:cdk:logicalId",
             "data": "DocsBucketAutoDeleteObjectsCustomResourceADA97380"
           }
         ],
-        "/PetoCoreInfraStack-dev/Custom::S3AutoDeleteObjectsCustomResourceProvider": [
+        "/PettziCoreInfraStack-dev/Custom::S3AutoDeleteObjectsCustomResourceProvider": [
           {
             "type": "aws:cdk:is-custom-resource-handler-customResourceProvider",
             "data": true
           }
         ],
-        "/PetoCoreInfraStack-dev/Custom::S3AutoDeleteObjectsCustomResourceProvider/Role": [
+        "/PettziCoreInfraStack-dev/Custom::S3AutoDeleteObjectsCustomResourceProvider/Role": [
           {
             "type": "aws:cdk:logicalId",
             "data": "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092"
           }
         ],
-        "/PetoCoreInfraStack-dev/Custom::S3AutoDeleteObjectsCustomResourceProvider/Handler": [
+        "/PettziCoreInfraStack-dev/Custom::S3AutoDeleteObjectsCustomResourceProvider/Handler": [
           {
             "type": "aws:cdk:logicalId",
             "data": "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F"
           }
         ],
-        "/PetoCoreInfraStack-dev/CDKMetadata/Default": [
+        "/PettziCoreInfraStack-dev/CDKMetadata/Default": [
           {
             "type": "aws:cdk:logicalId",
             "data": "CDKMetadata"
           }
         ],
-        "/PetoCoreInfraStack-dev/BootstrapVersion": [
+        "/PettziCoreInfraStack-dev/BootstrapVersion": [
           {
             "type": "aws:cdk:logicalId",
             "data": "BootstrapVersion"
           }
         ],
-        "/PetoCoreInfraStack-dev/CheckBootstrapVersion": [
+        "/PettziCoreInfraStack-dev/CheckBootstrapVersion": [
           {
             "type": "aws:cdk:logicalId",
             "data": "CheckBootstrapVersion"
           }
         ]
       },
-      "displayName": "PetoCoreInfraStack-dev"
+      "displayName": "PettziCoreInfraStack-dev"
     },
     "Tree": {
       "type": "cdk:tree",

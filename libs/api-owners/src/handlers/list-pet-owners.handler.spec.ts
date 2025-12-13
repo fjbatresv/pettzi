@@ -50,7 +50,7 @@ describe('list-pet-owners.handler', () => {
   };
 
   beforeEach(() => {
-    process.env.PETO_TABLE_NAME = 'PetoTable';
+    process.env.PETTZI_TABLE_NAME = 'PettziTable';
     sendMock.mockReset();
   });
 

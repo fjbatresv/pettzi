@@ -1,5 +1,5 @@
 {
-  "name": "@peto/api-catalogs",
+  "name": "@pettzi/api-catalogs",
   "version": "0.0.1",
   "private": true,
   "main": "./dist/index.js",
@@ -29,7 +29,7 @@
   "dependencies": {
     "tslib": "^2.3.0",
     "@types/aws-lambda": "^8.10.138",
-    "@peto/domain-model": "file:../domain-model",
-    "@peto/utils-dynamo": "file:../utils-dynamo"
+    "@pettzi/domain-model": "file:../domain-model",
+    "@pettzi/utils-dynamo": "file:../utils-dynamo"
   }
 }

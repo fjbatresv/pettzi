@@ -9,7 +9,7 @@ const swcJestConfig = JSON.parse(
 swcJestConfig.swcrc = false;
 
 module.exports = {
-  displayName: '@peto/domain-model',
+  displayName: '@pettzi/domain-model',
   preset: '../../jest.preset.js',
   testEnvironment: 'node',
   transform: {

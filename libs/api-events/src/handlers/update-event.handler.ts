@@ -5,13 +5,13 @@ import {
   badRequest,
   notFound,
   serverError,
-} from '@peto/utils-dynamo/http';
+} from '@pettzi/utils-dynamo/http';
 import {
   buildPetEventPk,
   buildPetEventSk,
   fromItemPetEvent,
-} from '@peto/domain-model';
-import { assertOwnership, docClient, getOwnerId, parseJson, PETO_TABLE_NAME } from './common';
+} from '@pettzi/domain-model';
+import { assertOwnership, docClient, getOwnerId, parseJson, PETTZI_TABLE_NAME } from './common';
 
 interface UpdateEventRequest {
   eventType?: string;
@@ -52,7 +52,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 
     const existing = await docClient.send(
       new GetCommand({
-        TableName: PETO_TABLE_NAME,
+        TableName: PETTZI_TABLE_NAME,
         Key: {
           PK: buildPetEventPk(petId),
           SK: buildPetEventSk(new Date().toISOString(), eventId),
@@ -84,7 +84,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 
     const res = await docClient.send(
       new UpdateCommand({
-        TableName: PETO_TABLE_NAME,
+        TableName: PETTZI_TABLE_NAME,
         Key: { PK: buildPetEventPk(petId), SK: item.SK },
         UpdateExpression: `SET ${updateExpressions.join(', ')}`,
         ExpressionAttributeNames: attrNames,

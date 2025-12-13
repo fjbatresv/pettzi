@@ -10,7 +10,7 @@ Run `nx build api-reminders` to build the library.
 
 Run `nx test api-reminders` to execute the unit tests via [Jest](https://jestjs.io).
 
-# @peto/api-reminders
+# @pettzi/api-reminders
 
 ## Purpose
 Expose reminder listings and process due reminders via scheduler.
@@ -21,13 +21,13 @@ Expose reminder listings and process due reminders via scheduler.
 - Uses DynamoDB GSI1 for due-date queries
 
 ## Key deps
-- `@peto/domain-model`, `@peto/utils-dynamo`, AWS SDK v3 (DynamoDB, SES)
+- `@pettzi/domain-model`, `@pettzi/utils-dynamo`, AWS SDK v3 (DynamoDB, SES)
 
 ## Tests
 - `npx nx test api-reminders`
 
 ## Deploy/usage
-- Deployed by `PetoRemindersApiStack`
+- Deployed by `PettziRemindersApiStack`
 
 ## Docs
 - Mintlify: `docs/reminders-api`

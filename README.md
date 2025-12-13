@@ -1,12 +1,12 @@
-# PETO – Monorepo (Nx + AWS CDK + Serverless Lambdas)
+# PETTZI – Monorepo (Nx + AWS CDK + Serverless Lambdas)
 
-PETO es un gestor de mascotas con enfoque en salud, vacunas, visitas veterinarias, grooming, co-propiedad, documentos y recordatorios automáticos.
+PETTZI es un gestor de mascotas con enfoque en salud, vacunas, visitas veterinarias, grooming, co-propiedad, documentos y recordatorios automáticos.
 
 ---
 
 ## Descripción general
 
-PETO permite a los usuarios administrar toda la información relacionada con sus mascotas:
+PETTZI permite a los usuarios administrar toda la información relacionada con sus mascotas:
 
 - Perfil de mascota (datos generales, especie, raza, notas, foto)
 - Manejo de múltiples dueños (PRIMARY y SECONDARY)
@@ -69,7 +69,7 @@ La arquitectura está compuesta por:
 ### Root
 
 ```bash
-peto/
+pettzi/
 ├── apps/
 ├── libs/
 ├── tools/
@@ -95,20 +95,23 @@ apps/web/
 ### Infraestructura (CDK)
 
 ```bash
-apps/peto-cdk/
-├── bin/
-│   └── peto.ts
-├── lib/
-│   ├── core-infra.stack.ts
-│   ├── auth.stack.ts
-│   ├── api-auth.stack.ts
-│   ├── api-pets.stack.ts
-│   ├── api-owners.stack.ts
-│   ├── api-events.stack.ts
-│   ├── api-catalogs.stack.ts
-│   ├── uploads.stack.ts
-│   └── reminders.stack.ts
-└── project.json
+apps/cdk/
+├── src/
+│   ├── main.ts
+│   ├── core-infra-stack.ts
+│   ├── auth-stack.ts
+│   ├── auth-api-stack.ts
+│   ├── pets-api-stack.ts
+│   ├── owners-api-stack.ts
+│   ├── events-api-stack.ts
+│   ├── catalogs-api-stack.ts
+│   ├── uploads-api-stack.ts
+│   ├── reminders-api-stack.ts
+│   ├── api-domain-stack.ts
+│   ├── app-registry-associations-stack.ts
+│   └── ses-templates-stack.ts
+├── cdk.json
+└── package.json
 ```
 
 ---
@@ -266,7 +269,7 @@ Recomendado:
 ### Deploy manual
 
 ```bash
-npx nx run peto-cdk:deploy
+npx nx run cdk:deploy
 ```
 
 ---
@@ -310,9 +313,9 @@ El archivo ```ARCHITECTURE.md``` incluirá:
 - Pages live under `mintlify/docs/*.mdx` with OpenAPI specs in `libs/api-*/openapi/*.yml`.
 
 ## Current backend stacks
-- PetoApplicationStack (AppRegistry app/metadata)
-- PetoAppRegistryAssociationsStack (associates stacks to AppRegistry)
-- CoreInfraStack (DynamoDB PetoTable, docs bucket)
+- PettziApplicationStack (AppRegistry app/metadata)
+- PettziAppRegistryAssociationsStack (associates stacks to AppRegistry)
+- CoreInfraStack (DynamoDB PettziTable, docs bucket)
 - AuthStack (Cognito user pool + client)
 - LayersStack (SDK layers: cognito, s3, ses, ddb)
 - Auth/Pets/Owners/Events/Reminders/Uploads/Catalogs API stacks (one HttpApi per bounded context)

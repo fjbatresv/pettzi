@@ -1,10 +1,10 @@
 openapi: 3.0.3
 info:
-  title: PETO Reminders API
+  title: PETTZI Reminders API
   version: "1.0.0"
   description: Endpoints for listing and processing pet reminders.
 servers:
-  - url: https://api.peto.example.com
+  - url: https://api.pettzi.example.com
 paths:
   /:
     get:

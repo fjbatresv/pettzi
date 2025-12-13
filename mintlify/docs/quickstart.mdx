@@ -22,14 +22,14 @@ npm install
 - `npx nx run cdk:deploy -- <StackName>` – deploy a specific CDK stack.
 
 ## Deploy order (dev/stage)
-1. `PetoApplicationStack` (AppRegistry app + attributes)
-2. `PetoLayersStack` (shared SDK layers)
-3. `PetoCoreInfraStack` (DynamoDB, S3)
-4. `PetoAuthStack` (Cognito)
-5. API stacks: `PetoAuthApiStack`, `PetoPetsApiStack`, `PetoOwnersApiStack`, `PetoEventsApiStack`, `PetoRemindersApiStack`, `PetoUploadsApiStack`, `PetoCatalogsApiStack`
-6. `PetoSesTemplatesStack` (SES templates)
-7. `PetoApiDomainStack` (custom domain + API mappings)
-8. `PetoAppRegistryAssociationsStack` (associates all stacks to AppRegistry)
+1. `PettziApplicationStack` (AppRegistry app + attributes)
+2. `PettziLayersStack` (shared SDK layers)
+3. `PettziCoreInfraStack` (DynamoDB, S3)
+4. `PettziAuthStack` (Cognito)
+5. API stacks: `PettziAuthApiStack`, `PettziPetsApiStack`, `PettziOwnersApiStack`, `PettziEventsApiStack`, `PettziRemindersApiStack`, `PettziUploadsApiStack`, `PettziCatalogsApiStack`
+6. `PettziSesTemplatesStack` (SES templates)
+7. `PettziApiDomainStack` (custom domain + API mappings)
+8. `PettziAppRegistryAssociationsStack` (associates all stacks to AppRegistry)
 
 ## Local tips
 - Work against a deployed dev environment; endpoints will live under the custom domain base paths (e.g. `/auth`, `/pets`, etc.).

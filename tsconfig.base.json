@@ -19,9 +19,9 @@
     "target": "es2022",
     "customConditions": ["@org/source"],
     "paths": {
-      "@peto/*": ["libs/*/src/index.ts"],
-      "@peto/utils-dynamo": ["libs/utils-dynamo/src/index.ts"],
-      "@peto/utils-dynamo/*": ["libs/utils-dynamo/src/*"]
+      "@pettzi/*": ["libs/*/src/index.ts"],
+      "@pettzi/utils-dynamo": ["libs/utils-dynamo/src/index.ts"],
+      "@pettzi/utils-dynamo/*": ["libs/utils-dynamo/src/*"]
     }
   }
 }

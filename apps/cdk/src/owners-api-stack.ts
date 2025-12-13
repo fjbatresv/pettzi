@@ -24,14 +24,14 @@ export class OwnersApiStack extends Stack {
   constructor(scope: Construct, id: string, props: OwnersApiStackProps) {
     super(scope, id, props);
 
-    Tags.of(this).add('project', 'peto');
+    Tags.of(this).add('project', 'pettzi');
     Tags.of(this).add('AppManagerCFNStackKey', id);
 
     const handlerPath = (...segments: string[]) =>
       path.resolve(__dirname, '../../../../../..', ...segments);
 
     const commonEnv = {
-      PETO_TABLE_NAME: props.table.tableName,
+      PETTZI_TABLE_NAME: props.table.tableName,
       STAGE: props.stage,
     };
 
@@ -75,8 +75,8 @@ export class OwnersApiStack extends Stack {
     );
 
     this.httpApi = new apigwv2.HttpApi(this, 'OwnersHttpApi', {
-      apiName: `PetoOwnersApi-${props.stage}`,
-      description: `Owners API for Peto (${props.stage})`,
+      apiName: `PettziOwnersApi-${props.stage}`,
+      description: `Owners API for Pettzi (${props.stage})`,
       defaultAuthorizer: authorizer,
       createDefaultStage: true,
     });
@@ -104,7 +104,7 @@ export class OwnersApiStack extends Stack {
 
     new CfnOutput(this, 'OwnersApiUrl', {
       value: this.httpApi.apiEndpoint,
-      exportName: `PetoOwnersApiUrl-${props.stage}`,
+      exportName: `PettziOwnersApiUrl-${props.stage}`,
     });
   }
 
@@ -120,9 +120,9 @@ export class OwnersApiStack extends Stack {
     const external =
       layers.length > 0
         ? [
-            '@peto/domain-model',
-            '@peto/utils-dynamo',
-            '@peto/shared-utils',
+            '@pettzi/domain-model',
+            '@pettzi/utils-dynamo',
+            '@pettzi/shared-utils',
             '@aws-sdk/client-dynamodb',
             '@aws-sdk/lib-dynamodb',
           ]

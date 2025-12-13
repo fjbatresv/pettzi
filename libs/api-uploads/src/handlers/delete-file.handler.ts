@@ -1,7 +1,7 @@
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
 import { S3Client, DeleteObjectCommand } from '@aws-sdk/client-s3';
-import { badRequest, ok, serverError, unauthorized } from '@peto/utils-dynamo/http';
-import { assertOwnership, getOwnerId, PETO_DOCS_BUCKET_NAME } from './common';
+import { badRequest, ok, serverError, unauthorized } from '@pettzi/utils-dynamo/http';
+import { assertOwnership, getOwnerId, PETTZI_DOCS_BUCKET_NAME } from './common';
 
 const s3 = new S3Client({});
 
@@ -28,7 +28,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     await assertOwnership(petId, ownerId);
     await s3.send(
       new DeleteObjectCommand({
-        Bucket: PETO_DOCS_BUCKET_NAME,
+        Bucket: PETTZI_DOCS_BUCKET_NAME,
         Key: fileKey,
       })
     );

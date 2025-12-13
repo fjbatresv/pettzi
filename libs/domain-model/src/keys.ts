@@ -6,7 +6,7 @@ import {
   buildEventSk,
   buildReminderVaccinationGsiSk,
   buildReminderVaccinationGsiPk,
-} from '@peto/utils-dynamo/key';
+} from '@pettzi/utils-dynamo/key';
 
 import { EventId, OwnerId, PetId, ReminderId, UserId } from './types';
 

@@ -1,5 +1,5 @@
 import { handler } from './list-pets.handler';
-import { PetSpecies, toItemPetOwner, toItemPet } from '@peto/domain-model';
+import { PetSpecies, toItemPetOwner, toItemPet } from '@pettzi/domain-model';
 
 jest.mock('@aws-sdk/lib-dynamodb', () => {
   const mockSend = jest.fn();
@@ -37,7 +37,7 @@ describe('list-pets.handler', () => {
       })
       .mockResolvedValueOnce({
         Responses: {
-          [process.env.PETO_TABLE_NAME ?? '']: [
+          [process.env.PETTZI_TABLE_NAME ?? '']: [
             toItemPet({
               petId: 'pet-1',
               ownerId: 'owner-1',

@@ -2,7 +2,7 @@
 # apps/cdk
 
 ## Purpose
-CDK app that defines all backend stacks for PETO (infra + APIs + domain + SES templates).
+CDK app that defines all backend stacks for PETTZI (infra + APIs + domain + SES templates).
 
 ## Responsibilities
 - Core infra (DynamoDB table, S3 docs bucket)
@@ -26,9 +26,9 @@ CDK app that defines all backend stacks for PETO (infra + APIs + domain + SES te
 - See Mintlify: `docs/stacks-overview`, `docs/custom-domain`, `docs/ses-templates`.
 
 ## AppRegistry
-- `PetoApplicationStack` crea la aplicación y el atributo de AppRegistry.
-- `PetoAppRegistryAssociationsStack` asocia los stacks ya desplegados a la aplicación.
+- `PettziApplicationStack` crea la aplicación y el atributo de AppRegistry.
+- `PettziAppRegistryAssociationsStack` asocia los stacks ya desplegados a la aplicación.
 - Despliegue recomendado:
-  1) `npx nx run cdk:deploy -- PetoApplicationStack`
+  1) `npx nx run cdk:deploy -- PettziApplicationStack`
   2) Desplegar Core/Auth/Layers/APIs/SES/Domain
-  3) `npx nx run cdk:deploy -- PetoAppRegistryAssociationsStack`
+  3) `npx nx run cdk:deploy -- PettziAppRegistryAssociationsStack`

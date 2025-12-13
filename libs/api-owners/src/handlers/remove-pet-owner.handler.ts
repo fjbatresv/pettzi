@@ -1,16 +1,16 @@
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
 import { GetCommand } from '@aws-sdk/lib-dynamodb';
-import { ok, badRequest, forbidden, notFound, serverError } from '@peto/utils-dynamo/http';
+import { ok, badRequest, forbidden, notFound, serverError } from '@pettzi/utils-dynamo/http';
 import {
   OwnerRole,
   buildPetOwnerPk,
   buildPetOwnerSk,
-} from '@peto/domain-model';
+} from '@pettzi/domain-model';
 import {
   getCallerOwnerId,
   assertOwnerOfPet,
   deleteLink,
-  PETO_TABLE_NAME,
+  PETTZI_TABLE_NAME,
   ddb,
 } from './common';
 
@@ -37,7 +37,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 
     const target = await ddb.send(
       new GetCommand({
-        TableName: PETO_TABLE_NAME,
+        TableName: PETTZI_TABLE_NAME,
         Key: {
           PK: buildPetOwnerPk(petId),
           SK: buildPetOwnerSk(targetOwnerId),

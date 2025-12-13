@@ -5,14 +5,14 @@ import {
   BatchGetCommand,
   QueryCommand,
 } from '@aws-sdk/lib-dynamodb';
-import { ok, unauthorized, serverError } from '@peto/utils-dynamo/http';
+import { ok, unauthorized, serverError } from '@pettzi/utils-dynamo/http';
 import {
   buildPetPkKey,
   buildPetSkMetadata,
   buildPetOwnerGsi1Pk,
   fromItemPet,
-} from '@peto/domain-model';
-import { getOwnerId, PETO_TABLE_NAME } from '../utils';
+} from '@pettzi/domain-model';
+import { getOwnerId, PETTZI_TABLE_NAME } from '../utils';
 
 const docClient = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const GSI1 = 'GSI1';
@@ -28,7 +28,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   try {
     const links = await docClient.send(
       new QueryCommand({
-        TableName: PETO_TABLE_NAME,
+        TableName: PETTZI_TABLE_NAME,
         IndexName: GSI1,
         KeyConditionExpression: 'GSI1PK = :pk',
         ExpressionAttributeValues: {
@@ -53,14 +53,14 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     const petsRes = await docClient.send(
       new BatchGetCommand({
         RequestItems: {
-          [PETO_TABLE_NAME]: {
+          [PETTZI_TABLE_NAME]: {
             Keys: keys,
           },
         },
       })
     );
 
-    const petsItems = petsRes.Responses?.[PETO_TABLE_NAME] ?? [];
+    const petsItems = petsRes.Responses?.[PETTZI_TABLE_NAME] ?? [];
     const pets = petsItems
       .map((item) => fromItemPet(item))
       .filter((p) => !p.isArchived);

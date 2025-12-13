@@ -5,7 +5,7 @@ import {
   QueryCommand,
   BatchWriteCommand,
 } from '@aws-sdk/lib-dynamodb';
-import { EventType, toItemPetEvent, toItemPetReminder } from '@peto/domain-model';
+import { EventType, toItemPetEvent, toItemPetReminder } from '@pettzi/domain-model';
 import { handler } from './delete-event.handler';
 
 jest.mock('@aws-sdk/lib-dynamodb', () => {
@@ -54,7 +54,7 @@ describe('delete-event.handler', () => {
   };
 
   beforeEach(() => {
-    process.env.PETO_TABLE_NAME = 'PetoTable';
+    process.env.PETTZI_TABLE_NAME = 'PettziTable';
     sendMock.mockReset();
   });
 

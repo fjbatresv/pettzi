@@ -12,7 +12,7 @@ import {
   conflict,
   created,
   serverError,
-} from '@peto/utils-dynamo/http';
+} from '@pettzi/utils-dynamo/http';
 
 interface RegisterPayload {
   email?: string;

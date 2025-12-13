@@ -3,7 +3,7 @@ import {
   CognitoIdentityProviderClient,
   ForgotPasswordCommand,
 } from '@aws-sdk/client-cognito-identity-provider';
-import { badRequest, ok, serverError } from '@peto/utils-dynamo/http';
+import { badRequest, ok, serverError } from '@pettzi/utils-dynamo/http';
 
 interface ForgotPasswordPayload {
   email?: string;

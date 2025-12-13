@@ -1,7 +1,7 @@
 {
- "Description": "Peto core infrastructure (dev)",
+ "Description": "Pettzi core infrastructure (dev)",
  "Resources": {
-  "PetoTableE75AFDF0": {
+  "PettziTableE75AFDF0": {
    "Type": "AWS::DynamoDB::Table",
    "Properties": {
     "AttributeDefinitions": [
@@ -51,12 +51,12 @@
       "KeyType": "RANGE"
      }
     ],
-    "TableName": "peto-table-dev"
+    "TableName": "pettzi-table-dev"
    },
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete",
    "Metadata": {
-    "aws:cdk:path": "PetoCoreInfraStack-dev/PetoTable/Resource"
+    "aws:cdk:path": "PettziCoreInfraStack-dev/PettziTable/Resource"
    }
   },
   "DocsBucketECEA003F": {
@@ -71,7 +71,7 @@
       }
      ]
     },
-    "BucketName": "peto-docs-dev",
+    "BucketName": "pettzi-docs-dev",
     "PublicAccessBlockConfiguration": {
      "BlockPublicAcls": true,
      "BlockPublicPolicy": true,
@@ -88,7 +88,7 @@
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete",
    "Metadata": {
-    "aws:cdk:path": "PetoCoreInfraStack-dev/DocsBucket/Resource"
+    "aws:cdk:path": "PettziCoreInfraStack-dev/DocsBucket/Resource"
    }
   },
   "DocsBucketPolicy7BCF1FB7": {
@@ -143,7 +143,7 @@
     }
    },
    "Metadata": {
-    "aws:cdk:path": "PetoCoreInfraStack-dev/DocsBucket/Policy/Resource"
+    "aws:cdk:path": "PettziCoreInfraStack-dev/DocsBucket/Policy/Resource"
    }
   },
   "DocsBucketAutoDeleteObjectsCustomResourceADA97380": {
@@ -165,7 +165,7 @@
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete",
    "Metadata": {
-    "aws:cdk:path": "PetoCoreInfraStack-dev/DocsBucket/AutoDeleteObjectsCustomResource/Default"
+    "aws:cdk:path": "PettziCoreInfraStack-dev/DocsBucket/AutoDeleteObjectsCustomResource/Default"
    }
   },
   "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092": {
@@ -190,7 +190,7 @@
     ]
    },
    "Metadata": {
-    "aws:cdk:path": "PetoCoreInfraStack-dev/Custom::S3AutoDeleteObjectsCustomResourceProvider/Role"
+    "aws:cdk:path": "PettziCoreInfraStack-dev/Custom::S3AutoDeleteObjectsCustomResourceProvider/Role"
    }
   },
   "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F": {
@@ -227,7 +227,7 @@
     "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092"
    ],
    "Metadata": {
-    "aws:cdk:path": "PetoCoreInfraStack-dev/Custom::S3AutoDeleteObjectsCustomResourceProvider/Handler",
+    "aws:cdk:path": "PettziCoreInfraStack-dev/Custom::S3AutoDeleteObjectsCustomResourceProvider/Handler",
     "aws:asset:path": "asset.faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6",
     "aws:asset:property": "Code"
    }
@@ -238,7 +238,7 @@
     "Analytics": "v2:deflate64:H4sIAAAAAAAA/3WJSw6DIBRF1+IcX4N2A9UNGO28QXga/EDCA40h7L1pbeKoo3PPuQUUZQE8EzvlUs35onuInRdyZmKnV1SHEatVPcSn6Bdk9WC+IzEqIVZBzug/8bdONHbR8rjy6SmxFskGJ5HVgbxdLx3Mn6txdtMKXSUI2YMIfefFqM2YmLEKYaLbVtyBc+DZRFrnLhivV4T25Bud2NhG4AAAAA=="
    },
    "Metadata": {
-    "aws:cdk:path": "PetoCoreInfraStack-dev/CDKMetadata/Default"
+    "aws:cdk:path": "PettziCoreInfraStack-dev/CDKMetadata/Default"
    }
   }
  },

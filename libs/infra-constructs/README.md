@@ -10,7 +10,7 @@ Run `nx build infra-constructs` to build the library.
 
 Run `nx test infra-constructs` to execute the unit tests via [Jest](https://jestjs.io).
 
-# @peto/infra-constructs
+# @pettzi/infra-constructs
 
 ## Purpose
 Shared infrastructure helpers/constructs for CDK (if/when needed by stacks).

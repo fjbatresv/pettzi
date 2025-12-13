@@ -5,16 +5,16 @@ import {
   QueryCommand,
 } from '@aws-sdk/lib-dynamodb';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { badRequest, unauthorized } from '@peto/utils-dynamo/http';
+import { badRequest, unauthorized } from '@pettzi/utils-dynamo/http';
 import {
   buildPetOwnerPk,
   buildPetOwnerSk,
   buildPetOwnerGsi1Pk,
   PetId,
   OwnerId,
-} from '@peto/domain-model';
+} from '@pettzi/domain-model';
 
-export const PETO_TABLE_NAME = process.env.PETO_TABLE_NAME ?? '';
+export const PETTZI_TABLE_NAME = process.env.PETTZI_TABLE_NAME ?? '';
 
 export const docClient = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 
@@ -35,7 +35,7 @@ export const assertOwnership = async (
 ): Promise<void> => {
   const link = await docClient.send(
     new GetCommand({
-      TableName: PETO_TABLE_NAME,
+      TableName: PETTZI_TABLE_NAME,
       Key: {
         PK: buildPetOwnerPk(petId),
         SK: buildPetOwnerSk(ownerId),
@@ -50,7 +50,7 @@ export const assertOwnership = async (
 export const listPetIdsForOwner = async (ownerId: OwnerId): Promise<PetId[]> => {
   const result = await docClient.send(
     new QueryCommand({
-      TableName: PETO_TABLE_NAME,
+      TableName: PETTZI_TABLE_NAME,
       IndexName: 'GSI1',
       KeyConditionExpression: 'GSI1PK = :pk',
       ExpressionAttributeValues: {

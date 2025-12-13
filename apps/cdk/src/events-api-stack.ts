@@ -24,14 +24,14 @@ export class EventsApiStack extends Stack {
     super(scope, id, props);
 
     const stage = this.node.tryGetContext('stage') ?? props.stage ?? process.env.STAGE ?? 'dev';
-    Tags.of(this).add('project', 'peto');
+    Tags.of(this).add('project', 'pettzi');
     Tags.of(this).add('AppManagerCFNStackKey', id);
 
     const handlerPath = (...segments: string[]) =>
       path.resolve(__dirname, '../../../../../..', ...segments);
 
     const commonEnv = {
-      PETO_TABLE_NAME: props.table.tableName,
+      PETTZI_TABLE_NAME: props.table.tableName,
       STAGE: stage,
     };
 
@@ -82,8 +82,8 @@ export class EventsApiStack extends Stack {
     );
 
     this.httpApi = new apigwv2.HttpApi(this, 'EventsHttpApi', {
-      apiName: `PetoEventsApi-${stage}`,
-      description: `Events API for Peto (${stage})`,
+      apiName: `PettziEventsApi-${stage}`,
+      description: `Events API for Pettzi (${stage})`,
       defaultAuthorizer: authorizer,
       createDefaultStage: true,
     });
@@ -116,7 +116,7 @@ export class EventsApiStack extends Stack {
 
     new CfnOutput(this, 'EventsApiUrl', {
       value: this.httpApi.apiEndpoint,
-      exportName: `PetoEventsApiUrl-${stage}`,
+      exportName: `PettziEventsApiUrl-${stage}`,
     });
   }
 

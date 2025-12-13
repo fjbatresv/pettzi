@@ -16,12 +16,12 @@ export class CoreInfraStack extends Stack {
 
     const stage = props.stage.toLowerCase().replaceAll(/[^a-z0-9-]/g, '-');
 
-    Tags.of(this).add('project', 'peto');
+    Tags.of(this).add('project', 'pettzi');
     Tags.of(this).add('AppManagerCFNStackKey', id);
 
 
-    this.table = new dynamodb.Table(this, 'PetoTable', {
-      tableName: `peto-table-${stage}`,
+    this.table = new dynamodb.Table(this, 'PettziTable', {
+      tableName: `pettzi-table-${stage}`,
       partitionKey: { name: 'PK', type: dynamodb.AttributeType.STRING },
       sortKey: { name: 'SK', type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
@@ -35,7 +35,7 @@ export class CoreInfraStack extends Stack {
     });
 
     this.docsBucket = new s3.Bucket(this, 'DocsBucket', {
-      bucketName: `peto-docs-${stage}`,
+      bucketName: `pettzi-docs-${stage}`,
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       encryption: s3.BucketEncryption.S3_MANAGED,
       autoDeleteObjects: true,

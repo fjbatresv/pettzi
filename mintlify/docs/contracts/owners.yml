@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: PETO Owners API
+  title: PETTZI Owners API
   version: "1.0.0"
 security:
   - bearerAuth: []

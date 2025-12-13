@@ -25,14 +25,14 @@ export class PetsApiStack extends Stack {
     super(scope, id, props);
 
     const stage = this.node.tryGetContext('stage') ?? process.env.STAGE ?? 'dev';
-    Tags.of(this).add('project', 'peto');
+    Tags.of(this).add('project', 'pettzi');
     Tags.of(this).add('AppManagerCFNStackKey', id);
 
     const handlerPath = (...segments: string[]) =>
       path.resolve(__dirname, '../../../../../..', ...segments);
 
     const commonEnv = {
-      PETO_TABLE_NAME: props.table.tableName,
+      PETTZI_TABLE_NAME: props.table.tableName,
       STAGE: stage,
     };
 
@@ -83,8 +83,8 @@ export class PetsApiStack extends Stack {
     );
 
     this.httpApi = new apigwv2.HttpApi(this, 'PetsHttpApi', {
-      apiName: `PetoPetsApi-${stage}`,
-      description: `Pets API for Peto (${stage})`,
+      apiName: `PettziPetsApi-${stage}`,
+      description: `Pets API for Pettzi (${stage})`,
       defaultAuthorizer: authorizer,
       createDefaultStage: true,
     });
@@ -136,9 +136,9 @@ export class PetsApiStack extends Stack {
         platform: 'node',
         externalModules: layers.length
           ? [
-              '@peto/domain-model',
-              '@peto/utils-dynamo',
-              '@peto/shared-utils',
+              '@pettzi/domain-model',
+              '@pettzi/utils-dynamo',
+              '@pettzi/shared-utils',
               '@aws-sdk/client-s3',
               '@aws-sdk/s3-request-presigner',
               '@aws-sdk/client-dynamodb',

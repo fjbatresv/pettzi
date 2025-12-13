@@ -27,15 +27,15 @@ export class UploadsApiStack extends Stack {
   constructor(scope: Construct, id: string, props: UploadsApiStackProps) {
     super(scope, id, props);
 
-    Tags.of(this).add('project', 'peto');
+    Tags.of(this).add('project', 'pettzi');
     Tags.of(this).add('AppManagerCFNStackKey', id);
 
     const handlerPath = (...segments: string[]) =>
       path.resolve(__dirname, '../../../../../..', ...segments);
 
     const commonEnv = {
-      PETO_TABLE_NAME: props.table.tableName,
-      PETO_DOCS_BUCKET_NAME: props.docsBucket.bucketName,
+      PETTZI_TABLE_NAME: props.table.tableName,
+      PETTZI_DOCS_BUCKET_NAME: props.docsBucket.bucketName,
       STAGE: props.stage,
     };
 
@@ -88,8 +88,8 @@ export class UploadsApiStack extends Stack {
     });
 
     this.httpApi = new apigwv2.HttpApi(this, 'UploadsHttpApi', {
-      apiName: `PetoUploadsApi-${props.stage}`,
-      description: `Uploads API for Peto (${props.stage})`,
+      apiName: `PettziUploadsApi-${props.stage}`,
+      description: `Uploads API for Pettzi (${props.stage})`,
       defaultAuthorizer: authorizer,
       createDefaultStage: true,
     });
@@ -122,7 +122,7 @@ export class UploadsApiStack extends Stack {
 
     new CfnOutput(this, 'UploadsApiUrl', {
       value: this.httpApi.apiEndpoint,
-      exportName: `PetoUploadsApiUrl-${props.stage}`,
+      exportName: `PettziUploadsApiUrl-${props.stage}`,
     });
   }
 
@@ -138,9 +138,9 @@ export class UploadsApiStack extends Stack {
     const external =
       layers.length > 0
         ? [
-            '@peto/domain-model',
-            '@peto/utils-dynamo',
-            '@peto/shared-utils',
+            '@pettzi/domain-model',
+            '@pettzi/utils-dynamo',
+            '@pettzi/shared-utils',
             '@aws-sdk/client-s3',
             '@aws-sdk/s3-request-presigner',
             '@aws-sdk/client-dynamodb',

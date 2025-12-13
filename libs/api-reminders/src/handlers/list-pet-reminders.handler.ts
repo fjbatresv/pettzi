@@ -4,17 +4,17 @@ import {
   ok,
   badRequest,
   serverError,
-} from '@peto/utils-dynamo/http';
+} from '@pettzi/utils-dynamo/http';
 import {
   buildPetReminderPk,
   fromItemPetReminder,
-} from '@peto/domain-model';
+} from '@pettzi/domain-model';
 import {
   assertOwnership,
   docClient,
   getOwnerId,
   parseIsoDate,
-  PETO_TABLE_NAME,
+  PETTZI_TABLE_NAME,
 } from './common';
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
@@ -47,7 +47,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 
     const res = await docClient.send(
       new QueryCommand({
-        TableName: PETO_TABLE_NAME,
+        TableName: PETTZI_TABLE_NAME,
         KeyConditionExpression: 'PK = :pk AND begins_with(SK, :sk)',
         ExpressionAttributeValues: {
           ':pk': buildPetReminderPk(petId),
