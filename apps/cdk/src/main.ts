@@ -13,7 +13,7 @@ import { OwnersApiStack } from './owners-api-stack';
 import { CatalogsApiStack } from './catalogs-api-stack';
 import { ApiDomainStack } from './api-domain-stack';
 import { SesTemplatesStack } from './ses-templates-stack';
-import { PetoApplicationStack } from './application-stack';
+import { PettziApplicationStack } from './application-stack';
 import { AppRegistryAssociationsStack } from './app-registry-associations-stack';
 
 dotenvConfig({
@@ -27,8 +27,8 @@ const region = process.env.CDK_DEFAULT_REGION ?? process.env.AWS_REGION ?? 'us-e
 const apiDomainName = process.env.API_DOMAIN_NAME;
 const apiHostedZoneName = process.env.API_HOSTED_ZONE_NAME;
 const apiHostedZoneId = process.env.API_HOSTED_ZONE_ID;
-const sesFromEmail = process.env.SES_FROM_EMAIL ?? 'no-reply@peto.app';
-const appRegistryApplicationName = process.env.APPREG_APPLICATION_NAME ?? 'PetoPlatform';
+const sesFromEmail = process.env.SES_FROM_EMAIL ?? 'no-reply@pettzi.app';
+const appRegistryApplicationName = process.env.APPREG_APPLICATION_NAME ?? 'PettziPlatform';
 
 // Ensure SDK picks the intended profile when not provided via CLI.
 process.env.AWS_PROFILE = profile;
@@ -45,47 +45,47 @@ console.log('CDK using AWS region:', region || '(default)');
 
 const app = new App();
 
-const appRegistry = new PetoApplicationStack(app, 'PetoApplicationStack', {
+const appRegistry = new PettziApplicationStack(app, 'PettziApplicationStack', {
   env: { account, region },
-  stackName: 'PetoApplicationStack',
-  description: `Peto application metadata (${stage})`,
+  stackName: 'PettziApplicationStack',
+  description: `Pettzi application metadata (${stage})`,
   applicationName: appRegistryApplicationName,
-  applicationDescription: `PETO platform (${stage})`,
+  applicationDescription: `PETTZI platform (${stage})`,
 });
 
 const resolvedAppArn = appRegistry.applicationArn;
 
-const sesTemplates = new SesTemplatesStack(app, 'PetoSesTemplatesStack', {
+const sesTemplates = new SesTemplatesStack(app, 'PettziSesTemplatesStack', {
   env: { account, region },
-  stackName: 'PetoSesTemplatesStack',
-  description: `Peto SES templates (${stage})`,
+  stackName: 'PettziSesTemplatesStack',
+  description: `Pettzi SES templates (${stage})`,
   fromEmail: sesFromEmail,
 });
 
-const layers = new LayersStack(app, 'PetoLayersStack', {
+const layers = new LayersStack(app, 'PettziLayersStack', {
   env: { account, region },
-  stackName: 'PetoLayersStack',
-  description: `Peto shared layers (${stage})`,
+  stackName: 'PettziLayersStack',
+  description: `Pettzi shared layers (${stage})`,
   stage,
 });
 
-const core = new CoreInfraStack(app, 'PetoCoreInfraStack', {
+const core = new CoreInfraStack(app, 'PettziCoreInfraStack', {
   env: { account, region },
   stage,
-  stackName: `PetoCoreInfraStack`,
-  description: `Peto core infrastructure (${stage})`,
+  stackName: `PettziCoreInfraStack`,
+  description: `Pettzi core infrastructure (${stage})`,
 });
 
-const auth = new AuthStack(app, 'PetoAuthStack', {
+const auth = new AuthStack(app, 'PettziAuthStack', {
   env: { account, region },
-  stackName: 'PetoAuthStack',
-  description: `Peto auth (${stage})`,
+  stackName: 'PettziAuthStack',
+  description: `Pettzi auth (${stage})`,
 });
 
-const authApi = new AuthApiStack(app, 'PetoAuthApiStack', {
+const authApi = new AuthApiStack(app, 'PettziAuthApiStack', {
   env: { account, region },
-  stackName: 'PetoAuthApiStack',
-  description: `Peto auth API (${stage})`,
+  stackName: 'PettziAuthApiStack',
+  description: `Pettzi auth API (${stage})`,
   userPool: auth.userPool,
   userPoolClient: auth.userPoolClient,
   depsLayer: layers.cognitoDepsLayer,
@@ -95,20 +95,20 @@ const authApi = new AuthApiStack(app, 'PetoAuthApiStack', {
   resetTemplateName: SesTemplatesStack.RESET_TEMPLATE,
 });
 
-const petsApi = new PetsApiStack(app, 'PetoPetsApiStack', {
+const petsApi = new PetsApiStack(app, 'PettziPetsApiStack', {
   env: { account, region },
-  stackName: 'PetoPetsApiStack',
-  description: `Peto pets API (${stage})`,
+  stackName: 'PettziPetsApiStack',
+  description: `Pettzi pets API (${stage})`,
   table: core.table,
   depsLayer: layers.cognitoDepsLayer,
   userPool: auth.userPool,
   userPoolClient: auth.userPoolClient,
 });
 
-const eventsApi = new EventsApiStack(app, 'PetoEventsApiStack', {
+const eventsApi = new EventsApiStack(app, 'PettziEventsApiStack', {
   env: { account, region },
-  stackName: 'PetoEventsApiStack',
-  description: `Peto events API (${stage})`,
+  stackName: 'PettziEventsApiStack',
+  description: `Pettzi events API (${stage})`,
   table: core.table,
   sharedLayer: layers.cognitoDepsLayer,
   userPool: auth.userPool,
@@ -116,10 +116,10 @@ const eventsApi = new EventsApiStack(app, 'PetoEventsApiStack', {
   stage,
 });
 
-const remindersApi = new RemindersApiStack(app, 'PetoRemindersApiStack', {
+const remindersApi = new RemindersApiStack(app, 'PettziRemindersApiStack', {
   env: { account, region },
-  stackName: 'PetoRemindersApiStack',
-  description: `Peto reminders API (${stage})`,
+  stackName: 'PettziRemindersApiStack',
+  description: `Pettzi reminders API (${stage})`,
   table: core.table,
   sharedLayer: layers.cognitoDepsLayer,
   sesLayer: layers.sesDepsLayer,
@@ -127,14 +127,14 @@ const remindersApi = new RemindersApiStack(app, 'PetoRemindersApiStack', {
   userPool: auth.userPool,
   userPoolClient: auth.userPoolClient,
   stage,
-  remindersEmailFrom: process.env.REMINDERS_EMAIL_FROM ?? 'no-reply@peto.dev',
+  remindersEmailFrom: process.env.REMINDERS_EMAIL_FROM ?? 'no-reply@pettzi.dev',
   reminderTemplateName: SesTemplatesStack.REMINDER_TEMPLATE,
 });
 
-const uploadsApi = new UploadsApiStack(app, 'PetoUploadsApiStack', {
+const uploadsApi = new UploadsApiStack(app, 'PettziUploadsApiStack', {
   env: { account, region },
-  stackName: 'PetoUploadsApiStack',
-  description: `Peto uploads API (${stage})`,
+  stackName: 'PettziUploadsApiStack',
+  description: `Pettzi uploads API (${stage})`,
   table: core.table,
   docsBucket: core.docsBucket,
   userPool: auth.userPool,
@@ -145,10 +145,10 @@ const uploadsApi = new UploadsApiStack(app, 'PetoUploadsApiStack', {
   stage,
 });
 
-const ownersApi = new OwnersApiStack(app, 'PetoOwnersApiStack', {
+const ownersApi = new OwnersApiStack(app, 'PettziOwnersApiStack', {
   env: { account, region },
-  stackName: 'PetoOwnersApiStack',
-  description: `Peto owners API (${stage})`,
+  stackName: 'PettziOwnersApiStack',
+  description: `Pettzi owners API (${stage})`,
   table: core.table,
   userPool: auth.userPool,
   userPoolClient: auth.userPoolClient,
@@ -157,10 +157,10 @@ const ownersApi = new OwnersApiStack(app, 'PetoOwnersApiStack', {
   stage,
 });
 
-const catalogsApi = new CatalogsApiStack(app, 'PetoCatalogsApiStack', {
+const catalogsApi = new CatalogsApiStack(app, 'PettziCatalogsApiStack', {
   env: { account, region },
-  stackName: 'PetoCatalogsApiStack',
-  description: `Peto catalogs API (${stage})`,
+  stackName: 'PettziCatalogsApiStack',
+  description: `Pettzi catalogs API (${stage})`,
   userPool: auth.userPool,
   userPoolClient: auth.userPoolClient,
   sharedLayer: layers.cognitoDepsLayer,
@@ -168,10 +168,10 @@ const catalogsApi = new CatalogsApiStack(app, 'PetoCatalogsApiStack', {
 });
 
 const apiDomain = apiDomainName && apiHostedZoneName
-  ? new ApiDomainStack(app, 'PetoApiDomainStack', {
+  ? new ApiDomainStack(app, 'PettziApiDomainStack', {
     env: { account, region },
-    stackName: 'PetoApiDomainStack',
-    description: `Peto API custom domain (${stage})`,
+    stackName: 'PettziApiDomainStack',
+    description: `Pettzi API custom domain (${stage})`,
     domainName: apiDomainName,
     hostedZoneName: apiHostedZoneName,
     hostedZoneId: apiHostedZoneId,
@@ -185,10 +185,10 @@ const apiDomain = apiDomainName && apiHostedZoneName
   })
   : undefined;
 
-new AppRegistryAssociationsStack(app, 'PetoAppRegistryAssociationsStack', {
+new AppRegistryAssociationsStack(app, 'PettziAppRegistryAssociationsStack', {
   env: { account, region },
-  stackName: 'PetoAppRegistryAssociationsStack',
-  description: `Peto AppRegistry associations (${stage})`,
+  stackName: 'PettziAppRegistryAssociationsStack',
+  description: `Pettzi AppRegistry associations (${stage})`,
   applicationArn: resolvedAppArn,
   applicationName: appRegistryApplicationName,
   stacks: [

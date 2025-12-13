@@ -4,7 +4,7 @@ title: Architecture Overview
 
 # Architecture Overview
 
-PETO is a serverless SaaS for pet health/ownership. The backend is built with Nx + AWS CDK v2 and runs on Lambda (Node.js 24.x) behind API Gateway HTTP APIs.
+PETTZI is a serverless SaaS for pet health/ownership. The backend is built with Nx + AWS CDK v2 and runs on Lambda (Node.js 24.x) behind API Gateway HTTP APIs.
 
 ## Main components
 - **Auth**: Cognito User Pool + User Pool Client; Auth API handles login/register/forgot/confirm.
@@ -16,7 +16,7 @@ PETO is a serverless SaaS for pet health/ownership. The backend is built with Nx
 - **Catalogs**: Read-only species/breeds/vaccines.
 
 ## Infra (CDK stacks)
-- `CoreInfraStack`: DynamoDB single table (PetoTable), S3 docs bucket.
+- `CoreInfraStack`: DynamoDB single table (PettziTable), S3 docs bucket.
 - `AuthStack`: Cognito user pool + client.
 - `LayersStack`: Lambda layers with SDK deps.
 - API stacks: one HttpApi + Lambdas per bounded context.

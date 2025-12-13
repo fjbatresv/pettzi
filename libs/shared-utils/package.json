@@ -1,5 +1,5 @@
 {
-  "name": "@peto/shared-utils",
+  "name": "@pettzi/shared-utils",
   "version": "0.0.1",
   "private": true,
   "main": "./dist/index.js",

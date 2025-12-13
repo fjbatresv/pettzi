@@ -4,7 +4,7 @@ import {
   DynamoDBDocumentClient,
   TransactWriteCommand,
 } from '@aws-sdk/lib-dynamodb';
-import { created, badRequest, serverError } from '@peto/utils-dynamo/http';
+import { created, badRequest, serverError } from '@pettzi/utils-dynamo/http';
 import {
   Pet,
   PetOwner,
@@ -12,8 +12,8 @@ import {
   PetSpecies,
   toItemPet,
   toItemPetOwner,
-} from '@peto/domain-model';
-import { getOwnerId, parseJson, PETO_TABLE_NAME, isoNow } from '../utils';
+} from '@pettzi/domain-model';
+import { getOwnerId, parseJson, PETTZI_TABLE_NAME, isoNow } from '../utils';
 
 const docClient = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 
@@ -78,14 +78,14 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         TransactItems: [
           {
             Put: {
-              TableName: PETO_TABLE_NAME,
+              TableName: PETTZI_TABLE_NAME,
               Item: petItem,
               ConditionExpression: 'attribute_not_exists(PK)',
             },
           },
           {
             Put: {
-              TableName: PETO_TABLE_NAME,
+              TableName: PETTZI_TABLE_NAME,
               Item: linkItem,
               ConditionExpression: 'attribute_not_exists(PK)',
             },

@@ -10,7 +10,7 @@ const swcJestConfig = JSON.parse(
 swcJestConfig.swcrc = false;
 
 module.exports = {
-  displayName: '@peto/utils-dynamo',
+  displayName: '@pettzi/utils-dynamo',
   preset: '../../jest.preset.js',
   testEnvironment: 'node',
   transform: {

@@ -1,5 +1,5 @@
 import { handler } from './archive-pet.handler';
-import { PetSpecies, OwnerRole, toItemPet } from '@peto/domain-model';
+import { PetSpecies, OwnerRole, toItemPet } from '@pettzi/domain-model';
 
 jest.mock('@aws-sdk/lib-dynamodb', () => {
   const mockSend = jest.fn();

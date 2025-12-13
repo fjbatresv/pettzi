@@ -4,16 +4,16 @@ import {
   DynamoDBDocumentClient,
   GetCommand,
 } from '@aws-sdk/lib-dynamodb';
-import { badRequest, unauthorized } from '@peto/utils-dynamo/http';
+import { badRequest, unauthorized } from '@pettzi/utils-dynamo/http';
 import {
   buildPetOwnerPk,
   buildPetOwnerSk,
   OwnerId,
   PetId,
-} from '@peto/domain-model';
+} from '@pettzi/domain-model';
 
-export const PETO_TABLE_NAME = process.env.PETO_TABLE_NAME ?? '';
-export const PETO_DOCS_BUCKET_NAME = process.env.PETO_DOCS_BUCKET_NAME ?? '';
+export const PETTZI_TABLE_NAME = process.env.PETTZI_TABLE_NAME ?? '';
+export const PETTZI_DOCS_BUCKET_NAME = process.env.PETTZI_DOCS_BUCKET_NAME ?? '';
 
 export const docClient = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 
@@ -34,7 +34,7 @@ export const assertOwnership = async (
 ): Promise<void> => {
   const link = await docClient.send(
     new GetCommand({
-      TableName: PETO_TABLE_NAME,
+      TableName: PETTZI_TABLE_NAME,
       Key: {
         PK: buildPetOwnerPk(petId),
         SK: buildPetOwnerSk(ownerId),

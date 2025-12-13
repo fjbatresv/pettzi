@@ -7,31 +7,31 @@ export interface SesTemplatesStackProps extends StackProps {
 }
 
 export class SesTemplatesStack extends Stack {
-  public static readonly WELCOME_TEMPLATE = 'PetoWelcomeEmail';
-  public static readonly RESET_TEMPLATE = 'PetoPasswordResetEmail';
-  public static readonly REMINDER_TEMPLATE = 'PetoReminderNotificationEmail';
-  public static readonly EVENT_TEMPLATE = 'PetoEventNotificationEmail';
+  public static readonly WELCOME_TEMPLATE = 'PettziWelcomeEmail';
+  public static readonly RESET_TEMPLATE = 'PettziPasswordResetEmail';
+  public static readonly REMINDER_TEMPLATE = 'PettziReminderNotificationEmail';
+  public static readonly EVENT_TEMPLATE = 'PettziEventNotificationEmail';
 
   constructor(scope: Construct, id: string, props: SesTemplatesStackProps) {
     super(scope, id, props);
 
-    Tags.of(this).add('project', 'peto');
+    Tags.of(this).add('project', 'pettzi');
     Tags.of(this).add('AppManagerCFNStackKey', id);
 
     new ses.CfnTemplate(this, 'WelcomeTemplate', {
       template: {
         templateName: SesTemplatesStack.WELCOME_TEMPLATE,
-        subjectPart: 'Bienvenido a PETO, {{userName}}',
+        subjectPart: 'Bienvenido a PETTZI, {{userName}}',
         htmlPart:
-          '<h1>Bienvenido a PETO</h1><p>Hola {{userName}}, gracias por unirte a PETO.</p>',
-        textPart: 'Hola {{userName}}, gracias por unirte a PETO.',
+          '<h1>Bienvenido a PETTZI</h1><p>Hola {{userName}}, gracias por unirte a PETTZI.</p>',
+        textPart: 'Hola {{userName}}, gracias por unirte a PETTZI.',
       },
     });
 
     new ses.CfnTemplate(this, 'ResetTemplate', {
       template: {
         templateName: SesTemplatesStack.RESET_TEMPLATE,
-        subjectPart: 'Restablece tu contraseña en PETO',
+        subjectPart: 'Restablece tu contraseña en PETTZI',
         htmlPart:
           '<p>Hemos recibido una solicitud de restablecimiento de contraseña.</p><p>Si fuiste tú, completa el proceso desde tu bandeja o sigue el enlace: {{resetLink}}</p>',
         textPart:
@@ -42,7 +42,7 @@ export class SesTemplatesStack extends Stack {
     new ses.CfnTemplate(this, 'ReminderTemplate', {
       template: {
         templateName: SesTemplatesStack.REMINDER_TEMPLATE,
-        subjectPart: 'Recordatorio PETO: {{eventType}} para {{petName}}',
+        subjectPart: 'Recordatorio PETTZI: {{eventType}} para {{petName}}',
         htmlPart:
           '<p>Hola,</p><p>Tienes un recordatorio de {{eventType}} para {{petName}} el {{eventDate}}.</p><p>Detalle: {{notes}}</p>',
         textPart:
@@ -53,7 +53,7 @@ export class SesTemplatesStack extends Stack {
     new ses.CfnTemplate(this, 'EventTemplate', {
       template: {
         templateName: SesTemplatesStack.EVENT_TEMPLATE,
-        subjectPart: 'Evento PETO: {{eventType}} para {{petName}}',
+        subjectPart: 'Evento PETTZI: {{eventType}} para {{petName}}',
         htmlPart:
           '<p>Evento registrado: {{eventType}} para {{petName}} el {{eventDate}}.</p><p>Notas: {{notes}}</p>',
         textPart:

@@ -10,7 +10,7 @@ const swcJestConfig = JSON.parse(
 swcJestConfig.swcrc = false;
 
 module.exports = {
-  displayName: '@peto/infra-constructs',
+  displayName: '@pettzi/infra-constructs',
   preset: '../../jest.preset.js',
   testEnvironment: 'node',
   transform: {

@@ -10,7 +10,7 @@ Run `nx build domain-model` to build the library.
 
 Run `nx test domain-model` to execute the unit tests via [Jest](https://jestjs.io).
 
-# @peto/domain-model
+# @pettzi/domain-model
 
 ## Purpose
 Central domain types, key builders, mappers, and catalogs for the single-table design.

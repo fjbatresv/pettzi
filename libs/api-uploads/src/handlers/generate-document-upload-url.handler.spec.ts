@@ -61,8 +61,8 @@ describe('generate-document-upload-url.handler', () => {
   };
 
   beforeEach(() => {
-    process.env.PETO_TABLE_NAME = 'PetoTable';
-    process.env.PETO_DOCS_BUCKET_NAME = 'docs-bucket';
+    process.env.PETTZI_TABLE_NAME = 'PettziTable';
+    process.env.PETTZI_DOCS_BUCKET_NAME = 'docs-bucket';
     ddbSendMock.mockReset();
   });
 

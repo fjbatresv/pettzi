@@ -1,5 +1,5 @@
 import { QueryCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
-import { toItemPetReminder } from '@peto/domain-model';
+import { toItemPetReminder } from '@pettzi/domain-model';
 import { handler } from './process-due-reminders.handler';
 
 jest.mock('@aws-sdk/lib-dynamodb', () => {
@@ -34,8 +34,8 @@ const { __sesSendMock: sesSendMock } = jest.requireMock('@aws-sdk/client-ses') a
 
 describe('process-due-reminders.handler', () => {
   beforeEach(() => {
-    process.env.PETO_TABLE_NAME = 'PetoTable';
-    process.env.REMINDERS_EMAIL_FROM = 'no-reply@peto.dev';
+    process.env.PETTZI_TABLE_NAME = 'PettziTable';
+    process.env.REMINDERS_EMAIL_FROM = 'no-reply@pettzi.dev';
     ddbSendMock.mockReset();
     sesSendMock.mockReset();
   });

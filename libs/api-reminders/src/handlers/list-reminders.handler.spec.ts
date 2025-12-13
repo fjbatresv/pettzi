@@ -1,6 +1,6 @@
 import { APIGatewayProxyEventV2 } from 'aws-lambda';
 import { GetCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
-import { toItemPetReminder } from '@peto/domain-model';
+import { toItemPetReminder } from '@pettzi/domain-model';
 import { handler } from './list-reminders.handler';
 
 jest.mock('@aws-sdk/lib-dynamodb', () => {
@@ -49,7 +49,7 @@ describe('list-reminders.handler', () => {
   };
 
   beforeEach(() => {
-    process.env.PETO_TABLE_NAME = 'PetoTable';
+    process.env.PETTZI_TABLE_NAME = 'PettziTable';
     sendMock.mockReset();
   });
 

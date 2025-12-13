@@ -1,6 +1,6 @@
 import { APIGatewayProxyEventV2 } from 'aws-lambda';
 import { GetCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
-import { EventType, toItemPetEvent } from '@peto/domain-model';
+import { EventType, toItemPetEvent } from '@pettzi/domain-model';
 import { handler } from './update-event.handler';
 
 jest.mock('@aws-sdk/lib-dynamodb', () => {
@@ -49,7 +49,7 @@ describe('update-event.handler', () => {
   };
 
   beforeEach(() => {
-    process.env.PETO_TABLE_NAME = 'PetoTable';
+    process.env.PETTZI_TABLE_NAME = 'PettziTable';
     sendMock.mockReset();
   });
 

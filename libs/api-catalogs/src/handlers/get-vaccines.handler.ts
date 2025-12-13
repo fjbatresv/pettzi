@@ -1,10 +1,10 @@
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
-import { ok, badRequest, serverError } from '@peto/utils-dynamo/http';
+import { ok, badRequest, serverError } from '@pettzi/utils-dynamo/http';
 import {
   catalogVaccines,
   catalogSpecies,
   PetSpecies,
-} from '@peto/domain-model';
+} from '@pettzi/domain-model';
 import { getOwnerId } from './common';
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {

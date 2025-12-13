@@ -18,11 +18,11 @@ export class AuthStack extends Stack {
   constructor(scope: Construct, id: string, props?: AuthStackProps) {
     super(scope, id, props);
 
-    Tags.of(this).add('project', 'peto');
+    Tags.of(this).add('project', 'pettzi');
     Tags.of(this).add('AppManagerCFNStackKey', id);
 
 
-    this.userPool = new UserPool(this, 'PetoUserPool', {
+    this.userPool = new UserPool(this, 'PettziUserPool', {
       selfSignUpEnabled: true,
       signInAliases: {
         email: true,
@@ -53,7 +53,7 @@ export class AuthStack extends Stack {
       },
     });
 
-    this.userPoolClient = new UserPoolClient(this, 'PetoWebClient', {
+    this.userPoolClient = new UserPoolClient(this, 'PettziWebClient', {
       userPool: this.userPool,
       generateSecret: false,
       authFlows: {

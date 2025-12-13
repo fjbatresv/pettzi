@@ -1,7 +1,7 @@
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
 import { S3Client, ListObjectsV2Command } from '@aws-sdk/client-s3';
-import { badRequest, ok, serverError } from '@peto/utils-dynamo/http';
-import { assertOwnership, getOwnerId, PETO_DOCS_BUCKET_NAME } from './common';
+import { badRequest, ok, serverError } from '@pettzi/utils-dynamo/http';
+import { assertOwnership, getOwnerId, PETTZI_DOCS_BUCKET_NAME } from './common';
 
 const s3 = new S3Client({});
 
@@ -23,7 +23,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 
     const res = await s3.send(
       new ListObjectsV2Command({
-        Bucket: PETO_DOCS_BUCKET_NAME,
+        Bucket: PETTZI_DOCS_BUCKET_NAME,
         Prefix: `pets/${petId}/`,
       })
     );

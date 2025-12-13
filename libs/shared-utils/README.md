@@ -10,7 +10,7 @@ Run `nx build shared-utils` to build the library.
 
 Run `nx test shared-utils` to execute the unit tests via [Jest](https://jestjs.io).
 
-# @peto/shared-utils
+# @pettzi/shared-utils
 
 ## Purpose
 General-purpose helpers shared across Lambdas (non-Dynamo specific).

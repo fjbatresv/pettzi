@@ -21,7 +21,7 @@ export class CatalogsApiStack extends Stack {
   constructor(scope: Construct, id: string, props: CatalogsApiStackProps) {
     super(scope, id, props);
 
-    Tags.of(this).add('project', 'peto');
+    Tags.of(this).add('project', 'pettzi');
     Tags.of(this).add('AppManagerCFNStackKey', id);
 
     const handlerPath = (...segments: string[]) =>
@@ -60,8 +60,8 @@ export class CatalogsApiStack extends Stack {
     );
 
     this.httpApi = new apigwv2.HttpApi(this, 'CatalogsHttpApi', {
-      apiName: `PetoCatalogsApi-${props.stage}`,
-      description: `Catalogs API for Peto (${props.stage})`,
+      apiName: `PettziCatalogsApi-${props.stage}`,
+      description: `Catalogs API for Pettzi (${props.stage})`,
       defaultAuthorizer: authorizer,
       createDefaultStage: true,
     });
@@ -84,7 +84,7 @@ export class CatalogsApiStack extends Stack {
 
     new CfnOutput(this, 'CatalogsApiUrl', {
       value: this.httpApi.apiEndpoint,
-      exportName: `PetoCatalogsApiUrl-${props.stage}`,
+      exportName: `PettziCatalogsApiUrl-${props.stage}`,
     });
   }
 
@@ -99,7 +99,7 @@ export class CatalogsApiStack extends Stack {
     );
     const external =
       layers.length > 0
-        ? ['@peto/domain-model', '@peto/utils-dynamo', '@peto/shared-utils']
+        ? ['@pettzi/domain-model', '@pettzi/utils-dynamo', '@pettzi/shared-utils']
         : [];
 
     return new NodejsFunction(this, id, {

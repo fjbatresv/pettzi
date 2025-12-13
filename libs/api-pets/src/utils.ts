@@ -1,7 +1,7 @@
 import { APIGatewayProxyEventV2 } from 'aws-lambda';
-import { badRequest, unauthorized } from '@peto/utils-dynamo/http';
+import { badRequest, unauthorized } from '@pettzi/utils-dynamo/http';
 
-export const PETO_TABLE_NAME = process.env.PETO_TABLE_NAME ?? '';
+export const PETTZI_TABLE_NAME = process.env.PETTZI_TABLE_NAME ?? '';
 
 export const parseJson = <T>(body: string | null | undefined) => {
   if (!body) {

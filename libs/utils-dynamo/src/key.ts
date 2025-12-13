@@ -1,7 +1,7 @@
 // libs/utils-dynamo/src/keys.ts
 
 /**
- * Keys and helpers for PetoTable (Single Table Design).
+ * Keys and helpers for PettziTable (Single Table Design).
  *
  * All PK/SK builders should be defined here to avoid string duplication
  * across lambdas.

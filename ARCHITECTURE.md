@@ -1,12 +1,12 @@
-# Arquitectura de PETO
+# Arquitectura de PETTZI
 
-Este documento describe la arquitectura de alto nivel y de detalle del sistema PETO, utilizando el modelo C4 y diagramas adicionales para el modelo de datos y flujos principales.
+Este documento describe la arquitectura de alto nivel y de detalle del sistema PETTZI, utilizando el modelo C4 y diagramas adicionales para el modelo de datos y flujos principales.
 
 ---
 
 ## 1. Resumen de la arquitectura
 
-PETO es una aplicación web serverless que permite gestionar información de mascotas, propietarios y eventos de salud (vacunas, visitas, grooming), con almacenamiento de documentos y recordatorios automáticos.
+PETTZI es una aplicación web serverless que permite gestionar información de mascotas, propietarios y eventos de salud (vacunas, visitas, grooming), con almacenamiento de documentos y recordatorios automáticos.
 
 Componentes principales:
 
@@ -16,13 +16,13 @@ Componentes principales:
 - Almacenamiento de archivos en Amazon S3.
 - Autenticación con Amazon Cognito.
 - Recordatorios con EventBridge y correos enviados con Amazon SES.
-- Infraestructura declarada con AWS CDK en `apps/peto-cdk`.
+- Infraestructura declarada con AWS CDK en `apps/cdk`.
 
 ---
 
 ## 2. C4 – Nivel 1: Diagrama de Contexto
 
-Este diagrama muestra PETO como sistema y los actores externos que lo usan.
+Este diagrama muestra PETTZI como sistema y los actores externos que lo usan.
 
 ```mermaid
 flowchart LR
@@ -32,15 +32,15 @@ flowchart LR
         vet["Veterinario / Groomer (futuro)"]
     end
 
-    peto["Sistema PETO\n(Frontend + Backend Serverless)"]
+    pettzi["Sistema PETTZI\n(Frontend + Backend Serverless)"]
 
     email["Proveedor de correo\n(SES / Email del usuario)"]
 
-    owner -->|Gestiona mascotas, eventos, documentos| peto
-    coOwner -->|Accede a mascotas compartidas| peto
-    vet -->|"Consulta información compartida (futuro)"| peto
+    owner -->|Gestiona mascotas, eventos, documentos| pettzi
+    coOwner -->|Accede a mascotas compartidas| pettzi
+    vet -->|"Consulta información compartida (futuro)"| pettzi
 
-    peto -->|Notificaciones de recordatorios| email
+    pettzi -->|Notificaciones de recordatorios| email
 ```
 
 ## 3. C4 - Nivel 2: Diagrama de Contenedores
@@ -52,7 +52,7 @@ flowchart LR
 
     user["Navegador Web\n(Angular SPA)"]
 
-    subgraph PETO["PETO en AWS"]
+    subgraph PETTZI["PETTZI en AWS"]
         webApp["Frontend SPA\napps/web (Angular 21)"]
 
         subgraph Backend["Backend Serverless"]
@@ -69,7 +69,7 @@ flowchart LR
         end
 
         subgraph Data["Datos"]
-            ddb["DynamoDB\nPetoTable (Single Table)"]
+            ddb["DynamoDB\nPettziTable (Single Table)"]
             s3["S3\nBucket de documentos e imágenes"]
         end
 
@@ -161,8 +161,8 @@ flowchart TB
         remindersProcess["Lambda reminders-process"]
     end
 
-    ddb["DynamoDB\nPetoTable"]
-    s3["S3\npeto-docs"]
+    ddb["DynamoDB\nPettziTable"]
+    s3["S3\npettzi-docs"]
     cognito["Cognito User Pool"]
     ses["SES"]
     eventBridge["EventBridge\nReglas diarias"]
@@ -226,13 +226,13 @@ flowchart TB
 
 ## 5. Modelo de datos - Single Table en DynamoDB
 
-La tabla principal se llama PetoTable y utiliza Single Table Design.
+La tabla principal se llama PettziTable y utiliza Single Table Design.
 Campos base: PK, SK, GSI1PK, GSI1SK, entityType, más atributos específicos.
 
 ```mermaid
 flowchart TB
 
-    subgraph PetoTable["PetoTable (Single Table)"]
+    subgraph PettziTable["PettziTable (Single Table)"]
 
         userProfile["USER PROFILE
 PK = USER#<userId>
@@ -388,7 +388,7 @@ sequenceDiagram
 Los stacks de CDK se organizan de forma modular:
 
 	•	CoreInfraStack
-	•	Define PetoTable (DynamoDB).
+	•	Define PettziTable (DynamoDB).
 	•	Define bucket S3 para documentos.
 	•	Configura SES (dominio o email verificado).
 	•	AuthStack
@@ -404,7 +404,7 @@ Los stacks de CDK se organizan de forma modular:
 	•	UploadsStack
 	•	RemindersStack
 	•	Cada uno define sus lambdas y rutas.
-	•	Todos referencian la misma tabla PetoTable.
+	•	Todos referencian la misma tabla PettziTable.
 	•	RemindersStack además crea la regla de EventBridge.
 
 ## 10. Notas de diseño
@@ -426,7 +426,7 @@ Los stacks de CDK se organizan de forma modular:
 - EventBridge scheduled rule triggers reminder processor daily.
 
 ## Infra recap (CDK)
-- CoreInfraStack: DynamoDB PetoTable (single-table + GSI1), S3 docs bucket.
+- CoreInfraStack: DynamoDB PettziTable (single-table + GSI1), S3 docs bucket.
 - AuthStack: Cognito user pool + client.
 - LayersStack: SDK layers (cognito, s3, ses, ddb).
 - API stacks: Auth/Pets/Owners/Events/Reminders/Uploads/Catalogs (HttpApi + Lambdas).
@@ -436,5 +436,5 @@ Los stacks de CDK se organizan de forma modular:
 For deeper docs see Mintlify under `mintlify/docs`.
 
 ## AppRegistry
-- `PetoApplicationStack` define la aplicación y atributos en Service Catalog AppRegistry.
-- `PetoAppRegistryAssociationsStack` asocia todos los stacks (core, auth, layers, APIs, SES, dominio) a la aplicación para observabilidad y trazabilidad.
+- `PettziApplicationStack` define la aplicación y atributos en Service Catalog AppRegistry.
+- `PettziAppRegistryAssociationsStack` asocia todos los stacks (core, auth, layers, APIs, SES, dominio) a la aplicación para observabilidad y trazabilidad.

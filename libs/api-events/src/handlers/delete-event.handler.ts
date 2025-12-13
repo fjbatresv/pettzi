@@ -1,12 +1,12 @@
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
 import { GetCommand, DeleteCommand, QueryCommand, BatchWriteCommand } from '@aws-sdk/lib-dynamodb';
-import { ok, badRequest, notFound, serverError } from '@peto/utils-dynamo/http';
+import { ok, badRequest, notFound, serverError } from '@pettzi/utils-dynamo/http';
 import {
   buildPetEventPk,
   buildPetEventSk,
   buildPetReminderPk,
-} from '@peto/domain-model';
-import { assertOwnership, docClient, getOwnerId, PETO_TABLE_NAME } from './common';
+} from '@pettzi/domain-model';
+import { assertOwnership, docClient, getOwnerId, PETTZI_TABLE_NAME } from './common';
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   const petId = event.pathParameters?.petId;
@@ -27,7 +27,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 
     const res = await docClient.send(
       new GetCommand({
-        TableName: PETO_TABLE_NAME,
+        TableName: PETTZI_TABLE_NAME,
         Key: { PK: buildPetEventPk(petId), SK: buildPetEventSk(new Date().toISOString(), eventId) },
       })
     );
@@ -40,7 +40,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     // Delete event
     await docClient.send(
       new DeleteCommand({
-        TableName: PETO_TABLE_NAME,
+        TableName: PETTZI_TABLE_NAME,
         Key: { PK: buildPetEventPk(petId), SK: item.SK },
       })
     );
@@ -48,7 +48,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     // Remove related reminders for this event
     const reminders = await docClient.send(
       new QueryCommand({
-        TableName: PETO_TABLE_NAME,
+        TableName: PETTZI_TABLE_NAME,
         KeyConditionExpression: 'PK = :pk AND begins_with(SK, :sk)',
         ExpressionAttributeValues: {
           ':pk': buildPetReminderPk(petId),
@@ -61,7 +61,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
       await docClient.send(
         new BatchWriteCommand({
           RequestItems: {
-            [PETO_TABLE_NAME]: toDelete.map((r) => ({
+            [PETTZI_TABLE_NAME]: toDelete.map((r) => ({
               DeleteRequest: { Key: { PK: r.PK, SK: r.SK } },
             })),
           },

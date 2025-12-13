@@ -1,5 +1,5 @@
 import { APIGatewayProxyEventV2 } from 'aws-lambda';
-import { badRequest, unauthorized } from '@peto/utils-dynamo/http';
+import { badRequest, unauthorized } from '@pettzi/utils-dynamo/http';
 import {
   DynamoDBDocumentClient,
   GetCommand,
@@ -10,9 +10,9 @@ import {
   buildPetOwnerSk,
   PetId,
   OwnerId,
-} from '@peto/domain-model';
+} from '@pettzi/domain-model';
 
-export const PETO_TABLE_NAME = process.env.PETO_TABLE_NAME ?? '';
+export const PETTZI_TABLE_NAME = process.env.PETTZI_TABLE_NAME ?? '';
 
 const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 
@@ -44,7 +44,7 @@ export const assertOwnership = async (
 ): Promise<void> => {
   const link = await ddb.send(
     new GetCommand({
-      TableName: PETO_TABLE_NAME,
+      TableName: PETTZI_TABLE_NAME,
       Key: {
         PK: buildPetOwnerPk(petId),
         SK: buildPetOwnerSk(ownerId),

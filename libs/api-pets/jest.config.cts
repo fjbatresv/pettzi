@@ -10,17 +10,17 @@ const swcJestConfig = JSON.parse(
 swcJestConfig.swcrc = false;
 
 module.exports = {
-  displayName: '@peto/api-pets',
+  displayName: '@pettzi/api-pets',
   preset: '../../jest.preset.js',
   testEnvironment: 'node',
   transform: {
     '^.+\\.[tj]s$': ['@swc/jest', swcJestConfig],
   },
   moduleNameMapper: {
-    '^@peto/utils-dynamo/(.*)$': '<rootDir>/../utils-dynamo/src/$1',
-    '^@peto/utils-dynamo$': '<rootDir>/../utils-dynamo/src/index',
-    '^@peto/domain-model/(.*)$': '<rootDir>/../domain-model/src/$1',
-    '^@peto/domain-model$': '<rootDir>/../domain-model/src/index',
+    '^@pettzi/utils-dynamo/(.*)$': '<rootDir>/../utils-dynamo/src/$1',
+    '^@pettzi/utils-dynamo$': '<rootDir>/../utils-dynamo/src/index',
+    '^@pettzi/domain-model/(.*)$': '<rootDir>/../domain-model/src/$1',
+    '^@pettzi/domain-model$': '<rootDir>/../domain-model/src/index',
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
   coverageDirectory: 'test-output/jest/coverage',

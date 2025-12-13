@@ -11,15 +11,15 @@ import {
   unauthorized,
   notFound,
   serverError,
-} from '@peto/utils-dynamo/http';
+} from '@pettzi/utils-dynamo/http';
 import {
   buildPetOwnerPk,
   buildPetOwnerSk,
   buildPetPkKey,
   buildPetSkMetadata,
   fromItemPet,
-} from '@peto/domain-model';
-import { getOwnerId, parseJson, PETO_TABLE_NAME, isoNow } from '../utils';
+} from '@pettzi/domain-model';
+import { getOwnerId, parseJson, PETTZI_TABLE_NAME, isoNow } from '../utils';
 
 const docClient = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 
@@ -59,7 +59,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   try {
     const link = await docClient.send(
       new GetCommand({
-        TableName: PETO_TABLE_NAME,
+        TableName: PETTZI_TABLE_NAME,
         Key: {
           PK: buildPetOwnerPk(petId),
           SK: buildPetOwnerSk(ownerId),
@@ -96,7 +96,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 
     const res = await docClient.send(
       new UpdateCommand({
-        TableName: PETO_TABLE_NAME,
+        TableName: PETTZI_TABLE_NAME,
         Key: {
           PK: buildPetPkKey(petId),
           SK: buildPetSkMetadata(),

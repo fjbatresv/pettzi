@@ -10,7 +10,7 @@ Run `nx build api-uploads` to build the library.
 
 Run `nx test api-uploads` to execute the unit tests via [Jest](https://jestjs.io).
 
-# @peto/api-uploads
+# @pettzi/api-uploads
 
 ## Purpose
 Provide presigned URLs for pet photos/documents and list/download/delete files.
@@ -20,13 +20,13 @@ Provide presigned URLs for pet photos/documents and list/download/delete files.
 - Generate S3 PUT/GET URLs and list objects under pet prefixes
 
 ## Key deps
-- `@peto/domain-model`, `@peto/utils-dynamo`, AWS SDK v3 (S3, DynamoDB)
+- `@pettzi/domain-model`, `@pettzi/utils-dynamo`, AWS SDK v3 (S3, DynamoDB)
 
 ## Tests
 - `npx nx test api-uploads`
 
 ## Deploy/usage
-- Deployed by `PetoUploadsApiStack`
+- Deployed by `PettziUploadsApiStack`
 
 ## Docs
 - Mintlify: `docs/uploads-api`

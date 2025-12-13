@@ -1,10 +1,10 @@
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
-import { created, badRequest, conflict, forbidden, unauthorized, serverError } from '@peto/utils-dynamo/http';
+import { created, badRequest, conflict, forbidden, unauthorized, serverError } from '@pettzi/utils-dynamo/http';
 import {
   OwnerRole,
   PetOwner,
   toItemPetOwner,
-} from '@peto/domain-model';
+} from '@pettzi/domain-model';
 import {
   getCallerOwnerId,
   assertOwnerOfPet,

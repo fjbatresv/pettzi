@@ -1,16 +1,16 @@
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
 import { QueryCommand } from '@aws-sdk/lib-dynamodb';
-import { ok, serverError } from '@peto/utils-dynamo/http';
+import { ok, serverError } from '@pettzi/utils-dynamo/http';
 import {
   buildPetReminderPk,
   fromItemPetReminder,
-} from '@peto/domain-model';
+} from '@pettzi/domain-model';
 import {
   docClient,
   getOwnerId,
   listPetIdsForOwner,
   parseIsoDate,
-  PETO_TABLE_NAME,
+  PETTZI_TABLE_NAME,
 } from './common';
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
@@ -43,7 +43,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     for (const petId of petIds) {
       const res = await docClient.send(
         new QueryCommand({
-          TableName: PETO_TABLE_NAME,
+          TableName: PETTZI_TABLE_NAME,
           KeyConditionExpression: 'PK = :pk AND begins_with(SK, :sk)',
           ExpressionAttributeValues: {
             ':pk': buildPetReminderPk(petId),

@@ -1,5 +1,5 @@
 import { APIGatewayProxyEventV2 } from 'aws-lambda';
-import { unauthorized } from '@peto/utils-dynamo/http';
+import { unauthorized } from '@pettzi/utils-dynamo/http';
 
 export const getOwnerId = (event: APIGatewayProxyEventV2): string => {
   const claims = (event.requestContext as unknown as {

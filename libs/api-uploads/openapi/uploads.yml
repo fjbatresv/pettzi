@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: PETO Uploads API
+  title: PETTZI Uploads API
   version: "1.0.0"
 security:
   - bearerAuth: []

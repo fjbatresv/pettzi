@@ -1,12 +1,12 @@
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
 import { QueryCommand } from '@aws-sdk/lib-dynamodb';
-import { ok, badRequest, serverError } from '@peto/utils-dynamo/http';
+import { ok, badRequest, serverError } from '@pettzi/utils-dynamo/http';
 import {
   buildPetEventPk,
   fromItemPetEvent,
   PetId,
-} from '@peto/domain-model';
-import { assertOwnership, docClient, getOwnerId, PETO_TABLE_NAME } from './common';
+} from '@pettzi/domain-model';
+import { assertOwnership, docClient, getOwnerId, PETTZI_TABLE_NAME } from './common';
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   const petId = event.pathParameters?.petId as PetId | undefined;
@@ -26,7 +26,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 
     const res = await docClient.send(
       new QueryCommand({
-        TableName: PETO_TABLE_NAME,
+        TableName: PETTZI_TABLE_NAME,
         KeyConditionExpression: 'PK = :pk AND begins_with(SK, :sk)',
         ExpressionAttributeValues: {
           ':pk': buildPetEventPk(petId),

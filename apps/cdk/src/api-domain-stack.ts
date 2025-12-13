@@ -22,7 +22,7 @@ export class ApiDomainStack extends Stack {
   constructor(scope: Construct, id: string, props: ApiDomainStackProps) {
     super(scope, id, props);
 
-    Tags.of(this).add('project', 'peto');
+    Tags.of(this).add('project', 'pettzi');
     Tags.of(this).add('AppManagerCFNStackKey', id);
 
     const zone =
@@ -78,7 +78,7 @@ export class ApiDomainStack extends Stack {
 
     new CfnOutput(this, 'ApiCustomDomainUrl', {
       value: `https://${props.domainName}`,
-      exportName: `PetoApiCustomDomain-${props.domainName.replaceAll(/[^A-Za-z0-9-]/g, '-')}`,
+      exportName: `PettziApiCustomDomain-${props.domainName.replaceAll(/[^A-Za-z0-9-]/g, '-')}`,
     });
   }
 }

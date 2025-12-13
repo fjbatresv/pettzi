@@ -36,7 +36,7 @@ export class AuthApiStack extends Stack {
     super(scope, id, props);
 
     const stage = this.node.tryGetContext('stage') ?? process.env.STAGE ?? 'dev';
-    Tags.of(this).add('project', 'peto');
+    Tags.of(this).add('project', 'pettzi');
     Tags.of(this).add('AppManagerCFNStackKey', id);
 
 
@@ -123,8 +123,8 @@ export class AuthApiStack extends Stack {
     });
 
     this.httpApi = new apigwv2.HttpApi(this, 'AuthHttpApi', {
-      apiName: `PetoAuthApi-${stage}`,
-      description: `Auth API for Peto (${stage})`,
+      apiName: `PettziAuthApi-${stage}`,
+      description: `Auth API for Pettzi (${stage})`,
       defaultAuthorizer: this.authorizer,
       createDefaultStage: true,
     });
@@ -158,7 +158,7 @@ export class AuthApiStack extends Stack {
 
     new CfnOutput(this, 'AuthApiUrl', {
       value: this.httpApi.apiEndpoint,
-      exportName: `PetoAuthApiUrl-${stage}`,
+      exportName: `PettziAuthApiUrl-${stage}`,
     });
 
   }

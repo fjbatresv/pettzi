@@ -10,7 +10,7 @@ Run `nx build utils-dynamo` to build the library.
 
 Run `nx test utils-dynamo` to execute the unit tests via [Jest](https://jestjs.io).
 
-# @peto/utils-dynamo
+# @pettzi/utils-dynamo
 
 ## Purpose
 Shared HTTP response helpers and Dynamo key utilities for Lambdas.

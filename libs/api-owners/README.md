@@ -10,7 +10,7 @@ Run `nx build api-owners` to build the library.
 
 Run `nx test api-owners` to execute the unit tests via [Jest](https://jestjs.io).
 
-# @peto/api-owners
+# @pettzi/api-owners
 
 ## Purpose
 Manage owner profile and co-ownership (PRIMARY/SECONDARY) links to pets.
@@ -20,13 +20,13 @@ Manage owner profile and co-ownership (PRIMARY/SECONDARY) links to pets.
 - List/add/remove pet owners (with PRIMARY enforcement)
 
 ## Key deps
-- `@peto/domain-model`, `@peto/utils-dynamo`, AWS SDK v3 (DynamoDB)
+- `@pettzi/domain-model`, `@pettzi/utils-dynamo`, AWS SDK v3 (DynamoDB)
 
 ## Tests
 - `npx nx test api-owners`
 
 ## Deploy/usage
-- Deployed by `PetoOwnersApiStack`
+- Deployed by `PettziOwnersApiStack`
 
 ## Docs
 - Mintlify: `docs/owners-api`

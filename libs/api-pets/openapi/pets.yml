@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: PETO Pets API
+  title: PETTZI Pets API
   version: "1.0.0"
   description: CRUD operations for pets.
 security:
