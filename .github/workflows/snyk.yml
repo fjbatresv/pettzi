@@ -29,13 +29,16 @@ jobs:
         run: npm ci
 
       - name: Snyk test (all projects)
-        uses: snyk/actions/node@master
+        uses: snyk/actions/node@v3
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           command: test
-          args: --all-projects --detection-depth=4 --severity-threshold=high
-          sarif: true
+          args: >-
+            --all-projects
+            --detection-depth=4
+            --severity-threshold=high
+            --sarif-file-output=snyk.sarif
 
       - name: Upload SARIF to GitHub
         if: always()
