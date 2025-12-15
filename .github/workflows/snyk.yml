@@ -1,0 +1,44 @@
+name: Snyk Security Scan
+
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+  schedule:
+    - cron: "0 10 * * 1"
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  snyk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Snyk test (all projects)
+        uses: snyk/actions/node@v4
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          command: test
+          args: --all-projects --detection-depth=4 --severity-threshold=high
+          sarif: true
+
+      - name: Upload SARIF to GitHub
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: snyk.sarif
