@@ -41,8 +41,8 @@ jobs:
             --severity-threshold=high
             --sarif-file-output=snyk.sarif
 
-      - name: Upload SARIF to GitHub
-        if: always()
-        uses: github/codeql-action/upload-sarif@v4
-        with:
-          sarif_file: snyk.sarif
+#      - name: Upload SARIF to GitHub
+#          if: always()
+#        uses: github/codeql-action/upload-sarif@v4
+#        with:
+#          sarif_file: snyk.sarif
