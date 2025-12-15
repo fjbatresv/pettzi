@@ -13,6 +13,9 @@ const { __sendMock: sendMock } = jest.requireMock(
 
 import { handler } from './login.handler';
 
+const makeTestPassword = (label: string) =>
+  `Test-${label}-${Math.random().toString(36).slice(2, 10)}Aa!`;
+
 describe('login.handler', () => {
   beforeEach(() => {
     sendMock.mockReset();
@@ -28,7 +31,7 @@ describe('login.handler', () => {
     });
 
     const res = await handler({
-      body: JSON.stringify({ email: 'a@b.com', password: 'Password1' }),
+      body: JSON.stringify({ email: 'a@b.com', password: makeTestPassword('valid') }),
     } as any);
 
     expect(res.statusCode).toBe(200);
@@ -43,7 +46,7 @@ describe('login.handler', () => {
     sendMock.mockRejectedValue({ name: 'NotAuthorizedException' });
 
     const res = await handler({
-      body: JSON.stringify({ email: 'a@b.com', password: 'bad' }),
+      body: JSON.stringify({ email: 'a@b.com', password: makeTestPassword('invalid') }),
     } as any);
 
     expect(res.statusCode).toBe(401);

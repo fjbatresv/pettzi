@@ -179,6 +179,7 @@ export class AuthApiStack extends Stack {
       entry,
       functionName: id,
       handler: 'handler',
+      tracing: lambda.Tracing.ACTIVE,
       bundling: {
         target: 'node24',
         format: OutputFormat.CJS,
