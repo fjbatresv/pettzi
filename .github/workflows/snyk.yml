@@ -29,7 +29,7 @@ jobs:
         run: npm ci
 
       - name: Snyk test (all projects)
-        uses: snyk/actions/node@v3
+        uses: snyk/actions/node@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
