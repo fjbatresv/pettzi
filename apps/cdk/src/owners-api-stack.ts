@@ -37,24 +37,28 @@ export class OwnersApiStack extends Stack {
 
     const getMeFn = this.createFn(
       'GetCurrentOwnerHandler',
+      props.stage,
       handlerPath('libs/api-owners/src/handlers/get-current-owner.handler.ts'),
       commonEnv,
       [props.sharedLayer, props.ddbLayer],
     );
     const listOwnersFn = this.createFn(
       'ListPetOwnersHandler',
+      props.stage,
       handlerPath('libs/api-owners/src/handlers/list-pet-owners.handler.ts'),
       commonEnv,
       [props.sharedLayer, props.ddbLayer],
     );
     const addOwnerFn = this.createFn(
       'AddPetOwnerHandler',
+      props.stage,
       handlerPath('libs/api-owners/src/handlers/add-pet-owner.handler.ts'),
       commonEnv,
       [props.sharedLayer, props.ddbLayer],
     );
     const removeOwnerFn = this.createFn(
       'RemovePetOwnerHandler',
+      props.stage,
       handlerPath('libs/api-owners/src/handlers/remove-pet-owner.handler.ts'),
       commonEnv,
       [props.sharedLayer, props.ddbLayer],
@@ -110,6 +114,7 @@ export class OwnersApiStack extends Stack {
 
   private createFn(
     id: string,
+    stage: string,
     entry: string,
     environment: Record<string, string>,
     layersInput: Array<lambda.ILayerVersion | undefined>,
@@ -132,6 +137,7 @@ export class OwnersApiStack extends Stack {
       runtime: lambda.Runtime.NODEJS_24_X,
       entry,
       handler: 'handler',
+      functionName: `${id}-${stage}`,
       tracing: lambda.Tracing.ACTIVE,
       bundling: {
         target: 'node24',

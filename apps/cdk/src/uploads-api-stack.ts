@@ -41,30 +41,35 @@ export class UploadsApiStack extends Stack {
 
     const photoUploadFn = this.createFn(
       'GeneratePhotoUploadUrlHandler',
+      props.stage,
       handlerPath('libs/api-uploads/src/handlers/generate-photo-upload-url.handler.ts'),
       commonEnv,
       [props.sharedLayer, props.s3Layer, props.ddbLayer],
     );
     const docUploadFn = this.createFn(
       'GenerateDocumentUploadUrlHandler',
+      props.stage,
       handlerPath('libs/api-uploads/src/handlers/generate-document-upload-url.handler.ts'),
       commonEnv,
       [props.sharedLayer, props.s3Layer, props.ddbLayer],
     );
     const listFilesFn = this.createFn(
       'ListPetFilesHandler',
+      props.stage,
       handlerPath('libs/api-uploads/src/handlers/list-pet-files.handler.ts'),
       commonEnv,
       [props.sharedLayer, props.s3Layer, props.ddbLayer],
     );
     const downloadUrlFn = this.createFn(
       'GenerateDownloadUrlHandler',
+      props.stage,
       handlerPath('libs/api-uploads/src/handlers/generate-download-url.handler.ts'),
       commonEnv,
       [props.sharedLayer, props.s3Layer, props.ddbLayer],
     );
     const deleteFileFn = this.createFn(
       'DeleteFileHandler',
+      props.stage,
       handlerPath('libs/api-uploads/src/handlers/delete-file.handler.ts'),
       commonEnv,
       [props.sharedLayer, props.s3Layer, props.ddbLayer],
@@ -128,6 +133,7 @@ export class UploadsApiStack extends Stack {
 
   private createFn(
     id: string,
+    stage: string,
     entry: string,
     environment: Record<string, string>,
     layersInput: Array<lambda.ILayerVersion | undefined> = [],
@@ -152,6 +158,7 @@ export class UploadsApiStack extends Stack {
       runtime: lambda.Runtime.NODEJS_24_X,
       entry,
       handler: 'handler',
+      functionName: `${id}-${stage}`,
       tracing: lambda.Tracing.ACTIVE,
       bundling: {
         target: 'node24',
