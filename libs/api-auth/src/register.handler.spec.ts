@@ -13,6 +13,8 @@ const { __sendMock: sendMock } = jest.requireMock(
 
 import { handler } from './register.handler';
 
+const makeTestPassword = () => `Test-${Math.random().toString(36).slice(2, 10)}Aa!`;
+
 describe('register.handler', () => {
   beforeEach(() => {
     sendMock.mockReset();
@@ -22,7 +24,7 @@ describe('register.handler', () => {
     sendMock.mockResolvedValue({});
 
     const res = await handler({
-      body: JSON.stringify({ email: 'a@b.com', password: 'Password1' }),
+      body: JSON.stringify({ email: 'a@b.com', password: makeTestPassword() }),
     } as any);
 
     expect(res.statusCode).toBe(201);
@@ -40,7 +42,7 @@ describe('register.handler', () => {
     sendMock.mockRejectedValue({ name: 'UsernameExistsException' });
 
     const res = await handler({
-      body: JSON.stringify({ email: 'a@b.com', password: 'Password1' }),
+      body: JSON.stringify({ email: 'a@b.com', password: makeTestPassword() }),
     } as any);
 
     expect(res.statusCode).toBe(409);

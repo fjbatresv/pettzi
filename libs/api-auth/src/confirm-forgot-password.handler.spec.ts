@@ -13,6 +13,8 @@ const { __sendMock: sendMock } = jest.requireMock(
 
 import { handler } from './confirm-forgot-password.handler';
 
+const makeTestPassword = () => `Test-${Math.random().toString(36).slice(2, 10)}Aa!`;
+
 describe('confirm-forgot-password.handler', () => {
   beforeEach(() => {
     sendMock.mockReset();
@@ -25,7 +27,7 @@ describe('confirm-forgot-password.handler', () => {
       body: JSON.stringify({
         email: 'a@b.com',
         code: '123456',
-        newPassword: 'Password1',
+        newPassword: makeTestPassword(),
       }),
     } as any);
 
