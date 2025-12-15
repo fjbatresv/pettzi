@@ -37,30 +37,35 @@ export class EventsApiStack extends Stack {
 
     const createEventFn = this.createFn(
       'CreatePetEventHandler',
+      stage,
       handlerPath('libs/api-events/src/handlers/create-event.handler.ts'),
       commonEnv,
       props.sharedLayer,
     );
     const listEventsFn = this.createFn(
       'ListPetEventsHandler',
+      stage,
       handlerPath('libs/api-events/src/handlers/list-events.handler.ts'),
       commonEnv,
       props.sharedLayer,
     );
     const getEventFn = this.createFn(
       'GetPetEventHandler',
+      stage,
       handlerPath('libs/api-events/src/handlers/get-event.handler.ts'),
       commonEnv,
       props.sharedLayer,
     );
     const updateEventFn = this.createFn(
       'UpdatePetEventHandler',
+      stage,
       handlerPath('libs/api-events/src/handlers/update-event.handler.ts'),
       commonEnv,
       props.sharedLayer,
     );
     const deleteEventFn = this.createFn(
       'DeletePetEventHandler',
+      stage,
       handlerPath('libs/api-events/src/handlers/delete-event.handler.ts'),
       commonEnv,
       props.sharedLayer,
@@ -122,6 +127,7 @@ export class EventsApiStack extends Stack {
 
   private createFn(
     id: string,
+    stage: string,
     entry: string,
     environment: Record<string, string>,
     depsLayer?: lambda.ILayerVersion,
@@ -132,6 +138,7 @@ export class EventsApiStack extends Stack {
       runtime: lambda.Runtime.NODEJS_24_X,
       entry,
       handler: 'handler',
+      functionName: `${id}-${stage}`,
       tracing: lambda.Tracing.ACTIVE,
       bundling: {
         target: 'node24',

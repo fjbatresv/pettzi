@@ -38,30 +38,35 @@ export class PetsApiStack extends Stack {
 
     const createPetFn = this.createFn(
       'CreatePetHandler',
+      stage,
       handlerPath('libs/api-pets/src/handlers/create-pet.handler.ts'),
       commonEnv,
       [props.depsLayer, props.s3Layer, props.ddbLayer],
     );
     const listPetsFn = this.createFn(
       'ListPetsHandler',
+      stage,
       handlerPath('libs/api-pets/src/handlers/list-pets.handler.ts'),
       commonEnv,
       [props.depsLayer, props.s3Layer, props.ddbLayer],
     );
     const getPetFn = this.createFn(
       'GetPetHandler',
+      stage,
       handlerPath('libs/api-pets/src/handlers/get-pet.handler.ts'),
       commonEnv,
       [props.depsLayer, props.s3Layer, props.ddbLayer],
     );
     const updatePetFn = this.createFn(
       'UpdatePetHandler',
+      stage,
       handlerPath('libs/api-pets/src/handlers/update-pet.handler.ts'),
       commonEnv,
       [props.depsLayer, props.s3Layer, props.ddbLayer],
     );
     const archivePetFn = this.createFn(
       'ArchivePetHandler',
+      stage,
       handlerPath('libs/api-pets/src/handlers/archive-pet.handler.ts'),
       commonEnv,
       [props.depsLayer, props.s3Layer, props.ddbLayer],
@@ -118,6 +123,7 @@ export class PetsApiStack extends Stack {
 
   private createFn(
     id: string,
+    stage: string,
     entry: string,
     environment: Record<string, string>,
     layersInput: Array<lambda.ILayerVersion | undefined>,
@@ -130,6 +136,7 @@ export class PetsApiStack extends Stack {
       runtime: lambda.Runtime.NODEJS_24_X,
       entry,
       handler: 'handler',
+      functionName: `${id}-${stage}`,
       tracing: lambda.Tracing.ACTIVE,
       bundling: {
         target: 'node24',

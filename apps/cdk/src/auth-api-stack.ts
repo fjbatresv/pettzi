@@ -67,6 +67,7 @@ export class AuthApiStack extends Stack {
 
     const registerFn = this.createAuthFn(
       'RegisterHandler',
+      stage,
       handlerPath('libs/api-auth/src/register.handler.ts'),
       commonEnv,
       props.depsLayer,
@@ -74,6 +75,7 @@ export class AuthApiStack extends Stack {
     );
     const loginFn = this.createAuthFn(
       'LoginHandler',
+      stage,
       handlerPath('libs/api-auth/src/login.handler.ts'),
       commonEnv,
       props.depsLayer,
@@ -81,6 +83,7 @@ export class AuthApiStack extends Stack {
     );
     const forgotPasswordFn = this.createAuthFn(
       'ForgotPasswordHandler',
+      stage,
       handlerPath('libs/api-auth/src/forgot-password.handler.ts'),
       commonEnv,
       props.depsLayer,
@@ -88,6 +91,7 @@ export class AuthApiStack extends Stack {
     );
     const confirmForgotPasswordFn = this.createAuthFn(
       'ConfirmForgotPasswordHandler',
+      stage,
       handlerPath('libs/api-auth/src/confirm-forgot-password.handler.ts'),
       commonEnv,
       props.depsLayer,
@@ -165,6 +169,7 @@ export class AuthApiStack extends Stack {
 
   private createAuthFn(
     id: string,
+    stage: string,
     entry: string,
     environment: Record<string, string>,
     depsLayer?: lambda.ILayerVersion,
@@ -177,7 +182,7 @@ export class AuthApiStack extends Stack {
     return new NodejsFunction(this, id, {
       runtime: lambda.Runtime.NODEJS_24_X,
       entry,
-      functionName: id,
+      functionName: `${id}-${stage}`,
       handler: 'handler',
       tracing: lambda.Tracing.ACTIVE,
       bundling: {

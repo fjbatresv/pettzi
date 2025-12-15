@@ -33,18 +33,21 @@ export class CatalogsApiStack extends Stack {
 
     const speciesFn = this.createFn(
       'GetSpeciesHandler',
+      props.stage,
       handlerPath('libs/api-catalogs/src/handlers/get-species.handler.ts'),
       commonEnv,
       [props.sharedLayer],
     );
     const breedsFn = this.createFn(
       'GetBreedsHandler',
+      props.stage,
       handlerPath('libs/api-catalogs/src/handlers/get-breeds.handler.ts'),
       commonEnv,
       [props.sharedLayer],
     );
     const vaccinesFn = this.createFn(
       'GetVaccinesHandler',
+      props.stage,
       handlerPath('libs/api-catalogs/src/handlers/get-vaccines.handler.ts'),
       commonEnv,
       [props.sharedLayer],
@@ -90,6 +93,7 @@ export class CatalogsApiStack extends Stack {
 
   private createFn(
     id: string,
+    stage: string,
     entry: string,
     environment: Record<string, string>,
     layersInput: Array<lambda.ILayerVersion | undefined>,
@@ -106,6 +110,7 @@ export class CatalogsApiStack extends Stack {
       runtime: lambda.Runtime.NODEJS_24_X,
       entry,
       handler: 'handler',
+      functionName: `${id}-${stage}`,
       tracing: lambda.Tracing.ACTIVE,
       bundling: {
         target: 'node24',

@@ -47,18 +47,21 @@ export class RemindersApiStack extends Stack {
 
     const listRemindersFn = this.createFn(
       'ListRemindersHandler',
+      stage,
       handlerPath('libs/api-reminders/src/handlers/list-reminders.handler.ts'),
       commonEnv,
       [props.sharedLayer, props.sesLayer, props.ddbLayer],
     );
     const listPetRemindersFn = this.createFn(
       'ListPetRemindersHandler',
+      stage,
       handlerPath('libs/api-reminders/src/handlers/list-pet-reminders.handler.ts'),
       commonEnv,
       [props.sharedLayer, props.sesLayer, props.ddbLayer],
     );
     const processDueFn = this.createFn(
       'ProcessDueRemindersHandler',
+      stage,
       handlerPath('libs/api-reminders/src/handlers/process-due-reminders.handler.ts'),
       commonEnv,
       [props.sharedLayer, props.sesLayer, props.ddbLayer],
@@ -115,6 +118,7 @@ export class RemindersApiStack extends Stack {
 
   private createFn(
     id: string,
+    stage: string,
     entry: string,
     environment: Record<string, string>,
     layersInput: Array<lambda.ILayerVersion | undefined> = [],
@@ -138,6 +142,7 @@ export class RemindersApiStack extends Stack {
       runtime: lambda.Runtime.NODEJS_24_X,
       entry,
       handler: 'handler',
+      functionName: `${id}-${stage}`,
       tracing: lambda.Tracing.ACTIVE,
       bundling: {
         target: 'node24',
