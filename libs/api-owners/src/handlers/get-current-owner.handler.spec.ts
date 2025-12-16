@@ -16,7 +16,7 @@ const { __sendMock: sendMock } = jest.requireMock('@aws-sdk/lib-dynamodb') as {
 };
 
 describe('get-current-owner.handler', () => {
-  const baseEvent: APIGatewayProxyEventV2 = {
+  const baseEvent = {
     version: '2.0',
     routeKey: '',
     rawPath: '',
@@ -44,7 +44,7 @@ describe('get-current-owner.handler', () => {
       },
     },
     isBase64Encoded: false,
-  };
+  } as APIGatewayProxyEventV2;
 
   beforeEach(() => {
     process.env.PETTZI_TABLE_NAME = 'PettziTable';
@@ -53,10 +53,17 @@ describe('get-current-owner.handler', () => {
 
   it('returns owner profile', async () => {
     sendMock.mockResolvedValue({
-      Item: { PK: 'OWNER#owner-1', SK: 'PROFILE', ownerId: 'owner-1', userId: 'user-1', fullName: 'John', createdAt: new Date().toISOString() },
+      Item: {
+        PK: 'OWNER#owner-1',
+        SK: 'PROFILE',
+        ownerId: 'owner-1',
+        userId: 'user-1',
+        fullName: 'John',
+        createdAt: new Date().toISOString(),
+      },
     });
 
-    const res = await handler(baseEvent);
+    const res = await (handler as any)(baseEvent);
     expect(res.statusCode).toBe(200);
     const body = JSON.parse(res.body ?? '{}');
     expect(body.ownerId).toBe('owner-1');
@@ -64,7 +71,7 @@ describe('get-current-owner.handler', () => {
 
   it('returns not found when missing', async () => {
     sendMock.mockResolvedValue({});
-    const res = await handler(baseEvent);
+    const res = await (handler as any)(baseEvent);
     expect(res.statusCode).toBe(404);
   });
 });

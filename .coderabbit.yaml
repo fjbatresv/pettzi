@@ -1,0 +1,23 @@
+language: es
+reviews:
+  instructions: |
+    - Prioriza bugs, seguridad y regresiones en TypeScript, AWS CDK y Lambdas (Node 20/24).
+    - Verifica que los cambios respeten la estructura Nx (targets, paths) y que las dependencias nuevas sean necesarias.
+    - Señala hardcodes de secretos, riesgos de costos en AWS y ausencia de pruebas en lógica nueva.
+  path_instructions:
+    - path: 'apps/**'
+      instructions: |
+        - Enfoca la revisión en manejo de errores HTTP, validaciones de entrada y mínimos de cobertura en handlers.
+        - Revisa nombres de recursos CDK y etiquetas para consistencia con Pettzi.
+    - path: 'libs/**'
+      instructions: |
+        - Enfoca la revisión en manejo de errores HTTP, validaciones de entrada y mínimos de cobertura en handlers.
+        - Revisa nombres de recursos CDK y etiquetas para consistencia con Pettzi.
+    - path: '{mintlify/**,**/*.md,**/*.mdx}'
+      instructions: |
+        - Revisa claridad, exactitud técnica y comandos de deploy.
+  reviewers:
+    max: 1
+    auto_request: true
+  auto_approve:
+    enabled: false

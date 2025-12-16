@@ -37,27 +37,31 @@ export class OwnersApiStack extends Stack {
 
     const getMeFn = this.createFn(
       'GetCurrentOwnerHandler',
+      props.stage,
       handlerPath('libs/api-owners/src/handlers/get-current-owner.handler.ts'),
       commonEnv,
-      [props.sharedLayer, props.ddbLayer],
+      [props.sharedLayer, props.ddbLayer]
     );
     const listOwnersFn = this.createFn(
       'ListPetOwnersHandler',
+      props.stage,
       handlerPath('libs/api-owners/src/handlers/list-pet-owners.handler.ts'),
       commonEnv,
-      [props.sharedLayer, props.ddbLayer],
+      [props.sharedLayer, props.ddbLayer]
     );
     const addOwnerFn = this.createFn(
       'AddPetOwnerHandler',
+      props.stage,
       handlerPath('libs/api-owners/src/handlers/add-pet-owner.handler.ts'),
       commonEnv,
-      [props.sharedLayer, props.ddbLayer],
+      [props.sharedLayer, props.ddbLayer]
     );
     const removeOwnerFn = this.createFn(
       'RemovePetOwnerHandler',
+      props.stage,
       handlerPath('libs/api-owners/src/handlers/remove-pet-owner.handler.ts'),
       commonEnv,
-      [props.sharedLayer, props.ddbLayer],
+      [props.sharedLayer, props.ddbLayer]
     );
 
     props.table.grantReadWriteData(getMeFn);
@@ -71,7 +75,7 @@ export class OwnersApiStack extends Stack {
       {
         identitySource: ['$request.header.Authorization'],
         userPoolClients: [props.userPoolClient],
-      },
+      }
     );
 
     this.httpApi = new apigwv2.HttpApi(this, 'OwnersHttpApi', {
@@ -89,7 +93,10 @@ export class OwnersApiStack extends Stack {
     this.httpApi.addRoutes({
       path: '/pets/{petId}/owners',
       methods: [apigwv2.HttpMethod.GET],
-      integration: new HttpLambdaIntegration('ListOwnersIntegration', listOwnersFn),
+      integration: new HttpLambdaIntegration(
+        'ListOwnersIntegration',
+        listOwnersFn
+      ),
     });
     this.httpApi.addRoutes({
       path: '/pets/{petId}/owners',
@@ -99,7 +106,10 @@ export class OwnersApiStack extends Stack {
     this.httpApi.addRoutes({
       path: '/pets/{petId}/owners/{ownerId}',
       methods: [apigwv2.HttpMethod.DELETE],
-      integration: new HttpLambdaIntegration('RemoveOwnerIntegration', removeOwnerFn),
+      integration: new HttpLambdaIntegration(
+        'RemoveOwnerIntegration',
+        removeOwnerFn
+      ),
     });
 
     new CfnOutput(this, 'OwnersApiUrl', {
@@ -110,12 +120,13 @@ export class OwnersApiStack extends Stack {
 
   private createFn(
     id: string,
+    stage: string,
     entry: string,
     environment: Record<string, string>,
-    layersInput: Array<lambda.ILayerVersion | undefined>,
+    layersInput: Array<lambda.ILayerVersion | undefined>
   ): NodejsFunction {
-    const layers = layersInput.filter(
-      (l): l is lambda.ILayerVersion => Boolean(l)
+    const layers = layersInput.filter((l): l is lambda.ILayerVersion =>
+      Boolean(l)
     );
     const external =
       layers.length > 0
@@ -132,6 +143,8 @@ export class OwnersApiStack extends Stack {
       runtime: lambda.Runtime.NODEJS_24_X,
       entry,
       handler: 'handler',
+      functionName: `${id}-${stage}`,
+      tracing: lambda.Tracing.ACTIVE,
       bundling: {
         target: 'node24',
         format: OutputFormat.CJS,

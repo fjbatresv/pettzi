@@ -41,33 +41,44 @@ export class UploadsApiStack extends Stack {
 
     const photoUploadFn = this.createFn(
       'GeneratePhotoUploadUrlHandler',
-      handlerPath('libs/api-uploads/src/handlers/generate-photo-upload-url.handler.ts'),
+      props.stage,
+      handlerPath(
+        'libs/api-uploads/src/handlers/generate-photo-upload-url.handler.ts'
+      ),
       commonEnv,
-      [props.sharedLayer, props.s3Layer, props.ddbLayer],
+      [props.sharedLayer, props.s3Layer, props.ddbLayer]
     );
     const docUploadFn = this.createFn(
       'GenerateDocumentUploadUrlHandler',
-      handlerPath('libs/api-uploads/src/handlers/generate-document-upload-url.handler.ts'),
+      props.stage,
+      handlerPath(
+        'libs/api-uploads/src/handlers/generate-document-upload-url.handler.ts'
+      ),
       commonEnv,
-      [props.sharedLayer, props.s3Layer, props.ddbLayer],
+      [props.sharedLayer, props.s3Layer, props.ddbLayer]
     );
     const listFilesFn = this.createFn(
       'ListPetFilesHandler',
+      props.stage,
       handlerPath('libs/api-uploads/src/handlers/list-pet-files.handler.ts'),
       commonEnv,
-      [props.sharedLayer, props.s3Layer, props.ddbLayer],
+      [props.sharedLayer, props.s3Layer, props.ddbLayer]
     );
     const downloadUrlFn = this.createFn(
       'GenerateDownloadUrlHandler',
-      handlerPath('libs/api-uploads/src/handlers/generate-download-url.handler.ts'),
+      props.stage,
+      handlerPath(
+        'libs/api-uploads/src/handlers/generate-download-url.handler.ts'
+      ),
       commonEnv,
-      [props.sharedLayer, props.s3Layer, props.ddbLayer],
+      [props.sharedLayer, props.s3Layer, props.ddbLayer]
     );
     const deleteFileFn = this.createFn(
       'DeleteFileHandler',
+      props.stage,
       handlerPath('libs/api-uploads/src/handlers/delete-file.handler.ts'),
       commonEnv,
-      [props.sharedLayer, props.s3Layer, props.ddbLayer],
+      [props.sharedLayer, props.s3Layer, props.ddbLayer]
     );
 
     props.table.grantReadData(photoUploadFn);
@@ -82,10 +93,14 @@ export class UploadsApiStack extends Stack {
     props.docsBucket.grantReadWrite(downloadUrlFn);
     props.docsBucket.grantReadWrite(deleteFileFn);
 
-    const authorizer = new HttpUserPoolAuthorizer('UploadsJwtAuthorizer', props.userPool, {
-      identitySource: ['$request.header.Authorization'],
-      userPoolClients: [props.userPoolClient],
-    });
+    const authorizer = new HttpUserPoolAuthorizer(
+      'UploadsJwtAuthorizer',
+      props.userPool,
+      {
+        identitySource: ['$request.header.Authorization'],
+        userPoolClients: [props.userPoolClient],
+      }
+    );
 
     this.httpApi = new apigwv2.HttpApi(this, 'UploadsHttpApi', {
       apiName: `PettziUploadsApi-${props.stage}`,
@@ -97,27 +112,42 @@ export class UploadsApiStack extends Stack {
     this.httpApi.addRoutes({
       path: '/pets/{petId}/photo',
       methods: [apigwv2.HttpMethod.POST],
-      integration: new HttpLambdaIntegration('PhotoUploadIntegration', photoUploadFn),
+      integration: new HttpLambdaIntegration(
+        'PhotoUploadIntegration',
+        photoUploadFn
+      ),
     });
     this.httpApi.addRoutes({
       path: '/pets/{petId}/document',
       methods: [apigwv2.HttpMethod.POST],
-      integration: new HttpLambdaIntegration('DocumentUploadIntegration', docUploadFn),
+      integration: new HttpLambdaIntegration(
+        'DocumentUploadIntegration',
+        docUploadFn
+      ),
     });
     this.httpApi.addRoutes({
       path: '/pets/{petId}',
       methods: [apigwv2.HttpMethod.GET],
-      integration: new HttpLambdaIntegration('ListFilesIntegration', listFilesFn),
+      integration: new HttpLambdaIntegration(
+        'ListFilesIntegration',
+        listFilesFn
+      ),
     });
     this.httpApi.addRoutes({
       path: '/pets/{petId}/{fileKey}/download-url',
       methods: [apigwv2.HttpMethod.GET],
-      integration: new HttpLambdaIntegration('DownloadUrlIntegration', downloadUrlFn),
+      integration: new HttpLambdaIntegration(
+        'DownloadUrlIntegration',
+        downloadUrlFn
+      ),
     });
     this.httpApi.addRoutes({
       path: '/pets/{petId}/{fileKey}',
       methods: [apigwv2.HttpMethod.DELETE],
-      integration: new HttpLambdaIntegration('DeleteFileIntegration', deleteFileFn),
+      integration: new HttpLambdaIntegration(
+        'DeleteFileIntegration',
+        deleteFileFn
+      ),
     });
 
     new CfnOutput(this, 'UploadsApiUrl', {
@@ -128,12 +158,13 @@ export class UploadsApiStack extends Stack {
 
   private createFn(
     id: string,
+    stage: string,
     entry: string,
     environment: Record<string, string>,
-    layersInput: Array<lambda.ILayerVersion | undefined> = [],
+    layersInput: Array<lambda.ILayerVersion | undefined> = []
   ): NodejsFunction {
-    const layers = layersInput.filter(
-      (l): l is lambda.ILayerVersion => Boolean(l)
+    const layers = layersInput.filter((l): l is lambda.ILayerVersion =>
+      Boolean(l)
     );
     const external =
       layers.length > 0
@@ -152,6 +183,8 @@ export class UploadsApiStack extends Stack {
       runtime: lambda.Runtime.NODEJS_24_X,
       entry,
       handler: 'handler',
+      functionName: `${id}-${stage}`,
+      tracing: lambda.Tracing.ACTIVE,
       bundling: {
         target: 'node24',
         format: OutputFormat.CJS,

@@ -2,7 +2,7 @@ import { APIGatewayProxyEventV2 } from 'aws-lambda';
 import { handler } from './get-breeds.handler';
 
 describe('get-breeds.handler', () => {
-  const baseEvent: APIGatewayProxyEventV2 = {
+  const baseEvent = {
     version: '2.0',
     routeKey: '',
     rawPath: '',
@@ -30,17 +30,17 @@ describe('get-breeds.handler', () => {
       },
     },
     isBase64Encoded: false,
-  };
+  } as APIGatewayProxyEventV2;
 
   it('returns all breeds', async () => {
-    const res = await handler(baseEvent);
+    const res = await (handler as any)(baseEvent);
     expect(res.statusCode).toBe(200);
     const body = JSON.parse(res.body ?? '{}');
     expect(body.breeds?.length).toBeGreaterThan(0);
   });
 
   it('filters by species', async () => {
-    const res = await handler({
+    const res = await (handler as any)({
       ...baseEvent,
       queryStringParameters: { species: 'dog' },
     });
@@ -50,7 +50,7 @@ describe('get-breeds.handler', () => {
   });
 
   it('returns badRequest on invalid species', async () => {
-    const res = await handler({
+    const res = await (handler as any)({
       ...baseEvent,
       queryStringParameters: { species: 'invalid' },
     });

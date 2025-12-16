@@ -1,9 +1,12 @@
 import { Stack, StackProps, Tags } from 'aws-cdk-lib';
 import * as ses from 'aws-cdk-lib/aws-ses';
+import * as route53 from 'aws-cdk-lib/aws-route53';
 import { Construct } from 'constructs';
 
 export interface SesTemplatesStackProps extends StackProps {
   fromEmail: string;
+  hostedZoneName?: string;
+  hostedZoneId?: string;
 }
 
 export class SesTemplatesStack extends Stack {
@@ -18,13 +21,32 @@ export class SesTemplatesStack extends Stack {
     Tags.of(this).add('project', 'pettzi');
     Tags.of(this).add('AppManagerCFNStackKey', id);
 
+    if (props.hostedZoneName) {
+      const zone =
+        props.hostedZoneId != null
+          ? route53.HostedZone.fromHostedZoneAttributes(this, 'SesHostedZone', {
+              hostedZoneId: props.hostedZoneId,
+              zoneName: props.hostedZoneName,
+            })
+          : route53.HostedZone.fromLookup(this, 'SesHostedZoneLookup', {
+              domainName: props.hostedZoneName,
+            });
+
+      new ses.EmailIdentity(this, 'SesDomainIdentity', {
+        identity: ses.Identity.publicHostedZone(zone),
+        mailFromDomain: `mail.${zone.zoneName}`,
+      });
+    }
+
     new ses.CfnTemplate(this, 'WelcomeTemplate', {
       template: {
         templateName: SesTemplatesStack.WELCOME_TEMPLATE,
         subjectPart: 'Bienvenido a PETTZI, {{userName}}',
         htmlPart:
-          '<h1>Bienvenido a PETTZI</h1><p>Hola {{userName}}, gracias por unirte a PETTZI.</p>',
-        textPart: 'Hola {{userName}}, gracias por unirte a PETTZI.',
+          '<h1>Bienvenido a PETTZI</h1><p>Hola {{userName}}, gracias por unirte a PETTZI.</p>' +
+          '<p>Confirma tu correo haciendo clic aquí: <a href="{{verificationLink}}">{{verificationLink}}</a></p>',
+        textPart:
+          'Hola {{userName}}, gracias por unirte a PETTZI. Confirma tu correo aquí: {{verificationLink}}',
       },
     });
 
@@ -33,9 +55,10 @@ export class SesTemplatesStack extends Stack {
         templateName: SesTemplatesStack.RESET_TEMPLATE,
         subjectPart: 'Restablece tu contraseña en PETTZI',
         htmlPart:
-          '<p>Hemos recibido una solicitud de restablecimiento de contraseña.</p><p>Si fuiste tú, completa el proceso desde tu bandeja o sigue el enlace: {{resetLink}}</p>',
+          '<p>Hemos generado una contraseña temporal para ti: {{temporaryPassword}}</p>' +
+          '<p>Úsala para iniciar sesión y luego cambia tu contraseña en el panel.</p>',
         textPart:
-          'Solicitud de restablecimiento de contraseña. Completa el proceso desde tu bandeja o utiliza: {{resetLink}}',
+          'Tu contraseña temporal es {{temporaryPassword}}. Inicia sesión y actualízala.',
       },
     });
 

@@ -18,7 +18,7 @@ const { __sendMock: sendMock } = jest.requireMock('@aws-sdk/lib-dynamodb') as {
 };
 
 describe('update-event.handler', () => {
-  const baseEvent: APIGatewayProxyEventV2 = {
+  const baseEvent = {
     version: '2.0',
     routeKey: '',
     rawPath: '',
@@ -46,7 +46,7 @@ describe('update-event.handler', () => {
       },
     },
     isBase64Encoded: false,
-  };
+  } as APIGatewayProxyEventV2;
 
   beforeEach(() => {
     process.env.PETTZI_TABLE_NAME = 'PettziTable';
@@ -68,7 +68,9 @@ describe('update-event.handler', () => {
     sendMock.mockImplementation((command) => {
       if (command instanceof GetCommand) {
         call += 1;
-        return { Item: call === 1 ? { PK: 'PET#pet-1', SK: 'OWNER#owner-1' } : item };
+        return {
+          Item: call === 1 ? { PK: 'PET#pet-1', SK: 'OWNER#owner-1' } : item,
+        };
       }
       if (command instanceof UpdateCommand) {
         return { Attributes: { ...item, title: 'Updated title' } };
@@ -76,7 +78,7 @@ describe('update-event.handler', () => {
       throw new Error(`Unexpected command: ${command.constructor.name}`);
     });
 
-    const res = await handler({
+    const res = await (handler as any)({
       ...baseEvent,
       pathParameters: { petId: 'pet-1', eventId: 'event-1' },
       body: JSON.stringify({ title: 'Updated title' }),
@@ -88,7 +90,7 @@ describe('update-event.handler', () => {
   });
 
   it('returns bad request on empty body', async () => {
-    const res = await handler({
+    const res = await (handler as any)({
       ...baseEvent,
       pathParameters: { petId: 'pet-1', eventId: 'event-1' },
       body: '{}',

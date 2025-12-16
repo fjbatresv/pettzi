@@ -25,12 +25,14 @@ jest.mock('@aws-sdk/s3-request-presigner', () => ({
   getSignedUrl: jest.fn().mockResolvedValue('https://download-url'),
 }));
 
-const { __sendMock: ddbSendMock } = jest.requireMock('@aws-sdk/lib-dynamodb') as {
+const { __sendMock: ddbSendMock } = jest.requireMock(
+  '@aws-sdk/lib-dynamodb'
+) as {
   __sendMock: jest.Mock;
 };
 
 describe('generate-download-url.handler', () => {
-  const baseEvent: APIGatewayProxyEventV2 = {
+  const baseEvent = {
     version: '2.0',
     routeKey: '',
     rawPath: '',
@@ -58,7 +60,7 @@ describe('generate-download-url.handler', () => {
       },
     },
     isBase64Encoded: false,
-  };
+  } as APIGatewayProxyEventV2;
 
   beforeEach(() => {
     process.env.PETTZI_TABLE_NAME = 'PettziTable';
@@ -67,11 +69,16 @@ describe('generate-download-url.handler', () => {
   });
 
   it('returns a download url', async () => {
-    ddbSendMock.mockResolvedValue({ Item: { PK: 'PET#pet-1', SK: 'OWNER#owner-1' } });
+    ddbSendMock.mockResolvedValue({
+      Item: { PK: 'PET#pet-1', SK: 'OWNER#owner-1' },
+    });
 
-    const res = await handler({
+    const res = await (handler as any)({
       ...baseEvent,
-      pathParameters: { petId: 'pet-1', fileKey: encodeURIComponent('pets/pet-1/photos/file1.jpg') },
+      pathParameters: {
+        petId: 'pet-1',
+        fileKey: encodeURIComponent('pets/pet-1/photos/file1.jpg'),
+      },
     });
 
     expect(res.statusCode).toBe(200);
@@ -80,9 +87,12 @@ describe('generate-download-url.handler', () => {
   });
 
   it('rejects fileKey outside pet', async () => {
-    const res = await handler({
+    const res = await (handler as any)({
       ...baseEvent,
-      pathParameters: { petId: 'pet-1', fileKey: encodeURIComponent('pets/other/photos/file1.jpg') },
+      pathParameters: {
+        petId: 'pet-1',
+        fileKey: encodeURIComponent('pets/other/photos/file1.jpg'),
+      },
     });
     expect(res.statusCode).toBe(401);
   });

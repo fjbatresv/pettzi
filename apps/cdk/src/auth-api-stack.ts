@@ -4,17 +4,14 @@ import {
   StackProps,
   Duration,
   aws_iam as iam,
-  Tags
+  Tags,
 } from 'aws-cdk-lib';
 import * as apigwv2 from 'aws-cdk-lib/aws-apigatewayv2';
 import { HttpLambdaIntegration } from 'aws-cdk-lib/aws-apigatewayv2-integrations';
 import { HttpUserPoolAuthorizer } from 'aws-cdk-lib/aws-apigatewayv2-authorizers';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction, OutputFormat } from 'aws-cdk-lib/aws-lambda-nodejs';
-import {
-  UserPool,
-  UserPoolClient,
-} from 'aws-cdk-lib/aws-cognito';
+import { UserPool, UserPoolClient } from 'aws-cdk-lib/aws-cognito';
 import { Construct } from 'constructs';
 import * as path from 'path';
 
@@ -26,6 +23,9 @@ export interface AuthApiStackProps extends StackProps {
   sesFromEmail?: string;
   welcomeTemplateName?: string;
   resetTemplateName?: string;
+  verificationBaseUrl?: string;
+  verificationSecret?: string;
+  passwordResetBaseUrl?: string;
 }
 
 export class AuthApiStack extends Stack {
@@ -35,10 +35,10 @@ export class AuthApiStack extends Stack {
   constructor(scope: Construct, id: string, props: AuthApiStackProps) {
     super(scope, id, props);
 
-    const stage = this.node.tryGetContext('stage') ?? process.env.STAGE ?? 'dev';
+    const stage =
+      this.node.tryGetContext('stage') ?? process.env.STAGE ?? 'dev';
     Tags.of(this).add('project', 'pettzi');
     Tags.of(this).add('AppManagerCFNStackKey', id);
-
 
     const commonEnv = {
       COGNITO_USER_POOL_ID: props.userPool.userPoolId,
@@ -51,6 +51,15 @@ export class AuthApiStack extends Stack {
       ...(props.resetTemplateName
         ? { SES_RESET_TEMPLATE_NAME: props.resetTemplateName }
         : {}),
+      ...(props.verificationBaseUrl
+        ? { EMAIL_VERIFY_BASE_URL: props.verificationBaseUrl }
+        : {}),
+      ...(props.verificationSecret
+        ? { EMAIL_VERIFY_SECRET: props.verificationSecret }
+        : {}),
+      ...(props.passwordResetBaseUrl
+        ? { PASSWORD_RESET_BASE_URL: props.passwordResetBaseUrl }
+        : {}),
     };
 
     const handlerPath = (...segments: string[]) =>
@@ -62,18 +71,28 @@ export class AuthApiStack extends Stack {
       {
         userPoolClients: [props.userPoolClient],
         identitySource: ['$request.header.Authorization'],
-      },
+      }
     );
 
     const registerFn = this.createAuthFn(
       'RegisterHandler',
+      stage,
       handlerPath('libs/api-auth/src/register.handler.ts'),
+      commonEnv,
+      props.depsLayer,
+      props.sesLayer
+    );
+    const confirmEmailFn = this.createAuthFn(
+      'ConfirmEmailHandler',
+      stage,
+      handlerPath('libs/api-auth/src/confirm-email.handler.ts'),
       commonEnv,
       props.depsLayer,
       props.sesLayer
     );
     const loginFn = this.createAuthFn(
       'LoginHandler',
+      stage,
       handlerPath('libs/api-auth/src/login.handler.ts'),
       commonEnv,
       props.depsLayer,
@@ -81,30 +100,36 @@ export class AuthApiStack extends Stack {
     );
     const forgotPasswordFn = this.createAuthFn(
       'ForgotPasswordHandler',
+      stage,
       handlerPath('libs/api-auth/src/forgot-password.handler.ts'),
       commonEnv,
       props.depsLayer,
       props.sesLayer
     );
-    const confirmForgotPasswordFn = this.createAuthFn(
-      'ConfirmForgotPasswordHandler',
-      handlerPath('libs/api-auth/src/confirm-forgot-password.handler.ts'),
+    const completeNewPasswordFn = this.createAuthFn(
+      'CompleteNewPasswordHandler',
+      stage,
+      handlerPath('libs/api-auth/src/complete-new-password.handler.ts'),
       commonEnv,
       props.depsLayer,
       props.sesLayer
     );
 
     const cognitoActions = [
-      'cognito-idp:SignUp',
+      'cognito-idp:AdminCreateUser',
+      'cognito-idp:AdminSetUserPassword',
+      'cognito-idp:AdminConfirmSignUp',
+      'cognito-idp:AdminUpdateUserAttributes',
       'cognito-idp:InitiateAuth',
+      'cognito-idp:RespondToAuthChallenge',
       'cognito-idp:ForgotPassword',
-      'cognito-idp:ConfirmForgotPassword',
     ];
     [
       registerFn,
+      confirmEmailFn,
       loginFn,
       forgotPasswordFn,
-      confirmForgotPasswordFn,
+      completeNewPasswordFn,
     ].forEach((fn) => {
       fn.addToRolePolicy(
         new iam.PolicyStatement({
@@ -115,7 +140,11 @@ export class AuthApiStack extends Stack {
       if (props.sesFromEmail) {
         fn.addToRolePolicy(
           new iam.PolicyStatement({
-            actions: ['ses:SendEmail', 'ses:SendTemplatedEmail', 'ses:SendRawEmail'],
+            actions: [
+              'ses:SendEmail',
+              'ses:SendTemplatedEmail',
+              'ses:SendRawEmail',
+            ],
             resources: ['*'],
           })
         );
@@ -125,7 +154,6 @@ export class AuthApiStack extends Stack {
     this.httpApi = new apigwv2.HttpApi(this, 'AuthHttpApi', {
       apiName: `PettziAuthApi-${stage}`,
       description: `Auth API for Pettzi (${stage})`,
-      defaultAuthorizer: this.authorizer,
       createDefaultStage: true,
     });
 
@@ -133,6 +161,14 @@ export class AuthApiStack extends Stack {
       path: '/register',
       methods: [apigwv2.HttpMethod.POST],
       integration: new HttpLambdaIntegration('RegisterIntegration', registerFn),
+    });
+    this.httpApi.addRoutes({
+      path: '/confirm-email',
+      methods: [apigwv2.HttpMethod.POST],
+      integration: new HttpLambdaIntegration(
+        'ConfirmEmailIntegration',
+        confirmEmailFn
+      ),
     });
     this.httpApi.addRoutes({
       path: '/login',
@@ -148,11 +184,11 @@ export class AuthApiStack extends Stack {
       ),
     });
     this.httpApi.addRoutes({
-      path: '/confirm-forgot-password',
+      path: '/complete-new-password',
       methods: [apigwv2.HttpMethod.POST],
       integration: new HttpLambdaIntegration(
-        'ConfirmForgotPasswordIntegration',
-        confirmForgotPasswordFn
+        'CompleteNewPasswordIntegration',
+        completeNewPasswordFn
       ),
     });
 
@@ -160,11 +196,11 @@ export class AuthApiStack extends Stack {
       value: this.httpApi.apiEndpoint,
       exportName: `PettziAuthApiUrl-${stage}`,
     });
-
   }
 
   private createAuthFn(
     id: string,
+    stage: string,
     entry: string,
     environment: Record<string, string>,
     depsLayer?: lambda.ILayerVersion,
@@ -177,8 +213,9 @@ export class AuthApiStack extends Stack {
     return new NodejsFunction(this, id, {
       runtime: lambda.Runtime.NODEJS_24_X,
       entry,
-      functionName: id,
+      functionName: `${id}-${stage}`,
       handler: 'handler',
+      tracing: lambda.Tracing.ACTIVE,
       bundling: {
         target: 'node24',
         format: OutputFormat.CJS,

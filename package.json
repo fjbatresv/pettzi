@@ -7,7 +7,9 @@
     "lint:affected": "nx affected --target=lint --parallel=3 --base=origin/main --head=HEAD",
     "test:affected": "nx affected --target=test --parallel=1 --runInBand --base=origin/main --head=HEAD --skip-nx-cache",
     "docs": "cd mintlify && npx mintlify dev",
-    "install:layers": "npm install --prefix layers/cognito-deps/nodejs && npm install --prefix layers/s3-deps/nodejs && npm install --prefix layers/ses-deps/nodejs && npm install --prefix layers/ddb-deps/nodejs"
+    "install:layers": "npm install --prefix layers/cognito-deps/nodejs && npm install --prefix layers/s3-deps/nodejs && npm install --prefix layers/ses-deps/nodejs && npm install --prefix layers/ddb-deps/nodejs",
+    "format:check:local": "NX_NO_CLOUD=true nx format:check",
+    "ci:local": "NX_NO_CLOUD=true nx format:check && NX_NO_CLOUD=true nx run-many -t lint test build e2e-ci"
   },
   "private": true,
   "engines": {

@@ -1,5 +1,10 @@
 import { handler } from './create-pet.handler';
-import { OwnerRole, PetSpecies, toItemPet, toItemPetOwner } from '@pettzi/domain-model';
+import {
+  OwnerRole,
+  PetSpecies,
+  toItemPet,
+  toItemPetOwner,
+} from '@pettzi/domain-model';
 
 jest.mock('@aws-sdk/lib-dynamodb', () => {
   const mockSend = jest.fn();
@@ -26,7 +31,7 @@ describe('create-pet.handler', () => {
   it('creates pet and link', async () => {
     sendMock.mockResolvedValue({});
 
-    const res = await handler({
+    const res = await (handler as any)({
       body: JSON.stringify({ name: 'Fido', species: PetSpecies.DOG }),
       requestContext: { authorizer: { jwt: { claims: { sub: 'owner-1' } } } },
     } as any);
@@ -40,7 +45,7 @@ describe('create-pet.handler', () => {
   });
 
   it('validates body', async () => {
-    const res = await handler({
+    const res = await (handler as any)({
       body: JSON.stringify({}),
       requestContext: { authorizer: { jwt: { claims: { sub: 'owner-1' } } } },
     } as any);

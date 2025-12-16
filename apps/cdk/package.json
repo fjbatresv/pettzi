@@ -93,7 +93,7 @@
         "executor": "nx:run-commands",
         "options": {
           "cwd": "apps/cdk",
-          "command": "npx cdk deploy --all --require-approval never -o ../../dist/cdk.out",
+          "command": "npx cdk deploy --require-approval never -o ../../dist/cdk.out",
           "forwardAllArgs": true
         }
       },

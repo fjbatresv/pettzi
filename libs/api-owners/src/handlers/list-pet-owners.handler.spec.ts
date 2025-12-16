@@ -19,7 +19,7 @@ const { __sendMock: sendMock } = jest.requireMock('@aws-sdk/lib-dynamodb') as {
 };
 
 describe('list-pet-owners.handler', () => {
-  const baseEvent: APIGatewayProxyEventV2 = {
+  const baseEvent = {
     version: '2.0',
     routeKey: '',
     rawPath: '',
@@ -47,7 +47,7 @@ describe('list-pet-owners.handler', () => {
       },
     },
     isBase64Encoded: false,
-  };
+  } as APIGatewayProxyEventV2;
 
   beforeEach(() => {
     process.env.PETTZI_TABLE_NAME = 'PettziTable';
@@ -61,7 +61,7 @@ describe('list-pet-owners.handler', () => {
       Items: [{ ownerId: 'owner-1', petId: 'pet-1', role: 'PRIMARY' }],
     }));
 
-    const res = await handler({
+    const res = await (handler as any)({
       ...baseEvent,
       pathParameters: { petId: 'pet-1' },
     });
