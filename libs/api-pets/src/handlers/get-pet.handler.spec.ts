@@ -1,5 +1,6 @@
 import { handler } from './get-pet.handler';
 import { PetSpecies, toItemPet } from '@pettzi/domain-model';
+import { APIGatewayProxyEventV2 } from 'aws-lambda';
 
 jest.mock('@aws-sdk/lib-dynamodb', () => {
   const mockSend = jest.fn();
@@ -20,6 +21,62 @@ const { __sendMock: sendMock } = jest.requireMock('@aws-sdk/lib-dynamodb') as {
 describe('get-pet.handler', () => {
   beforeEach(() => sendMock.mockReset());
 
+  const defaultRequestContext = {
+    accountId: '',
+    apiId: '',
+    domainName: '',
+    domainPrefix: '',
+    http: {
+      method: 'GET',
+      path: '/pets/pet-1',
+      protocol: 'HTTP/1.1',
+      sourceIp: '',
+      userAgent: '',
+    },
+    requestId: '',
+    routeKey: '',
+    stage: '$default',
+    time: '',
+    timeEpoch: 0,
+    authorizer: {
+      jwt: { claims: { sub: 'owner-1' } },
+    },
+  };
+
+  const buildEvent = (overrides: Partial<APIGatewayProxyEventV2> = {}) => {
+    const baseEvent: APIGatewayProxyEventV2 = {
+      version: '2.0',
+      routeKey: '',
+      rawPath: '',
+      rawQueryString: '',
+      headers: {},
+      requestContext: {
+        ...defaultRequestContext,
+        ...overrides.requestContext,
+        http: {
+          ...defaultRequestContext.http,
+          ...(overrides.requestContext?.http ?? {}),
+        },
+      },
+      isBase64Encoded: false,
+      pathParameters: null,
+      body: null,
+      queryStringParameters: null,
+    };
+    return {
+      ...baseEvent,
+      ...overrides,
+      requestContext: {
+        ...baseEvent.requestContext,
+        ...overrides.requestContext,
+        http: {
+          ...baseEvent.requestContext.http,
+          ...(overrides.requestContext?.http ?? {}),
+        },
+      },
+    } as APIGatewayProxyEventV2;
+  };
+
   it('returns pet when owner link exists', async () => {
     sendMock
       .mockResolvedValueOnce({ Item: { PK: 'PET#pet-1', SK: 'OWNER#owner-1' } })
@@ -33,20 +90,23 @@ describe('get-pet.handler', () => {
         }),
       });
 
-    const res = await (handler as any)({
-      pathParameters: { petId: 'pet-1' },
-      requestContext: { authorizer: { jwt: { claims: { sub: 'owner-1' } } } },
-    } as any);
+    const res = await handler(
+      buildEvent({
+        pathParameters: { petId: 'pet-1' },
+      })
+    );
 
     expect(res.statusCode).toBe(200);
   });
 
   it('unauthorized when not owner', async () => {
     sendMock.mockResolvedValueOnce({ Item: undefined });
-    const res = await (handler as any)({
-      pathParameters: { petId: 'pet-1' },
-      requestContext: { authorizer: { jwt: { claims: { sub: 'owner-1' } } } },
-    } as any);
+    const res = await handler(
+      buildEvent({
+        pathParameters: { petId: 'pet-1' },
+        requestContext: { authorizer: undefined },
+      })
+    );
     expect(res.statusCode).toBe(401);
   });
 });

@@ -80,7 +80,12 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 
     return ok({ message: 'Email verified' });
   } catch (err) {
-    console.error('Verify email error', err);
+    const errorInfo = {
+      code: (err as Error)?.name ?? 'UnknownError',
+      message: (err as Error)?.message ?? 'Unknown error',
+      stack: (err as Error)?.stack,
+    };
+    console.error('Verify email error', errorInfo);
     return serverError('Failed to verify email');
   }
 };
