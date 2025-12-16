@@ -46,9 +46,9 @@ export class AuthStack extends Stack {
       removalPolicy: RemovalPolicy.DESTROY,
       userVerification: {
         emailStyle: VerificationEmailStyle.CODE,
-        emailSubject: 'Restablece tu contraseña en PETTZI',
+        emailSubject: 'Confirma tu correo en PETTZI',
         emailBody:
-          'Tu código temporal para restablecer la contraseña es {####}. Si no lo solicitaste, ignora este correo.',
+          'Usa este código para verificar tu correo en PETTZI: {####}. Si no creaste la cuenta, ignora este mensaje.',
       },
     });
 
