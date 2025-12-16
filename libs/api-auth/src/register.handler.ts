@@ -115,7 +115,10 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 
     const authResult = authResp?.AuthenticationResult;
     if (!authResult?.AccessToken || !authResult?.IdToken) {
-      console.error('InitiateAuth missing tokens', sanitizeAuthResponse(authResp));
+      console.error(
+        'InitiateAuth missing tokens',
+        sanitizeAuthResponse(authResp)
+      );
       return serverError('Failed to start session after registration');
     }
 
