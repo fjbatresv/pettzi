@@ -13,12 +13,17 @@ import {
   serverError,
 } from '@pettzi/utils-dynamo/http';
 import crypto from 'crypto';
+import type { InitiateAuthCommandOutput } from '@aws-sdk/client-cognito-identity-provider';
 
 interface RegisterPayload {
   email?: string;
   password?: string;
 }
 
+const COGNITO_USER_POOL_ID = process.env.COGNITO_USER_POOL_ID;
+if (!COGNITO_USER_POOL_ID) {
+  throw new Error('COGNITO_USER_POOL_ID is required');
+}
 const cognito = new CognitoIdentityProviderClient({});
 const ses = new SESClient({});
 
@@ -44,6 +49,13 @@ const createEmailLogContext = (email: string) => {
   return { email, emailId };
 };
 
+const sanitizeAuthResponse = (resp?: InitiateAuthCommandOutput) => ({
+  challengeName: resp?.ChallengeName,
+  requestId: resp?.$metadata?.requestId,
+  httpStatusCode: resp?.$metadata?.httpStatusCode,
+  authenticationResultPresent: !!resp?.AuthenticationResult,
+});
+
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   if (!event.body) {
     return badRequest('Request body is required');
@@ -64,13 +76,9 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   console.info('Register request', createEmailLogContext(email));
 
   try {
-    if (!process.env.COGNITO_USER_POOL_ID) {
-      throw new Error('COGNITO_USER_POOL_ID is required');
-    }
-
     await cognito.send(
       new AdminCreateUserCommand({
-        UserPoolId: process.env.COGNITO_USER_POOL_ID,
+        UserPoolId: COGNITO_USER_POOL_ID,
         Username: email,
         UserAttributes: [{ Name: 'email', Value: email }],
         MessageAction: 'SUPPRESS',
@@ -81,7 +89,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 
     await cognito.send(
       new AdminSetUserPasswordCommand({
-        UserPoolId: process.env.COGNITO_USER_POOL_ID,
+        UserPoolId: COGNITO_USER_POOL_ID,
         Username: email,
         Password: password,
         Permanent: true,
@@ -107,7 +115,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 
     const authResult = authResp?.AuthenticationResult;
     if (!authResult?.AccessToken || !authResult?.IdToken) {
-      console.error('InitiateAuth missing tokens', { authResp });
+      console.error('InitiateAuth missing tokens', sanitizeAuthResponse(authResp));
       return serverError('Failed to start session after registration');
     }
 
@@ -144,12 +152,11 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
           template: process.env.SES_WELCOME_TEMPLATE_NAME,
         });
       } catch (sesErr) {
-        console.warn(
+        console.error(
           'Failed to send welcome email',
           createEmailLogContext(email),
           sesErr
         );
-        console.error('Failed to send welcome email', sesErr);
       }
     } else {
       console.warn('Skipping welcome email; SES not configured', {

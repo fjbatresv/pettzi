@@ -1,5 +1,6 @@
 import { handler } from './archive-pet.handler';
 import { PetSpecies, OwnerRole, toItemPet } from '@pettzi/domain-model';
+import { APIGatewayProxyEventV2 } from 'aws-lambda';
 
 jest.mock('@aws-sdk/lib-dynamodb', () => {
   const mockSend = jest.fn();
@@ -21,6 +22,54 @@ const { __sendMock: sendMock } = jest.requireMock('@aws-sdk/lib-dynamodb') as {
 describe('archive-pet.handler', () => {
   beforeEach(() => sendMock.mockReset());
 
+  const buildEvent = (overrides: Partial<APIGatewayProxyEventV2> = {}) => {
+    const baseBody = {
+      version: '2.0',
+      routeKey: '',
+      rawPath: '',
+      rawQueryString: '',
+      headers: {},
+      requestContext: {
+        accountId: '',
+        apiId: '',
+        domainName: '',
+        domainPrefix: '',
+        http: {
+          method: 'DELETE',
+          path: '/pets/pet-1',
+          protocol: 'HTTP/1.1',
+          sourceIp: '',
+          userAgent: '',
+        },
+        requestId: '',
+        routeKey: '',
+        stage: '$default',
+        time: '',
+        timeEpoch: 0,
+        authorizer: {
+          jwt: { claims: { sub: 'owner-1' } },
+        },
+      },
+      isBase64Encoded: false,
+      pathParameters: null,
+      body: null,
+      queryStringParameters: null,
+    };
+    return {
+      ...baseBody,
+      ...overrides,
+      requestContext: {
+        ...baseBody.requestContext,
+        ...overrides.requestContext,
+        http: {
+          ...baseBody.requestContext.http,
+          ...(overrides.requestContext?.http ?? {}),
+        },
+      },
+      pathParameters: overrides.pathParameters ?? baseBody.pathParameters,
+    } as APIGatewayProxyEventV2;
+  };
+
   it('archives pet for primary owner', async () => {
     sendMock
       .mockResolvedValueOnce({
@@ -37,20 +86,22 @@ describe('archive-pet.handler', () => {
         }),
       });
 
-    const res = await (handler as any)({
-      pathParameters: { petId: 'pet-1' },
-      requestContext: { authorizer: { jwt: { claims: { sub: 'owner-1' } } } },
-    } as any);
+    const res = await handler(
+      buildEvent({
+        pathParameters: { petId: 'pet-1' },
+      })
+    );
 
     expect(res.statusCode).toBe(200);
   });
 
   it('forbids non-owner', async () => {
     sendMock.mockResolvedValueOnce({ Item: undefined });
-    const res = await (handler as any)({
-      pathParameters: { petId: 'pet-1' },
-      requestContext: { authorizer: { jwt: { claims: { sub: 'owner-1' } } } },
-    } as any);
+    const res = await handler(
+      buildEvent({
+        pathParameters: { petId: 'pet-1' },
+      })
+    );
     expect(res.statusCode).toBe(401);
   });
 });

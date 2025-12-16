@@ -81,7 +81,7 @@ describe('list-reminders.handler', () => {
       throw new Error(`Unexpected command ${command.constructor.name}`);
     });
 
-    const res = await (handler as any)(baseEvent);
+    const res = await handler(baseEvent);
     expect(res.statusCode).toBe(200);
     const body = JSON.parse(res.body ?? '{}');
     expect(body.reminders).toHaveLength(1);
@@ -90,7 +90,7 @@ describe('list-reminders.handler', () => {
   it('returns empty when no pets', async () => {
     sendMock.mockImplementation(() => ({ Items: [] }));
 
-    const res = await (handler as any)(baseEvent);
+    const res = await handler(baseEvent);
     expect(res.statusCode).toBe(200);
     const body = JSON.parse(res.body ?? '{}');
     expect(body.reminders).toHaveLength(0);
