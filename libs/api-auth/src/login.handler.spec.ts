@@ -30,7 +30,10 @@ describe('login.handler', () => {
     });
 
     const res = await handler({
-      body: JSON.stringify({ email: 'a@b.com', password: makeTestPassword('valid') }),
+      body: JSON.stringify({
+        email: 'a@b.com',
+        password: makeTestPassword('valid'),
+      }),
     } as any);
 
     expect(res.statusCode).toBe(200);
@@ -48,7 +51,10 @@ describe('login.handler', () => {
     });
 
     const res = await handler({
-      body: JSON.stringify({ email: 'a@b.com', password: makeTestPassword('temp') }),
+      body: JSON.stringify({
+        email: 'a@b.com',
+        password: makeTestPassword('temp'),
+      }),
     } as any);
 
     expect(res.statusCode).toBe(200);
@@ -63,14 +69,19 @@ describe('login.handler', () => {
     sendMock.mockRejectedValue({ name: 'NotAuthorizedException' });
 
     const res = await handler({
-      body: JSON.stringify({ email: 'a@b.com', password: makeTestPassword('invalid') }),
+      body: JSON.stringify({
+        email: 'a@b.com',
+        password: makeTestPassword('invalid'),
+      }),
     } as any);
 
     expect(res.statusCode).toBe(401);
   });
 
   it('returns 400 when missing fields', async () => {
-    const res = await handler({ body: JSON.stringify({ email: 'a@b.com' }) } as any);
+    const res = await handler({
+      body: JSON.stringify({ email: 'a@b.com' }),
+    } as any);
     expect(res.statusCode).toBe(400);
   });
 });

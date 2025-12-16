@@ -16,15 +16,13 @@ jest.mock('@aws-sdk/client-ses', () => {
   };
 });
 
-const {
-  __sendMock: cognitoSendMock,
-} = jest.requireMock(
+const { __sendMock: cognitoSendMock } = jest.requireMock(
   '@aws-sdk/client-cognito-identity-provider'
 ) as { __sendMock: jest.Mock };
 
-const {
-  __sendMock: sesSendMock,
-} = jest.requireMock('@aws-sdk/client-ses') as { __sendMock: jest.Mock };
+const { __sendMock: sesSendMock } = jest.requireMock('@aws-sdk/client-ses') as {
+  __sendMock: jest.Mock;
+};
 
 import { handler } from './forgot-password.handler';
 
@@ -46,7 +44,8 @@ describe('forgot-password.handler', () => {
 
     expect(res.statusCode).toBe(200);
     expect(JSON.parse(res.body!)).toEqual({
-      message: 'Temporary password sent. Use it to login and then change your password.',
+      message:
+        'Temporary password sent. Use it to login and then change your password.',
     });
     expect(cognitoSendMock).toHaveBeenCalledTimes(1);
     expect(sesSendMock).toHaveBeenCalledTimes(1);

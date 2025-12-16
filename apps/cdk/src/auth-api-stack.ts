@@ -4,17 +4,14 @@ import {
   StackProps,
   Duration,
   aws_iam as iam,
-  Tags
+  Tags,
 } from 'aws-cdk-lib';
 import * as apigwv2 from 'aws-cdk-lib/aws-apigatewayv2';
 import { HttpLambdaIntegration } from 'aws-cdk-lib/aws-apigatewayv2-integrations';
 import { HttpUserPoolAuthorizer } from 'aws-cdk-lib/aws-apigatewayv2-authorizers';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction, OutputFormat } from 'aws-cdk-lib/aws-lambda-nodejs';
-import {
-  UserPool,
-  UserPoolClient,
-} from 'aws-cdk-lib/aws-cognito';
+import { UserPool, UserPoolClient } from 'aws-cdk-lib/aws-cognito';
 import { Construct } from 'constructs';
 import * as path from 'path';
 
@@ -38,10 +35,10 @@ export class AuthApiStack extends Stack {
   constructor(scope: Construct, id: string, props: AuthApiStackProps) {
     super(scope, id, props);
 
-    const stage = this.node.tryGetContext('stage') ?? process.env.STAGE ?? 'dev';
+    const stage =
+      this.node.tryGetContext('stage') ?? process.env.STAGE ?? 'dev';
     Tags.of(this).add('project', 'pettzi');
     Tags.of(this).add('AppManagerCFNStackKey', id);
-
 
     const commonEnv = {
       COGNITO_USER_POOL_ID: props.userPool.userPoolId,
@@ -74,7 +71,7 @@ export class AuthApiStack extends Stack {
       {
         userPoolClients: [props.userPoolClient],
         identitySource: ['$request.header.Authorization'],
-      },
+      }
     );
 
     const registerFn = this.createAuthFn(
@@ -143,7 +140,11 @@ export class AuthApiStack extends Stack {
       if (props.sesFromEmail) {
         fn.addToRolePolicy(
           new iam.PolicyStatement({
-            actions: ['ses:SendEmail', 'ses:SendTemplatedEmail', 'ses:SendRawEmail'],
+            actions: [
+              'ses:SendEmail',
+              'ses:SendTemplatedEmail',
+              'ses:SendRawEmail',
+            ],
             resources: ['*'],
           })
         );
@@ -164,7 +165,10 @@ export class AuthApiStack extends Stack {
     this.httpApi.addRoutes({
       path: '/confirm-email',
       methods: [apigwv2.HttpMethod.GET],
-      integration: new HttpLambdaIntegration('ConfirmEmailIntegration', confirmEmailFn),
+      integration: new HttpLambdaIntegration(
+        'ConfirmEmailIntegration',
+        confirmEmailFn
+      ),
     });
     this.httpApi.addRoutes({
       path: '/login',
@@ -192,7 +196,6 @@ export class AuthApiStack extends Stack {
       value: this.httpApi.apiEndpoint,
       exportName: `PettziAuthApiUrl-${stage}`,
     });
-
   }
 
   private createAuthFn(

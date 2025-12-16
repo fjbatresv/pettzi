@@ -5,10 +5,7 @@ import {
   AdminSetUserPasswordCommand,
   InitiateAuthCommand,
 } from '@aws-sdk/client-cognito-identity-provider';
-import {
-  SESClient,
-  SendTemplatedEmailCommand,
-} from '@aws-sdk/client-ses';
+import { SESClient, SendTemplatedEmailCommand } from '@aws-sdk/client-ses';
 import {
   badRequest,
   conflict,
@@ -103,12 +100,17 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     const emailVerifyBaseUrl = process.env.EMAIL_VERIFY_BASE_URL;
     const token = buildVerificationToken(email, emailVerifySecret);
     if (!token) {
-      console.warn('Verification token not generated; EMAIL_VERIFY_SECRET missing', {
-        email,
-      });
+      console.warn(
+        'Verification token not generated; EMAIL_VERIFY_SECRET missing',
+        {
+          email,
+        }
+      );
     }
     const verificationLink =
-      token && emailVerifyBaseUrl ? `${emailVerifyBaseUrl}?token=${token}` : undefined;
+      token && emailVerifyBaseUrl
+        ? `${emailVerifyBaseUrl}?token=${token}`
+        : undefined;
 
     if (process.env.SES_FROM_EMAIL && process.env.SES_WELCOME_TEMPLATE_NAME) {
       try {
@@ -154,7 +156,10 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     if (code === 'UsernameExistsException') {
       return conflict('User already exists');
     }
-    if (code === 'InvalidParameterException' || code === 'InvalidPasswordException') {
+    if (
+      code === 'InvalidParameterException' ||
+      code === 'InvalidPasswordException'
+    ) {
       return badRequest(error.message ?? 'Invalid parameters');
     }
 

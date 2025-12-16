@@ -24,7 +24,8 @@ export class PetsApiStack extends Stack {
   constructor(scope: Construct, id: string, props: PetsApiStackProps) {
     super(scope, id, props);
 
-    const stage = this.node.tryGetContext('stage') ?? process.env.STAGE ?? 'dev';
+    const stage =
+      this.node.tryGetContext('stage') ?? process.env.STAGE ?? 'dev';
     Tags.of(this).add('project', 'pettzi');
     Tags.of(this).add('AppManagerCFNStackKey', id);
 
@@ -41,35 +42,35 @@ export class PetsApiStack extends Stack {
       stage,
       handlerPath('libs/api-pets/src/handlers/create-pet.handler.ts'),
       commonEnv,
-      [props.depsLayer, props.s3Layer, props.ddbLayer],
+      [props.depsLayer, props.s3Layer, props.ddbLayer]
     );
     const listPetsFn = this.createFn(
       'ListPetsHandler',
       stage,
       handlerPath('libs/api-pets/src/handlers/list-pets.handler.ts'),
       commonEnv,
-      [props.depsLayer, props.s3Layer, props.ddbLayer],
+      [props.depsLayer, props.s3Layer, props.ddbLayer]
     );
     const getPetFn = this.createFn(
       'GetPetHandler',
       stage,
       handlerPath('libs/api-pets/src/handlers/get-pet.handler.ts'),
       commonEnv,
-      [props.depsLayer, props.s3Layer, props.ddbLayer],
+      [props.depsLayer, props.s3Layer, props.ddbLayer]
     );
     const updatePetFn = this.createFn(
       'UpdatePetHandler',
       stage,
       handlerPath('libs/api-pets/src/handlers/update-pet.handler.ts'),
       commonEnv,
-      [props.depsLayer, props.s3Layer, props.ddbLayer],
+      [props.depsLayer, props.s3Layer, props.ddbLayer]
     );
     const archivePetFn = this.createFn(
       'ArchivePetHandler',
       stage,
       handlerPath('libs/api-pets/src/handlers/archive-pet.handler.ts'),
       commonEnv,
-      [props.depsLayer, props.s3Layer, props.ddbLayer],
+      [props.depsLayer, props.s3Layer, props.ddbLayer]
     );
 
     props.table.grantReadWriteData(createPetFn);
@@ -84,7 +85,7 @@ export class PetsApiStack extends Stack {
       {
         userPoolClients: [props.userPoolClient],
         identitySource: ['$request.header.Authorization'],
-      },
+      }
     );
 
     this.httpApi = new apigwv2.HttpApi(this, 'PetsHttpApi', {
@@ -97,7 +98,10 @@ export class PetsApiStack extends Stack {
     this.httpApi.addRoutes({
       path: '/',
       methods: [apigwv2.HttpMethod.POST],
-      integration: new HttpLambdaIntegration('CreatePetIntegration', createPetFn),
+      integration: new HttpLambdaIntegration(
+        'CreatePetIntegration',
+        createPetFn
+      ),
     });
     this.httpApi.addRoutes({
       path: '/',
@@ -112,12 +116,18 @@ export class PetsApiStack extends Stack {
     this.httpApi.addRoutes({
       path: '/{petId}',
       methods: [apigwv2.HttpMethod.PATCH],
-      integration: new HttpLambdaIntegration('UpdatePetIntegration', updatePetFn),
+      integration: new HttpLambdaIntegration(
+        'UpdatePetIntegration',
+        updatePetFn
+      ),
     });
     this.httpApi.addRoutes({
       path: '/{petId}',
       methods: [apigwv2.HttpMethod.DELETE],
-      integration: new HttpLambdaIntegration('ArchivePetIntegration', archivePetFn),
+      integration: new HttpLambdaIntegration(
+        'ArchivePetIntegration',
+        archivePetFn
+      ),
     });
   }
 
@@ -126,10 +136,10 @@ export class PetsApiStack extends Stack {
     stage: string,
     entry: string,
     environment: Record<string, string>,
-    layersInput: Array<lambda.ILayerVersion | undefined>,
+    layersInput: Array<lambda.ILayerVersion | undefined>
   ): NodejsFunction {
-    const layers = layersInput.filter(
-      (l): l is lambda.ILayerVersion => Boolean(l)
+    const layers = layersInput.filter((l): l is lambda.ILayerVersion =>
+      Boolean(l)
     );
 
     return new NodejsFunction(this, id, {
