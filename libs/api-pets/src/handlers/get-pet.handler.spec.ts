@@ -52,10 +52,8 @@ describe('get-pet.handler', () => {
       headers: {},
       requestContext: {
         ...defaultRequestContext,
-        ...overrides.requestContext,
         http: {
           ...defaultRequestContext.http,
-          ...(overrides.requestContext?.http ?? {}),
         },
       },
       isBase64Encoded: false,
@@ -63,17 +61,18 @@ describe('get-pet.handler', () => {
       body: null,
       queryStringParameters: null,
     };
+    const mergedRequestContext = {
+      ...baseEvent.requestContext,
+      ...overrides.requestContext,
+      http: {
+        ...baseEvent.requestContext.http,
+        ...(overrides.requestContext?.http ?? {}),
+      },
+    };
     return {
       ...baseEvent,
       ...overrides,
-      requestContext: {
-        ...baseEvent.requestContext,
-        ...overrides.requestContext,
-        http: {
-          ...baseEvent.requestContext.http,
-          ...(overrides.requestContext?.http ?? {}),
-        },
-      },
+      requestContext: mergedRequestContext,
     } as APIGatewayProxyEventV2;
   };
 

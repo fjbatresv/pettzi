@@ -150,13 +150,10 @@ describe('register.handler', () => {
   });
 
   it('returns bad request when password invalid', async () => {
-    sendMock
-      .mockResolvedValueOnce({})
-      .mockResolvedValueOnce({})
-      .mockRejectedValueOnce({
-        name: 'InvalidPasswordException',
-        message: 'bad password',
-      });
+    sendMock.mockResolvedValueOnce({}).mockRejectedValueOnce({
+      name: 'InvalidPasswordException',
+      message: 'bad password',
+    });
 
     const res = await invokeHandler({
       email: 'a@b.com',
