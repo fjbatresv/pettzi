@@ -94,14 +94,18 @@ paths:
         '500':
           $ref: '#/components/responses/ServerError'
   /confirm-email:
-    get:
+    post:
       summary: Confirm welcome email
-      parameters:
-        - name: token
-          in: query
-          required: true
-          schema:
-            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token]
+              properties:
+                token:
+                  type: string
       responses:
         '200':
           description: Email verified
