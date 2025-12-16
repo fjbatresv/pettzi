@@ -23,7 +23,11 @@ export class EventsApiStack extends Stack {
   constructor(scope: Construct, id: string, props: EventsApiStackProps) {
     super(scope, id, props);
 
-    const stage = this.node.tryGetContext('stage') ?? props.stage ?? process.env.STAGE ?? 'dev';
+    const stage =
+      this.node.tryGetContext('stage') ??
+      props.stage ??
+      process.env.STAGE ??
+      'dev';
     Tags.of(this).add('project', 'pettzi');
     Tags.of(this).add('AppManagerCFNStackKey', id);
 
@@ -37,33 +41,38 @@ export class EventsApiStack extends Stack {
 
     const createEventFn = this.createFn(
       'CreatePetEventHandler',
+      stage,
       handlerPath('libs/api-events/src/handlers/create-event.handler.ts'),
       commonEnv,
-      props.sharedLayer,
+      props.sharedLayer
     );
     const listEventsFn = this.createFn(
       'ListPetEventsHandler',
+      stage,
       handlerPath('libs/api-events/src/handlers/list-events.handler.ts'),
       commonEnv,
-      props.sharedLayer,
+      props.sharedLayer
     );
     const getEventFn = this.createFn(
       'GetPetEventHandler',
+      stage,
       handlerPath('libs/api-events/src/handlers/get-event.handler.ts'),
       commonEnv,
-      props.sharedLayer,
+      props.sharedLayer
     );
     const updateEventFn = this.createFn(
       'UpdatePetEventHandler',
+      stage,
       handlerPath('libs/api-events/src/handlers/update-event.handler.ts'),
       commonEnv,
-      props.sharedLayer,
+      props.sharedLayer
     );
     const deleteEventFn = this.createFn(
       'DeletePetEventHandler',
+      stage,
       handlerPath('libs/api-events/src/handlers/delete-event.handler.ts'),
       commonEnv,
-      props.sharedLayer,
+      props.sharedLayer
     );
 
     props.table.grantReadWriteData(createEventFn);
@@ -78,7 +87,7 @@ export class EventsApiStack extends Stack {
       {
         userPoolClients: [props.userPoolClient],
         identitySource: ['$request.header.Authorization'],
-      },
+      }
     );
 
     this.httpApi = new apigwv2.HttpApi(this, 'EventsHttpApi', {
@@ -91,12 +100,18 @@ export class EventsApiStack extends Stack {
     this.httpApi.addRoutes({
       path: '/pets/{petId}',
       methods: [apigwv2.HttpMethod.POST],
-      integration: new HttpLambdaIntegration('CreateEventIntegration', createEventFn),
+      integration: new HttpLambdaIntegration(
+        'CreateEventIntegration',
+        createEventFn
+      ),
     });
     this.httpApi.addRoutes({
       path: '/pets/{petId}',
       methods: [apigwv2.HttpMethod.GET],
-      integration: new HttpLambdaIntegration('ListEventsIntegration', listEventsFn),
+      integration: new HttpLambdaIntegration(
+        'ListEventsIntegration',
+        listEventsFn
+      ),
     });
     this.httpApi.addRoutes({
       path: '/pets/{petId}/{eventId}',
@@ -106,12 +121,18 @@ export class EventsApiStack extends Stack {
     this.httpApi.addRoutes({
       path: '/pets/{petId}/{eventId}',
       methods: [apigwv2.HttpMethod.PATCH],
-      integration: new HttpLambdaIntegration('UpdateEventIntegration', updateEventFn),
+      integration: new HttpLambdaIntegration(
+        'UpdateEventIntegration',
+        updateEventFn
+      ),
     });
     this.httpApi.addRoutes({
       path: '/pets/{petId}/{eventId}',
       methods: [apigwv2.HttpMethod.DELETE],
-      integration: new HttpLambdaIntegration('DeleteEventIntegration', deleteEventFn),
+      integration: new HttpLambdaIntegration(
+        'DeleteEventIntegration',
+        deleteEventFn
+      ),
     });
 
     new CfnOutput(this, 'EventsApiUrl', {
@@ -122,9 +143,10 @@ export class EventsApiStack extends Stack {
 
   private createFn(
     id: string,
+    stage: string,
     entry: string,
     environment: Record<string, string>,
-    depsLayer?: lambda.ILayerVersion,
+    depsLayer?: lambda.ILayerVersion
   ): NodejsFunction {
     const layers = depsLayer ? [depsLayer] : [];
 
@@ -132,6 +154,8 @@ export class EventsApiStack extends Stack {
       runtime: lambda.Runtime.NODEJS_24_X,
       entry,
       handler: 'handler',
+      functionName: `${id}-${stage}`,
+      tracing: lambda.Tracing.ACTIVE,
       bundling: {
         target: 'node24',
         format: OutputFormat.CJS,

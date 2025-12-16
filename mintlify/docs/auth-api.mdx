@@ -5,15 +5,21 @@ title: Auth API
 - Code: `libs/api-auth`
 - Stack: `apps/cdk/src/auth-api-stack.ts`
 - Base path (custom domain): `/auth`
-- Internal routes (without base path):  
-  - `POST /register`  
-  - `POST /login`  
-  - `POST /forgot-password`  
-  - `POST /confirm-forgot-password`
+- Internal routes (without base path):
+  - `POST /register`
+  - `POST /login`
+  - `POST /forgot-password`
+  - `POST /complete-new-password`
+  - `POST /confirm-email` (token in JSON body)
 
 ## Auth & security
+
 - Cognito JWT (User Pool from `AuthStack`), HTTP API JWT authorizer.
 - SPA should send `Authorization: Bearer <id/access token>`.
 
 ## Notes
+
 - Welcome/password-reset emails use SES templates when configured (`SES_FROM_EMAIL`, template names).
+- Registration replies with tokens and sends a verification link in the welcome template.
+- Login returns either tokens or a `NEW_PASSWORD_REQUIRED` challenge (`session`). The SPA should store `session` and call `/complete-new-password` with `{ email, session, newPassword }` before keeping the tokens.
+- Forgot password now sends a temporary password via SES instead of the Cognito default email.

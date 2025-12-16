@@ -5,16 +5,21 @@ title: Deployment
 # Deployment
 
 ## Prerequisites
+
 - AWS credentials / SSO.
 - CDK bootstrapped in target account/region.
-- `.env` with `STAGE`, `AWS_PROFILE`, `AWS_REGION`, `API_DOMAIN_NAME`, `API_HOSTED_ZONE_NAME`, `SES_FROM_EMAIL`.
+- `.env` with `STAGE`, `AWS_PROFILE`, `AWS_REGION`, `SES_FROM_EMAIL`, and either:
+  - `API_DOMAIN_NAME` (full domain), or
+  - `API_PREFIX` + `API_HOSTED_ZONE_NAME` (prefix + hosted zone). Add `API_HOSTED_ZONE_ID` to avoid Route53 lookups.
 
 ## Build
+
 ```bash
 npx nx run cdk:build:production
 ```
 
 ## Deploy stacks (typical order)
+
 1. `PettziApplicationStack` (AppRegistry app)
 2. `PettziLayersStack`
 3. `PettziCoreInfraStack`
@@ -25,6 +30,7 @@ npx nx run cdk:build:production
 8. `PettziAppRegistryAssociationsStack` (associations to AppRegistry)
 
 Command example:
+
 ```bash
 npx nx run cdk:deploy -- PettziApplicationStack
 npx nx run cdk:deploy -- PettziLayersStack PettziCoreInfraStack PettziAuthStack
@@ -34,8 +40,9 @@ npx nx run cdk:deploy -- PettziAppRegistryAssociationsStack
 ```
 
 ## Env vars per stack (high level)
+
 - Core: none beyond STAGE.
 - Auth API: `SES_FROM_EMAIL`, template names if overriding defaults.
 - Reminders: `REMINDERS_EMAIL_FROM`, `SES_REMINDER_TEMPLATE_NAME`.
 - Uploads: `PETTZI_DOCS_BUCKET_NAME` (set by stack).
-- Domain: `API_DOMAIN_NAME`, `API_HOSTED_ZONE_NAME`, `API_HOSTED_ZONE_ID` (optional).
+- Domain: either `API_DOMAIN_NAME` or `API_PREFIX` + `API_HOSTED_ZONE_NAME` (`API_HOSTED_ZONE_ID` optional).

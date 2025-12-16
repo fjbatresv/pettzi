@@ -18,7 +18,7 @@ const { __sendMock: sendMock } = jest.requireMock('@aws-sdk/lib-dynamodb') as {
 };
 
 describe('create-event.handler', () => {
-  const baseEvent: APIGatewayProxyEventV2 = {
+  const baseEvent = {
     version: '2.0',
     routeKey: '',
     rawPath: '',
@@ -46,7 +46,7 @@ describe('create-event.handler', () => {
       },
     },
     isBase64Encoded: false,
-  };
+  } as APIGatewayProxyEventV2;
 
   beforeEach(() => {
     process.env.PETTZI_TABLE_NAME = 'PettziTable';
@@ -65,7 +65,7 @@ describe('create-event.handler', () => {
       throw new Error(`Unexpected command ${command.constructor.name}`);
     });
 
-    const res = await handler({
+    const res = await (handler as any)({
       ...baseEvent,
       pathParameters: { petId: 'pet-1' },
       body: JSON.stringify({
@@ -84,7 +84,7 @@ describe('create-event.handler', () => {
   });
 
   it('returns bad request when body is missing', async () => {
-    const res = await handler({
+    const res = await (handler as any)({
       ...baseEvent,
       pathParameters: { petId: 'pet-1' },
       body: null,
@@ -102,7 +102,7 @@ describe('create-event.handler', () => {
       throw new Error('Unexpected');
     });
 
-    const res = await handler({
+    const res = await (handler as any)({
       ...baseEvent,
       pathParameters: { petId: 'pet-1' },
       body: JSON.stringify({ title: 'Missing fields' }),
