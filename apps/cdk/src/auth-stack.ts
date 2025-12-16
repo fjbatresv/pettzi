@@ -21,7 +21,6 @@ export class AuthStack extends Stack {
     Tags.of(this).add('project', 'pettzi');
     Tags.of(this).add('AppManagerCFNStackKey', id);
 
-
     this.userPool = new UserPool(this, 'PettziUserPool', {
       selfSignUpEnabled: true,
       signInAliases: {
@@ -29,9 +28,6 @@ export class AuthStack extends Stack {
         username: false,
         phone: false,
         preferredUsername: false,
-      },
-      autoVerify: {
-        email: true,
       },
       standardAttributes: {
         email: {
@@ -50,6 +46,9 @@ export class AuthStack extends Stack {
       removalPolicy: RemovalPolicy.DESTROY,
       userVerification: {
         emailStyle: VerificationEmailStyle.CODE,
+        emailSubject: 'Restablece tu contraseña en PETTZI',
+        emailBody:
+          'Tu código temporal para restablecer la contraseña es {####}. Si no lo solicitaste, ignora este correo.',
       },
     });
 

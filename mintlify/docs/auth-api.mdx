@@ -9,7 +9,8 @@ title: Auth API
   - `POST /register`  
   - `POST /login`  
   - `POST /forgot-password`  
-  - `POST /confirm-forgot-password`
+  - `POST /complete-new-password`
+  - `GET /confirm-email`
 
 ## Auth & security
 - Cognito JWT (User Pool from `AuthStack`), HTTP API JWT authorizer.
@@ -17,3 +18,6 @@ title: Auth API
 
 ## Notes
 - Welcome/password-reset emails use SES templates when configured (`SES_FROM_EMAIL`, template names).
+- Registration replies with tokens and sends a verification link in the welcome template.
+- Login returns either tokens or a `NEW_PASSWORD_REQUIRED` challenge (`session`). The SPA should store `session` and call `/complete-new-password` with `{ email, session, newPassword }` before keeping the tokens.
+- Forgot password now sends a temporary password via SES instead of the Cognito default email.
