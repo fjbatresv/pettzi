@@ -28,7 +28,7 @@ describe('complete-new-password.handler', () => {
       },
     });
 
-    const res = await handler({
+    const res = await (handler as any)({
       body: JSON.stringify({
         email: 'a@b.com',
         session: 'session',
@@ -45,7 +45,7 @@ describe('complete-new-password.handler', () => {
   });
 
   it('returns 400 if fields missing', async () => {
-    const res = await handler({
+    const res = await (handler as any)({
       body: JSON.stringify({ email: 'a@b.com' }),
     } as any);
     expect(res.statusCode).toBe(400);

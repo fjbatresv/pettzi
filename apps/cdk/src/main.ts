@@ -49,6 +49,16 @@ const emailVerificationBaseUrl =
     ? `https://${apiDomainName}/${AUTH_API_BASE_PATH}/confirm-email`
     : undefined);
 const emailVerificationSecret = process.env.EMAIL_VERIFY_SECRET;
+if (
+  (emailVerificationBaseUrl && !emailVerificationSecret) ||
+  (!emailVerificationBaseUrl && emailVerificationSecret)
+) {
+  throw new Error(
+    `EMAIL_VERIFY_BASE_URL and EMAIL_VERIFY_SECRET must both be set together (missing ${
+      emailVerificationBaseUrl ? 'EMAIL_VERIFY_SECRET' : 'EMAIL_VERIFY_BASE_URL'
+    }).`
+  );
+}
 const passwordResetBaseUrl =
   process.env.PASSWORD_RESET_BASE_URL ??
   (apiDomainName
@@ -85,8 +95,8 @@ const sesTemplates = new SesTemplatesStack(app, 'PettziSesTemplatesStack', {
   stackName: 'PettziSesTemplatesStack',
   description: `Pettzi SES templates (${stage})`,
   fromEmail: sesFromEmail,
-  hostedZoneName: process.env.API_HOSTED_ZONE_NAME,
-  hostedZoneId: process.env.API_HOSTED_ZONE_ID,
+  hostedZoneName: apiHostedZoneName,
+  hostedZoneId: apiHostedZoneId,
 });
 
 const layers = new LayersStack(app, 'PettziLayersStack', {

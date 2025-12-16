@@ -25,12 +25,14 @@ jest.mock('@aws-sdk/s3-request-presigner', () => ({
   getSignedUrl: jest.fn().mockResolvedValue('https://signed-url'),
 }));
 
-const { __sendMock: ddbSendMock } = jest.requireMock('@aws-sdk/lib-dynamodb') as {
+const { __sendMock: ddbSendMock } = jest.requireMock(
+  '@aws-sdk/lib-dynamodb'
+) as {
   __sendMock: jest.Mock;
 };
 
 describe('generate-document-upload-url.handler', () => {
-  const baseEvent: APIGatewayProxyEventV2 = {
+  const baseEvent = {
     version: '2.0',
     routeKey: '',
     rawPath: '',
@@ -58,7 +60,7 @@ describe('generate-document-upload-url.handler', () => {
       },
     },
     isBase64Encoded: false,
-  };
+  } as APIGatewayProxyEventV2;
 
   beforeEach(() => {
     process.env.PETTZI_TABLE_NAME = 'PettziTable';
@@ -67,9 +69,11 @@ describe('generate-document-upload-url.handler', () => {
   });
 
   it('returns a presigned upload URL', async () => {
-    ddbSendMock.mockResolvedValue({ Item: { PK: 'PET#pet-1', SK: 'OWNER#owner-1' } });
+    ddbSendMock.mockResolvedValue({
+      Item: { PK: 'PET#pet-1', SK: 'OWNER#owner-1' },
+    });
 
-    const res = await handler({
+    const res = await (handler as any)({
       ...baseEvent,
       pathParameters: { petId: 'pet-1' },
       body: JSON.stringify({ contentType: 'application/pdf' }),

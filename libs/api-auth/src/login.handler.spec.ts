@@ -29,7 +29,7 @@ describe('login.handler', () => {
       },
     });
 
-    const res = await handler({
+    const res = await (handler as any)({
       body: JSON.stringify({
         email: 'a@b.com',
         password: makeTestPassword('valid'),
@@ -50,7 +50,7 @@ describe('login.handler', () => {
       Session: 'session',
     });
 
-    const res = await handler({
+    const res = await (handler as any)({
       body: JSON.stringify({
         email: 'a@b.com',
         password: makeTestPassword('temp'),
@@ -68,7 +68,7 @@ describe('login.handler', () => {
   it('returns 401 for not authorized', async () => {
     sendMock.mockRejectedValue({ name: 'NotAuthorizedException' });
 
-    const res = await handler({
+    const res = await (handler as any)({
       body: JSON.stringify({
         email: 'a@b.com',
         password: makeTestPassword('invalid'),
@@ -79,7 +79,7 @@ describe('login.handler', () => {
   });
 
   it('returns 400 when missing fields', async () => {
-    const res = await handler({
+    const res = await (handler as any)({
       body: JSON.stringify({ email: 'a@b.com' }),
     } as any);
     expect(res.statusCode).toBe(400);

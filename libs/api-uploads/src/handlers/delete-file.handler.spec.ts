@@ -21,7 +21,9 @@ jest.mock('@aws-sdk/client-s3', () => {
   };
 });
 
-const { __sendMock: ddbSendMock } = jest.requireMock('@aws-sdk/lib-dynamodb') as {
+const { __sendMock: ddbSendMock } = jest.requireMock(
+  '@aws-sdk/lib-dynamodb'
+) as {
   __sendMock: jest.Mock;
 };
 const { __s3SendMock: s3SendMock } = jest.requireMock('@aws-sdk/client-s3') as {
@@ -29,7 +31,7 @@ const { __s3SendMock: s3SendMock } = jest.requireMock('@aws-sdk/client-s3') as {
 };
 
 describe('delete-file.handler', () => {
-  const baseEvent: APIGatewayProxyEventV2 = {
+  const baseEvent = {
     version: '2.0',
     routeKey: '',
     rawPath: '',
@@ -57,7 +59,7 @@ describe('delete-file.handler', () => {
       },
     },
     isBase64Encoded: false,
-  };
+  } as APIGatewayProxyEventV2;
 
   beforeEach(() => {
     process.env.PETTZI_TABLE_NAME = 'PettziTable';
@@ -67,10 +69,12 @@ describe('delete-file.handler', () => {
   });
 
   it('deletes a file', async () => {
-    ddbSendMock.mockResolvedValue({ Item: { PK: 'PET#pet-1', SK: 'OWNER#owner-1' } });
+    ddbSendMock.mockResolvedValue({
+      Item: { PK: 'PET#pet-1', SK: 'OWNER#owner-1' },
+    });
     s3SendMock.mockResolvedValue({});
 
-    const res = await handler({
+    const res = await (handler as any)({
       ...baseEvent,
       pathParameters: {
         petId: 'pet-1',
@@ -84,7 +88,7 @@ describe('delete-file.handler', () => {
   });
 
   it('rejects file outside pet', async () => {
-    const res = await handler({
+    const res = await (handler as any)({
       ...baseEvent,
       pathParameters: {
         petId: 'pet-1',

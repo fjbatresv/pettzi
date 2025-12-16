@@ -27,10 +27,14 @@ const parseToken = (token: string, secret?: string): string | null => {
     .createHmac('sha256', secret)
     .update(`${email}:${expires}`)
     .digest('hex');
+  const signatureBuf = Buffer.from(signature);
+  const expectedBuf = Buffer.from(expectedSig);
 
-  if (
-    !crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSig))
-  ) {
+  if (signatureBuf.length !== expectedBuf.length) {
+    return null;
+  }
+
+  if (!crypto.timingSafeEqual(signatureBuf, expectedBuf)) {
     return null;
   }
 
