@@ -5,7 +5,11 @@ import {
   QueryCommand,
   BatchWriteCommand,
 } from '@aws-sdk/lib-dynamodb';
-import { EventType, toItemPetEvent, toItemPetReminder } from '@pettzi/domain-model';
+import {
+  EventType,
+  toItemPetEvent,
+  toItemPetReminder,
+} from '@pettzi/domain-model';
 import { handler } from './delete-event.handler';
 
 jest.mock('@aws-sdk/lib-dynamodb', () => {
@@ -23,7 +27,7 @@ const { __sendMock: sendMock } = jest.requireMock('@aws-sdk/lib-dynamodb') as {
 };
 
 describe('delete-event.handler', () => {
-  const baseEvent: APIGatewayProxyEventV2 = {
+  const baseEvent = {
     version: '2.0',
     routeKey: '',
     rawPath: '',
@@ -51,7 +55,7 @@ describe('delete-event.handler', () => {
       },
     },
     isBase64Encoded: false,
-  };
+  } as APIGatewayProxyEventV2;
 
   beforeEach(() => {
     process.env.PETTZI_TABLE_NAME = 'PettziTable';
@@ -93,7 +97,7 @@ describe('delete-event.handler', () => {
       return next;
     });
 
-    const res = await handler({
+    const res = await (handler as any)({
       ...baseEvent,
       pathParameters: { petId: 'pet-1', eventId: 'event-1' },
     });
@@ -105,7 +109,7 @@ describe('delete-event.handler', () => {
   });
 
   it('returns bad request when params missing', async () => {
-    const res = await handler({
+    const res = await (handler as any)({
       ...baseEvent,
       pathParameters: {},
     });

@@ -25,10 +25,14 @@ jest.mock(
   { virtual: true }
 );
 
-const { __sendMock: ddbSendMock } = jest.requireMock('@aws-sdk/lib-dynamodb') as {
+const { __sendMock: ddbSendMock } = jest.requireMock(
+  '@aws-sdk/lib-dynamodb'
+) as {
   __sendMock: jest.Mock;
 };
-const { __sesSendMock: sesSendMock } = jest.requireMock('@aws-sdk/client-ses') as {
+const { __sesSendMock: sesSendMock } = jest.requireMock(
+  '@aws-sdk/client-ses'
+) as {
   __sesSendMock: jest.Mock;
 };
 
@@ -68,7 +72,7 @@ describe('process-due-reminders.handler', () => {
 
     sesSendMock.mockResolvedValue({});
 
-    await handler({}, {} as any, jest.fn());
+    await (handler as any)({}, {} as any, jest.fn());
 
     expect(sesSendMock).toHaveBeenCalledTimes(1);
     expect(ddbSendMock).toHaveBeenCalled();

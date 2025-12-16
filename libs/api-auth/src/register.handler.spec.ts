@@ -62,7 +62,7 @@ describe('register.handler', () => {
     process.env.EMAIL_VERIFY_SECRET = 'secret';
     process.env.EMAIL_VERIFY_BASE_URL = 'https://app/confirm-email';
 
-    const res = await handler({
+    const res = await (handler as any)({
       body: JSON.stringify({ email: 'a@b.com', password: makeTestPassword() }),
     } as any);
 
@@ -84,14 +84,14 @@ describe('register.handler', () => {
   });
 
   it('returns 400 when body missing', async () => {
-    const res = await handler({} as any);
+    const res = await (handler as any)({} as any);
     expect(res.statusCode).toBe(400);
   });
 
   it('returns 409 when user exists', async () => {
     sendMock.mockRejectedValue({ name: 'UsernameExistsException' });
 
-    const res = await handler({
+    const res = await (handler as any)({
       body: JSON.stringify({ email: 'a@b.com', password: makeTestPassword() }),
     } as any);
 
@@ -99,7 +99,7 @@ describe('register.handler', () => {
   });
 
   it('returns 400 on invalid json', async () => {
-    const res = await handler({ body: '{bad json' } as any);
+    const res = await (handler as any)({ body: '{bad json' } as any);
     expect(res.statusCode).toBe(400);
   });
 });

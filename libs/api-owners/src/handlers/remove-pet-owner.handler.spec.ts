@@ -19,7 +19,7 @@ const { __sendMock: sendMock } = jest.requireMock('@aws-sdk/lib-dynamodb') as {
 };
 
 describe('remove-pet-owner.handler', () => {
-  const baseEvent: APIGatewayProxyEventV2 = {
+  const baseEvent = {
     version: '2.0',
     routeKey: '',
     rawPath: '',
@@ -47,7 +47,7 @@ describe('remove-pet-owner.handler', () => {
       },
     },
     isBase64Encoded: false,
-  };
+  } as APIGatewayProxyEventV2;
 
   beforeEach(() => {
     process.env.PETTZI_TABLE_NAME = 'PettziTable';
@@ -58,10 +58,12 @@ describe('remove-pet-owner.handler', () => {
     // caller primary, target secondary
     sendMock
       .mockResolvedValueOnce({ Item: { role: 'PRIMARY' } })
-      .mockResolvedValueOnce({ Item: { role: 'SECONDARY', ownerId: 'owner-2' } })
+      .mockResolvedValueOnce({
+        Item: { role: 'SECONDARY', ownerId: 'owner-2' },
+      })
       .mockResolvedValueOnce({});
 
-    const res = await handler({
+    const res = await (handler as any)({
       ...baseEvent,
       pathParameters: { petId: 'pet-1', ownerId: 'owner-2' },
     });
@@ -76,7 +78,7 @@ describe('remove-pet-owner.handler', () => {
       .mockResolvedValueOnce({ Item: { role: 'PRIMARY' } })
       .mockResolvedValueOnce({ Item: { role: 'PRIMARY', ownerId: 'owner-2' } });
 
-    const res = await handler({
+    const res = await (handler as any)({
       ...baseEvent,
       pathParameters: { petId: 'pet-1', ownerId: 'owner-2' },
     });

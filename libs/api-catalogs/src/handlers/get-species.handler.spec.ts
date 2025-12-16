@@ -2,7 +2,7 @@ import { APIGatewayProxyEventV2 } from 'aws-lambda';
 import { handler } from './get-species.handler';
 
 describe('get-species.handler', () => {
-  const baseEvent: APIGatewayProxyEventV2 = {
+  const baseEvent = {
     version: '2.0',
     routeKey: '',
     rawPath: '',
@@ -30,17 +30,17 @@ describe('get-species.handler', () => {
       },
     },
     isBase64Encoded: false,
-  };
+  } as APIGatewayProxyEventV2;
 
   it('returns species', async () => {
-    const res = await handler(baseEvent);
+    const res = await (handler as any)(baseEvent);
     expect(res.statusCode).toBe(200);
     const body = JSON.parse(res.body ?? '{}');
     expect(body.species?.length).toBeGreaterThan(0);
   });
 
   it('requires auth', async () => {
-    const res = await handler({
+    const res = await (handler as any)({
       ...baseEvent,
       requestContext: { ...baseEvent.requestContext, authorizer: undefined },
     });

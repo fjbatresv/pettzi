@@ -50,7 +50,9 @@ describe('confirm-email.handler', () => {
   it('returns 200 when token is valid', async () => {
     const token = buildToken(process.env.EMAIL_VERIFY_SECRET!);
 
-    const res = await handler({ body: JSON.stringify({ token }) } as any);
+    const res = await (handler as any)({
+      body: JSON.stringify({ token }),
+    } as any);
 
     expect(res.statusCode).toBe(200);
     expect(JSON.parse(res.body!)).toEqual({ message: 'Email verified' });
@@ -63,7 +65,7 @@ describe('confirm-email.handler', () => {
   });
 
   it('returns 400 when token missing', async () => {
-    const res = await handler({ body: undefined } as any);
+    const res = await (handler as any)({ body: undefined } as any);
     expect(res.statusCode).toBe(400);
     expect(JSON.parse(res.body!)).toEqual({
       error: { code: 'BAD_REQUEST', message: 'token is required' },
@@ -71,7 +73,7 @@ describe('confirm-email.handler', () => {
   });
 
   it('returns 400 for invalid token', async () => {
-    const res = await handler({
+    const res = await (handler as any)({
       body: JSON.stringify({ token: 'bad' }),
     } as any);
     expect(res.statusCode).toBe(400);
@@ -82,7 +84,7 @@ describe('confirm-email.handler', () => {
 
   it('returns 500 if secret missing', async () => {
     delete process.env.EMAIL_VERIFY_SECRET;
-    const res = await handler({
+    const res = await (handler as any)({
       body: JSON.stringify({ token: buildToken('foo') }),
     } as any);
     expect(res.statusCode).toBe(500);

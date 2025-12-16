@@ -33,7 +33,7 @@ describe('get-pet.handler', () => {
         }),
       });
 
-    const res = await handler({
+    const res = await (handler as any)({
       pathParameters: { petId: 'pet-1' },
       requestContext: { authorizer: { jwt: { claims: { sub: 'owner-1' } } } },
     } as any);
@@ -43,7 +43,7 @@ describe('get-pet.handler', () => {
 
   it('unauthorized when not owner', async () => {
     sendMock.mockResolvedValueOnce({ Item: undefined });
-    const res = await handler({
+    const res = await (handler as any)({
       pathParameters: { petId: 'pet-1' },
       requestContext: { authorizer: { jwt: { claims: { sub: 'owner-1' } } } },
     } as any);

@@ -35,7 +35,7 @@ describe('update-pet.handler', () => {
         }),
       });
 
-    const res = await handler({
+    const res = await (handler as any)({
       pathParameters: { petId: 'pet-1' },
       body: JSON.stringify({ notes: 'updated' }),
       requestContext: { authorizer: { jwt: { claims: { sub: 'owner-1' } } } },
@@ -45,7 +45,7 @@ describe('update-pet.handler', () => {
   });
 
   it('returns 400 when no fields', async () => {
-    const res = await handler({
+    const res = await (handler as any)({
       pathParameters: { petId: 'pet-1' },
       body: JSON.stringify({}),
       requestContext: { authorizer: { jwt: { claims: { sub: 'owner-1' } } } },

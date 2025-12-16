@@ -18,7 +18,7 @@ const { __sendMock: sendMock } = jest.requireMock('@aws-sdk/lib-dynamodb') as {
 };
 
 describe('list-reminders.handler', () => {
-  const baseEvent: APIGatewayProxyEventV2 = {
+  const baseEvent = {
     version: '2.0',
     routeKey: '',
     rawPath: '',
@@ -46,7 +46,7 @@ describe('list-reminders.handler', () => {
       },
     },
     isBase64Encoded: false,
-  };
+  } as APIGatewayProxyEventV2;
 
   beforeEach(() => {
     process.env.PETTZI_TABLE_NAME = 'PettziTable';
@@ -81,7 +81,7 @@ describe('list-reminders.handler', () => {
       throw new Error(`Unexpected command ${command.constructor.name}`);
     });
 
-    const res = await handler(baseEvent);
+    const res = await (handler as any)(baseEvent);
     expect(res.statusCode).toBe(200);
     const body = JSON.parse(res.body ?? '{}');
     expect(body.reminders).toHaveLength(1);
@@ -90,7 +90,7 @@ describe('list-reminders.handler', () => {
   it('returns empty when no pets', async () => {
     sendMock.mockImplementation(() => ({ Items: [] }));
 
-    const res = await handler(baseEvent);
+    const res = await (handler as any)(baseEvent);
     expect(res.statusCode).toBe(200);
     const body = JSON.parse(res.body ?? '{}');
     expect(body.reminders).toHaveLength(0);

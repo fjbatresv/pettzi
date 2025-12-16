@@ -38,7 +38,7 @@ describe('forgot-password.handler', () => {
     cognitoSendMock.mockResolvedValueOnce({});
     sesSendMock.mockResolvedValueOnce({});
 
-    const res = await handler({
+    const res = await (handler as any)({
       body: JSON.stringify({ email: 'a@b.com' }),
     } as any);
 
@@ -55,7 +55,7 @@ describe('forgot-password.handler', () => {
   });
 
   it('returns 400 when email missing', async () => {
-    const res = await handler({ body: JSON.stringify({}) } as any);
+    const res = await (handler as any)({ body: JSON.stringify({}) } as any);
 
     expect(res.statusCode).toBe(400);
   });

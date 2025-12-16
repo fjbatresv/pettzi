@@ -12,6 +12,7 @@ import {
   created,
   serverError,
 } from '@pettzi/utils-dynamo/http';
+import crypto from 'crypto';
 
 interface RegisterPayload {
   email?: string;
@@ -25,11 +26,22 @@ const buildVerificationToken = (email: string, secret?: string) => {
   if (!secret) return null;
   const expires = Date.now() + 1000 * 60 * 60 * 24; // 24h
   const payload = `${email}:${expires}`;
-  const signature = require('crypto')
+  const signature = crypto
     .createHmac('sha256', secret)
     .update(payload)
     .digest('hex');
   return Buffer.from(`${payload}:${signature}`).toString('base64url');
+};
+
+const anonymizeEmail = (email: string) =>
+  crypto.createHash('sha256').update(email).digest('hex');
+
+const createEmailLogContext = (email: string) => {
+  const emailId = anonymizeEmail(email);
+  if (process.env.NODE_ENV === 'production') {
+    return { emailId };
+  }
+  return { email, emailId };
 };
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
@@ -49,7 +61,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     return badRequest('email and password are required');
   }
 
-  console.info('Register request', { email });
+  console.info('Register request', createEmailLogContext(email));
 
   try {
     if (!process.env.COGNITO_USER_POOL_ID) {
@@ -65,7 +77,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         DesiredDeliveryMediums: [],
       })
     );
-    console.debug('AdminCreateUser succeeded', { email });
+    console.debug('AdminCreateUser succeeded', createEmailLogContext(email));
 
     await cognito.send(
       new AdminSetUserPasswordCommand({
@@ -75,7 +87,10 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         Permanent: true,
       })
     );
-    console.debug('AdminSetUserPassword succeeded', { email });
+    console.debug(
+      'AdminSetUserPassword succeeded',
+      createEmailLogContext(email)
+    );
 
     // Auto-confirm so the user can log in immediately while keeping email unverified.
     // Auto-initiate auth to return tokens to the client.
@@ -102,9 +117,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     if (!token) {
       console.warn(
         'Verification token not generated; EMAIL_VERIFY_SECRET missing',
-        {
-          email,
-        }
+        createEmailLogContext(email)
       );
     }
     const verificationLink =
@@ -127,12 +140,15 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
           })
         );
         console.debug('Welcome email sent', {
-          email,
+          ...createEmailLogContext(email),
           template: process.env.SES_WELCOME_TEMPLATE_NAME,
-          verificationLink,
         });
       } catch (sesErr) {
-        console.warn('Failed to send welcome email', { email, error: sesErr });
+        console.warn(
+          'Failed to send welcome email',
+          createEmailLogContext(email),
+          sesErr
+        );
         console.error('Failed to send welcome email', sesErr);
       }
     } else {

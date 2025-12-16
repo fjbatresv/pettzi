@@ -49,7 +49,7 @@ describe('list-pets.handler', () => {
         },
       });
 
-    const res = await handler({
+    const res = await (handler as any)({
       requestContext: { authorizer: { jwt: { claims: { sub: 'owner-1' } } } },
     } as any);
 
@@ -60,7 +60,7 @@ describe('list-pets.handler', () => {
 
   it('returns empty list', async () => {
     sendMock.mockResolvedValueOnce({ Items: [] });
-    const res = await handler({
+    const res = await (handler as any)({
       requestContext: { authorizer: { jwt: { claims: { sub: 'owner-1' } } } },
     } as any);
     expect(res.statusCode).toBe(200);
