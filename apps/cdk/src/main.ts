@@ -209,21 +209,34 @@ const catalogsApi = new CatalogsApiStack(app, 'PettziCatalogsApiStack', {
 
 const apiDomain =
   apiDomainName && apiHostedZoneName
-    ? new ApiDomainStack(app, 'PettziApiDomainStack', {
-        env: { account, region },
-        stackName: 'PettziApiDomainStack',
-        description: `Pettzi API custom domain (${stage})`,
-        domainName: apiDomainName,
-        hostedZoneName: apiHostedZoneName,
-        hostedZoneId: apiHostedZoneId,
-        authApi: authApi.httpApi,
-        petsApi: petsApi.httpApi,
-        ownersApi: ownersApi.httpApi,
-        eventsApi: eventsApi.httpApi,
-        remindersApi: remindersApi.httpApi,
-        uploadsApi: uploadsApi.httpApi,
-        catalogsApi: catalogsApi.httpApi,
-      })
+    ? (() => {
+        const inHostedZone =
+          apiDomainName === apiHostedZoneName ||
+          apiDomainName.endsWith(`.${apiHostedZoneName}`);
+
+        if (!inHostedZone) {
+          console.warn(
+            `ApiDomainStack will be deployed in disabled mode: hosted zone "${apiHostedZoneName}" is not authoritative for domain "${apiDomainName}".`
+          );
+        }
+
+        return new ApiDomainStack(app, 'PettziApiDomainStack', {
+          env: { account, region },
+          stackName: 'PettziApiDomainStack',
+          description: `Pettzi API custom domain (${stage})`,
+          domainName: apiDomainName,
+          hostedZoneName: apiHostedZoneName,
+          hostedZoneId: apiHostedZoneId,
+          enabled: inHostedZone,
+          authApi: authApi.httpApi,
+          petsApi: petsApi.httpApi,
+          ownersApi: ownersApi.httpApi,
+          eventsApi: eventsApi.httpApi,
+          remindersApi: remindersApi.httpApi,
+          uploadsApi: uploadsApi.httpApi,
+          catalogsApi: catalogsApi.httpApi,
+        });
+      })()
     : undefined;
 
 new AppRegistryAssociationsStack(app, 'PettziAppRegistryAssociationsStack', {
