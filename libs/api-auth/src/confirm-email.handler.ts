@@ -36,10 +36,22 @@ const parseToken = (token: string, secret?: string): string | null => {
 };
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
-  const token = event.queryStringParameters?.token;
+  if (!event.body) {
+    return badRequest('token is required');
+  }
+
+  let token: string | undefined;
+  try {
+    const payload = JSON.parse(event.body);
+    token = payload?.token;
+  } catch {
+    return badRequest('token is required');
+  }
+
   if (!token) {
     return badRequest('token is required');
   }
+
   const secret = process.env.EMAIL_VERIFY_SECRET;
   const userPoolId = process.env.COGNITO_USER_POOL_ID;
   if (!secret || !userPoolId) {

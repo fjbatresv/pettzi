@@ -101,10 +101,7 @@ export class CatalogsApiStack extends Stack {
     const layers = layersInput.filter(
       (l): l is lambda.ILayerVersion => Boolean(l)
     );
-    const external =
-      layers.length > 0
-        ? ['@pettzi/domain-model', '@pettzi/utils-dynamo', '@pettzi/shared-utils']
-        : [];
+    const external = layers.length > 0 ? [] : [];
 
     return new NodejsFunction(this, id, {
       runtime: lambda.Runtime.NODEJS_24_X,
@@ -116,6 +113,7 @@ export class CatalogsApiStack extends Stack {
         target: 'node24',
         format: OutputFormat.CJS,
         platform: 'node',
+        nodeModules: ['@pettzi/domain-model', '@pettzi/utils-dynamo', '@pettzi/shared-utils'],
         externalModules: external,
         sourcesContent: false,
         keepNames: false,

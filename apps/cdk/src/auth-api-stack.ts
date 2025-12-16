@@ -124,6 +124,7 @@ export class AuthApiStack extends Stack {
       'cognito-idp:AdminConfirmSignUp',
       'cognito-idp:AdminUpdateUserAttributes',
       'cognito-idp:InitiateAuth',
+      'cognito-idp:RespondToAuthChallenge',
       'cognito-idp:ForgotPassword',
     ];
     [
@@ -216,6 +217,7 @@ export class AuthApiStack extends Stack {
         target: 'node24',
         format: OutputFormat.CJS,
         platform: 'node',
+        nodeModules: ['@pettzi/utils-dynamo'],
         externalModules: layers.length
           ? ['@aws-sdk/client-cognito-identity-provider', '@aws-sdk/client-ses']
           : [],
