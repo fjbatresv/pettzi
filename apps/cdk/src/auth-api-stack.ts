@@ -164,7 +164,7 @@ export class AuthApiStack extends Stack {
     });
     this.httpApi.addRoutes({
       path: '/confirm-email',
-      methods: [apigwv2.HttpMethod.GET],
+      methods: [apigwv2.HttpMethod.POST],
       integration: new HttpLambdaIntegration(
         'ConfirmEmailIntegration',
         confirmEmailFn
