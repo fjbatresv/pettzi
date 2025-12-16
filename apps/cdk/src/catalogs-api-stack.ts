@@ -119,11 +119,6 @@ export class CatalogsApiStack extends Stack {
         target: 'node24',
         format: OutputFormat.CJS,
         platform: 'node',
-        nodeModules: [
-          '@pettzi/domain-model',
-          '@pettzi/utils-dynamo',
-          '@pettzi/shared-utils',
-        ],
         externalModules: external,
         sourcesContent: false,
         keepNames: false,

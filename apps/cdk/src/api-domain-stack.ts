@@ -9,6 +9,13 @@ export interface ApiDomainStackProps extends StackProps {
   domainName: string;
   hostedZoneName: string;
   hostedZoneId?: string;
+  /**
+   * When false, the stack will synthesize without creating any
+   * custom domain resources. Useful to gracefully disable the
+   * stack when the hosted zone is not authoritative for the
+   * requested domain.
+   */
+  enabled: boolean;
   authApi: apigwv2.HttpApi;
   petsApi: apigwv2.HttpApi;
   ownersApi: apigwv2.HttpApi;
@@ -26,6 +33,16 @@ export class ApiDomainStack extends Stack {
 
     Tags.of(this).add('project', 'pettzi');
     Tags.of(this).add('AppManagerCFNStackKey', id);
+
+    if (!props.enabled) {
+      // Intentionally synthesize an "empty" stack so that any
+      // previously-created resources and cross-stack references
+      // from earlier deployments are cleaned up safely.
+      console.warn(
+        `ApiDomainStack is disabled; skipping creation of custom domain resources for "${props.domainName}".`
+      );
+      return;
+    }
 
     const zone =
       props.hostedZoneId != null
