@@ -6,7 +6,7 @@ on:
       - develop
   pull_request:
   schedule:
-    - cron: "0 10 * * 1"
+    - cron: '0 10 * * 1'
 
 permissions:
   contents: read

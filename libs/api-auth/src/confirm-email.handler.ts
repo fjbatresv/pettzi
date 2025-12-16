@@ -28,7 +28,9 @@ const parseToken = (token: string, secret?: string): string | null => {
     .update(`${email}:${expires}`)
     .digest('hex');
 
-  if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSig))) {
+  if (
+    !crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSig))
+  ) {
     return null;
   }
 

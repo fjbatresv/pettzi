@@ -22,13 +22,14 @@ jest.mock('@aws-sdk/client-ses', () => {
   };
 });
 
-const { __sendMock: sesSendMock } = jest.requireMock(
-  '@aws-sdk/client-ses'
-) as { __sendMock: jest.Mock };
+const { __sendMock: sesSendMock } = jest.requireMock('@aws-sdk/client-ses') as {
+  __sendMock: jest.Mock;
+};
 
 import { handler } from './register.handler';
 
-const makeTestPassword = () => `Test-${Math.random().toString(36).slice(2, 10)}Aa!`;
+const makeTestPassword = () =>
+  `Test-${Math.random().toString(36).slice(2, 10)}Aa!`;
 
 describe('register.handler', () => {
   beforeEach(() => {

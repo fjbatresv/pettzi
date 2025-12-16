@@ -23,8 +23,9 @@ const generateTemporaryPassword = () => {
   const symbols = '!@#$%^&*';
   const all = `${lower}${upper}${digits}${symbols}`;
   const buf = crypto.randomBytes(TEMP_PASSWORD_LENGTH);
-  const chars = Array.from({ length: TEMP_PASSWORD_LENGTH }, (_, i) =>
-    all[buf[i] % all.length],
+  const chars = Array.from(
+    { length: TEMP_PASSWORD_LENGTH },
+    (_, i) => all[buf[i] % all.length]
   );
 
   chars[0] = lower[crypto.randomInt(lower.length)];

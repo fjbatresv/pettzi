@@ -1,4 +1,11 @@
-import { Stack, StackProps, Duration, CfnOutput, Tags, aws_iam as iam } from 'aws-cdk-lib';
+import {
+  Stack,
+  StackProps,
+  Duration,
+  CfnOutput,
+  Tags,
+  aws_iam as iam,
+} from 'aws-cdk-lib';
 import * as apigwv2 from 'aws-cdk-lib/aws-apigatewayv2';
 import { HttpLambdaIntegration } from 'aws-cdk-lib/aws-apigatewayv2-integrations';
 import { HttpUserPoolAuthorizer } from 'aws-cdk-lib/aws-apigatewayv2-authorizers';
@@ -29,7 +36,11 @@ export class RemindersApiStack extends Stack {
   constructor(scope: Construct, id: string, props: RemindersApiStackProps) {
     super(scope, id, props);
 
-    const stage = this.node.tryGetContext('stage') ?? props.stage ?? process.env.STAGE ?? 'dev';
+    const stage =
+      this.node.tryGetContext('stage') ??
+      props.stage ??
+      process.env.STAGE ??
+      'dev';
     Tags.of(this).add('project', 'pettzi');
     Tags.of(this).add('AppManagerCFNStackKey', id);
 
@@ -50,21 +61,25 @@ export class RemindersApiStack extends Stack {
       stage,
       handlerPath('libs/api-reminders/src/handlers/list-reminders.handler.ts'),
       commonEnv,
-      [props.sharedLayer, props.sesLayer, props.ddbLayer],
+      [props.sharedLayer, props.sesLayer, props.ddbLayer]
     );
     const listPetRemindersFn = this.createFn(
       'ListPetRemindersHandler',
       stage,
-      handlerPath('libs/api-reminders/src/handlers/list-pet-reminders.handler.ts'),
+      handlerPath(
+        'libs/api-reminders/src/handlers/list-pet-reminders.handler.ts'
+      ),
       commonEnv,
-      [props.sharedLayer, props.sesLayer, props.ddbLayer],
+      [props.sharedLayer, props.sesLayer, props.ddbLayer]
     );
     const processDueFn = this.createFn(
       'ProcessDueRemindersHandler',
       stage,
-      handlerPath('libs/api-reminders/src/handlers/process-due-reminders.handler.ts'),
+      handlerPath(
+        'libs/api-reminders/src/handlers/process-due-reminders.handler.ts'
+      ),
       commonEnv,
-      [props.sharedLayer, props.sesLayer, props.ddbLayer],
+      [props.sharedLayer, props.sesLayer, props.ddbLayer]
     );
 
     props.table.grantReadWriteData(listRemindersFn);
@@ -73,7 +88,11 @@ export class RemindersApiStack extends Stack {
 
     processDueFn.addToRolePolicy(
       new iam.PolicyStatement({
-        actions: ['ses:SendEmail', 'ses:SendRawEmail', 'ses:SendTemplatedEmail'],
+        actions: [
+          'ses:SendEmail',
+          'ses:SendRawEmail',
+          'ses:SendTemplatedEmail',
+        ],
         resources: ['*'],
       })
     );
@@ -84,7 +103,7 @@ export class RemindersApiStack extends Stack {
       {
         userPoolClients: [props.userPoolClient],
         identitySource: ['$request.header.Authorization'],
-      },
+      }
     );
 
     this.httpApi = new apigwv2.HttpApi(this, 'RemindersHttpApi', {
@@ -97,12 +116,18 @@ export class RemindersApiStack extends Stack {
     this.httpApi.addRoutes({
       path: '/',
       methods: [apigwv2.HttpMethod.GET],
-      integration: new HttpLambdaIntegration('ListRemindersIntegration', listRemindersFn),
+      integration: new HttpLambdaIntegration(
+        'ListRemindersIntegration',
+        listRemindersFn
+      ),
     });
     this.httpApi.addRoutes({
       path: '/pets/{petId}',
       methods: [apigwv2.HttpMethod.GET],
-      integration: new HttpLambdaIntegration('ListPetRemindersIntegration', listPetRemindersFn),
+      integration: new HttpLambdaIntegration(
+        'ListPetRemindersIntegration',
+        listPetRemindersFn
+      ),
     });
 
     new events.Rule(this, 'DueRemindersRule', {
@@ -121,10 +146,10 @@ export class RemindersApiStack extends Stack {
     stage: string,
     entry: string,
     environment: Record<string, string>,
-    layersInput: Array<lambda.ILayerVersion | undefined> = [],
+    layersInput: Array<lambda.ILayerVersion | undefined> = []
   ): NodejsFunction {
-    const layers = layersInput.filter(
-      (l): l is lambda.ILayerVersion => Boolean(l)
+    const layers = layersInput.filter((l): l is lambda.ILayerVersion =>
+      Boolean(l)
     );
     const external =
       layers.length > 0

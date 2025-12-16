@@ -36,21 +36,21 @@ export class CatalogsApiStack extends Stack {
       props.stage,
       handlerPath('libs/api-catalogs/src/handlers/get-species.handler.ts'),
       commonEnv,
-      [props.sharedLayer],
+      [props.sharedLayer]
     );
     const breedsFn = this.createFn(
       'GetBreedsHandler',
       props.stage,
       handlerPath('libs/api-catalogs/src/handlers/get-breeds.handler.ts'),
       commonEnv,
-      [props.sharedLayer],
+      [props.sharedLayer]
     );
     const vaccinesFn = this.createFn(
       'GetVaccinesHandler',
       props.stage,
       handlerPath('libs/api-catalogs/src/handlers/get-vaccines.handler.ts'),
       commonEnv,
-      [props.sharedLayer],
+      [props.sharedLayer]
     );
 
     const authorizer = new HttpUserPoolAuthorizer(
@@ -59,7 +59,7 @@ export class CatalogsApiStack extends Stack {
       {
         userPoolClients: [props.userPoolClient],
         identitySource: ['$request.header.Authorization'],
-      },
+      }
     );
 
     this.httpApi = new apigwv2.HttpApi(this, 'CatalogsHttpApi', {
@@ -72,7 +72,10 @@ export class CatalogsApiStack extends Stack {
     this.httpApi.addRoutes({
       path: '/species',
       methods: [apigwv2.HttpMethod.GET],
-      integration: new HttpLambdaIntegration('GetSpeciesIntegration', speciesFn),
+      integration: new HttpLambdaIntegration(
+        'GetSpeciesIntegration',
+        speciesFn
+      ),
     });
     this.httpApi.addRoutes({
       path: '/breeds',
@@ -82,7 +85,10 @@ export class CatalogsApiStack extends Stack {
     this.httpApi.addRoutes({
       path: '/vaccines',
       methods: [apigwv2.HttpMethod.GET],
-      integration: new HttpLambdaIntegration('GetVaccinesIntegration', vaccinesFn),
+      integration: new HttpLambdaIntegration(
+        'GetVaccinesIntegration',
+        vaccinesFn
+      ),
     });
 
     new CfnOutput(this, 'CatalogsApiUrl', {
@@ -96,10 +102,10 @@ export class CatalogsApiStack extends Stack {
     stage: string,
     entry: string,
     environment: Record<string, string>,
-    layersInput: Array<lambda.ILayerVersion | undefined>,
+    layersInput: Array<lambda.ILayerVersion | undefined>
   ): NodejsFunction {
-    const layers = layersInput.filter(
-      (l): l is lambda.ILayerVersion => Boolean(l)
+    const layers = layersInput.filter((l): l is lambda.ILayerVersion =>
+      Boolean(l)
     );
     const external = layers.length > 0 ? [] : [];
 
@@ -113,7 +119,11 @@ export class CatalogsApiStack extends Stack {
         target: 'node24',
         format: OutputFormat.CJS,
         platform: 'node',
-        nodeModules: ['@pettzi/domain-model', '@pettzi/utils-dynamo', '@pettzi/shared-utils'],
+        nodeModules: [
+          '@pettzi/domain-model',
+          '@pettzi/utils-dynamo',
+          '@pettzi/shared-utils',
+        ],
         externalModules: external,
         sourcesContent: false,
         keepNames: false,

@@ -49,9 +49,12 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     if (response.ChallengeName === 'NEW_PASSWORD_REQUIRED') {
       const session = response.Session;
       if (!session) {
-        console.error('Missing session from Cognito NEW_PASSWORD_REQUIRED challenge', {
-          response,
-        });
+        console.error(
+          'Missing session from Cognito NEW_PASSWORD_REQUIRED challenge',
+          {
+            response,
+          }
+        );
         return badRequest('Missing session from Cognito challenge');
       }
 

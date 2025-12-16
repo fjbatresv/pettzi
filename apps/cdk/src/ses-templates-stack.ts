@@ -55,8 +55,8 @@ export class SesTemplatesStack extends Stack {
         templateName: SesTemplatesStack.RESET_TEMPLATE,
         subjectPart: 'Restablece tu contraseña en PETTZI',
         htmlPart:
-          '<p>Hemos generado una contraseña temporal para ti: {{temporaryPassword}}</p>'
-            + '<p>Úsala para iniciar sesión y luego cambia tu contraseña en el panel.</p>',
+          '<p>Hemos generado una contraseña temporal para ti: {{temporaryPassword}}</p>' +
+          '<p>Úsala para iniciar sesión y luego cambia tu contraseña en el panel.</p>',
         textPart:
           'Tu contraseña temporal es {{temporaryPassword}}. Inicia sesión y actualízala.',
       },

@@ -37,32 +37,54 @@ export class ApiDomainStack extends Stack {
             domainName: props.hostedZoneName,
           });
 
-    const certificate = new certmgr.DnsValidatedCertificate(this, 'ApiDomainCertificate', {
-      domainName: props.domainName,
-      hostedZone: zone,
-      region: Stack.of(this).region,
-    });
+    const certificate = new certmgr.DnsValidatedCertificate(
+      this,
+      'ApiDomainCertificate',
+      {
+        domainName: props.domainName,
+        hostedZone: zone,
+        region: Stack.of(this).region,
+      }
+    );
 
     const domain = new apigwv2.DomainName(this, 'ApiDomain', {
       domainName: props.domainName,
       certificate,
     });
 
-    const mappings: Array<{ id: string; api: apigwv2.HttpApi; basePath: string }> = [
-      { id: 'AuthApiMapping', api: props.authApi, basePath: AUTH_API_BASE_PATH },
+    const mappings: Array<{
+      id: string;
+      api: apigwv2.HttpApi;
+      basePath: string;
+    }> = [
+      {
+        id: 'AuthApiMapping',
+        api: props.authApi,
+        basePath: AUTH_API_BASE_PATH,
+      },
       { id: 'PetsApiMapping', api: props.petsApi, basePath: 'pets' },
       { id: 'OwnersApiMapping', api: props.ownersApi, basePath: 'owners' },
       { id: 'EventsApiMapping', api: props.eventsApi, basePath: 'events' },
-      { id: 'RemindersApiMapping', api: props.remindersApi, basePath: 'reminders' },
+      {
+        id: 'RemindersApiMapping',
+        api: props.remindersApi,
+        basePath: 'reminders',
+      },
       { id: 'UploadsApiMapping', api: props.uploadsApi, basePath: 'uploads' },
-      { id: 'CatalogsApiMapping', api: props.catalogsApi, basePath: 'catalogs' },
+      {
+        id: 'CatalogsApiMapping',
+        api: props.catalogsApi,
+        basePath: 'catalogs',
+      },
     ];
 
     mappings.forEach(({ id: mappingId, api, basePath }) => {
       new apigwv2.ApiMapping(this, mappingId, {
         api,
         domainName: domain,
-        stage: api.defaultStage ?? api.addStage(`${basePath}Stage`, { autoDeploy: true }),
+        stage:
+          api.defaultStage ??
+          api.addStage(`${basePath}Stage`, { autoDeploy: true }),
         apiMappingKey: basePath,
       });
     });
@@ -80,7 +102,10 @@ export class ApiDomainStack extends Stack {
 
     new CfnOutput(this, 'ApiCustomDomainUrl', {
       value: `https://${props.domainName}`,
-      exportName: `PettziApiCustomDomain-${props.domainName.replaceAll(/[^A-Za-z0-9-]/g, '-')}`,
+      exportName: `PettziApiCustomDomain-${props.domainName.replaceAll(
+        /[^A-Za-z0-9-]/g,
+        '-'
+      )}`,
     });
   }
 }
