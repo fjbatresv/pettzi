@@ -18,6 +18,8 @@ export interface ApiDomainStackProps extends StackProps {
   catalogsApi: apigwv2.HttpApi;
 }
 
+export const AUTH_API_BASE_PATH = 'auth';
+
 export class ApiDomainStack extends Stack {
   constructor(scope: Construct, id: string, props: ApiDomainStackProps) {
     super(scope, id, props);
@@ -47,7 +49,7 @@ export class ApiDomainStack extends Stack {
     });
 
     const mappings: Array<{ id: string; api: apigwv2.HttpApi; basePath: string }> = [
-      { id: 'AuthApiMapping', api: props.authApi, basePath: 'auth' },
+      { id: 'AuthApiMapping', api: props.authApi, basePath: AUTH_API_BASE_PATH },
       { id: 'PetsApiMapping', api: props.petsApi, basePath: 'pets' },
       { id: 'OwnersApiMapping', api: props.ownersApi, basePath: 'owners' },
       { id: 'EventsApiMapping', api: props.eventsApi, basePath: 'events' },

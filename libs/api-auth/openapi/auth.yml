@@ -15,14 +15,11 @@ paths:
               $ref: '#/components/schemas/AuthRegisterRequest'
       responses:
         '201':
-          description: User registered (confirmation pending)
+          description: User registered (confirmation pending) and session tokens issued
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
+                $ref: '#/components/schemas/RegisterResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '409':
@@ -40,11 +37,13 @@ paths:
               $ref: '#/components/schemas/AuthLoginRequest'
       responses:
         '200':
-          description: Tokens returned
+          description: Tokens returned or a NEW_PASSWORD_REQUIRED challenge
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AuthTokensResponse'
+                oneOf:
+                  - $ref: '#/components/schemas/AuthTokensResponse'
+                  - $ref: '#/components/schemas/NewPasswordChallengeResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -62,7 +61,7 @@ paths:
               $ref: '#/components/schemas/ForgotPasswordRequest'
       responses:
         '200':
-          description: Reset code sent
+          description: Temporary password sent via SES template
           content:
             application/json:
               schema:
@@ -74,18 +73,38 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '500':
           $ref: '#/components/responses/ServerError'
-  /confirm-forgot-password:
+  /complete-new-password:
     post:
-      summary: Confirm password reset with code
+      summary: Complete `NEW_PASSWORD_REQUIRED` challenge
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ConfirmForgotPasswordRequest'
+              $ref: '#/components/schemas/CompleteNewPasswordRequest'
       responses:
         '200':
-          description: Password reset confirmed
+          description: Tokens issued after new password is accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokensResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /confirm-email:
+    get:
+      summary: Confirm welcome email
+      parameters:
+        - name: token
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Email verified
           content:
             application/json:
               schema:
@@ -95,8 +114,6 @@ paths:
                     type: string
         '400':
           $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/ServerError'
 components:
@@ -127,18 +144,6 @@ components:
         email:
           type: string
           format: email
-    ConfirmForgotPasswordRequest:
-      type: object
-      required: [email, code, newPassword]
-      properties:
-        email:
-          type: string
-          format: email
-        code:
-          type: string
-        newPassword:
-          type: string
-          minLength: 8
     AuthTokensResponse:
       type: object
       required: [idToken, accessToken]
@@ -149,6 +154,44 @@ components:
           type: string
         refreshToken:
           type: string
+    RegisterResponse:
+      type: object
+      required: [message, idToken, accessToken]
+      properties:
+        message:
+          type: string
+        idToken:
+          type: string
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        tokenType:
+          type: string
+        expiresIn:
+          type: number
+    NewPasswordChallengeResponse:
+      type: object
+      required: [challenge, session, message]
+      properties:
+        challenge:
+          type: string
+        session:
+          type: string
+        message:
+          type: string
+    CompleteNewPasswordRequest:
+      type: object
+      required: [email, session, newPassword]
+      properties:
+        email:
+          type: string
+          format: email
+        session:
+          type: string
+        newPassword:
+          type: string
+          minLength: 8
     ErrorResponse:
       type: object
       required: [error]

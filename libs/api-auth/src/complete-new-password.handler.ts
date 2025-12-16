@@ -1,18 +1,14 @@
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
 import {
   CognitoIdentityProviderClient,
-  InitiateAuthCommand,
+  RespondToAuthChallengeCommand,
 } from '@aws-sdk/client-cognito-identity-provider';
-import {
-  badRequest,
-  ok,
-  serverError,
-  unauthorized,
-} from '@pettzi/utils-dynamo/http';
+import { badRequest, ok, serverError } from '@pettzi/utils-dynamo/http';
 
-interface LoginPayload {
+interface CompletePasswordPayload {
   email?: string;
-  password?: string;
+  session?: string;
+  newPassword?: string;
 }
 
 const cognito = new CognitoIdentityProviderClient({});
@@ -22,37 +18,30 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     return badRequest('Request body is required');
   }
 
-  let payload: LoginPayload;
+  let payload: CompletePasswordPayload;
   try {
     payload = JSON.parse(event.body);
   } catch {
     return badRequest('Invalid JSON body');
   }
 
-  const { email, password } = payload;
-  if (!email || !password) {
-    return badRequest('email and password are required');
+  const { email, session, newPassword } = payload;
+  if (!email || !session || !newPassword) {
+    return badRequest('email, session and newPassword are required');
   }
 
   try {
     const response = await cognito.send(
-      new InitiateAuthCommand({
-        AuthFlow: 'USER_PASSWORD_AUTH',
+      new RespondToAuthChallengeCommand({
         ClientId: process.env.COGNITO_USER_POOL_CLIENT_ID,
-        AuthParameters: {
+        ChallengeName: 'NEW_PASSWORD_REQUIRED',
+        Session: session,
+        ChallengeResponses: {
           USERNAME: email,
-          PASSWORD: password,
+          NEW_PASSWORD: newPassword,
         },
       })
     );
-
-    if (response.ChallengeName === 'NEW_PASSWORD_REQUIRED') {
-      return ok({
-        challenge: 'NEW_PASSWORD_REQUIRED',
-        session: response.Session,
-        message: 'New password required',
-      });
-    }
 
     const authResult = response.AuthenticationResult;
     if (!authResult?.IdToken || !authResult.AccessToken) {
@@ -65,15 +54,10 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
       refreshToken: authResult.RefreshToken,
     });
   } catch (error: any) {
-    const code = error?.name;
-    if (code === 'NotAuthorizedException') {
-      return unauthorized('Invalid email or password');
+    console.error('Complete new password error', { error });
+    if (error?.name === 'NotAuthorizedException') {
+      return badRequest('Invalid session');
     }
-    if (code === 'UserNotConfirmedException') {
-      return unauthorized('User is not confirmed');
-    }
-
-    console.error('Login error', { error });
-    return serverError('Failed to login');
+    return serverError('Failed to complete password change');
   }
 };

@@ -26,6 +26,9 @@ export interface AuthApiStackProps extends StackProps {
   sesFromEmail?: string;
   welcomeTemplateName?: string;
   resetTemplateName?: string;
+  verificationBaseUrl?: string;
+  verificationSecret?: string;
+  passwordResetBaseUrl?: string;
 }
 
 export class AuthApiStack extends Stack {
@@ -51,6 +54,15 @@ export class AuthApiStack extends Stack {
       ...(props.resetTemplateName
         ? { SES_RESET_TEMPLATE_NAME: props.resetTemplateName }
         : {}),
+      ...(props.verificationBaseUrl
+        ? { EMAIL_VERIFY_BASE_URL: props.verificationBaseUrl }
+        : {}),
+      ...(props.verificationSecret
+        ? { EMAIL_VERIFY_SECRET: props.verificationSecret }
+        : {}),
+      ...(props.passwordResetBaseUrl
+        ? { PASSWORD_RESET_BASE_URL: props.passwordResetBaseUrl }
+        : {}),
     };
 
     const handlerPath = (...segments: string[]) =>
@@ -73,6 +85,14 @@ export class AuthApiStack extends Stack {
       props.depsLayer,
       props.sesLayer
     );
+    const confirmEmailFn = this.createAuthFn(
+      'ConfirmEmailHandler',
+      stage,
+      handlerPath('libs/api-auth/src/confirm-email.handler.ts'),
+      commonEnv,
+      props.depsLayer,
+      props.sesLayer
+    );
     const loginFn = this.createAuthFn(
       'LoginHandler',
       stage,
@@ -89,26 +109,29 @@ export class AuthApiStack extends Stack {
       props.depsLayer,
       props.sesLayer
     );
-    const confirmForgotPasswordFn = this.createAuthFn(
-      'ConfirmForgotPasswordHandler',
+    const completeNewPasswordFn = this.createAuthFn(
+      'CompleteNewPasswordHandler',
       stage,
-      handlerPath('libs/api-auth/src/confirm-forgot-password.handler.ts'),
+      handlerPath('libs/api-auth/src/complete-new-password.handler.ts'),
       commonEnv,
       props.depsLayer,
       props.sesLayer
     );
 
     const cognitoActions = [
-      'cognito-idp:SignUp',
+      'cognito-idp:AdminCreateUser',
+      'cognito-idp:AdminSetUserPassword',
+      'cognito-idp:AdminConfirmSignUp',
+      'cognito-idp:AdminUpdateUserAttributes',
       'cognito-idp:InitiateAuth',
       'cognito-idp:ForgotPassword',
-      'cognito-idp:ConfirmForgotPassword',
     ];
     [
       registerFn,
+      confirmEmailFn,
       loginFn,
       forgotPasswordFn,
-      confirmForgotPasswordFn,
+      completeNewPasswordFn,
     ].forEach((fn) => {
       fn.addToRolePolicy(
         new iam.PolicyStatement({
@@ -129,7 +152,6 @@ export class AuthApiStack extends Stack {
     this.httpApi = new apigwv2.HttpApi(this, 'AuthHttpApi', {
       apiName: `PettziAuthApi-${stage}`,
       description: `Auth API for Pettzi (${stage})`,
-      defaultAuthorizer: this.authorizer,
       createDefaultStage: true,
     });
 
@@ -137,6 +159,11 @@ export class AuthApiStack extends Stack {
       path: '/register',
       methods: [apigwv2.HttpMethod.POST],
       integration: new HttpLambdaIntegration('RegisterIntegration', registerFn),
+    });
+    this.httpApi.addRoutes({
+      path: '/confirm-email',
+      methods: [apigwv2.HttpMethod.GET],
+      integration: new HttpLambdaIntegration('ConfirmEmailIntegration', confirmEmailFn),
     });
     this.httpApi.addRoutes({
       path: '/login',
@@ -152,11 +179,11 @@ export class AuthApiStack extends Stack {
       ),
     });
     this.httpApi.addRoutes({
-      path: '/confirm-forgot-password',
+      path: '/complete-new-password',
       methods: [apigwv2.HttpMethod.POST],
       integration: new HttpLambdaIntegration(
-        'ConfirmForgotPasswordIntegration',
-        confirmForgotPasswordFn
+        'CompleteNewPasswordIntegration',
+        completeNewPasswordFn
       ),
     });
 

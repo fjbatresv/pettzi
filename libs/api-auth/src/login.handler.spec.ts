@@ -10,7 +10,6 @@ jest.mock('@aws-sdk/client-cognito-identity-provider', () => {
 const { __sendMock: sendMock } = jest.requireMock(
   '@aws-sdk/client-cognito-identity-provider'
 ) as { __sendMock: jest.Mock };
-
 import { handler } from './login.handler';
 
 const makeTestPassword = (label: string) =>
@@ -39,6 +38,24 @@ describe('login.handler', () => {
       idToken: 'id',
       accessToken: 'access',
       refreshToken: 'refresh',
+    });
+  });
+
+  it('returns challenge payload when new password required', async () => {
+    sendMock.mockResolvedValue({
+      ChallengeName: 'NEW_PASSWORD_REQUIRED',
+      Session: 'session',
+    });
+
+    const res = await handler({
+      body: JSON.stringify({ email: 'a@b.com', password: makeTestPassword('temp') }),
+    } as any);
+
+    expect(res.statusCode).toBe(200);
+    expect(JSON.parse(res.body!)).toEqual({
+      challenge: 'NEW_PASSWORD_REQUIRED',
+      session: 'session',
+      message: 'New password required',
     });
   });
 

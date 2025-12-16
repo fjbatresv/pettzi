@@ -11,7 +11,7 @@ import { RemindersApiStack } from './reminders-api-stack';
 import { UploadsApiStack } from './uploads-api-stack';
 import { OwnersApiStack } from './owners-api-stack';
 import { CatalogsApiStack } from './catalogs-api-stack';
-import { ApiDomainStack } from './api-domain-stack';
+import { ApiDomainStack, AUTH_API_BASE_PATH } from './api-domain-stack';
 import { SesTemplatesStack } from './ses-templates-stack';
 import { PettziApplicationStack } from './application-stack';
 import { AppRegistryAssociationsStack } from './app-registry-associations-stack';
@@ -24,11 +24,28 @@ const stage = process.env.STAGE ?? process.env.CDK_STAGE ?? 'dev';
 const profile = process.env.CDK_PROFILE ?? process.env.AWS_PROFILE ?? 'default';
 const account = process.env.CDK_DEFAULT_ACCOUNT;
 const region = process.env.CDK_DEFAULT_REGION ?? process.env.AWS_REGION ?? 'us-east-1';
-const apiDomainName = process.env.API_DOMAIN_NAME;
-const apiHostedZoneName = process.env.API_HOSTED_ZONE_NAME;
-const apiHostedZoneId = process.env.API_HOSTED_ZONE_ID;
+const apiDomainName = (() => {
+  const explicit = process.env.API_DOMAIN_NAME?.trim();
+  if (explicit) return explicit;
+
+  const prefix = process.env.API_PREFIX?.trim();
+  const zone = process.env.API_HOSTED_ZONE_NAME?.trim();
+  if (!prefix || !zone) return undefined;
+
+  // If the prefix already contains the zone, reuse it; otherwise compose prefix + zone.
+  return prefix === zone || prefix.endsWith(`.${zone}`) ? prefix : `${prefix}.${zone}`;
+})();
+const apiHostedZoneName = process.env.API_HOSTED_ZONE_NAME?.trim();
+const apiHostedZoneId = process.env.API_HOSTED_ZONE_ID?.trim();
 const sesFromEmail = process.env.SES_FROM_EMAIL ?? 'no-reply@pettzi.app';
 const appRegistryApplicationName = process.env.APPREG_APPLICATION_NAME ?? 'PettziPlatform';
+const emailVerificationBaseUrl =
+  process.env.EMAIL_VERIFY_BASE_URL ??
+  (apiDomainName ? `https://${apiDomainName}/${AUTH_API_BASE_PATH}/confirm-email` : undefined);
+const emailVerificationSecret = process.env.EMAIL_VERIFY_SECRET;
+const passwordResetBaseUrl =
+  process.env.PASSWORD_RESET_BASE_URL ??
+  (apiDomainName ? `https://${apiDomainName}/${AUTH_API_BASE_PATH}/reset-password` : undefined);
 
 // Ensure SDK picks the intended profile when not provided via CLI.
 process.env.AWS_PROFILE = profile;
@@ -60,6 +77,8 @@ const sesTemplates = new SesTemplatesStack(app, 'PettziSesTemplatesStack', {
   stackName: 'PettziSesTemplatesStack',
   description: `Pettzi SES templates (${stage})`,
   fromEmail: sesFromEmail,
+  hostedZoneName: process.env.API_HOSTED_ZONE_NAME,
+  hostedZoneId: process.env.API_HOSTED_ZONE_ID,
 });
 
 const layers = new LayersStack(app, 'PettziLayersStack', {
@@ -93,6 +112,9 @@ const authApi = new AuthApiStack(app, 'PettziAuthApiStack', {
   sesFromEmail,
   welcomeTemplateName: SesTemplatesStack.WELCOME_TEMPLATE,
   resetTemplateName: SesTemplatesStack.RESET_TEMPLATE,
+  verificationBaseUrl: emailVerificationBaseUrl,
+  verificationSecret: emailVerificationSecret,
+  passwordResetBaseUrl,
 });
 
 const petsApi = new PetsApiStack(app, 'PettziPetsApiStack', {
