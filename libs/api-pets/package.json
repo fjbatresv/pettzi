@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "tslib": "^2.3.0",
-    "@aws-sdk/lib-dynamodb": "^3.694.0",
+    "@aws-sdk/lib-dynamodb": "^3.958.0",
     "@aws-sdk/client-dynamodb": "^3.694.0",
     "@types/aws-lambda": "^8.10.138",
     "@pettzi/utils-dynamo": "file:../utils-dynamo",
