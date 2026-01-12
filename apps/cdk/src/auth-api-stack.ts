@@ -162,9 +162,11 @@ export class AuthApiStack extends Stack {
       methods: [apigwv2.HttpMethod.POST],
       integration: new HttpLambdaIntegration('RegisterIntegration', registerFn),
     });
+
+    // TODO: Convert to post when frontend can make the
     this.httpApi.addRoutes({
       path: '/confirm-email',
-      methods: [apigwv2.HttpMethod.POST],
+      methods: [apigwv2.HttpMethod.GET],
       integration: new HttpLambdaIntegration(
         'ConfirmEmailIntegration',
         confirmEmailFn
