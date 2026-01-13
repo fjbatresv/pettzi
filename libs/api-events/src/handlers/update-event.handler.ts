@@ -19,7 +19,6 @@ interface UpdateEventRequest {
   title?: string;
   notes?: string;
   metadata?: Record<string, unknown>;
-  nextReminderDate?: string;
 }
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {

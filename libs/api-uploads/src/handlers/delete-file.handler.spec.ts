@@ -44,7 +44,7 @@ describe('delete-file.handler', () => {
       domainPrefix: '',
       http: {
         method: 'DELETE',
-        path: '/pets/pet-1/uploads/fileKey',
+        path: '/pets/pet-1',
         protocol: 'HTTP/1.1',
         sourceIp: '',
         userAgent: '',
@@ -78,6 +78,8 @@ describe('delete-file.handler', () => {
       ...baseEvent,
       pathParameters: {
         petId: 'pet-1',
+      },
+      queryStringParameters: {
         fileKey: encodeURIComponent('pets/pet-1/photos/file1.jpg'),
       },
     });
@@ -92,6 +94,8 @@ describe('delete-file.handler', () => {
       ...baseEvent,
       pathParameters: {
         petId: 'pet-1',
+      },
+      queryStringParameters: {
         fileKey: encodeURIComponent('pets/other/photos/file1.jpg'),
       },
     });

@@ -1,0 +1,173 @@
+<section class="pet-dashboard">
+  <div class="pet-profile">
+    <div class="pet-info">
+      <div class="pet-photo">
+        <img
+          *ngIf="petPhotoUrl"
+          [src]="petPhotoUrl"
+          [attr.alt]="pet?.name || ('dashboard.petFallback' | translate)"
+        />
+        <span *ngIf="!petPhotoUrl">{{ pet?.name?.[0] || ('dashboard.petInitial' | translate) }}</span>
+      </div>
+      <div>
+        <div class="pet-name">
+          <h2>{{ pet?.name || ('dashboard.petFallback' | translate) }}</h2>
+        </div>
+        <p class="pet-meta">
+          {{ pet?.breed || pet?.species || ('dashboard.unknown' | translate) }} ·
+          {{ ageLabel || ('dashboard.ageUnknown' | translate) }}
+        </p>
+        <div class="pet-tags">
+          <span class="tag success" *ngIf="showHealthStatus">{{ 'dashboard.healthy' | translate }}</span>
+          <span class="tag info" *ngIf="lastVetLabel">{{ lastVetLabel }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="pet-actions">
+      <button mat-stroked-button class="ghost">{{ 'dashboard.editProfile' | translate }}</button>
+      <button mat-raised-button color="primary" class="primary">
+        {{ 'dashboard.shareLog' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-head">
+          <p>{{ 'dashboard.currentWeight' | translate }}</p>
+          <span class="stat-icon" aria-hidden="true">
+            <mat-icon>monitor_weight</mat-icon>
+          </span>
+        </div>
+      <h3>{{ weightLabel }}</h3>
+      <p class="stat-note">{{ 'dashboard.weightNote' | translate }}</p>
+      </div>
+    <div class="stat-card">
+      <div class="stat-head">
+        <p>{{ 'dashboard.nextVaccine' | translate }}</p>
+        <span class="stat-icon" aria-hidden="true">
+          <mat-icon>vaccines</mat-icon>
+        </span>
+      </div>
+      <h3>{{ nextVaccineDateLabel || ('dashboard.schedule' | translate) }}</h3>
+      <p class="stat-note">{{ nextVaccineSubtitle }}</p>
+      <button class="stat-action" mat-stroked-button>
+        {{ 'dashboard.scheduleVaccine' | translate }}
+      </button>
+    </div>
+    <div class="stat-card">
+      <div class="stat-head">
+        <p>{{ 'dashboard.healthScore' | translate }}</p>
+        <span class="stat-icon" aria-hidden="true">
+          <mat-icon>favorite</mat-icon>
+        </span>
+      </div>
+      <h3>{{ healthScoreLabel }}</h3>
+      <p class="stat-note">{{ healthScoreSubtitle }}</p>
+      <div class="progress" *ngIf="activityLog.length">
+        <span style="width: 98%"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-grid">
+    <section class="activity-card">
+      <div class="activity-header">
+        <div>
+          <h3>{{ 'dashboard.activityLog' | translate }}</h3>
+          <p class="activity-sub">
+            {{ lastVaccineLabel || ('dashboard.activityHintEmpty' | translate) }}
+          </p>
+        </div>
+      </div>
+
+      <div class="activity-list">
+        <article class="activity-item" *ngFor="let event of activityLog">
+          <div class="activity-icon" [class.alt]="event.eventType === 'GROOMING'">
+            <ng-container [ngSwitch]="event.eventType">
+              <mat-icon *ngSwitchCase="'GROOMING'">content_cut</mat-icon>
+              <mat-icon *ngSwitchCase="'VET_VISIT'">local_hospital</mat-icon>
+              <mat-icon *ngSwitchCase="'MEDICATION'">medication</mat-icon>
+              <mat-icon *ngSwitchCase="'WEIGHT'">monitor_weight</mat-icon>
+              <mat-icon *ngSwitchCase="'VACCINE'">vaccines</mat-icon>
+              <mat-icon *ngSwitchDefault>event_note</mat-icon>
+            </ng-container>
+          </div>
+          <div>
+            <div class="activity-title">
+              <h4>{{ event.title || event.eventType }}</h4>
+              <span>{{ formatEventDate(event.eventDate) }}</span>
+            </div>
+            <p>{{ event.notes || ('dashboard.noDetails' | translate) }}</p>
+            <div class="activity-tags">
+              <span class="chip">{{ event.eventType }}</span>
+            </div>
+          </div>
+        </article>
+        <p class="empty-state" *ngIf="!activityLog.length">
+          {{ 'dashboard.noActivity' | translate }}
+        </p>
+      </div>
+    </section>
+
+    <aside class="right-rail">
+      <div class="fab-wrap">
+        <button class="fab-action" type="button" (click)="toggleActivityMenu()">
+          <span class="fab-plus">+</span>
+          {{ 'dashboard.activity' | translate }}
+        </button>
+        <div class="fab-menu" *ngIf="showActivityMenu">
+          <button type="button" (click)="selectActivity('GROOMING')">
+            {{ 'dashboard.activityGrooming' | translate }}
+          </button>
+          <button type="button" (click)="selectActivity('VET_VISIT')">
+            {{ 'dashboard.activityVetVisit' | translate }}
+          </button>
+          <button type="button" (click)="selectActivity('MEDICATION')">
+            {{ 'dashboard.activityMedication' | translate }}
+          </button>
+          <button type="button" (click)="selectActivity('WEIGHT')">
+            {{ 'dashboard.activityWeight' | translate }}
+          </button>
+          <button type="button" (click)="selectActivity('VACCINE')">
+            {{ 'dashboard.activityVaccine' | translate }}
+          </button>
+        </div>
+      </div>
+      <section class="reminders-card">
+        <div class="card-header">
+          <h3>
+            <mat-icon class="reminders-icon">calendar_today</mat-icon>
+            {{ 'dashboard.reminders' | translate }}
+          </h3>
+          <span class="badge">
+            {{ 'dashboard.pendingCount' | translate: { count: remindersList.length } }}
+          </span>
+        </div>
+        <div class="reminder" *ngFor="let reminder of remindersList">
+          <div class="checkbox"></div>
+          <div>
+            <h4>{{ reminder.message || ('dashboard.reminderFallback' | translate) }}</h4>
+            <p>{{ formatReminderDate(reminder.dueDate) }}</p>
+          </div>
+        </div>
+        <p class="empty-state" *ngIf="!remindersList.length">
+          {{ 'dashboard.noReminders' | translate }}
+        </p>
+        <button mat-stroked-button class="link-btn">
+          {{ 'dashboard.addNewReminder' | translate }}
+        </button>
+      </section>
+
+    </aside>
+  </div>
+</section>
+
+<div
+  class="fab-backdrop"
+  *ngIf="showActivityMenu"
+  role="button"
+  tabindex="0"
+  (click)="closeActivityMenu()"
+  (keydown.enter)="closeActivityMenu()"
+></div>

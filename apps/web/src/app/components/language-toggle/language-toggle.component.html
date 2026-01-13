@@ -1,0 +1,20 @@
+<div class="lang-toggle" role="group" [attr.aria-label]="'login.langToggle' | translate">
+  <button
+    type="button"
+    class="lang-btn"
+    [class.active]="locale === 'es'"
+    [attr.aria-pressed]="locale === 'es'"
+    (click)="setLocale('es')"
+  >
+    {{ 'login.langEs' | translate }}
+  </button>
+  <button
+    type="button"
+    class="lang-btn"
+    [class.active]="locale === 'en'"
+    [attr.aria-pressed]="locale === 'en'"
+    (click)="setLocale('en')"
+  >
+    {{ 'login.langEn' | translate }}
+  </button>
+</div>

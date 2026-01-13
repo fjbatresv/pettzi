@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -32,12 +32,13 @@ type WeightUnit = 'lb' | 'kg';
   templateUrl: './pet-create-step2.component.html',
   styleUrl: './pet-create-step2.component.scss',
 })
-export class PetCreateStep2Component {
+export class PetCreateStep2Component implements OnInit {
   private readonly i18n = inject(I18nService);
   private readonly state = inject(PetCreateStateService);
   private readonly router = inject(Router);
   private readonly pets = inject(PetsService);
   private readonly uploads = inject(UploadsService);
+  private readonly weightUnitKey = 'pettzi.weightUnit';
   draft: PetCreateDraft | null = null;
   selectedDate: Date | null = null;
   birthdayValue = '';
@@ -73,6 +74,10 @@ export class PetCreateStep2Component {
       void this.router.navigate(['/pets/new']);
       return;
     }
+    const storedUnit = localStorage.getItem(this.weightUnitKey);
+    if (storedUnit === 'kg' || storedUnit === 'lb') {
+      this.weightUnit = storedUnit;
+    }
     const defaultDate = this.getDefaultBirthday();
     this.birthdayValue = this.toDateInputValue(defaultDate);
     this.selectedDate = defaultDate;
@@ -91,6 +96,7 @@ export class PetCreateStep2Component {
       this.weightValue = this.roundWeight(converted);
     }
     this.weightUnit = unit;
+    localStorage.setItem(this.weightUnitKey, unit);
   }
 
   onDateChange(value: string) {
@@ -142,7 +148,7 @@ export class PetCreateStep2Component {
       }
 
       this.state.clear();
-      void this.router.navigate(['/']);
+      void this.router.navigate(['/dashboard']);
     } catch (error: any) {
       this.errorMessage = error?.message ?? this.i18n.t('errors.network');
     } finally {

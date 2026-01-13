@@ -45,7 +45,7 @@ describe('generate-download-url.handler', () => {
       domainPrefix: '',
       http: {
         method: 'GET',
-        path: '/pets/pet-1/uploads/file-1/download-url',
+        path: '/pets/pet-1/download-url',
         protocol: 'HTTP/1.1',
         sourceIp: '',
         userAgent: '',
@@ -77,6 +77,8 @@ describe('generate-download-url.handler', () => {
       ...baseEvent,
       pathParameters: {
         petId: 'pet-1',
+      },
+      queryStringParameters: {
         fileKey: encodeURIComponent('pets/pet-1/photos/file1.jpg'),
       },
     });
@@ -91,6 +93,8 @@ describe('generate-download-url.handler', () => {
       ...baseEvent,
       pathParameters: {
         petId: 'pet-1',
+      },
+      queryStringParameters: {
         fileKey: encodeURIComponent('pets/other/photos/file1.jpg'),
       },
     });

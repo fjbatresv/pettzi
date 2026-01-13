@@ -1,12 +1,10 @@
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
-import { TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
+import { PutCommand } from '@aws-sdk/lib-dynamodb';
 import { created, badRequest, serverError } from '@pettzi/utils-dynamo/http';
 import {
   PetEvent,
-  PetReminder,
   EventType,
   toItemPetEvent,
-  toItemPetReminder,
 } from '@pettzi/domain-model';
 import { docClient, getOwnerId, parseJson, assertOwnership, PETTZI_TABLE_NAME } from './common';
 
@@ -15,7 +13,6 @@ interface CreateEventRequest {
   date: string;
   title?: string;
   notes?: string;
-  nextReminderDate?: string;
   metadata?: Record<string, unknown>;
 }
 
@@ -62,46 +59,16 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     updatedAt: now,
   };
 
-  const items = [
-    {
-      Put: {
+  try {
+    await docClient.send(
+      new PutCommand({
         TableName: PETTZI_TABLE_NAME,
         Item: toItemPetEvent(petEvent),
         ConditionExpression: 'attribute_not_exists(PK)',
-      },
-    },
-  ];
-
-  let reminder: PetReminder | undefined;
-  if (payload.nextReminderDate) {
-    reminder = {
-      reminderId: crypto.randomUUID(),
-      petId,
-      eventId,
-      dueDate: new Date(payload.nextReminderDate),
-      createdAt: now,
-      message: payload.title,
-    };
-    items.push({
-      Put: {
-        TableName: PETTZI_TABLE_NAME,
-        Item: toItemPetReminder(reminder),
-        ConditionExpression: 'attribute_not_exists(PK)',
-      },
-    });
-  }
-
-  try {
-    await docClient.send(
-      new TransactWriteCommand({
-        TransactItems: items,
       })
     );
 
-    return created({
-      ...petEvent,
-      reminderId: reminder?.reminderId,
-    });
+    return created(petEvent);
   } catch (error) {
     console.error('Create event error', error);
     return serverError('Failed to create event');

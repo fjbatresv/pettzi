@@ -29,6 +29,17 @@ export const getOwnerId = (event: APIGatewayProxyEventV2): string => {
   return ownerId;
 };
 
+export const parseJson = <T>(body: string | null | undefined): T => {
+  if (!body) {
+    throw badRequest('Request body is required');
+  }
+  try {
+    return JSON.parse(body) as T;
+  } catch {
+    throw badRequest('Invalid JSON body');
+  }
+};
+
 export const assertOwnership = async (
   petId: PetId,
   ownerId: OwnerId

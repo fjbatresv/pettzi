@@ -163,7 +163,6 @@ components:
         date: { type: string, format: date-time }
         title: { type: string }
         notes: { type: string }
-        nextReminderDate: { type: string, format: date-time }
         metadata:
           type: object
           additionalProperties: true
@@ -176,7 +175,6 @@ components:
         eventDate: { type: string, format: date-time }
         title: { type: string }
         notes: { type: string }
-        nextReminderDate: { type: string, format: date-time }
         metadata:
           type: object
           additionalProperties: true

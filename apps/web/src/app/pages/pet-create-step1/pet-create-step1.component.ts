@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -27,7 +27,7 @@ import { CreateHeaderComponent } from '../../components/create-header/create-hea
   templateUrl: './pet-create-step1.component.html',
   styleUrl: './pet-create-step1.component.scss',
 })
-export class PetCreateStep1Component {
+export class PetCreateStep1Component implements OnInit {
   private readonly catalogs = inject(CatalogsService);
   private readonly state = inject(PetCreateStateService);
   private readonly router = inject(Router);

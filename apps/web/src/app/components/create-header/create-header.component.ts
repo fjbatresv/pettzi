@@ -1,29 +1,19 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, inject } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { I18nService } from '../../core/i18n/i18n.service';
+import { LanguageToggleComponent } from '../language-toggle/language-toggle.component';
 
 @Component({
   selector: 'app-create-header',
   standalone: true,
-  imports: [CommonModule, TranslateModule],
+  imports: [CommonModule, TranslateModule, LanguageToggleComponent],
   templateUrl: './create-header.component.html',
   styleUrl: './create-header.component.scss',
 })
-export class CreateHeaderComponent {
-  private readonly i18n = inject(I18nService);
-
+export class CreateHeaderComponent implements OnInit {
   @Input() userName = '';
 
   avatarLabel = '??';
-
-  get locale() {
-    return this.i18n.locale;
-  }
-
-  setLocale(locale: 'es' | 'en') {
-    this.i18n.setLocale(locale);
-  }
 
   ngOnInit() {
     const resolvedName = this.userName.trim() || this.getNameFromToken();
