@@ -83,6 +83,12 @@ export class OwnersApiStack extends Stack {
       description: `Owners API for Pettzi (${props.stage})`,
       defaultAuthorizer: authorizer,
       createDefaultStage: true,
+      corsPreflight: {
+        allowOrigins: ['http://localhost:4200'],
+        allowMethods: [apigwv2.CorsHttpMethod.ANY],
+        allowHeaders: ['authorization', 'content-type'],
+        allowCredentials: true,
+      },
     });
 
     this.httpApi.addRoutes({
@@ -131,9 +137,6 @@ export class OwnersApiStack extends Stack {
     const external =
       layers.length > 0
         ? [
-            '@pettzi/domain-model',
-            '@pettzi/utils-dynamo',
-            '@pettzi/shared-utils',
             '@aws-sdk/client-dynamodb',
             '@aws-sdk/lib-dynamodb',
           ]
@@ -146,6 +149,7 @@ export class OwnersApiStack extends Stack {
       functionName: `${id}-${stage}`,
       tracing: lambda.Tracing.ACTIVE,
       bundling: {
+        tsconfig: path.resolve(__dirname, '../../../../../..', 'tsconfig.base.json'),
         target: 'node24',
         format: OutputFormat.CJS,
         platform: 'node',

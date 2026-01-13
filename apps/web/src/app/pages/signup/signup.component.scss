@@ -1,0 +1,26 @@
+@use '../login/login.component.scss' as *;
+
+.visual-photo.alt {
+  background: radial-gradient(circle at 20% 20%, #d1fae5, #c084fc 55%, #f5f2ed 100%);
+}
+
+.float-card.alt {
+  left: 2rem;
+  right: auto;
+}
+
+.checkbox {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  font-size: 0.9rem;
+  color: rgba(27, 18, 36, 0.7);
+}
+
+.checkbox input {
+  margin-top: 0.2rem;
+}
+
+.checkbox.has-error span {
+  color: #c0392b;
+}

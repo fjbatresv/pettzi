@@ -30,6 +30,7 @@ interface UpdatePetRequest {
   weightKg?: number;
   breed?: string;
   birthDate?: string;
+  photoKey?: string;
 }
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
@@ -91,6 +92,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     if (payload.breed !== undefined) setField('breed', payload.breed);
     if (payload.birthDate !== undefined)
       setField('birthDate', payload.birthDate);
+    if (payload.photoKey !== undefined) setField('photoKey', payload.photoKey);
 
     setField('updatedAt', expressionValues[':updatedAt']);
 

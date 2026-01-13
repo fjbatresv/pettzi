@@ -98,6 +98,14 @@ export class AuthApiStack extends Stack {
       props.depsLayer,
       props.sesLayer
     );
+    const refreshTokenFn = this.createAuthFn(
+      'RefreshTokenHandler',
+      stage,
+      handlerPath('libs/api-auth/src/refresh-token.handler.ts'),
+      commonEnv,
+      props.depsLayer,
+      props.sesLayer
+    );
     const forgotPasswordFn = this.createAuthFn(
       'ForgotPasswordHandler',
       stage,
@@ -128,6 +136,7 @@ export class AuthApiStack extends Stack {
       registerFn,
       confirmEmailFn,
       loginFn,
+      refreshTokenFn,
       forgotPasswordFn,
       completeNewPasswordFn,
     ].forEach((fn) => {
@@ -155,6 +164,12 @@ export class AuthApiStack extends Stack {
       apiName: `PettziAuthApi-${stage}`,
       description: `Auth API for Pettzi (${stage})`,
       createDefaultStage: true,
+      corsPreflight: {
+        allowOrigins: ['http://localhost:4200'],
+        allowMethods: [apigwv2.CorsHttpMethod.ANY],
+        allowHeaders: ['authorization', 'content-type'],
+        allowCredentials: true,
+      },
     });
 
     this.httpApi.addRoutes({
@@ -176,6 +191,14 @@ export class AuthApiStack extends Stack {
       path: '/login',
       methods: [apigwv2.HttpMethod.POST],
       integration: new HttpLambdaIntegration('LoginIntegration', loginFn),
+    });
+    this.httpApi.addRoutes({
+      path: '/refresh',
+      methods: [apigwv2.HttpMethod.POST],
+      integration: new HttpLambdaIntegration(
+        'RefreshTokenIntegration',
+        refreshTokenFn
+      ),
     });
     this.httpApi.addRoutes({
       path: '/forgot-password',
@@ -219,6 +242,7 @@ export class AuthApiStack extends Stack {
       handler: 'handler',
       tracing: lambda.Tracing.ACTIVE,
       bundling: {
+        tsconfig: path.resolve(__dirname, '../../../../../..', 'tsconfig.base.json'),
         target: 'node24',
         format: OutputFormat.CJS,
         platform: 'node',

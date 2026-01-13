@@ -14,11 +14,12 @@ export const catalogBreeds: Record<PetSpecies, CatalogEntry<string>[]> = {
     { code: 'LABRADOR', label: 'Labrador Retriever' },
     { code: 'GOLDEN', label: 'Golden Retriever' },
     { code: 'MIX', label: 'Mixed / Other' },
+    { code: 'NEWFOUNDLAND', label: 'Newfoundland'}
   ],
   [PetSpecies.CAT]: [
     { code: 'SIAMESE', label: 'Siamese' },
     { code: 'PERSIAN', label: 'Persian' },
-    { code: 'DOMESTIC_SHORTHAIR', label: 'Domestic Shorthair' },
+    { code: 'DOMESTIC_SHORTHAIR', label: 'Domestic Short hair' },
   ],
   [PetSpecies.BIRD]: [
     { code: 'PARROT', label: 'Parrot' },

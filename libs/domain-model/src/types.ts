@@ -33,6 +33,7 @@ export interface Pet {
   notes?: string;
   color?: string;
   weightKg?: number;
+  photoKey?: string;
   isArchived?: boolean;
   archivedAt?: Date;
   createdAt: Date;

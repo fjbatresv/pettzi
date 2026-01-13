@@ -63,5 +63,12 @@ export class CoreInfraStack extends Stack {
       autoDeleteObjects: true,
       removalPolicy: RemovalPolicy.DESTROY,
     });
+
+    this.docsBucket.addCorsRule({
+      allowedMethods: [s3.HttpMethods.PUT, s3.HttpMethods.GET, s3.HttpMethods.HEAD],
+      allowedOrigins: ['http://localhost:4200'],
+      allowedHeaders: ['*'],
+      exposedHeaders: ['ETag'],
+    });
   }
 }

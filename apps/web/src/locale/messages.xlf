@@ -1,0 +1,448 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="en-US" datatype="plaintext" original="ng2.template">
+    <body>
+      <trans-unit id="login.langToggle" datatype="html">
+        <source>Idioma</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/login/login.component.html</context>
+          <context context-type="linenumber">9</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="login.langEs" datatype="html">
+        <source> ES </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/login/login.component.html</context>
+          <context context-type="linenumber">19,20</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="login.langEn" datatype="html">
+        <source> EN </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/login/login.component.html</context>
+          <context context-type="linenumber">29,30</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="login.noAccount" datatype="html">
+        <source>No tienes una cuenta?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/login/login.component.html</context>
+          <context context-type="linenumber">32,33</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="login.signUp" datatype="html">
+        <source>Crear cuenta</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/login/login.component.html</context>
+          <context context-type="linenumber">33,35</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="login.logoAlt" datatype="html">
+        <source>Pettzi</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/login/login.component.html</context>
+          <context context-type="linenumber">40</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="login.logoText" datatype="html">
+        <source>Pettzi</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/login/login.component.html</context>
+          <context context-type="linenumber">41,43</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="login.eyebrow" datatype="html">
+        <source>Bienvenido de nuevo</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/login/login.component.html</context>
+          <context context-type="linenumber">43,44</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="login.title" datatype="html">
+        <source>Accede a tu panel</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/login/login.component.html</context>
+          <context context-type="linenumber">44,45</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="login.subtitle" datatype="html">
+        <source> Ingresa tus credenciales para administrar la salud de tu mascota. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/login/login.component.html</context>
+          <context context-type="linenumber">46,49</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="login.emailLabel" datatype="html">
+        <source>Correo electronico</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/login/login.component.html</context>
+          <context context-type="linenumber">51,53</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="login.emailPlaceholder" datatype="html">
+        <source>tunombre@ejemplo.com</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/login/login.component.html</context>
+          <context context-type="linenumber">55,56</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="login.emailError" datatype="html">
+        <source>Ingresa un correo valido.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/login/login.component.html</context>
+          <context context-type="linenumber">60,62</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="login.passwordLabel" datatype="html">
+        <source>Contrasena</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/login/login.component.html</context>
+          <context context-type="linenumber">66,67</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="login.forgotPassword" datatype="html">
+        <source> Olvidaste tu contrasena? </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/login/login.component.html</context>
+          <context context-type="linenumber">68,69</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="login.passwordPlaceholder" datatype="html">
+        <source>••••••••</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/login/login.component.html</context>
+          <context context-type="linenumber">74,75</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="login.passwordError" datatype="html">
+        <source>Tu contrasena debe tener al menos 8 caracteres.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/login/login.component.html</context>
+          <context context-type="linenumber">79,81</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="login.submit" datatype="html">
+        <source> Iniciar sesion </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/login/login.component.html</context>
+          <context context-type="linenumber">84,85</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="login.orContinue" datatype="html">
+        <source>O continua con</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/login/login.component.html</context>
+          <context context-type="linenumber">88,91</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="login.google" datatype="html">
+        <source>Google</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/login/login.component.html</context>
+          <context context-type="linenumber">101,102</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="login.apple" datatype="html">
+        <source>Apple</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/login/login.component.html</context>
+          <context context-type="linenumber">112,113</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="login.legalLink" datatype="html">
+        <source>Ver terminos y condiciones.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/login/login.component.html</context>
+          <context context-type="linenumber">119,122</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="login.pill" datatype="html">
+        <source>Pettzi Care</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/login/login.component.html</context>
+          <context context-type="linenumber">128,129</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="login.visualTitle" datatype="html">
+        <source>Salud de tu mascota, sin friccion.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/login/login.component.html</context>
+          <context context-type="linenumber">129,130</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="login.visualCopy" datatype="html">
+        <source> Controla citas, medicamentos y grooming desde un solo lugar. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/login/login.component.html</context>
+          <context context-type="linenumber">131,133</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="login.floatTitle" datatype="html">
+        <source>Grooming</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/login/login.component.html</context>
+          <context context-type="linenumber">137,138</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="login.floatSub" datatype="html">
+        <source>Manana · 10:00 AM</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/login/login.component.html</context>
+          <context context-type="linenumber">138,140</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="login.copyright" datatype="html">
+        <source>© 2026 Pettzi. Todos los derechos reservados.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/login/login.component.html</context>
+          <context context-type="linenumber">146,147</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="login.support" datatype="html">
+        <source>Soporte</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/login/login.component.html</context>
+          <context context-type="linenumber">148,149</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="login.privacy" datatype="html">
+        <source>Privacidad</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/login/login.component.html</context>
+          <context context-type="linenumber">149,150</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="login.terms" datatype="html">
+        <source>Terminos</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/login/login.component.html</context>
+          <context context-type="linenumber">150,152</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="signup.langToggle" datatype="html">
+        <source>Idioma</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/signup/signup.component.html</context>
+          <context context-type="linenumber">9</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="signup.langEs" datatype="html">
+        <source> ES </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/signup/signup.component.html</context>
+          <context context-type="linenumber">19,21</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="signup.langEn" datatype="html">
+        <source> EN </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/signup/signup.component.html</context>
+          <context context-type="linenumber">29,31</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="signup.haveAccount" datatype="html">
+        <source>Ya tienes una cuenta?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/signup/signup.component.html</context>
+          <context context-type="linenumber">32,33</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="signup.login" datatype="html">
+        <source>Inicia sesion</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/signup/signup.component.html</context>
+          <context context-type="linenumber">33,35</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="signup.logoAlt" datatype="html">
+        <source>Pettzi</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/signup/signup.component.html</context>
+          <context context-type="linenumber">40</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="signup.logoText" datatype="html">
+        <source>Pettzi</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/signup/signup.component.html</context>
+          <context context-type="linenumber">41,43</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="signup.eyebrow" datatype="html">
+        <source>Comienza hoy</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/signup/signup.component.html</context>
+          <context context-type="linenumber">43,44</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="signup.title" datatype="html">
+        <source>Crea tu cuenta</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/signup/signup.component.html</context>
+          <context context-type="linenumber">44,45</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="signup.subtitle" datatype="html">
+        <source> Registra tus datos para acceder a tu panel de salud y bienestar. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/signup/signup.component.html</context>
+          <context context-type="linenumber">46,49</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="signup.nameLabel" datatype="html">
+        <source>Nombre completo</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/signup/signup.component.html</context>
+          <context context-type="linenumber">51,53</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="signup.namePlaceholder" datatype="html">
+        <source>Tu nombre</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/signup/signup.component.html</context>
+          <context context-type="linenumber">55,56</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="signup.emailLabel" datatype="html">
+        <source>Correo electronico</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/signup/signup.component.html</context>
+          <context context-type="linenumber">61,63</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="signup.emailPlaceholder" datatype="html">
+        <source>tunombre@ejemplo.com</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/signup/signup.component.html</context>
+          <context context-type="linenumber">65,66</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="signup.emailError" datatype="html">
+        <source>Necesitamos un correo valido.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/signup/signup.component.html</context>
+          <context context-type="linenumber">70,72</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="signup.passwordLabel" datatype="html">
+        <source>Contrasena</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/signup/signup.component.html</context>
+          <context context-type="linenumber">75,77</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="signup.passwordPlaceholder" datatype="html">
+        <source>••••••••</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/signup/signup.component.html</context>
+          <context context-type="linenumber">79,80</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="signup.confirmLabel" datatype="html">
+        <source>Confirmar contrasena</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/signup/signup.component.html</context>
+          <context context-type="linenumber">85,87</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="signup.confirmPlaceholder" datatype="html">
+        <source>••••••••</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/signup/signup.component.html</context>
+          <context context-type="linenumber">89,90</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="signup.confirmError" datatype="html">
+        <source>Las contrasenas no coinciden.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/signup/signup.component.html</context>
+          <context context-type="linenumber">94,96</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="signup.acceptTerms" datatype="html">
+        <source> Acepto los terminos y condiciones de Pettzi. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/signup/signup.component.html</context>
+          <context context-type="linenumber">101,103</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="signup.submit" datatype="html">
+        <source> Crear cuenta </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/signup/signup.component.html</context>
+          <context context-type="linenumber">106,108</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="signup.legalLink" datatype="html">
+        <source>Ver terminos y condiciones.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/signup/signup.component.html</context>
+          <context context-type="linenumber">111,114</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="signup.pill" datatype="html">
+        <source>Pettzi Labs</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/signup/signup.component.html</context>
+          <context context-type="linenumber">121,122</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="signup.visualTitle" datatype="html">
+        <source>Todo listo para empezar.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/signup/signup.component.html</context>
+          <context context-type="linenumber">122,123</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="signup.visualCopy" datatype="html">
+        <source> Crea un perfil para tus mascotas y comparte cuidados con tu familia. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/signup/signup.component.html</context>
+          <context context-type="linenumber">124,126</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="signup.floatTitle" datatype="html">
+        <source>Vacunas</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/signup/signup.component.html</context>
+          <context context-type="linenumber">130,131</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="signup.floatSub" datatype="html">
+        <source>Listo para agendar</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/signup/signup.component.html</context>
+          <context context-type="linenumber">131,133</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="signup.copyright" datatype="html">
+        <source>© 2026 Pettzi. Todos los derechos reservados.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/signup/signup.component.html</context>
+          <context context-type="linenumber">139,140</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="signup.support" datatype="html">
+        <source>Soporte</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/signup/signup.component.html</context>
+          <context context-type="linenumber">141,142</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="signup.privacy" datatype="html">
+        <source>Privacidad</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/signup/signup.component.html</context>
+          <context context-type="linenumber">142,143</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="signup.terms" datatype="html">
+        <source>Terminos</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">apps/web/src/app/pages/signup/signup.component.html</context>
+          <context context-type="linenumber">143,145</context>
+        </context-group>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
