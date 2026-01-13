@@ -1,0 +1,140 @@
+<div class="login-shell">
+  <header class="login-topbar">
+    <div class="topbar-spacer"></div>
+    <div class="topbar-action">
+      <div
+        class="lang-toggle"
+        role="group"
+        [attr.aria-label]="'signup.langToggle' | translate"
+      >
+        <button
+          type="button"
+          class="lang-btn"
+          [class.active]="locale === 'es'"
+          [attr.aria-pressed]="locale === 'es'"
+          (click)="setLocale('es')"
+        >
+          {{ 'signup.langEs' | translate }}
+        </button>
+        <button
+          type="button"
+          class="lang-btn"
+          [class.active]="locale === 'en'"
+          [attr.aria-pressed]="locale === 'en'"
+          (click)="setLocale('en')"
+        >
+          {{ 'signup.langEn' | translate }}
+        </button>
+      </div>
+      <span>{{ 'signup.haveAccount' | translate }}</span>
+      <a class="ghost" routerLink="/">{{ 'signup.login' | translate }}</a>
+    </div>
+  </header>
+
+  <main class="login-main">
+    <section class="form-panel">
+      <div class="brand-lockup">
+        <img src="/logo.svg" [attr.alt]="'signup.logoAlt' | translate" />
+        <span>{{ 'signup.logoText' | translate }}</span>
+      </div>
+      <p class="eyebrow">{{ 'signup.eyebrow' | translate }}</p>
+      <h1>{{ 'signup.title' | translate }}</h1>
+      <p class="subtitle">{{ 'signup.subtitle' | translate }}</p>
+
+      <form class="login-form" [formGroup]="form" (ngSubmit)="submit()">
+        <div class="form-alert" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+        <label class="field" [class.has-error]="hasError('name')">
+          <span>{{ 'signup.nameLabel' | translate }}</span>
+          <input
+            type="text"
+            name="name"
+            [attr.placeholder]="'signup.namePlaceholder' | translate"
+            formControlName="name"
+            [class.input-error]="hasError('name')"
+          />
+        </label>
+
+        <label class="field" [class.has-error]="hasError('email')">
+          <span>{{ 'signup.emailLabel' | translate }}</span>
+          <input
+            type="email"
+            name="email"
+            [attr.placeholder]="'signup.emailPlaceholder' | translate"
+            formControlName="email"
+            [class.input-error]="hasError('email')"
+          />
+          <span class="field-error" *ngIf="hasError('email')">
+            {{ 'signup.emailError' | translate }}
+          </span>
+        </label>
+
+        <label class="field" [class.has-error]="hasError('password')">
+          <span>{{ 'signup.passwordLabel' | translate }}</span>
+          <input
+            type="password"
+            name="password"
+            [attr.placeholder]="'signup.passwordPlaceholder' | translate"
+            formControlName="password"
+            [class.input-error]="hasError('password')"
+          />
+        </label>
+
+        <label class="field" [class.has-error]="hasError('confirmPassword')">
+          <span>{{ 'signup.confirmLabel' | translate }}</span>
+          <input
+            type="password"
+            name="confirmPassword"
+            [attr.placeholder]="'signup.confirmPlaceholder' | translate"
+            formControlName="confirmPassword"
+            [class.input-error]="hasError('confirmPassword')"
+          />
+          <span
+            class="field-error"
+            *ngIf="hasError('confirmPassword')"
+            >{{ 'signup.confirmError' | translate }}</span>
+        </label>
+
+        <label class="checkbox" [class.has-error]="hasError('acceptTerms')">
+          <input type="checkbox" formControlName="acceptTerms" />
+          <span>{{ 'signup.acceptTerms' | translate }}</span>
+        </label>
+
+        <button type="submit" class="primary" [disabled]="isSubmitting">
+          {{ 'signup.submit' | translate }}
+        </button>
+
+        <p class="legal">
+          <a href="#" class="link">{{ 'signup.legalLink' | translate }}</a>
+        </p>
+      </form>
+    </section>
+
+    <section class="visual-panel" aria-hidden="true">
+      <div class="visual-card">
+        <div class="visual-photo alt"></div>
+        <div class="visual-meta">
+          <span class="pill">{{ 'signup.pill' | translate }}</span>
+          <h3>{{ 'signup.visualTitle' | translate }}</h3>
+          <p>{{ 'signup.visualCopy' | translate }}</p>
+        </div>
+        <div class="float-card alt">
+          <div class="float-icon"></div>
+          <div>
+            <p class="float-title">{{ 'signup.floatTitle' | translate }}</p>
+            <p class="float-sub">{{ 'signup.floatSub' | translate }}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="login-footer">
+    <span>{{ 'signup.copyright' | translate }}</span>
+    <div class="footer-links">
+      <button type="button" class="link">{{ 'signup.support' | translate }}</button>
+      <button type="button" class="link">{{ 'signup.privacy' | translate }}</button>
+      <button type="button" class="link">{{ 'signup.terms' | translate }}</button>
+    </div>
+  </footer>
+</div>

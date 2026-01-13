@@ -27,7 +27,38 @@ import {
 } from './types';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type DynamoItem = Record<string, any>;
+type DynamoItem = {
+  [key: string]: any;
+  userId?: any;
+  email?: any;
+  createdAt?: any;
+  updatedAt?: any;
+  ownerId?: any;
+  fullName?: any;
+  phone?: any;
+  petId?: any;
+  name?: any;
+  species?: any;
+  breed?: any;
+  birthDate?: any;
+  notes?: any;
+  color?: any;
+  weightKg?: any;
+  photoKey?: any;
+  isArchived?: any;
+  archivedAt?: any;
+  role?: any;
+  linkedAt?: any;
+  eventId?: any;
+  eventType?: any;
+  eventDate?: any;
+  title?: any;
+  metadata?: any;
+  reminderId?: any;
+  dueDate?: any;
+  message?: any;
+  completedAt?: any;
+};
 
 const requireField = (value: unknown, name: string) => {
   if (value === undefined || value === null) {
@@ -111,6 +142,7 @@ export const toItemPet = (pet: Pet): DynamoItem => {
     notes: pet.notes,
     color: pet.color,
     weightKg: pet.weightKg,
+    photoKey: pet.photoKey,
     isArchived: pet.isArchived ?? false,
     archivedAt: toIso(pet.archivedAt),
     createdAt: toIso(pet.createdAt),
@@ -128,6 +160,7 @@ export const fromItemPet = (item: DynamoItem): Pet => ({
   notes: item.notes,
   color: item.color,
   weightKg: item.weightKg,
+  photoKey: item.photoKey,
   isArchived: item.isArchived,
   archivedAt: parseDate(item.archivedAt),
   createdAt: new Date(item.createdAt),

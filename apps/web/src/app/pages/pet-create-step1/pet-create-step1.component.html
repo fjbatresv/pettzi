@@ -1,0 +1,75 @@
+<div class="create-shell">
+  <app-create-header></app-create-header>
+
+  <main class="create-main step-one">
+    <section class="card">
+      <div class="step-inline">
+        <div>
+          <p class="step-title">{{ 'createPet.step1Title' | translate }}</p>
+          <div class="step-bar">
+            <div class="step-progress step-50"></div>
+          </div>
+        </div>
+        <div class="step-count">50%</div>
+      </div>
+      <span class="step-tag">{{ 'createPet.step1Tag' | translate }}</span>
+
+      <div class="card-header">
+        <h2>{{ 'createPet.step1Headline' | translate }}</h2>
+      </div>
+
+      <div class="upload-area">
+        <div
+          class="upload-preview"
+          [class.has-preview]="imageUrl"
+          [style.backgroundImage]="imageUrl ? 'url(' + imageUrl + ')' : ''"
+        ></div>
+        <label class="upload-input">
+          <input type="file" accept="image/*" (change)="onFileSelected($event)" />
+          <span>{{ 'createPet.uploadCta' | translate }}</span>
+        </label>
+      </div>
+
+      <div class="field">
+        <span>{{ 'createPet.nameLabel' | translate }}</span>
+        <input type="text" [(ngModel)]="name" required />
+      </div>
+
+      <div class="grid">
+        <div class="field-group">
+          <span class="field-label">{{ 'createPet.speciesLabel' | translate }}</span>
+          <mat-form-field appearance="outline" class="select-field">
+            <mat-select [(ngModel)]="selectedSpeciesCode" (ngModelChange)="onSpeciesChange($event)">
+              <mat-option *ngFor="let species of speciesOptions" [value]="species.code">
+                {{ species.label }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="field-group">
+          <span class="field-label">{{ 'createPet.breedLabel' | translate }}</span>
+          <mat-form-field appearance="outline" class="select-field">
+            <mat-select [(ngModel)]="selectedBreedCode" required>
+              <mat-option *ngFor="let breed of breeds" [value]="breed.code">
+                {{ breed.label }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <p class="validation" *ngIf="showValidation && !isFormValid">
+        {{ 'createPet.validationRequired' | translate }}
+      </p>
+
+      <button type="button" class="primary cta" (click)="continue()" >
+        {{ 'createPet.continue' | translate }}
+        <span class="arrow">→</span>
+      </button>
+    </section>
+
+    <footer class="wizard-footer">
+      <span>{{ 'createPet.footer' | translate:{ year: currentYear } }}</span>
+    </footer>
+  </main>
+</div>

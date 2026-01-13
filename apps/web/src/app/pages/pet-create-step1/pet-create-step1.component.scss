@@ -1,0 +1,194 @@
+@use '../pet-create-shared.scss' as *;
+
+.step-one {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.step-one .card {
+  width: min(640px, 100%);
+  margin: 0 auto;
+}
+
+.step-inline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.step-inline .step-bar {
+  width: 220px;
+}
+
+.step-25 {
+  width: 25%;
+}
+
+.step-50 {
+  width: 50%;
+}
+
+.step-tag {
+  display: inline-block;
+  margin-bottom: 2rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(127, 19, 236, 0.6);
+}
+
+.upload-area {
+  display: grid;
+  justify-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.upload-preview {
+  width: 180px;
+  height: 180px;
+  border-radius: 36px;
+  border: 2px dashed rgba(127, 19, 236, 0.25);
+  background: rgba(127, 19, 236, 0.04);
+  background-size: cover;
+  background-position: center;
+}
+
+.upload-preview.has-preview {
+  border: 2px solid rgba(127, 19, 236, 0.35);
+}
+
+.upload-input {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  border-radius: 999px;
+  border: 1px dashed rgba(127, 19, 236, 0.3);
+  color: var(--pet-purple);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.upload-input input {
+  display: none;
+}
+
+.field {
+  display: grid;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.field span,
+.grid span {
+  color: rgba(27, 18, 36, 0.6);
+  font-size: 0.85rem;
+}
+
+.field input,
+.grid input,
+.grid select {
+  appearance: none;
+  border: 1px solid rgba(127, 19, 236, 0.2);
+  border-radius: 12px;
+  padding: 0.75rem 0.9rem;
+  background: rgba(127, 19, 236, 0.04);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.grid label,
+.grid .field-group {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.select-field {
+  width: 100%;
+}
+
+:host ::ng-deep .select-field .mat-mdc-text-field-wrapper {
+  background: rgba(127, 19, 236, 0.04);
+  border-radius: 12px;
+}
+
+:host ::ng-deep .select-field .mdc-notched-outline__leading,
+:host ::ng-deep .select-field .mdc-notched-outline__notch,
+:host ::ng-deep .select-field .mdc-notched-outline__trailing {
+  border-color: rgba(127, 19, 236, 0.2);
+}
+
+:host ::ng-deep .select-field .mdc-notched-outline__leading,
+:host ::ng-deep .select-field .mdc-notched-outline__notch,
+:host ::ng-deep .select-field .mdc-notched-outline__trailing,
+:host ::ng-deep .select-field .mdc-notched-outline {
+  border-width: 1px;
+}
+
+:host ::ng-deep .select-field .mat-mdc-form-field-flex {
+  min-height: 34px;
+}
+
+:host ::ng-deep .select-field .mat-mdc-select-trigger {
+  padding: 0;
+}
+
+.helper {
+  margin-top: 1rem;
+  text-align: center;
+  color: rgba(27, 18, 36, 0.6);
+}
+
+.validation {
+  margin: 0 0 1rem;
+  text-align: center;
+  color: #c0392b;
+  font-weight: 600;
+}
+
+.wizard-footer {
+  text-align: center;
+  color: rgba(27, 18, 36, 0.5);
+  font-size: 0.85rem;
+  width: 100%;
+}
+
+.cta {
+  display: block;
+  width: fit-content;
+  margin: 0 auto;
+}
+
+.lang-toggle {
+  display: inline-flex;
+  background: rgba(127, 19, 236, 0.08);
+  border-radius: 999px;
+  padding: 0.25rem;
+  gap: 0.25rem;
+}
+
+.lang-btn {
+  border: none;
+  background: transparent;
+  color: rgba(27, 18, 36, 0.6);
+  padding: 0.35rem 0.8rem;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.lang-btn.active {
+  background: #ffffff;
+  color: var(--pet-purple);
+  box-shadow: 0 6px 14px rgba(127, 19, 236, 0.2);
+}

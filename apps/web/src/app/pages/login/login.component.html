@@ -1,0 +1,149 @@
+<div class="login-shell">
+  <header class="login-topbar">
+    <div class="topbar-spacer"></div>
+    <div class="topbar-action">
+      <div
+        class="lang-toggle"
+        role="group"
+        [attr.aria-label]="'login.langToggle' | translate"
+      >
+        <button
+          type="button"
+          class="lang-btn"
+          [class.active]="locale === 'es'"
+          [attr.aria-pressed]="locale === 'es'"
+          (click)="setLocale('es')"
+        >
+          {{ 'login.langEs' | translate }}
+        </button>
+        <button
+          type="button"
+          class="lang-btn"
+          [class.active]="locale === 'en'"
+          [attr.aria-pressed]="locale === 'en'"
+          (click)="setLocale('en')"
+        >
+          {{ 'login.langEn' | translate }}
+        </button>
+      </div>
+      <span>{{ 'login.noAccount' | translate }}</span>
+      <a class="ghost" routerLink="/signup">{{ 'login.signUp' | translate }}</a>
+    </div>
+  </header>
+
+  <main class="login-main">
+    <section class="form-panel">
+      <div class="brand-lockup">
+        <img src="/logo.svg" [attr.alt]="'login.logoAlt' | translate" />
+        <span>{{ 'login.logoText' | translate }}</span>
+      </div>
+      <p class="eyebrow">{{ 'login.eyebrow' | translate }}</p>
+      <h1>{{ 'login.title' | translate }}</h1>
+      <p class="subtitle">{{ 'login.subtitle' | translate }}</p>
+
+      <form class="login-form" [formGroup]="form" (ngSubmit)="submit()">
+        <div class="form-alert" *ngIf="errorMessage">{{ errorMessage }}</div>
+        <div class="form-info" *ngIf="challengeMessage">
+          {{ challengeMessage }}
+        </div>
+
+        <label class="field" [class.has-error]="hasError('email')">
+          <span>{{ 'login.emailLabel' | translate }}</span>
+          <input
+            type="email"
+            name="email"
+            [attr.placeholder]="'login.emailPlaceholder' | translate"
+            formControlName="email"
+            [class.input-error]="hasError('email')"
+          />
+          <span class="field-error" *ngIf="hasError('email')">
+            {{ 'login.emailError' | translate }}
+          </span>
+        </label>
+
+        <label class="field" [class.has-error]="hasError('password')">
+          <span class="field-row">
+            <span>{{ 'login.passwordLabel' | translate }}</span>
+            <button type="button" class="link">
+              {{ 'login.forgotPassword' | translate }}
+            </button>
+          </span>
+          <input
+            type="password"
+            name="password"
+            [attr.placeholder]="'login.passwordPlaceholder' | translate"
+            formControlName="password"
+            [class.input-error]="hasError('password')"
+          />
+          <span class="field-error" *ngIf="hasError('password')">
+            {{ 'login.passwordError' | translate }}
+          </span>
+        </label>
+
+        <button type="submit" class="primary" [disabled]="isSubmitting">
+          {{ 'login.submit' | translate }}
+        </button>
+
+        <div class="divider">
+          <span>{{ 'login.orContinue' | translate }}</span>
+        </div>
+
+        <div class="social">
+          <button type="button" class="social-btn">
+            <span class="icon google" aria-hidden="true">
+              <svg viewBox="0 0 24 24" role="img">
+                <path
+                  d="M12.12 10.2v3.6h5.08c-.42 2.2-2.3 3.6-5.08 3.6-3.08 0-5.6-2.5-5.6-5.6 0-3.1 2.52-5.6 5.6-5.6 1.74 0 3.2.64 4.34 1.7l2.44-2.36C17.42 3.54 15.02 2.4 12.12 2.4 6.92 2.4 2.72 6.6 2.72 11.8s4.2 9.4 9.4 9.4c5.46 0 8.98-3.82 8.98-9.2 0-.6-.06-1.04-.14-1.6H12.12z"
+                  fill="currentColor"
+                />
+              </svg>
+            </span>
+            <span>{{ 'login.google' | translate }}</span>
+          </button>
+          <button type="button" class="social-btn">
+            <span class="icon apple" aria-hidden="true">
+              <svg viewBox="0 0 24 24" role="img">
+                <path
+                  d="M16.4 13.2c.02 2.7 2.36 3.6 2.38 3.62-.02.08-.36 1.2-1.2 2.36-.72 1.04-1.48 2.08-2.68 2.1-1.16.02-1.54-.7-2.88-.7-1.34 0-1.76.68-2.86.72-1.16.04-2.04-1.18-2.78-2.2-1.52-2.1-2.68-5.94-1.12-8.54.78-1.3 2.18-2.12 3.7-2.14 1.16-.02 2.26.78 2.88.78.62 0 1.96-.96 3.3-.82.56.02 2.12.22 3.12 1.68-.08.06-1.86 1.08-1.86 3.14zm-2.18-8.1c.6-.74 1-1.76.9-2.78-.86.04-1.9.58-2.5 1.32-.56.66-1.06 1.72-.92 2.74.96.08 1.92-.48 2.52-1.28z"
+                  fill="currentColor"
+                />
+              </svg>
+            </span>
+            <span>{{ 'login.apple' | translate }}</span>
+          </button>
+        </div>
+      </form>
+
+      <p class="legal">
+        <a href="#" class="link">{{ 'login.legalLink' | translate }}</a>
+      </p>
+    </section>
+
+    <section class="visual-panel" aria-hidden="true">
+      <div class="visual-card">
+        <div class="visual-photo"></div>
+        <div class="visual-meta">
+          <span class="pill">{{ 'login.pill' | translate }}</span>
+          <h3>{{ 'login.visualTitle' | translate }}</h3>
+          <p>{{ 'login.visualCopy' | translate }}</p>
+        </div>
+        <div class="float-card">
+          <div class="float-icon"></div>
+          <div>
+            <p class="float-title">{{ 'login.floatTitle' | translate }}</p>
+            <p class="float-sub">{{ 'login.floatSub' | translate }}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="login-footer">
+    <span>{{ 'login.copyright' | translate }}</span>
+    <div class="footer-links">
+      <button type="button" class="link">{{ 'login.support' | translate }}</button>
+      <button type="button" class="link">{{ 'login.privacy' | translate }}</button>
+      <button type="button" class="link">{{ 'login.terms' | translate }}</button>
+    </div>
+  </footer>
+</div>

@@ -1,0 +1,104 @@
+<div class="create-shell">
+  <app-create-header></app-create-header>
+
+  <main class="create-main">
+    <section class="step-header">
+      <div>
+        <p class="step-title">{{ 'createPet.step2Title' | translate }}</p>
+        <h1>{{ 'createPet.step2Headline' | translate }}</h1>
+      </div>
+      <div class="step-count">2/2</div>
+    </section>
+
+    <div class="step-bar">
+      <div class="step-progress step-100"></div>
+    </div>
+
+    <section class="card">
+      <div class="card-header">
+        <h2>{{ 'createPet.cardTitle' | translate }}</h2>
+        <p>{{ 'createPet.cardSubtitle' | translate }}</p>
+      </div>
+
+      <div class="form-block">
+        <div class="form-title">
+          <span class="badge"></span>
+          <h3>{{ 'createPet.birthdayTitle' | translate }}</h3>
+        </div>
+        <div class="form-row single">
+          <div class="input-group">
+            <input
+              type="date"
+              [attr.placeholder]="'createPet.birthdayPlaceholder' | translate"
+              [ngModel]="birthdayValue"
+              (ngModelChange)="onDateChange($event)"
+              [attr.max]="maxDate"
+            />
+          </div>
+        </div>
+        <span class="pill">{{ ageDisplay }}</span>
+      </div>
+
+      <div class="form-block">
+        <div class="form-title">
+          <span class="badge"></span>
+          <h3>{{ 'createPet.weightTitle' | translate }}</h3>
+        </div>
+        <div class="form-row">
+          <div class="input-group">
+            <input type="number" class="weight-input" placeholder="0.00" [(ngModel)]="weightValue" />
+          </div>
+          <div class="segmented">
+            <button
+              type="button"
+              class="seg"
+              [class.active]="weightUnit === 'lb'"
+              (click)="setWeightUnit('lb')"
+            >
+              lb
+            </button>
+            <button
+              type="button"
+              class="seg"
+              [class.active]="weightUnit === 'kg'"
+              (click)="setWeightUnit('kg')"
+            >
+              kg
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-block">
+        <div class="form-title">
+          <span class="badge"></span>
+          <h3>Sexo</h3>
+        </div>
+        <div class="form-row single">
+          <mat-form-field appearance="outline" class="select-field">
+            <mat-select [(ngModel)]="sex">
+              <mat-option value="" disabled>Selecciona</mat-option>
+              <mat-option value="male">Macho</mat-option>
+              <mat-option value="female">Hembra</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <p class="validation" *ngIf="showValidation && !isFormValid">
+        {{ 'createPet.validationDetails' | translate }}
+      </p>
+      <p class="validation error" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+      <div class="card-footer">
+        <button type="button" class="ghost-btn" routerLink="/pets/new">
+          {{ 'createPet.back' | translate }}
+        </button>
+        <button type="button" class="primary" (click)="createPet()" [disabled]="isSubmitting">
+          {{ isSubmitting ? ('createPet.creating' | translate) : ('createPet.create' | translate) }}
+          <span class="arrow">→</span>
+        </button>
+      </div>
+    </section>
+  </main>
+</div>

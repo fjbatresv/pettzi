@@ -1,0 +1,19 @@
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+:root {
+  --pet-purple: #7f13ec;
+  --pet-lilac: #c084fc;
+  --pet-sand: #f5f2ed;
+  --pet-ink: #1b1224;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--pet-sand);
+  color: var(--pet-ink);
+  font-family: 'Spline Sans', 'Segoe UI', sans-serif;
+}

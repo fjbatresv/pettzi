@@ -93,6 +93,12 @@ export class PetsApiStack extends Stack {
       description: `Pets API for Pettzi (${stage})`,
       defaultAuthorizer: authorizer,
       createDefaultStage: true,
+      corsPreflight: {
+        allowOrigins: ['http://localhost:4200'],
+        allowMethods: [apigwv2.CorsHttpMethod.ANY],
+        allowHeaders: ['authorization', 'content-type'],
+        allowCredentials: true,
+      },
     });
 
     this.httpApi.addRoutes({
@@ -149,14 +155,12 @@ export class PetsApiStack extends Stack {
       functionName: `${id}-${stage}`,
       tracing: lambda.Tracing.ACTIVE,
       bundling: {
+        tsconfig: path.resolve(__dirname, '../../../../../..', 'tsconfig.base.json'),
         target: 'node24',
         format: OutputFormat.CJS,
         platform: 'node',
         externalModules: layers.length
           ? [
-              '@pettzi/domain-model',
-              '@pettzi/utils-dynamo',
-              '@pettzi/shared-utils',
               '@aws-sdk/client-s3',
               '@aws-sdk/s3-request-presigner',
               '@aws-sdk/client-dynamodb',
