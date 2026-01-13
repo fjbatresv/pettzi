@@ -1,0 +1,70 @@
+<mat-sidenav-container class="dashboard-shell">
+  <mat-sidenav #sidenav class="dashboard-sidenav" [mode]="isMobile ? 'over' : 'side'" [opened]="!isMobile">
+    <div class="brand">
+      <div class="brand-mark">
+        <img src="/logo.svg" alt="Pettzi" />
+      </div>
+      <div>
+        <h2>Pettzi</h2>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <a class="nav-link active" routerLink="/dashboard">
+        <mat-icon class="nav-icon" aria-hidden="true">dashboard</mat-icon>
+        {{ 'dashboard.navDashboard' | translate }}
+      </a>
+      <a class="nav-link" href="#">
+        <mat-icon class="nav-icon" aria-hidden="true">pets</mat-icon>
+        {{ 'dashboard.navPets' | translate }}
+      </a>
+      <a class="nav-link" routerLink="/dashboard/grooming">
+        <mat-icon class="nav-icon" aria-hidden="true">content_cut</mat-icon>
+        {{ 'dashboard.navGrooming' | translate }}
+      </a>
+      <a class="nav-link" href="#">
+        <mat-icon class="nav-icon" aria-hidden="true">local_hospital</mat-icon>
+        {{ 'dashboard.navVets' | translate }}
+      </a>
+      <a class="nav-link" href="#">
+        <mat-icon class="nav-icon" aria-hidden="true">photo_library</mat-icon>
+        {{ 'dashboard.navGallery' | translate }}
+      </a>
+      <a class="nav-link" href="#">
+        <mat-icon class="nav-icon" aria-hidden="true">settings</mat-icon>
+        {{ 'dashboard.navSettings' | translate }}
+      </a>
+    </nav>
+
+    <div class="active-pet">
+      <button mat-raised-button color="primary" class="primary-cta" routerLink="/pets/new">
+        {{ 'dashboard.addNewPet' | translate }}
+      </button>
+    </div>
+  </mat-sidenav>
+
+  <mat-sidenav-content class="dashboard-content">
+    <header class="dashboard-header">
+      <div class="header-title">
+        <button
+          class="icon-btn menu-toggle"
+          type="button"
+          [attr.aria-label]="'dashboard.menu' | translate"
+          *ngIf="isMobile"
+          (click)="sidenav.toggle()"
+        >
+          <mat-icon>menu</mat-icon>
+        </button>
+        <h1>{{ 'dashboard.petDashboardTitle' | translate }}</h1>
+      </div>
+      <div class="header-actions">
+        <app-language-toggle></app-language-toggle>
+        <div class="avatar">{{ userInitials }}</div>
+      </div>
+    </header>
+
+    <main class="dashboard-main">
+      <router-outlet></router-outlet>
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

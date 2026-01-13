@@ -1,0 +1,104 @@
+<section class="grooming-page">
+  <header class="grooming-header">
+    <button mat-button class="back-btn" routerLink="/dashboard/pet">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h2>
+      {{ 'grooming.titlePrefix' | translate }}
+      <span class="pet-name">{{ petName || ('dashboard.petFallback' | translate) }}</span>
+    </h2>
+  </header>
+
+  <section class="grooming-card">
+    <div class="section-title">
+      <span class="section-icon">
+        <mat-icon>spa</mat-icon>
+      </span>
+      <h3>{{ 'grooming.selectServices' | translate }}</h3>
+    </div>
+
+    <div class="service-grid">
+      <button
+        type="button"
+        class="service-card"
+        *ngFor="let service of services"
+        [class.selected]="selectedServices.has(service.id)"
+        (click)="toggleService(service.id)"
+      >
+        <mat-icon>{{ service.icon }}</mat-icon>
+        <span>{{ service.labelKey | translate }}</span>
+      </button>
+    </div>
+
+    <div class="schedule-grid">
+      <div>
+        <div class="section-title">
+          <span class="section-icon">
+            <mat-icon>calendar_today</mat-icon>
+          </span>
+          <h3>{{ 'grooming.date' | translate }}</h3>
+        </div>
+        <mat-form-field appearance="outline" class="date-field">
+          <input
+            matInput
+            [matDatepicker]="picker"
+            [(ngModel)]="preferredDate"
+            [placeholder]="'grooming.datePlaceholder' | translate"
+            [max]="maxGroomingDate"
+            readonly
+          />
+          <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+      </div>
+      <div>
+        <div class="section-title">
+          <span class="section-icon">
+            <mat-icon>event_repeat</mat-icon>
+          </span>
+          <h3>{{ 'grooming.nextDate' | translate }}</h3>
+        </div>
+        <mat-form-field appearance="outline" class="date-field">
+          <input
+            matInput
+            [matDatepicker]="nextPicker"
+            [(ngModel)]="nextGroomingDate"
+            [placeholder]="'grooming.nextDatePlaceholder' | translate"
+            [min]="minNextGroomingDate"
+            readonly
+          />
+          <mat-datepicker-toggle matIconSuffix [for]="nextPicker"></mat-datepicker-toggle>
+          <mat-datepicker #nextPicker></mat-datepicker>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="section-title">
+      <span class="section-icon">
+        <mat-icon>playlist_add_check</mat-icon>
+      </span>
+      <h3>{{ 'grooming.comments' | translate }}</h3>
+    </div>
+    <textarea
+      class="instructions"
+      [(ngModel)]="instructions"
+      [placeholder]="'grooming.commentsPlaceholder' | translate"
+      rows="4"
+    ></textarea>
+
+    <div class="actions">
+      <button type="button" class="link-btn" routerLink="/dashboard/pet">
+        {{ 'grooming.cancel' | translate }}
+      </button>
+      <button
+        mat-raised-button
+        color="primary"
+        class="primary-cta"
+        [disabled]="!isFormValid || isSubmitting"
+        (click)="saveGrooming()"
+      >
+        {{ 'grooming.save' | translate }}
+      </button>
+    </div>
+  </section>
+</section>

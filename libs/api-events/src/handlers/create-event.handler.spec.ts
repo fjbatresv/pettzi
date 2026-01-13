@@ -1,5 +1,5 @@
 import { APIGatewayProxyEventV2 } from 'aws-lambda';
-import { GetCommand, TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
+import { GetCommand, PutCommand } from '@aws-sdk/lib-dynamodb';
 import { EventType } from '@pettzi/domain-model';
 import { handler } from './create-event.handler';
 
@@ -53,12 +53,12 @@ describe('create-event.handler', () => {
     sendMock.mockReset();
   });
 
-  it('creates an event and optional reminder', async () => {
+  it('creates an event', async () => {
     sendMock.mockImplementation((command) => {
       if (command instanceof GetCommand) {
         return { Item: { PK: 'PET#pet-1', SK: 'OWNER#owner-1' } };
       }
-      if (command instanceof TransactWriteCommand) {
+      if (command instanceof PutCommand) {
         // return the items we wrote for assertion if needed
         return {};
       }
@@ -72,14 +72,12 @@ describe('create-event.handler', () => {
         eventType: EventType.VACCINE,
         date: '2024-01-01',
         title: 'Rabies',
-        nextReminderDate: '2024-02-01',
       }),
     });
 
     expect(res.statusCode).toBe(201);
     const body = JSON.parse(res.body ?? '{}');
     expect(body.eventType).toBe(EventType.VACCINE);
-    expect(body.reminderId).toBeDefined();
     expect(sendMock).toHaveBeenCalled();
   });
 

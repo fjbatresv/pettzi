@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../tokens';
@@ -24,10 +24,8 @@ interface BreedsListResponse {
 
 @Injectable({ providedIn: 'root' })
 export class CatalogsService {
-  constructor(
-    private readonly http: HttpClient,
-    @Inject(API_BASE_URL) private readonly baseUrl: string
-  ) {}
+  private readonly http = inject(HttpClient);
+  private readonly baseUrl = inject(API_BASE_URL);
 
   getSpecies(): Observable<SpeciesListResponse> {
     return this.http.get<SpeciesListResponse>(this.buildUrl('/species'));

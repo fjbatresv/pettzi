@@ -1,0 +1,175 @@
+.grooming-page {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.grooming-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.grooming-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.pet-name {
+  color: #7f13ec;
+  font-weight: 700;
+}
+
+.back-btn {
+  color: #7f13ec;
+  font-weight: 600;
+}
+
+.grooming-card {
+  background: #fff9f2;
+  border-radius: 22px;
+  padding: 1.75rem;
+  border: 1px solid rgba(127, 19, 236, 0.1);
+  display: grid;
+  gap: 1.5rem;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.section-title h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.section-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: rgba(127, 19, 236, 0.12);
+  display: grid;
+  place-items: center;
+}
+
+.section-icon mat-icon {
+  color: #7f13ec;
+  font-size: 20px;
+}
+
+.service-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.service-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 1rem 1.25rem;
+  border: 1px solid rgba(127, 19, 236, 0.12);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  text-align: left;
+  position: relative;
+  cursor: pointer;
+}
+
+.service-card mat-icon {
+  font-size: 26px;
+  color: #7f13ec;
+}
+
+.service-card.selected {
+  border-color: rgba(127, 19, 236, 0.4);
+  box-shadow: 0 12px 28px rgba(127, 19, 236, 0.12);
+}
+
+.schedule-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.date-field {
+  width: 100%;
+}
+
+:host ::ng-deep .date-field .mat-mdc-text-field-wrapper {
+  background: #ffffff;
+  border-radius: 14px;
+}
+
+:host ::ng-deep .date-field .mdc-notched-outline__leading,
+:host ::ng-deep .date-field .mdc-notched-outline__notch,
+:host ::ng-deep .date-field .mdc-notched-outline__trailing {
+  border-color: rgba(127, 19, 236, 0.2);
+}
+
+:host ::ng-deep .date-field .mat-mdc-form-field-flex {
+  min-height: 48px;
+}
+
+:host ::ng-deep .date-field .mat-mdc-form-field-subscript-wrapper {
+  display: none;
+}
+
+.instructions {
+  width: 100%;
+  border-radius: 16px;
+  border: 1px solid rgba(127, 19, 236, 0.2);
+  padding: 1rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+  background: #ffffff;
+  resize: vertical;
+}
+
+.instructions:focus {
+  outline: none;
+  border-color: rgba(127, 19, 236, 0.5);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.link-btn {
+  border: none;
+  background: transparent;
+  font-weight: 600;
+  color: rgba(27, 18, 36, 0.6);
+  cursor: pointer;
+}
+
+.primary-cta.mat-mdc-raised-button {
+  background: #7f13ec;
+  color: #ffffff;
+  padding: 0.7rem 1.8rem;
+  border-radius: 14px;
+  font-weight: 600;
+}
+
+.primary-cta.mat-mdc-raised-button[disabled] {
+  background: rgba(127, 19, 236, 0.35);
+  color: #ffffff;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+@media (max-width: 720px) {
+  .grooming-card {
+    padding: 1.25rem;
+  }
+
+  .actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

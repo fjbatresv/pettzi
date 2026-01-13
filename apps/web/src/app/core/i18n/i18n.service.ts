@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 
@@ -7,8 +7,7 @@ export type Locale = 'es' | 'en';
 @Injectable({ providedIn: 'root' })
 export class I18nService {
   private readonly storageKey = 'pettzi.locale';
-
-  constructor(private readonly translate: TranslateService) {}
+  private readonly translate = inject(TranslateService);
 
   init() {
     const stored = localStorage.getItem(this.storageKey) as Locale | null;

@@ -7,7 +7,7 @@ const s3 = new S3Client({});
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   const petId = event.pathParameters?.petId;
-  const rawFileKey = event.pathParameters?.fileKey;
+  const rawFileKey = event.queryStringParameters?.fileKey;
   if (!petId || !rawFileKey) {
     return badRequest('petId and fileKey are required');
   }

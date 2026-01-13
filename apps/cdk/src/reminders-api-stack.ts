@@ -72,6 +72,15 @@ export class RemindersApiStack extends Stack {
       commonEnv,
       [props.sharedLayer, props.sesLayer, props.ddbLayer]
     );
+    const createReminderFn = this.createFn(
+      'CreateReminderHandler',
+      stage,
+      handlerPath(
+        'libs/api-reminders/src/handlers/create-reminder.handler.ts'
+      ),
+      commonEnv,
+      [props.sharedLayer, props.sesLayer, props.ddbLayer]
+    );
     const processDueFn = this.createFn(
       'ProcessDueRemindersHandler',
       stage,
@@ -84,6 +93,7 @@ export class RemindersApiStack extends Stack {
 
     props.table.grantReadWriteData(listRemindersFn);
     props.table.grantReadWriteData(listPetRemindersFn);
+    props.table.grantReadWriteData(createReminderFn);
     props.table.grantReadWriteData(processDueFn);
 
     processDueFn.addToRolePolicy(
@@ -133,6 +143,14 @@ export class RemindersApiStack extends Stack {
       integration: new HttpLambdaIntegration(
         'ListPetRemindersIntegration',
         listPetRemindersFn
+      ),
+    });
+    this.httpApi.addRoutes({
+      path: '/pets/{petId}',
+      methods: [apigwv2.HttpMethod.POST],
+      integration: new HttpLambdaIntegration(
+        'CreateReminderIntegration',
+        createReminderFn
       ),
     });
 

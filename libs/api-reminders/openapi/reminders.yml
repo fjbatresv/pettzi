@@ -43,6 +43,37 @@ paths:
         "500":
           $ref: '#/components/responses/ServerError'
   /pets/{petId}:
+    post:
+      summary: Create reminder for a pet
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: petId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReminderRequest'
+      responses:
+        "201":
+          description: Reminder created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PetReminder'
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "500":
+          $ref: '#/components/responses/ServerError'
     get:
       summary: List reminders for a pet
       security:
@@ -120,6 +151,20 @@ components:
         - petId
         - dueDate
         - createdAt
+    CreateReminderRequest:
+      type: object
+      required:
+        - dueDate
+      properties:
+        dueDate:
+          type: string
+          format: date-time
+        message:
+          type: string
+          nullable: true
+        eventId:
+          type: string
+          nullable: true
     ErrorResponse:
       type: object
       properties:

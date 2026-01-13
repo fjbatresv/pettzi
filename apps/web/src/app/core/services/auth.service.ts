@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { catchError, map, Observable, throwError, tap } from 'rxjs';
 import { API_BASE_URL } from '../tokens';
@@ -27,11 +27,9 @@ export type LoginResponse = AuthTokens | NewPasswordChallenge;
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  constructor(
-    private readonly http: HttpClient,
-    private readonly i18n: I18nService,
-    @Inject(API_BASE_URL) private readonly baseUrl: string
-  ) {}
+  private readonly http = inject(HttpClient);
+  private readonly i18n = inject(I18nService);
+  private readonly baseUrl = inject(API_BASE_URL);
 
   login(email: string, password: string): Observable<LoginResponse> {
     return this.http

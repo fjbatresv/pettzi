@@ -140,7 +140,7 @@ export class UploadsApiStack extends Stack {
       ),
     });
     this.httpApi.addRoutes({
-      path: '/pets/{petId}/{fileKey}/download-url',
+      path: '/pets/{petId}/download-url',
       methods: [apigwv2.HttpMethod.GET],
       integration: new HttpLambdaIntegration(
         'DownloadUrlIntegration',
@@ -148,7 +148,7 @@ export class UploadsApiStack extends Stack {
       ),
     });
     this.httpApi.addRoutes({
-      path: '/pets/{petId}/{fileKey}',
+      path: '/pets/{petId}',
       methods: [apigwv2.HttpMethod.DELETE],
       integration: new HttpLambdaIntegration(
         'DeleteFileIntegration',

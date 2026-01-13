@@ -1,0 +1,23 @@
+import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
+import { I18nService } from '../../core/i18n/i18n.service';
+
+@Component({
+  selector: 'app-language-toggle',
+  standalone: true,
+  imports: [CommonModule, TranslateModule],
+  templateUrl: './language-toggle.component.html',
+  styleUrl: './language-toggle.component.scss',
+})
+export class LanguageToggleComponent {
+  private readonly i18n = inject(I18nService);
+
+  get locale() {
+    return this.i18n.locale;
+  }
+
+  setLocale(locale: 'es' | 'en') {
+    this.i18n.setLocale(locale);
+  }
+}

@@ -74,7 +74,7 @@ paths:
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '500': { $ref: '#/components/responses/ServerError' }
-  /pets/{petId}/{fileKey}/download-url:
+  /pets/{petId}/download-url:
     get:
       summary: Generate download URL for a file
       security: [{ bearerAuth: [] }]
@@ -83,7 +83,7 @@ paths:
           name: petId
           required: true
           schema: { type: string }
-        - in: path
+        - in: query
           name: fileKey
           required: true
           schema: { type: string }
@@ -98,7 +98,7 @@ paths:
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '500': { $ref: '#/components/responses/ServerError' }
-  /pets/{petId}/{fileKey}:
+  /pets/{petId}:
     delete:
       summary: Delete a file
       security: [{ bearerAuth: [] }]
@@ -107,7 +107,7 @@ paths:
           name: petId
           required: true
           schema: { type: string }
-        - in: path
+        - in: query
           name: fileKey
           required: true
           schema: { type: string }
