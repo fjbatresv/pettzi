@@ -64,9 +64,6 @@
         <label class="field" [class.has-error]="hasError('password')">
           <span class="field-row">
             <span>{{ 'login.passwordLabel' | translate }}</span>
-            <button type="button" class="link">
-              {{ 'login.forgotPassword' | translate }}
-            </button>
           </span>
           <input
             type="password"
@@ -75,6 +72,9 @@
             formControlName="password"
             [class.input-error]="hasError('password')"
           />
+          <button type="button" class="link forgot-link" routerLink="/forgot-password">
+            {{ 'login.forgotPassword' | translate }}
+          </button>
           <span class="field-error" *ngIf="hasError('password')">
             {{ 'login.passwordError' | translate }}
           </span>

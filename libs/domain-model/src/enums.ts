@@ -9,6 +9,8 @@ export enum PetSpecies {
 export enum EventType {
   VACCINE = 'VACCINE',
   VET_VISIT = 'VET_VISIT',
+  MEDICATION = 'MEDICATION',
+  WEIGHT = 'WEIGHT',
   GROOMING = 'GROOMING',
   OTHER = 'OTHER',
 }

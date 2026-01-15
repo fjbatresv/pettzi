@@ -1,14 +1,18 @@
-import { RemovalPolicy, Stack, StackProps, Tags } from 'aws-cdk-lib';
+import { Duration, RemovalPolicy, Stack, StackProps, Tags } from 'aws-cdk-lib';
+import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
+import * as cloudwatchActions from 'aws-cdk-lib/aws-cloudwatch-actions';
 import {
   UserPool,
   UserPoolClient,
   AccountRecovery,
   VerificationEmailStyle,
 } from 'aws-cdk-lib/aws-cognito';
+import * as sns from 'aws-cdk-lib/aws-sns';
 import { Construct } from 'constructs';
 
 export interface AuthStackProps extends StackProps {
   stage?: string;
+  alarmTopic?: sns.ITopic;
 }
 
 export class AuthStack extends Stack {
@@ -62,5 +66,26 @@ export class AuthStack extends Stack {
         custom: false,
       },
     });
+
+    if (props?.alarmTopic) {
+      const failedSignIns = new cloudwatch.Metric({
+        namespace: 'AWS/Cognito',
+        metricName: 'SignInFailures',
+        statistic: 'Sum',
+        period: Duration.minutes(1),
+        dimensionsMap: {
+          UserPool: this.userPool.userPoolId,
+          UserPoolClient: this.userPoolClient.userPoolClientId,
+        },
+      });
+      const alarm = new cloudwatch.Alarm(this, 'CognitoFailedLoginAlarm', {
+        metric: failedSignIns,
+        threshold: 10,
+        evaluationPeriods: 1,
+        comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_THRESHOLD,
+        alarmDescription: 'Cognito failed login attempts exceeded 10 per minute',
+      });
+      alarm.addAlarmAction(new cloudwatchActions.SnsAction(props.alarmTopic));
+    }
   }
 }

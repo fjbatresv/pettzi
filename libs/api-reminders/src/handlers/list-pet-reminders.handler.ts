@@ -58,6 +58,10 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 
     const reminders = (res.Items ?? [])
       .map(fromItemPetReminder)
+      .map((reminder) => ({
+        ...reminder,
+        recurring: Boolean(reminder.metadata?.recurring || reminder.metadata?.periodicity),
+      }))
       .filter((reminder) => {
         const due = reminder.dueDate.getTime();
         if (from && due < from.getTime()) return false;

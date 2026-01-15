@@ -9,6 +9,7 @@ import crypto from 'crypto';
 
 interface ForgotPasswordPayload {
   email?: string;
+  locale?: 'es' | 'en';
 }
 
 const cognito = new CognitoIdentityProviderClient({});
@@ -45,9 +46,13 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     return badRequest('Invalid JSON body');
   }
 
-  const { email } = payload;
+  const { email, locale } = payload;
   if (!email) {
     return badRequest('email is required');
+  }
+
+  if (locale && locale !== 'es' && locale !== 'en') {
+    return badRequest('Invalid locale');
   }
 
   if (!process.env.COGNITO_USER_POOL_ID) {
@@ -67,15 +72,20 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
       })
     );
 
-    const templateName = process.env.SES_RESET_TEMPLATE_NAME;
+    const selectedLocale = locale ?? 'en';
+    const templateName =
+      selectedLocale === 'en'
+        ? process.env.SES_RESET_TEMPLATE_NAME_EN
+        : process.env.SES_RESET_TEMPLATE_NAME_ES;
+    const fallbackTemplate = process.env.SES_RESET_TEMPLATE_NAME;
     const fromEmail = process.env.SES_FROM_EMAIL;
 
-    if (templateName && fromEmail) {
+    if ((templateName || fallbackTemplate) && fromEmail) {
       await ses.send(
         new SendTemplatedEmailCommand({
           Source: fromEmail,
           Destination: { ToAddresses: [email] },
-          Template: templateName,
+          Template: templateName ?? fallbackTemplate ?? '',
           TemplateData: JSON.stringify({
             email,
             temporaryPassword,
@@ -84,7 +94,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
       );
     } else {
       console.warn('Forgot password email skipped, SES config missing', {
-        templateName,
+        templateName: templateName ?? fallbackTemplate,
         fromEmail,
       });
     }

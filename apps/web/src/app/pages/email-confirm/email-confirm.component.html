@@ -1,0 +1,63 @@
+<div class="confirm-shell">
+  <header class="confirm-topbar">
+    <div class="brand">
+      <img src="/logo.svg" [attr.alt]="'login.logoAlt' | translate" />
+      <span>{{ 'login.logoText' | translate }}</span>
+    </div>
+    <app-language-toggle></app-language-toggle>
+  </header>
+
+  <main class="confirm-main">
+    <section class="confirm-card">
+      <div class="card-hero">
+        <div class="hero-media">
+          <div class="hero-sky"></div>
+          <div class="hero-icons">
+            <span class="icon-dot">
+              <mat-icon>pets</mat-icon>
+            </span>
+            <span class="icon-dot alt">
+              <mat-icon>pets</mat-icon>
+            </span>
+            <span class="icon-dot">
+              <mat-icon>pets</mat-icon>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <ng-container *ngIf="state === 'loading'">
+        <h1>{{ 'emailConfirm.loadingTitle' | translate }}</h1>
+        <p class="subtitle">{{ 'emailConfirm.loadingSubtitle' | translate }}</p>
+      </ng-container>
+
+      <ng-container *ngIf="state === 'success'">
+        <h1 class="accent">{{ 'emailConfirm.title' | translate }}</h1>
+        <p class="subtitle">{{ 'emailConfirm.subtitle' | translate }}</p>
+        <p class="subtitle" *ngIf="responseMessage">{{ responseMessage }}</p>
+
+        <a class="primary" routerLink="/dashboard">
+          {{ 'emailConfirm.cta' | translate }}
+          <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+        </a>
+      </ng-container>
+
+      <ng-container *ngIf="state === 'error'">
+        <h1>{{ 'emailConfirm.errorTitle' | translate }}</h1>
+        <p class="subtitle">
+          {{ errorMessage || ('emailConfirm.errorSubtitle' | translate) }}
+        </p>
+        <a class="primary" routerLink="/">
+          {{ 'emailConfirm.backToLogin' | translate }}
+        </a>
+      </ng-container>
+
+      <p class="support">
+        {{ 'emailConfirm.supportHint' | translate }}
+        <a href="#" class="link">{{ 'emailConfirm.contactSupport' | translate }}</a>
+      </p>
+    </section>
+  </main>
+
+  <footer class="confirm-footer">{{ 'emailConfirm.footer' | translate }}</footer>
+</div>

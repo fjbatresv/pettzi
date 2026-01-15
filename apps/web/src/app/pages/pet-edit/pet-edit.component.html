@@ -1,0 +1,124 @@
+<section class="pet-edit-page">
+  <header class="pet-edit-header">
+    <button mat-button class="back-btn" routerLink="/dashboard/pet">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h2>{{ 'petEdit.title' | translate }}</h2>
+  </header>
+
+  <section class="pet-edit-card">
+    <div class="photo-block">
+      <div class="photo-shell">
+        <img
+          *ngIf="petPhotoUrl"
+          [src]="petPhotoUrl"
+          [attr.alt]="name || ('dashboard.petFallback' | translate)"
+        />
+        <span *ngIf="!petPhotoUrl">
+          {{ name[0] || ('dashboard.petInitial' | translate) }}
+        </span>
+      </div>
+      <input
+        #photoInput
+        type="file"
+        accept="image/*"
+        (change)="onPhotoSelected($event)"
+        hidden
+      />
+      <button
+        type="button"
+        class="photo-upload-btn"
+        [disabled]="photoUploading"
+        (click)="photoInput.click()"
+      >
+        {{
+          (photoUploading ? 'petEdit.uploadingPhoto' : 'petEdit.uploadPhoto')
+            | translate
+        }}
+      </button>
+    </div>
+
+    <div class="section-title">
+      <span class="section-icon">
+        <mat-icon>pets</mat-icon>
+      </span>
+      <h3>{{ 'petEdit.details' | translate }}</h3>
+    </div>
+
+    <div class="form-grid">
+      <mat-form-field appearance="outline" class="full-row">
+        <mat-label>{{ 'petEdit.name' | translate }}</mat-label>
+        <input matInput [value]="name" readonly />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'petEdit.species' | translate }}</mat-label>
+        <mat-select [(ngModel)]="species" (selectionChange)="onSpeciesChange($event.value)">
+          <mat-option *ngFor="let item of speciesOptions" [value]="item.code">
+            {{ item.label }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'petEdit.breed' | translate }}</mat-label>
+        <mat-select [(ngModel)]="breed" [disabled]="!breeds.length">
+          <mat-option *ngFor="let item of breeds" [value]="item.code">
+            {{ item.label }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'petEdit.birthDate' | translate }}</mat-label>
+        <input matInput [value]="birthDateLabel" readonly />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'petEdit.color' | translate }}</mat-label>
+        <input matInput [(ngModel)]="color" />
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="full-row">
+        <mat-label>{{ 'petEdit.chip' | translate }}</mat-label>
+        <input matInput [(ngModel)]="chipId" />
+      </mat-form-field>
+    </div>
+
+    <div class="full-row">
+      <div class="section-title">
+        <span class="section-icon">
+          <mat-icon>notes</mat-icon>
+        </span>
+        <h3>{{ 'petEdit.observations' | translate }}</h3>
+      </div>
+      <textarea
+        class="observations"
+        [(ngModel)]="observations"
+        [placeholder]="'petEdit.observationsPlaceholder' | translate"
+        rows="4"
+      ></textarea>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="link-btn" routerLink="/dashboard/pet">
+        {{ 'petEdit.cancel' | translate }}
+      </button>
+      <button
+        mat-raised-button
+        color="primary"
+        class="primary-cta"
+        [disabled]="!isFormValid"
+        (click)="saveProfile()"
+      >
+        {{ 'petEdit.save' | translate }}
+      </button>
+    </div>
+
+    <div class="danger-zone">
+      <div>
+        <h4>{{ 'petEdit.deleteHeading' | translate }}</h4>
+        <p>{{ 'petEdit.deleteHint' | translate }}</p>
+      </div>
+      <button type="button" class="danger-btn" (click)="requestDelete()">
+        <mat-icon>delete</mat-icon>
+        {{ 'petEdit.deletePet' | translate }}
+      </button>
+    </div>
+  </section>
+</section>

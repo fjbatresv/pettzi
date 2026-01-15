@@ -3,7 +3,7 @@ name: Snyk Security Scan
 on:
   push:
     branches:
-      - develop
+      - main
   pull_request:
   schedule:
     - cron: '0 10 * * 1'

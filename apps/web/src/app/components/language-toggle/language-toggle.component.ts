@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { I18nService } from '../../core/i18n/i18n.service';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-language-toggle',
@@ -12,6 +13,7 @@ import { I18nService } from '../../core/i18n/i18n.service';
 })
 export class LanguageToggleComponent {
   private readonly i18n = inject(I18nService);
+  private readonly auth = inject(AuthService);
 
   get locale() {
     return this.i18n.locale;
@@ -19,5 +21,10 @@ export class LanguageToggleComponent {
 
   setLocale(locale: 'es' | 'en') {
     this.i18n.setLocale(locale);
+    if (this.auth.hasStoredSession()) {
+      this.auth.updateUserProfile({ locale }, { skipLoading: true }).subscribe({
+        error: () => undefined,
+      });
+    }
   }
 }

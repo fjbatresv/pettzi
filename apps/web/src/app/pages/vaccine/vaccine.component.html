@@ -1,0 +1,111 @@
+<section class="vaccine-page">
+  <header class="vaccine-header">
+    <button mat-button class="back-btn" routerLink="/dashboard/pet">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h2>
+      {{ 'vaccine.titlePrefix' | translate }}
+      <span class="pet-name">{{ petName || ('dashboard.petFallback' | translate) }}</span>
+    </h2>
+  </header>
+
+  <section class="vaccine-card">
+    <div class="section-title">
+      <span class="section-icon">
+        <mat-icon>vaccines</mat-icon>
+      </span>
+      <h3>{{ 'vaccine.details' | translate }}</h3>
+    </div>
+
+    <div class="form-grid">
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>{{ 'vaccine.name' | translate }}</mat-label>
+        <input matInput [(ngModel)]="name" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>{{ 'vaccine.batch' | translate }}</mat-label>
+        <input matInput [(ngModel)]="batchNumber" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>{{ 'vaccine.adminDate' | translate }}</mat-label>
+        <input
+          matInput
+          [matDatepicker]="adminPicker"
+          [(ngModel)]="administeredDate"
+          [max]="maxAdminDate"
+          readonly
+        />
+        <mat-datepicker-toggle matIconSuffix [for]="adminPicker"></mat-datepicker-toggle>
+        <mat-datepicker #adminPicker></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>{{ 'vaccine.expiry' | translate }}</mat-label>
+        <input
+          matInput
+          [matDatepicker]="expiryPicker"
+          [(ngModel)]="expiryDate"
+          readonly
+        />
+        <mat-datepicker-toggle matIconSuffix [for]="expiryPicker"></mat-datepicker-toggle>
+        <mat-datepicker #expiryPicker></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>{{ 'vaccine.clinic' | translate }}</mat-label>
+        <input matInput [(ngModel)]="clinic" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>{{ 'vaccine.vet' | translate }}</mat-label>
+        <input matInput [(ngModel)]="veterinarian" />
+      </mat-form-field>
+    </div>
+
+    <label class="toggle" *ngIf="expiryDate">
+      <input type="checkbox" [(ngModel)]="createReminder" />
+      <span>{{ 'vaccine.createReminder' | translate }}</span>
+    </label>
+
+    <div class="section-title">
+      <span class="section-icon">
+        <mat-icon>attach_file</mat-icon>
+      </span>
+      <h3>{{ 'vaccine.attachments' | translate }}</h3>
+    </div>
+    <div class="upload-row">
+      <label class="upload-btn">
+        <input type="file" multiple (change)="onFilesSelected($event)" />
+        <mat-icon>upload</mat-icon>
+        {{ 'vaccine.upload' | translate }}
+      </label>
+      <p class="upload-hint">{{ 'vaccine.uploadHint' | translate }}</p>
+    </div>
+
+    <div class="attachment-list" *ngIf="attachments.length">
+      <div class="attachment" *ngFor="let file of attachments; let i = index">
+        <span>{{ file.name }}</span>
+        <button type="button" (click)="removeAttachment(i)">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="link-btn" routerLink="/dashboard/pet">
+        {{ 'vaccine.cancel' | translate }}
+      </button>
+      <button
+        mat-raised-button
+        color="primary"
+        class="primary-cta"
+        [disabled]="!isFormValid || isSubmitting"
+        (click)="saveVaccine()"
+      >
+        {{ 'vaccine.save' | translate }}
+      </button>
+    </div>
+  </section>
+</section>

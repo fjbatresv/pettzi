@@ -46,7 +46,7 @@ const appRegistryApplicationName =
 const emailVerificationBaseUrl =
   process.env.EMAIL_VERIFY_BASE_URL ??
   (apiDomainName
-    ? `https://${apiDomainName}/${AUTH_API_BASE_PATH}/confirm-email`
+    ? `https://app.pettzi.net/email-confirm`
     : undefined);
 const emailVerificationSecret = process.env.EMAIL_VERIFY_SECRET;
 if (
@@ -117,6 +117,7 @@ const auth = new AuthStack(app, 'PettziAuthStack', {
   env: { account, region },
   stackName: 'PettziAuthStack',
   description: `Pettzi auth (${stage})`,
+  alarmTopic: core.alarmTopic,
 });
 
 const authApi = new AuthApiStack(app, 'PettziAuthApiStack', {
@@ -125,14 +126,20 @@ const authApi = new AuthApiStack(app, 'PettziAuthApiStack', {
   description: `Pettzi auth API (${stage})`,
   userPool: auth.userPool,
   userPoolClient: auth.userPoolClient,
+  table: core.table,
+  docsBucket: core.docsBucket,
   depsLayer: layers.cognitoDepsLayer,
   sesLayer: layers.sesDepsLayer,
+  ddbLayer: layers.ddbDepsLayer,
   sesFromEmail,
-  welcomeTemplateName: SesTemplatesStack.WELCOME_TEMPLATE,
-  resetTemplateName: SesTemplatesStack.RESET_TEMPLATE,
+  welcomeTemplateNameEs: SesTemplatesStack.WELCOME_TEMPLATE_ES,
+  welcomeTemplateNameEn: SesTemplatesStack.WELCOME_TEMPLATE_EN,
+  resetTemplateNameEs: SesTemplatesStack.RESET_TEMPLATE_ES,
+  resetTemplateNameEn: SesTemplatesStack.RESET_TEMPLATE_EN,
   verificationBaseUrl: emailVerificationBaseUrl,
   verificationSecret: emailVerificationSecret,
   passwordResetBaseUrl,
+  alarmTopic: core.alarmTopic,
 });
 
 const petsApi = new PetsApiStack(app, 'PettziPetsApiStack', {
@@ -143,6 +150,7 @@ const petsApi = new PetsApiStack(app, 'PettziPetsApiStack', {
   depsLayer: layers.cognitoDepsLayer,
   userPool: auth.userPool,
   userPoolClient: auth.userPoolClient,
+  alarmTopic: core.alarmTopic,
 });
 
 const eventsApi = new EventsApiStack(app, 'PettziEventsApiStack', {
@@ -154,6 +162,7 @@ const eventsApi = new EventsApiStack(app, 'PettziEventsApiStack', {
   userPool: auth.userPool,
   userPoolClient: auth.userPoolClient,
   stage,
+  alarmTopic: core.alarmTopic,
 });
 
 const remindersApi = new RemindersApiStack(app, 'PettziRemindersApiStack', {
@@ -168,7 +177,8 @@ const remindersApi = new RemindersApiStack(app, 'PettziRemindersApiStack', {
   userPoolClient: auth.userPoolClient,
   stage,
   remindersEmailFrom: process.env.REMINDERS_EMAIL_FROM ?? 'no-reply@pettzi.dev',
-  reminderTemplateName: SesTemplatesStack.REMINDER_TEMPLATE,
+  reminderTemplateName: SesTemplatesStack.REMINDER_TEMPLATE_ES,
+  alarmTopic: core.alarmTopic,
 });
 
 const uploadsApi = new UploadsApiStack(app, 'PettziUploadsApiStack', {
@@ -183,6 +193,7 @@ const uploadsApi = new UploadsApiStack(app, 'PettziUploadsApiStack', {
   s3Layer: layers.s3DepsLayer,
   ddbLayer: layers.ddbDepsLayer,
   stage,
+  alarmTopic: core.alarmTopic,
 });
 
 const ownersApi = new OwnersApiStack(app, 'PettziOwnersApiStack', {
@@ -195,6 +206,7 @@ const ownersApi = new OwnersApiStack(app, 'PettziOwnersApiStack', {
   sharedLayer: layers.cognitoDepsLayer,
   ddbLayer: layers.ddbDepsLayer,
   stage,
+  alarmTopic: core.alarmTopic,
 });
 
 const catalogsApi = new CatalogsApiStack(app, 'PettziCatalogsApiStack', {
@@ -205,6 +217,7 @@ const catalogsApi = new CatalogsApiStack(app, 'PettziCatalogsApiStack', {
   userPoolClient: auth.userPoolClient,
   sharedLayer: layers.cognitoDepsLayer,
   stage,
+  alarmTopic: core.alarmTopic,
 });
 
 const apiDomain =

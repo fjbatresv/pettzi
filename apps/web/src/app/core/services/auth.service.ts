@@ -1,8 +1,9 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { catchError, map, Observable, throwError, tap } from 'rxjs';
 import { API_BASE_URL } from '../tokens';
 import { I18nService } from '../i18n/i18n.service';
+import { TokenStorageService } from './token-storage.service';
 
 interface ApiErrorBody {
   error?: {
@@ -25,41 +26,121 @@ export interface NewPasswordChallenge {
 
 export type LoginResponse = AuthTokens | NewPasswordChallenge;
 
+export interface UserProfile {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+  fullName?: string;
+  profilePhotoKey?: string;
+  locale?: 'es' | 'en';
+}
+
+export interface UserSettings {
+  theme: 'light' | 'dark';
+  weightUnit: 'kg' | 'lb';
+  distanceUnit: 'm' | 'in';
+  newsletter: boolean;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly i18n = inject(I18nService);
   private readonly baseUrl = inject(API_BASE_URL);
+  private readonly storage = inject(TokenStorageService);
 
   login(email: string, password: string): Observable<LoginResponse> {
     return this.http
-      .post<LoginResponse>(this.buildUrl('/login'), { email, password })
+      .post<LoginResponse>(this.buildUrl('/login'), { email, password }, { withCredentials: true })
       .pipe(
         map((response) => this.localizeChallenge(response)),
         catchError((error) => this.handleError(error, 'login'))
       );
   }
 
-  refreshTokens(refreshToken: string): Observable<AuthTokens> {
+  refreshTokens(): Observable<AuthTokens> {
     return this.http
-      .post<AuthTokens>(this.buildUrl('/refresh'), { refreshToken })
+      .post<AuthTokens>(this.buildUrl('/refresh'), {}, { withCredentials: true })
       .pipe(
-        tap((tokens) => this.persistTokens(tokens)),
+        tap((tokens) => this.storeTokens(tokens)),
         catchError((error) => this.handleError(error, 'login'))
       );
   }
 
   clearSession() {
-    localStorage.removeItem('pettzi.idToken');
-    localStorage.removeItem('pettzi.accessToken');
-    localStorage.removeItem('pettzi.refreshToken');
-    localStorage.removeItem('pettzi.accessTokenExpiresAt');
+    this.storage.clear();
   }
 
-  register(email: string, password: string): Observable<AuthTokens> {
+  register(
+    name: string,
+    email: string,
+    password: string,
+    locale: 'es' | 'en'
+  ): Observable<AuthTokens> {
     return this.http
-      .post<AuthTokens>(this.buildUrl('/register'), { email, password })
+      .post<AuthTokens>(
+        this.buildUrl('/register'),
+        { name, email, password, locale },
+        { withCredentials: true }
+      )
       .pipe(catchError((error) => this.handleError(error, 'register')));
+  }
+
+  forgotPassword(email: string, locale?: 'es' | 'en'): Observable<{ message: string }> {
+    return this.http
+      .post<{ message: string }>(this.buildUrl('/forgot-password'), { email, locale })
+      .pipe(catchError((error) => this.handleError(error, 'forgot')));
+  }
+
+  completeNewPassword(
+    email: string,
+    session: string,
+    newPassword: string
+  ): Observable<AuthTokens> {
+    return this.http
+      .post<AuthTokens>(
+        this.buildUrl('/complete-new-password'),
+        { email, session, newPassword },
+        { withCredentials: true }
+      )
+      .pipe(catchError((error) => this.handleError(error, 'reset')));
+  }
+
+  confirmEmail(token: string): Observable<{ message: string }> {
+    return this.http
+      .post<{ message: string }>(this.buildUrl('/confirm-email'), { token })
+      .pipe(catchError((error) => this.handleError(error, 'confirm')));
+  }
+
+  getUserProfile(): Observable<UserProfile> {
+    return this.http.get<UserProfile>(this.buildUrl('/me'));
+  }
+
+  updateUserProfile(
+    payload: Partial<UserProfile>,
+    options?: { skipLoading?: boolean }
+  ): Observable<UserProfile> {
+    const headers = options?.skipLoading
+      ? new HttpHeaders({ 'x-skip-loading': 'true' })
+      : undefined;
+    return this.http.patch<UserProfile>(this.buildUrl('/me'), payload, {
+      headers,
+    });
+  }
+
+  getUserSettings(): Observable<UserSettings> {
+    return this.http.get<UserSettings>(this.buildUrl('/settings'));
+  }
+
+  updateUserSettings(payload: Partial<UserSettings>): Observable<UserSettings> {
+    return this.http.patch<UserSettings>(this.buildUrl('/settings'), payload);
+  }
+
+  deleteAccount(): Observable<{ message?: string }> {
+    return this.http.delete<{ message?: string }>(this.buildUrl('/me'), {
+      withCredentials: true,
+    });
   }
 
   private buildUrl(path: string) {
@@ -68,7 +149,10 @@ export class AuthService {
     return `${authBase}${path}`;
   }
 
-  private handleError(error: HttpErrorResponse, flow: 'login' | 'register') {
+  private handleError(
+    error: HttpErrorResponse,
+    flow: 'login' | 'register' | 'forgot' | 'reset' | 'confirm'
+  ) {
     const payload = (error.error as ApiErrorBody) ?? {};
     const message = payload?.error?.message ?? '';
     const t = (key: string) => this.i18n.t(key);
@@ -97,6 +181,30 @@ export class AuthService {
       return throwError(() => new Error(t('errors.registerDefault')));
     }
 
+    if (flow === 'forgot') {
+      if (message === 'User does not exist') {
+        return throwError(() => new Error(t('errors.forgotNotFound')));
+      }
+      if (error.status === 400) {
+        return throwError(() => new Error(t('errors.forgotInvalid')));
+      }
+      return throwError(() => new Error(t('errors.forgotDefault')));
+    }
+
+    if (flow === 'reset') {
+      if (message === 'Invalid session') {
+        return throwError(() => new Error(t('errors.resetInvalid')));
+      }
+      return throwError(() => new Error(t('errors.resetDefault')));
+    }
+
+    if (flow === 'confirm') {
+      if (error.status === 400) {
+        return throwError(() => new Error(t('errors.confirmInvalid')));
+      }
+      return throwError(() => new Error(t('errors.confirmDefault')));
+    }
+
     return throwError(() => new Error(t('errors.network')));
   }
 
@@ -108,12 +216,24 @@ export class AuthService {
     return { ...response, message: this.i18n.t('errors.loginChallenge') };
   }
 
-  private persistTokens(tokens: AuthTokens) {
-    localStorage.setItem('pettzi.idToken', tokens.idToken);
-    localStorage.setItem('pettzi.accessToken', tokens.accessToken);
-    if (tokens.refreshToken) {
-      localStorage.setItem('pettzi.refreshToken', tokens.refreshToken);
-    }
+  async storeTokens(tokens: AuthTokens & { expiresIn?: number }) {
+    await this.storage.storeTokens(tokens);
+  }
+
+  getAccessToken() {
+    return this.storage.getAccessToken();
+  }
+
+  getIdToken() {
+    return this.storage.getIdToken();
+  }
+
+  hasStoredSession() {
+    return this.storage.hasStoredSession();
+  }
+
+  hasRefreshToken() {
+    return this.storage.hasRefreshToken();
   }
 
   private resolveAuthBase(baseUrl: string) {

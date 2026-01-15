@@ -1,1 +1,8 @@
+<div class="app-loading" *ngIf="isLoading$ | async">
+  <div class="loading-backdrop"></div>
+  <div class="loading-card">
+    <div class="spinner"></div>
+    <p>Loading...</p>
+  </div>
+</div>
 <router-outlet></router-outlet>

@@ -15,6 +15,7 @@ interface CreateReminderRequest {
   dueDate: string;
   message?: string;
   eventId?: string;
+  metadata?: Record<string, unknown>;
 }
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
@@ -65,8 +66,10 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     eventId: payload.eventId,
     dueDate,
     message: payload.message,
+    metadata: payload.metadata,
     createdAt: now,
   };
+  const recurring = Boolean(payload.metadata?.recurring || payload.metadata?.periodicity);
 
   try {
     await docClient.send(
@@ -76,7 +79,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         ConditionExpression: 'attribute_not_exists(PK)',
       })
     );
-    return created(reminder);
+    return created({ ...reminder, recurring });
   } catch (error) {
     console.error('Create reminder error', error);
     return serverError('Failed to create reminder');

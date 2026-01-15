@@ -50,8 +50,8 @@ export class SignupComponent {
       return;
     }
 
-    const { email, password, confirmPassword } = this.form.getRawValue();
-    if (!email || !password) {
+    const { name, email, password, confirmPassword } = this.form.getRawValue();
+    if (!name || !email || !password) {
       return;
     }
 
@@ -61,7 +61,7 @@ export class SignupComponent {
     }
 
     this.isSubmitting = true;
-    this.auth.register(email, password).subscribe({
+    this.auth.register(name.trim(), email, password, this.locale).subscribe({
       next: (tokens) => {
         this.errorMessage = '';
         this.persistTokens(tokens);
@@ -88,14 +88,6 @@ export class SignupComponent {
     refreshToken?: string;
     expiresIn?: number;
   }) {
-    localStorage.setItem('pettzi.idToken', tokens.idToken);
-    localStorage.setItem('pettzi.accessToken', tokens.accessToken);
-    if (tokens.refreshToken) {
-      localStorage.setItem('pettzi.refreshToken', tokens.refreshToken);
-    }
-    if (tokens.expiresIn) {
-      const expiresAt = Date.now() + tokens.expiresIn * 1000;
-      localStorage.setItem('pettzi.accessTokenExpiresAt', String(expiresAt));
-    }
+    void this.auth.storeTokens(tokens);
   }
 }

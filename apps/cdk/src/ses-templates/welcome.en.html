@@ -1,0 +1,135 @@
+<!-- Pettzi - SES Email Template (HTML) -->
+<!-- Notes:
+  - Host images (logo + hero) in S3/CloudFront and pass their URLs as template data.
+  - Designed for SES SendTemplatedEmail (Handlebars-style variables shown as {{var}}).
+  - Keep styles inline for maximum email client compatibility.
+-->
+
+<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="x-apple-disable-message-reformatting" />
+    <title>Confirm your email</title>
+  </head>
+  <body style="margin:0;padding:0;background-color:#f7f5fb;">
+    <!-- Preheader (hidden) -->
+    <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">
+      Confirm your email to activate your Pettzi account.
+    </div>
+
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#f7f5fb;">
+      <tr>
+        <td align="center" style="padding:24px 12px;">
+          <!-- Outer container -->
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="width:600px;max-width:600px;background-color:#fbfafc;border:1px solid #efe9ff;border-radius:16px;">
+            <tr>
+              <td style="padding:28px 24px 18px 24px;text-align:center;">
+                <!-- Logo -->
+                <a href="https://app.pettzi.net" style="text-decoration:none;">
+                  <img
+                    src="https://app.pettzi.net/logo.svg"
+                    width="44"
+                    height="44"
+                    alt="Pettzi"
+                    style="display:block;margin:0 auto;border:0;outline:none;text-decoration:none;border-radius:10px;"
+                  />
+                </a>
+
+                <div style="height:10px;line-height:10px;font-size:10px;">&nbsp;</div>
+
+                <div style="font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,'Apple Color Emoji','Segoe UI Emoji';font-weight:700;letter-spacing:1px;color:#7c7cff;font-size:16px;">
+                  PETTZI
+                </div>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding:0 24px 0 24px;">
+                <!-- Inner card -->
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#ffffff;border-radius:14px;overflow:hidden;">
+
+                  <tr>
+                    <td style="padding:22px 22px 8px 22px;text-align:center;">
+                      <div style="font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,'Apple Color Emoji','Segoe UI Emoji';font-size:16px;line-height:22px;font-weight:600;color:#6b7280;">
+                        Hi {{userName}},
+                      </div>
+                      <div style="height:10px;line-height:10px;font-size:10px;">&nbsp;</div>
+                      <div style="font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,'Apple Color Emoji','Segoe UI Emoji';font-size:34px;line-height:40px;font-weight:800;color:#111827;">
+                        Welcome to the Pack!
+                      </div>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td style="padding:0 28px 18px 28px;text-align:center;">
+                      <div style="font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,'Apple Color Emoji','Segoe UI Emoji';font-size:14px;line-height:22px;color:#6b7280;">
+                        We're so glad you and your furry friends are here! To get started with the Pettzi community and access all our pet care features, please verify your email address below.
+                      </div>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td align="center" style="padding:6px 22px 18px 22px;">
+                      <!-- Button -->
+                      <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                        <tr>
+                          <td align="center" bgcolor="#7c7cff" style="border-radius:12px;">
+                            <a
+                              href="{{verificationLink}}"
+                              target="_blank"
+                              style="display:inline-block;padding:14px 22px;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,'Apple Color Emoji','Segoe UI Emoji';font-size:15px;line-height:18px;font-weight:700;color:#ffffff;text-decoration:none;border-radius:12px;"
+                            >
+                              Confirm Email &nbsp;→
+                            </a>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td style="padding:0 28px 22px 28px;text-align:center;">
+                      <div style="font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,'Apple Color Emoji','Segoe UI Emoji';font-size:12px;line-height:18px;color:#9ca3af;">
+                        If you didn't sign up for a Pettzi account, you can safely ignore this email.
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+                <!-- /Inner card -->
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding:18px 24px 26px 24px;text-align:center;">
+                <!-- Social icons row (optional) -->
+
+                <div style="height:14px;line-height:14px;font-size:14px;">&nbsp;</div>
+
+                <div style="font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,'Apple Color Emoji','Segoe UI Emoji';font-size:12px;line-height:18px;color:#9ca3af;">
+Pettzi
+                </div>
+
+                <div style="height:8px;line-height:8px;font-size:8px;">&nbsp;</div>
+
+                <div style="font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,'Apple Color Emoji','Segoe UI Emoji';font-size:12px;line-height:18px;">
+                  <a href="https://pettzi.net/privacy-policy" target="_blank" style="color:#7c7cff;text-decoration:none;font-weight:700;letter-spacing:0.3px;">PRIVACY POLICY</a>
+                </div>
+
+                <!-- Fallback link (helps deliverability & UX) -->
+                <div style="height:14px;line-height:14px;font-size:14px;">&nbsp;</div>
+                <div style="font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,'Apple Color Emoji','Segoe UI Emoji';font-size:11px;line-height:16px;color:#9ca3af;">
+                  Having trouble with the button? Copy and paste this link:
+                  <br />
+                  <a href="{{verificationLink}}" target="_blank" style="color:#7c7cff;text-decoration:underline;word-break:break-all;">{{verificationLink}}</a>
+                </div>
+              </td>
+            </tr>
+          </table>
+          <!-- /Outer container -->
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

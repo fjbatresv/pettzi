@@ -20,6 +20,7 @@ export const buildUserAccountSk = (): string => buildUserProfileSk();
 export const buildOwnerProfilePk = (ownerId: OwnerId): string =>
   buildOwnerFragment(ownerId);
 export const buildOwnerProfileSk = (): string => buildUserProfileSk();
+export const buildOwnerSettingsSk = (): string => 'SETTINGS';
 
 export const buildPetPkKey = (petId: PetId): string => buildPetPk(petId);
 export const buildPetSkMetadata = (): string => 'METADATA';

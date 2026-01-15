@@ -1,0 +1,106 @@
+<div class="dialog-header">
+  <h3>{{ 'dashboard.addNewReminder' | translate }}</h3>
+  <button type="button" class="close-btn" (click)="close()">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<div class="dialog-body">
+  <mat-form-field appearance="outline">
+    <mat-label>{{ 'dashboard.reminderName' | translate }}</mat-label>
+    <input matInput [(ngModel)]="title" />
+  </mat-form-field>
+
+  <div class="date-time-row">
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'dashboard.reminderDate' | translate }}</mat-label>
+      <input matInput [matDatepicker]="picker" [(ngModel)]="dueDate" />
+      <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'dashboard.reminderTime' | translate }}</mat-label>
+      <input matInput [matTimepicker]="timePicker" [(ngModel)]="time" />
+      <mat-timepicker-toggle matIconSuffix [for]="timePicker"></mat-timepicker-toggle>
+      <mat-timepicker #timePicker></mat-timepicker>
+    </mat-form-field>
+  </div>
+
+  <mat-checkbox [(ngModel)]="recurring">
+    {{ 'dashboard.reminderRecurring' | translate }}
+  </mat-checkbox>
+
+  <div class="recurring-fields" *ngIf="recurring">
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'dashboard.reminderPeriodicity' | translate }}</mat-label>
+      <mat-select [(ngModel)]="periodicity">
+        <mat-option value="hours">{{ 'medication.periodicityHours' | translate }}</mat-option>
+        <mat-option value="daily">{{ 'medication.periodicityDaily' | translate }}</mat-option>
+        <mat-option value="weekly">{{ 'medication.periodicityWeekly' | translate }}</mat-option>
+        <mat-option value="monthly">{{ 'medication.periodicityMonthly' | translate }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline" *ngIf="periodicity === 'hours'">
+      <mat-label>{{ 'medication.everyHours' | translate }}</mat-label>
+      <input matInput type="number" min="1" [(ngModel)]="hoursEvery" />
+    </mat-form-field>
+    <mat-form-field appearance="outline" *ngIf="periodicity === 'daily'">
+      <mat-label>{{ 'medication.time' | translate }}</mat-label>
+      <input matInput [matTimepicker]="dailyPicker" [(ngModel)]="dailyTime" />
+      <mat-timepicker-toggle matIconSuffix [for]="dailyPicker"></mat-timepicker-toggle>
+      <mat-timepicker #dailyPicker></mat-timepicker>
+    </mat-form-field>
+    <ng-container *ngIf="periodicity === 'weekly'">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'medication.weekday' | translate }}</mat-label>
+        <mat-select [(ngModel)]="weeklyDay">
+          <mat-option value="0">{{ 'medication.weekdaySun' | translate }}</mat-option>
+          <mat-option value="1">{{ 'medication.weekdayMon' | translate }}</mat-option>
+          <mat-option value="2">{{ 'medication.weekdayTue' | translate }}</mat-option>
+          <mat-option value="3">{{ 'medication.weekdayWed' | translate }}</mat-option>
+          <mat-option value="4">{{ 'medication.weekdayThu' | translate }}</mat-option>
+          <mat-option value="5">{{ 'medication.weekdayFri' | translate }}</mat-option>
+          <mat-option value="6">{{ 'medication.weekdaySat' | translate }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'medication.time' | translate }}</mat-label>
+        <input matInput [matTimepicker]="weeklyPicker" [(ngModel)]="weeklyTime" />
+        <mat-timepicker-toggle matIconSuffix [for]="weeklyPicker"></mat-timepicker-toggle>
+        <mat-timepicker #weeklyPicker></mat-timepicker>
+      </mat-form-field>
+    </ng-container>
+    <ng-container *ngIf="periodicity === 'monthly'">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'medication.monthDay' | translate }}</mat-label>
+        <input matInput type="number" min="1" max="31" [(ngModel)]="monthlyDay" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'medication.time' | translate }}</mat-label>
+        <input matInput [matTimepicker]="monthlyPicker" [(ngModel)]="monthlyTime" />
+        <mat-timepicker-toggle matIconSuffix [for]="monthlyPicker"></mat-timepicker-toggle>
+        <mat-timepicker #monthlyPicker></mat-timepicker>
+      </mat-form-field>
+    </ng-container>
+  </div>
+
+  <mat-form-field appearance="outline">
+    <mat-label>{{ 'dashboard.reminderNotes' | translate }}</mat-label>
+    <textarea matInput rows="3" [(ngModel)]="notes"></textarea>
+  </mat-form-field>
+</div>
+
+<div class="dialog-actions">
+  <button type="button" class="link-btn" (click)="close()">
+    {{ 'dashboard.cancelReminder' | translate }}
+  </button>
+  <button
+    mat-raised-button
+    color="primary"
+    class="primary-cta"
+    [disabled]="!isFormValid"
+    (click)="save()"
+  >
+    {{ 'dashboard.saveReminder' | translate }}
+  </button>
+</div>

@@ -18,6 +18,17 @@ jest.mock('@aws-sdk/client-ses', () => {
   };
 });
 
+jest.mock('@aws-sdk/lib-dynamodb', () => {
+  const mockSend = jest.fn();
+  return {
+    DynamoDBDocumentClient: {
+      from: jest.fn(() => ({ send: mockSend })),
+    },
+    PutCommand: jest.fn((input) => input),
+    __sendMock: mockSend,
+  };
+});
+
 type RegisterHandlerModule = typeof import('./register.handler');
 const handlerModuleFactory = () =>
   require('./register.handler') as RegisterHandlerModule;
@@ -28,22 +39,28 @@ describe('register.handler', () => {
   const OLD_ENV = process.env;
   let sendMock: jest.Mock;
   let sesSendMock: jest.Mock;
+  let ddbSendMock: jest.Mock;
 
   beforeEach(() => {
     jest.resetModules();
     process.env = { ...OLD_ENV };
     process.env.COGNITO_USER_POOL_CLIENT_ID = 'client-id';
     process.env.COGNITO_USER_POOL_ID = 'pool-id';
+    process.env.PETTZI_TABLE_NAME = 'PettziTable';
     delete process.env.SES_FROM_EMAIL;
     delete process.env.SES_WELCOME_TEMPLATE_NAME;
+    delete process.env.SES_WELCOME_TEMPLATE_NAME_ES;
+    delete process.env.SES_WELCOME_TEMPLATE_NAME_EN;
     delete process.env.EMAIL_VERIFY_SECRET;
     delete process.env.EMAIL_VERIFY_BASE_URL;
     sendMock = jest.requireMock(
       '@aws-sdk/client-cognito-identity-provider'
     ).__sendMock;
     sesSendMock = jest.requireMock('@aws-sdk/client-ses').__sendMock;
+    ddbSendMock = jest.requireMock('@aws-sdk/lib-dynamodb').__sendMock;
     sendMock.mockReset();
     sesSendMock.mockReset();
+    ddbSendMock.mockReset();
   });
 
   afterEach(() => {
@@ -53,6 +70,7 @@ describe('register.handler', () => {
   const invokeHandler = async (payload: {
     email?: string;
     password?: string;
+    locale?: 'es' | 'en';
   }) => {
     const handler = handlerModuleFactory().handler;
     return handler({
@@ -70,7 +88,9 @@ describe('register.handler', () => {
 
   it('returns 201 on success', async () => {
     sendMock
-      .mockResolvedValueOnce({})
+      .mockResolvedValueOnce({
+        User: { Attributes: [{ Name: 'sub', Value: 'owner-1' }] },
+      })
       .mockResolvedValueOnce({})
       .mockResolvedValueOnce({
         AuthenticationResult: {
@@ -83,13 +103,15 @@ describe('register.handler', () => {
       });
 
     process.env.SES_FROM_EMAIL = 'no-reply@pettzi.app';
-    process.env.SES_WELCOME_TEMPLATE_NAME = 'template';
+    process.env.SES_WELCOME_TEMPLATE_NAME_ES = 'template-es';
+    process.env.SES_WELCOME_TEMPLATE_NAME_EN = 'template-en';
     process.env.EMAIL_VERIFY_SECRET = 'secret';
     process.env.EMAIL_VERIFY_BASE_URL = 'https://app/confirm-email';
 
     const res = await invokeHandler({
       email: 'a@b.com',
       password: makeTestPassword(),
+      locale: 'es',
     });
 
     expect(res.statusCode).toBe(201);
@@ -103,7 +125,7 @@ describe('register.handler', () => {
     });
     expect(sesSendMock).toHaveBeenCalledTimes(1);
     const sendArgs = sesSendMock.mock.calls[0][0];
-    expect(sendArgs.Template).toBe('template');
+    expect(sendArgs.Template).toBe('template-es');
     expect(sendArgs.Destination).toEqual({ ToAddresses: ['a@b.com'] });
     expect(sendArgs.TemplateData).toContain('verificationLink');
     expect(sendArgs.TemplateData).toContain('https://app/confirm-email');
@@ -124,6 +146,7 @@ describe('register.handler', () => {
     const res = await invokeHandler({
       email: 'a@b.com',
       password: makeTestPassword(),
+      locale: 'es',
     });
 
     expect(res.statusCode).toBe(409);
@@ -144,6 +167,7 @@ describe('register.handler', () => {
     const res = await invokeHandler({
       email: 'a@b.com',
       password: makeTestPassword(),
+      locale: 'es',
     });
 
     expect(res.statusCode).toBe(500);
@@ -161,6 +185,7 @@ describe('register.handler', () => {
     const res = await invokeHandler({
       email: 'a@b.com',
       password: makeTestPassword(),
+      locale: 'es',
     });
 
     expect(res.statusCode).toBe(400);
@@ -168,7 +193,9 @@ describe('register.handler', () => {
 
   it('skips SES when verification config missing', async () => {
     sendMock
-      .mockResolvedValueOnce({})
+      .mockResolvedValueOnce({
+        User: { Attributes: [{ Name: 'sub', Value: 'owner-1' }] },
+      })
       .mockResolvedValueOnce({})
       .mockResolvedValueOnce({
         AuthenticationResult: {
@@ -183,6 +210,7 @@ describe('register.handler', () => {
     const res = await invokeHandler({
       email: 'a@b.com',
       password: makeTestPassword(),
+      locale: 'es',
     });
 
     expect(res.statusCode).toBe(201);
@@ -191,7 +219,9 @@ describe('register.handler', () => {
 
   it('survives SES failures', async () => {
     sendMock
-      .mockResolvedValueOnce({})
+      .mockResolvedValueOnce({
+        User: { Attributes: [{ Name: 'sub', Value: 'owner-1' }] },
+      })
       .mockResolvedValueOnce({})
       .mockResolvedValueOnce({
         AuthenticationResult: {
@@ -213,6 +243,7 @@ describe('register.handler', () => {
     const res = await invokeHandler({
       email: 'a@b.com',
       password: makeTestPassword(),
+      locale: 'es',
     });
 
     expect(res.statusCode).toBe(201);

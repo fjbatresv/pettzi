@@ -4,6 +4,7 @@ import {
   InitiateAuthCommand,
 } from '@aws-sdk/client-cognito-identity-provider';
 import { badRequest, ok, serverError, unauthorized } from '@pettzi/utils-dynamo/http';
+import { buildRefreshCookie, getRefreshCookie } from './handlers/cookies';
 
 interface RefreshPayload {
   refreshToken?: string;
@@ -12,18 +13,16 @@ interface RefreshPayload {
 const cognito = new CognitoIdentityProviderClient({});
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
-  if (!event.body) {
-    return badRequest('Request body is required');
+  let refreshToken = getRefreshCookie(event);
+  if (!refreshToken && event.body) {
+    try {
+      const payload = JSON.parse(event.body) as RefreshPayload;
+      refreshToken = payload.refreshToken ?? refreshToken;
+    } catch {
+      return badRequest('Invalid JSON body');
+    }
   }
 
-  let payload: RefreshPayload;
-  try {
-    payload = JSON.parse(event.body);
-  } catch {
-    return badRequest('Invalid JSON body');
-  }
-
-  const { refreshToken } = payload;
   if (!refreshToken) {
     return badRequest('refreshToken is required');
   }
@@ -44,11 +43,19 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
       return serverError('Invalid auth response from Cognito');
     }
 
-    return ok({
-      idToken: authResult.IdToken,
-      accessToken: authResult.AccessToken,
-      refreshToken: authResult.RefreshToken,
-    });
+    const cookie =
+      authResult.RefreshToken != null
+        ? buildRefreshCookie(authResult.RefreshToken)
+        : undefined;
+
+    return ok(
+      {
+        idToken: authResult.IdToken,
+        accessToken: authResult.AccessToken,
+      },
+      undefined,
+      cookie ? [cookie] : undefined
+    );
   } catch (error: any) {
     const code = error?.name;
     if (code === 'NotAuthorizedException') {

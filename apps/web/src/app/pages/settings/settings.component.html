@@ -1,0 +1,448 @@
+<section class="settings-page">
+  <header class="settings-header">
+    <div>
+      <h2>{{ 'settings.title' | translate }}</h2>
+      <p>{{ 'settings.subtitle' | translate }}</p>
+    </div>
+  </header>
+
+  <div class="settings-grid">
+    <div class="settings-mobile-nav">
+      <mat-form-field appearance="outline" class="mobile-select">
+        <mat-select
+          [ngModel]="activeSection"
+          (selectionChange)="setSection($event.value)"
+          [attr.aria-label]="'settings.title' | translate"
+        >
+          <mat-option value="profile">
+            <mat-icon>person</mat-icon>
+            <span>{{ 'settings.profile' | translate }}</span>
+          </mat-option>
+          <mat-option value="notifications">
+            <mat-icon>notifications</mat-icon>
+            <span>{{ 'settings.notifications' | translate }}</span>
+          </mat-option>
+          <mat-option value="security">
+            <mat-icon>security</mat-icon>
+            <span>{{ 'settings.security' | translate }}</span>
+          </mat-option>
+          <mat-option value="billing">
+            <mat-icon>credit_card</mat-icon>
+            <span>{{ 'settings.billing' | translate }}</span>
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <aside class="settings-nav">
+      <button
+        type="button"
+        class="settings-tab"
+        [class.active]="isActive('profile')"
+        (click)="setSection('profile')"
+      >
+        <mat-icon>person</mat-icon>
+        {{ 'settings.profile' | translate }}
+      </button>
+      <button
+        type="button"
+        class="settings-tab"
+        [class.active]="isActive('notifications')"
+        (click)="setSection('notifications')"
+      >
+        <mat-icon>notifications</mat-icon>
+        {{ 'settings.notifications' | translate }}
+      </button>
+      <button
+        type="button"
+        class="settings-tab"
+        [class.active]="isActive('security')"
+        (click)="setSection('security')"
+      >
+        <mat-icon>security</mat-icon>
+        {{ 'settings.security' | translate }}
+      </button>
+      <button
+        type="button"
+        class="settings-tab"
+        [class.active]="isActive('billing')"
+        (click)="setSection('billing')"
+      >
+        <mat-icon>credit_card</mat-icon>
+        {{ 'settings.billing' | translate }}
+      </button>
+      <button type="button" class="settings-tab logout" (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        {{ 'settings.logout' | translate }}
+      </button>
+    </aside>
+
+    <div class="settings-content" [ngSwitch]="activeSection">
+      <section *ngSwitchCase="'profile'" class="settings-stack">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3>{{ 'settings.userProfile' | translate }}</h3>
+              <p>{{ 'settings.profileSubtitle' | translate }}</p>
+            </div>
+          </div>
+          <div class="profile-summary">
+            <div class="profile-avatar">
+              <div class="avatar-image" *ngIf="profilePhotoPreviewUrl || profilePhotoUrl">
+                <img
+                  [src]="profilePhotoPreviewUrl || profilePhotoUrl"
+                  [alt]="userName || ('settings.defaultUser' | translate)"
+                />
+              </div>
+              <span *ngIf="!profilePhotoPreviewUrl && !profilePhotoUrl">{{ userInitials }}</span>
+              <input
+                type="file"
+                accept="image/*"
+                hidden
+                #profilePhotoInput
+                (change)="onProfilePhotoSelected($event)"
+              />
+              <button
+                type="button"
+                class="avatar-edit"
+                [disabled]="isUploadingPhoto"
+                (click)="profilePhotoInput.click()"
+              >
+                <mat-icon>edit</mat-icon>
+              </button>
+            </div>
+            <div>
+              <h4>{{ userName || ('settings.defaultUser' | translate) }}</h4>
+              <p>{{ 'settings.memberSince' | translate:{ date: memberSince } }}</p>
+              <span class="pill">{{ 'settings.planLabel' | translate }}</span>
+            </div>
+          </div>
+          <div class="form-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'settings.firstName' | translate }}</mat-label>
+              <input matInput [(ngModel)]="profile.firstName" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'settings.lastName' | translate }}</mat-label>
+              <input matInput [(ngModel)]="profile.lastName" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full-row">
+              <mat-label>{{ 'settings.phone' | translate }}</mat-label>
+              <input matInput [(ngModel)]="profile.phone" />
+            </mat-form-field>
+          </div>
+          <div class="card-actions">
+            <div class="profile-alert" *ngIf="profileError">{{ profileError }}</div>
+            <button
+              mat-raised-button
+              color="primary"
+              class="primary-cta"
+              [disabled]="isSavingProfile"
+              (click)="saveProfile()"
+            >
+              {{ 'settings.saveChanges' | translate }}
+            </button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3>{{ 'settings.preferences' | translate }}</h3>
+              <p>{{ 'settings.preferencesSubtitle' | translate }}</p>
+            </div>
+          </div>
+          <div class="pref-row">
+            <div>
+              <h4>{{ 'settings.themeMode' | translate }}</h4>
+              <p>{{ 'settings.themeModeHint' | translate }}</p>
+            </div>
+            <div class="segmented">
+              <button
+                type="button"
+                [class.active]="preferences.theme === 'light'"
+                (click)="preferences.theme = 'light'"
+              >
+                <mat-icon>light_mode</mat-icon>
+                {{ 'settings.light' | translate }}
+              </button>
+              <button
+                type="button"
+                [class.active]="preferences.theme === 'dark'"
+                (click)="preferences.theme = 'dark'"
+              >
+                <mat-icon>dark_mode</mat-icon>
+                {{ 'settings.dark' | translate }}
+              </button>
+            </div>
+          </div>
+          <div class="pref-row">
+            <div>
+              <h4>{{ 'settings.measurement' | translate }}</h4>
+              <p>{{ 'settings.measurementHint' | translate }}</p>
+            </div>
+            <div class="compact-group">
+              <mat-form-field appearance="outline" class="compact">
+                <mat-label>{{ 'settings.weightUnit' | translate }}</mat-label>
+                <mat-select [(ngModel)]="preferences.weightUnit">
+                  <mat-option value="kg">{{ 'settings.kilograms' | translate }}</mat-option>
+                  <mat-option value="lb">{{ 'settings.pounds' | translate }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="compact">
+                <mat-label>{{ 'settings.distanceUnit' | translate }}</mat-label>
+                <mat-select [(ngModel)]="preferences.distanceUnit">
+                  <mat-option value="m">{{ 'settings.meters' | translate }}</mat-option>
+                  <mat-option value="in">{{ 'settings.inches' | translate }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="pref-row">
+            <div>
+              <h4>{{ 'settings.newsletter' | translate }}</h4>
+              <p>{{ 'settings.newsletterHint' | translate }}</p>
+            </div>
+            <mat-slide-toggle [(ngModel)]="preferences.newsletter"></mat-slide-toggle>
+          </div>
+          <div class="card-actions">
+            <div class="profile-alert" *ngIf="preferencesError">{{ preferencesError }}</div>
+            <button
+              mat-raised-button
+              color="primary"
+              class="primary-cta"
+              [disabled]="isSavingPreferences"
+              (click)="savePreferences()"
+            >
+              {{ 'settings.savePreferences' | translate }}
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section *ngSwitchCase="'notifications'" class="settings-stack">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3>{{ 'settings.notificationTitle' | translate }}</h3>
+              <p>{{ 'settings.notificationSubtitle' | translate }}</p>
+            </div>
+          </div>
+          <div class="pref-row">
+            <div>
+              <h4>{{ 'settings.vetVisits' | translate }}</h4>
+              <p>{{ 'settings.vetVisitsHint' | translate }}</p>
+            </div>
+            <mat-slide-toggle [(ngModel)]="notifications.vetVisits"></mat-slide-toggle>
+          </div>
+          <div class="pref-row">
+            <div>
+              <h4>{{ 'settings.medicationReminders' | translate }}</h4>
+              <p>{{ 'settings.medicationHint' | translate }}</p>
+            </div>
+            <mat-slide-toggle [(ngModel)]="notifications.medication"></mat-slide-toggle>
+          </div>
+          <div class="pref-row">
+            <div>
+              <h4>{{ 'settings.groomingAlerts' | translate }}</h4>
+              <p>{{ 'settings.groomingHint' | translate }}</p>
+            </div>
+            <mat-slide-toggle [(ngModel)]="notifications.grooming"></mat-slide-toggle>
+          </div>
+          <div class="pref-row">
+            <div>
+              <h4>{{ 'settings.coOwnerActivity' | translate }}</h4>
+              <p>{{ 'settings.coOwnerHint' | translate }}</p>
+            </div>
+            <mat-slide-toggle [(ngModel)]="notifications.coOwner"></mat-slide-toggle>
+          </div>
+          <div class="card-actions">
+            <button mat-raised-button color="primary" class="primary-cta">
+              {{ 'settings.savePreferences' | translate }}
+            </button>
+          </div>
+        </div>
+
+        <div class="card alert-card">
+          <div class="card-header">
+            <mat-icon>warning</mat-icon>
+            <div>
+              <h3>{{ 'settings.systemAlerts' | translate }}</h3>
+              <p>{{ 'settings.systemAlertsHint' | translate }}</p>
+            </div>
+            <span class="pill subtle">{{ 'settings.alwaysOn' | translate }}</span>
+          </div>
+        </div>
+      </section>
+
+      <section *ngSwitchCase="'security'" class="settings-stack">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3>{{ 'settings.changePassword' | translate }}</h3>
+              <p>{{ 'settings.changePasswordHint' | translate }}</p>
+            </div>
+          </div>
+          <div class="form-grid">
+            <mat-form-field appearance="outline" class="full-row">
+              <mat-label>{{ 'settings.currentPassword' | translate }}</mat-label>
+              <input matInput type="password" [(ngModel)]="security.currentPassword" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'settings.newPassword' | translate }}</mat-label>
+              <input matInput type="password" [(ngModel)]="security.newPassword" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'settings.confirmPassword' | translate }}</mat-label>
+              <input matInput type="password" [(ngModel)]="security.confirmPassword" />
+            </mat-form-field>
+          </div>
+          <div class="card-actions">
+            <button mat-raised-button color="primary" class="primary-cta">
+              {{ 'settings.updatePassword' | translate }}
+            </button>
+          </div>
+        </div>
+        <div class="card danger-card">
+          <div class="card-header">
+            <div>
+              <h3>{{ 'settings.deleteAccountTitle' | translate }}</h3>
+              <p>{{ 'settings.deleteAccountHint' | translate }}</p>
+            </div>
+          </div>
+          <div class="card-actions danger-actions">
+            <div class="profile-alert" *ngIf="deleteError">{{ deleteError }}</div>
+            <button
+              mat-stroked-button
+              color="warn"
+              [disabled]="isDeletingAccount"
+              (click)="requestDeleteAccount()"
+            >
+              {{ 'settings.deleteAccountCta' | translate }}
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section *ngSwitchCase="'billing'" class="settings-stack">
+        <div class="card plan-card">
+          <div class="card-header">
+            <div>
+              <h3>{{ 'settings.currentPlan' | translate }}</h3>
+              <p>{{ 'settings.currentPlanHint' | translate }}</p>
+            </div>
+            <span class="pill">{{ 'settings.activePlan' | translate }}</span>
+          </div>
+          <div class="plan-summary">
+            <div>
+              <p class="plan-tier">{{ 'settings.premiumTier' | translate }}</p>
+              <h2>$12.99 <span>/ {{ 'settings.month' | translate }}</span></h2>
+            </div>
+            <div class="plan-actions">
+              <button mat-stroked-button color="primary">
+                {{ 'settings.changePlan' | translate }}
+              </button>
+              <button mat-raised-button color="primary" class="primary-cta">
+                {{ 'settings.upgrade' | translate }}
+              </button>
+            </div>
+          </div>
+          <div class="plan-features">
+            <div>
+              <mat-icon>check_circle</mat-icon>
+              {{ 'settings.featureProfiles' | translate }}
+            </div>
+            <div>
+              <mat-icon>check_circle</mat-icon>
+              {{ 'settings.featureAnalytics' | translate }}
+            </div>
+            <div>
+              <mat-icon>check_circle</mat-icon>
+              {{ 'settings.featureSupport' | translate }}
+            </div>
+            <div>
+              <mat-icon>check_circle</mat-icon>
+              {{ 'settings.featureStorage' | translate }}
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3>{{ 'settings.paymentMethods' | translate }}</h3>
+              <p>{{ 'settings.paymentMethodsHint' | translate }}</p>
+            </div>
+            <button mat-button color="primary" class="link-btn">
+              <mat-icon>add</mat-icon>
+              {{ 'settings.addCard' | translate }}
+            </button>
+          </div>
+          <div class="payment-row">
+            <div class="session-icon">
+              <mat-icon>credit_card</mat-icon>
+            </div>
+            <div>
+              <h4>•••• •••• •••• 4242</h4>
+              <p>{{ 'settings.cardExpiry' | translate }}</p>
+            </div>
+            <span class="pill subtle">{{ 'settings.default' | translate }}</span>
+            <button type="button" class="icon-btn">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button type="button" class="icon-btn">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3>{{ 'settings.billingHistory' | translate }}</h3>
+              <p>{{ 'settings.billingHistoryHint' | translate }}</p>
+            </div>
+          </div>
+          <div class="billing-table">
+            <div class="billing-row billing-head">
+              <span>{{ 'settings.billDate' | translate }}</span>
+              <span>{{ 'settings.billDescription' | translate }}</span>
+              <span>{{ 'settings.billAmount' | translate }}</span>
+              <span>{{ 'settings.billStatus' | translate }}</span>
+              <span>{{ 'settings.billInvoice' | translate }}</span>
+            </div>
+            <div class="billing-row">
+              <span>Oct 12, 2023</span>
+              <span>{{ 'settings.billPlan' | translate }}</span>
+              <span>$12.99</span>
+              <span class="status paid">{{ 'settings.paid' | translate }}</span>
+              <button type="button" class="link-btn">
+                <mat-icon>download</mat-icon>
+                PDF
+              </button>
+            </div>
+            <div class="billing-row">
+              <span>Sep 12, 2023</span>
+              <span>{{ 'settings.billPlan' | translate }}</span>
+              <span>$12.99</span>
+              <span class="status paid">{{ 'settings.paid' | translate }}</span>
+              <button type="button" class="link-btn">
+                <mat-icon>download</mat-icon>
+                PDF
+              </button>
+            </div>
+            <div class="billing-row">
+              <span>Aug 12, 2023</span>
+              <span>{{ 'settings.billPlan' | translate }}</span>
+              <span>$12.99</span>
+              <span class="status paid">{{ 'settings.paid' | translate }}</span>
+              <button type="button" class="link-btn">
+                <mat-icon>download</mat-icon>
+                PDF
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</section>

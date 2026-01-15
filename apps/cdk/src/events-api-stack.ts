@@ -2,10 +2,14 @@ import { Stack, StackProps, Duration, CfnOutput, Tags } from 'aws-cdk-lib';
 import * as apigwv2 from 'aws-cdk-lib/aws-apigatewayv2';
 import { HttpLambdaIntegration } from 'aws-cdk-lib/aws-apigatewayv2-integrations';
 import { HttpUserPoolAuthorizer } from 'aws-cdk-lib/aws-apigatewayv2-authorizers';
+import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
+import * as cloudwatchActions from 'aws-cdk-lib/aws-cloudwatch-actions';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction, OutputFormat } from 'aws-cdk-lib/aws-lambda-nodejs';
+import * as logs from 'aws-cdk-lib/aws-logs';
 import { UserPool, UserPoolClient } from 'aws-cdk-lib/aws-cognito';
+import * as sns from 'aws-cdk-lib/aws-sns';
 import { Construct } from 'constructs';
 import * as path from 'path';
 
@@ -15,10 +19,12 @@ export interface EventsApiStackProps extends StackProps {
   userPoolClient: UserPoolClient;
   sharedLayer?: lambda.ILayerVersion;
   stage?: string;
+  alarmTopic?: sns.ITopic;
 }
 
 export class EventsApiStack extends Stack {
   public readonly httpApi: apigwv2.HttpApi;
+  private readonly alarmTopic?: sns.ITopic;
 
   constructor(scope: Construct, id: string, props: EventsApiStackProps) {
     super(scope, id, props);
@@ -30,6 +36,7 @@ export class EventsApiStack extends Stack {
       'dev';
     Tags.of(this).add('project', 'pettzi');
     Tags.of(this).add('AppManagerCFNStackKey', id);
+    this.alarmTopic = props.alarmTopic;
 
     const handlerPath = (...segments: string[]) =>
       path.resolve(__dirname, '../../../../../..', ...segments);
@@ -141,6 +148,8 @@ export class EventsApiStack extends Stack {
       ),
     });
 
+    this.addApiGatewayAlarm('EventsApi5xxAlarm', this.httpApi.apiId);
+
     new CfnOutput(this, 'EventsApiUrl', {
       value: this.httpApi.apiEndpoint,
       exportName: `PettziEventsApiUrl-${stage}`,
@@ -156,12 +165,21 @@ export class EventsApiStack extends Stack {
   ): NodejsFunction {
     const layers = depsLayer ? [depsLayer] : [];
 
-    return new NodejsFunction(this, id, {
+    const logGroupName = `/aws/lambda/${id}-${stage}`;
+    const logGroup = logs.LogGroup.fromLogGroupName(this, `${id}LogGroup`, logGroupName);
+    new logs.LogRetention(this, `${id}LogRetention`, {
+      logGroupName,
+      retention: logs.RetentionDays.ONE_MONTH,
+    });
+
+    const fn = new NodejsFunction(this, id, {
       runtime: lambda.Runtime.NODEJS_24_X,
       entry,
       handler: 'handler',
       functionName: `${id}-${stage}`,
       tracing: lambda.Tracing.ACTIVE,
+      memorySize: 256,
+      logGroup,
       bundling: {
         tsconfig: path.resolve(__dirname, '../../../../../..', 'tsconfig.base.json'),
         target: 'node24',
@@ -176,5 +194,73 @@ export class EventsApiStack extends Stack {
       environment,
       layers,
     });
+    this.addLambdaAlarms(id, fn);
+    return fn;
+  }
+
+  private addLambdaAlarms(id: string, fn: lambda.Function) {
+    if (!this.alarmTopic) {
+      return;
+    }
+    const period = Duration.minutes(5);
+    const errors = fn.metricErrors({ statistic: 'Sum', period });
+    const invocations = fn.metricInvocations({ statistic: 'Sum', period });
+    const errorRate = new cloudwatch.MathExpression({
+      expression: '100 * errors / IF(invocations > 0, invocations, 1)',
+      usingMetrics: { errors, invocations },
+      period,
+    });
+    const errorAlarm = new cloudwatch.Alarm(this, `${id}ErrorRateAlarm`, {
+      metric: errorRate,
+      threshold: 1,
+      evaluationPeriods: 1,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_THRESHOLD,
+      alarmDescription: 'Lambda error rate above 1%',
+    });
+    errorAlarm.addAlarmAction(new cloudwatchActions.SnsAction(this.alarmTopic));
+
+    const durationAlarm = new cloudwatch.Alarm(this, `${id}DurationAlarm`, {
+      metric: fn.metricDuration({ statistic: 'Average', period }),
+      threshold: 5000,
+      evaluationPeriods: 1,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_THRESHOLD,
+      alarmDescription: 'Lambda duration above 5 seconds',
+    });
+    durationAlarm.addAlarmAction(new cloudwatchActions.SnsAction(this.alarmTopic));
+  }
+
+  private addApiGatewayAlarm(id: string, apiId: string) {
+    if (!this.alarmTopic) {
+      return;
+    }
+    const period = Duration.minutes(5);
+    const dimensionsMap = { ApiId: apiId, Stage: '$default' };
+    const errors = new cloudwatch.Metric({
+      namespace: 'AWS/ApiGateway',
+      metricName: '5xx',
+      statistic: 'Sum',
+      period,
+      dimensionsMap,
+    });
+    const requests = new cloudwatch.Metric({
+      namespace: 'AWS/ApiGateway',
+      metricName: 'Count',
+      statistic: 'Sum',
+      period,
+      dimensionsMap,
+    });
+    const errorRate = new cloudwatch.MathExpression({
+      expression: '100 * errors / IF(requests > 0, requests, 1)',
+      usingMetrics: { errors, requests },
+      period,
+    });
+    const alarm = new cloudwatch.Alarm(this, id, {
+      metric: errorRate,
+      threshold: 0.5,
+      evaluationPeriods: 1,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_THRESHOLD,
+      alarmDescription: 'API Gateway 5xx error rate above 0.5%',
+    });
+    alarm.addAlarmAction(new cloudwatchActions.SnsAction(this.alarmTopic));
   }
 }

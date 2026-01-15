@@ -6,6 +6,7 @@ import {
   InitiateAuthCommand,
 } from '@aws-sdk/client-cognito-identity-provider';
 import { SESClient, SendTemplatedEmailCommand } from '@aws-sdk/client-ses';
+import { PutCommand } from '@aws-sdk/lib-dynamodb';
 import {
   badRequest,
   conflict,
@@ -14,10 +15,15 @@ import {
 } from '@pettzi/utils-dynamo/http';
 import crypto from 'crypto';
 import type { InitiateAuthCommandOutput } from '@aws-sdk/client-cognito-identity-provider';
+import { toItemOwnerProfile } from '@pettzi/domain-model';
+import { docClient, PETTZI_TABLE_NAME } from './handlers/common';
+import { buildRefreshCookie } from './handlers/cookies';
 
 interface RegisterPayload {
+  name?: string;
   email?: string;
   password?: string;
+  locale?: 'es' | 'en';
 }
 
 const COGNITO_USER_POOL_ID = process.env.COGNITO_USER_POOL_ID;
@@ -56,7 +62,23 @@ const sanitizeAuthResponse = (resp?: InitiateAuthCommandOutput) => ({
   authenticationResultPresent: !!resp?.AuthenticationResult,
 });
 
+const decodeJwtSub = (token: string | undefined) => {
+  if (!token) return null;
+  const [, payload] = token.split('.');
+  if (!payload) return null;
+  try {
+    const decoded = Buffer.from(payload, 'base64url').toString('utf8');
+    const parsed = JSON.parse(decoded) as { sub?: string };
+    return parsed?.sub ?? null;
+  } catch {
+    return null;
+  }
+};
+
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
+  if (!PETTZI_TABLE_NAME) {
+    return serverError('PETTZI_TABLE_NAME is required');
+  }
   if (!event.body) {
     return badRequest('Request body is required');
   }
@@ -68,19 +90,29 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     return badRequest('Invalid JSON body');
   }
 
-  const { email, password } = payload;
-  if (!email || !password) {
-    return badRequest('email and password are required');
+  const { name, email, password, locale } = payload;
+  if (!name || !email || !password) {
+    return badRequest('name, email and password are required');
   }
+  const selectedLocale = locale === 'en' ? 'en' : 'es';
+  const fullName = name.trim();
+  const nameParts = fullName.split(/\s+/).filter(Boolean);
+  const firstName = nameParts[0] ?? '';
+  const lastName = nameParts.slice(1).join(' ');
 
   console.info('Register request', createEmailLogContext(email));
 
   try {
-    await cognito.send(
+    const createResponse = await cognito.send(
       new AdminCreateUserCommand({
         UserPoolId: COGNITO_USER_POOL_ID,
         Username: email,
-        UserAttributes: [{ Name: 'email', Value: email }],
+        UserAttributes: [
+          { Name: 'email', Value: email },
+          { Name: 'name', Value: fullName },
+          ...(firstName ? [{ Name: 'given_name', Value: firstName }] : []),
+          ...(lastName ? [{ Name: 'family_name', Value: lastName }] : []),
+        ],
         MessageAction: 'SUPPRESS',
         DesiredDeliveryMediums: [],
       })
@@ -122,6 +154,39 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
       return serverError('Failed to start session after registration');
     }
 
+    const ownerId =
+      createResponse?.User?.Attributes?.find((attr) => attr.Name === 'sub')
+        ?.Value ?? decodeJwtSub(authResult.IdToken);
+
+    if (!ownerId) {
+      console.error('Missing ownerId after registration', {
+        ...createEmailLogContext(email),
+        userAttributes: createResponse?.User?.Attributes?.map((attr) => attr.Name),
+      });
+      return serverError('Failed to register user');
+    }
+
+    const createdAt = new Date();
+    await docClient.send(
+      new PutCommand({
+        TableName: PETTZI_TABLE_NAME,
+        Item: {
+          ...toItemOwnerProfile({
+            ownerId,
+            userId: ownerId,
+            fullName: fullName || email,
+            email,
+            firstName: firstName || undefined,
+            lastName: lastName || undefined,
+            locale: selectedLocale,
+            createdAt,
+            updatedAt: createdAt,
+          }),
+        },
+        ConditionExpression: 'attribute_not_exists(PK)',
+      })
+    );
+
     const emailVerifySecret = process.env.EMAIL_VERIFY_SECRET;
     const emailVerifyBaseUrl = process.env.EMAIL_VERIFY_BASE_URL;
     const token = buildVerificationToken(email, emailVerifySecret);
@@ -136,15 +201,21 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         ? `${emailVerifyBaseUrl}?token=${token}`
         : undefined;
 
-    if (process.env.SES_FROM_EMAIL && process.env.SES_WELCOME_TEMPLATE_NAME) {
+    const templateName =
+      selectedLocale === 'en'
+        ? process.env.SES_WELCOME_TEMPLATE_NAME_EN
+        : process.env.SES_WELCOME_TEMPLATE_NAME_ES;
+    const fallbackTemplate = process.env.SES_WELCOME_TEMPLATE_NAME;
+
+    if (process.env.SES_FROM_EMAIL && (templateName || fallbackTemplate)) {
       try {
         await ses.send(
           new SendTemplatedEmailCommand({
             Source: process.env.SES_FROM_EMAIL,
             Destination: { ToAddresses: [email] },
-            Template: process.env.SES_WELCOME_TEMPLATE_NAME,
+            Template: templateName ?? fallbackTemplate ?? '',
             TemplateData: JSON.stringify({
-              userName: email,
+              userName: fullName || email,
               email,
               verificationLink,
             }),
@@ -152,7 +223,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         );
         console.debug('Welcome email sent', {
           ...createEmailLogContext(email),
-          template: process.env.SES_WELCOME_TEMPLATE_NAME,
+          template: templateName ?? fallbackTemplate,
         });
       } catch (sesErr) {
         console.error(
@@ -168,14 +239,22 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
       });
     }
 
-    return created({
-      message: 'User registered. Please confirm your email.',
-      idToken: authResult.IdToken,
-      accessToken: authResult.AccessToken,
-      refreshToken: authResult.RefreshToken,
-      tokenType: authResult.TokenType,
-      expiresIn: authResult.ExpiresIn,
-    });
+    const cookie =
+      authResult.RefreshToken != null
+        ? buildRefreshCookie(authResult.RefreshToken)
+        : undefined;
+
+    return created(
+      {
+        message: 'User registered. Please confirm your email.',
+        idToken: authResult.IdToken,
+        accessToken: authResult.AccessToken,
+        tokenType: authResult.TokenType,
+        expiresIn: authResult.ExpiresIn,
+      },
+      undefined,
+      cookie ? [cookie] : undefined
+    );
   } catch (error: any) {
     const code = error?.name;
 

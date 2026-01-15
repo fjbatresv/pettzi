@@ -10,7 +10,12 @@
     </div>
 
     <nav class="nav">
-      <a class="nav-link active" routerLink="/dashboard">
+      <a
+        class="nav-link"
+        routerLink="/dashboard"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+      >
         <mat-icon class="nav-icon" aria-hidden="true">dashboard</mat-icon>
         {{ 'dashboard.navDashboard' | translate }}
       </a>
@@ -18,7 +23,7 @@
         <mat-icon class="nav-icon" aria-hidden="true">pets</mat-icon>
         {{ 'dashboard.navPets' | translate }}
       </a>
-      <a class="nav-link" routerLink="/dashboard/grooming">
+      <a class="nav-link" routerLink="/dashboard/grooming" routerLinkActive="active">
         <mat-icon class="nav-icon" aria-hidden="true">content_cut</mat-icon>
         {{ 'dashboard.navGrooming' | translate }}
       </a>
@@ -30,7 +35,7 @@
         <mat-icon class="nav-icon" aria-hidden="true">photo_library</mat-icon>
         {{ 'dashboard.navGallery' | translate }}
       </a>
-      <a class="nav-link" href="#">
+      <a class="nav-link" routerLink="/dashboard/settings" routerLinkActive="active">
         <mat-icon class="nav-icon" aria-hidden="true">settings</mat-icon>
         {{ 'dashboard.navSettings' | translate }}
       </a>
@@ -55,11 +60,17 @@
         >
           <mat-icon>menu</mat-icon>
         </button>
-        <h1>{{ 'dashboard.petDashboardTitle' | translate }}</h1>
       </div>
       <div class="header-actions">
         <app-language-toggle></app-language-toggle>
-        <div class="avatar">{{ userInitials }}</div>
+        <div class="avatar">
+          <img
+            *ngIf="userPhotoUrl"
+            [src]="userPhotoUrl"
+            [alt]="userInitials"
+          />
+          <span *ngIf="!userPhotoUrl">{{ userInitials }}</span>
+        </div>
       </div>
     </header>
 

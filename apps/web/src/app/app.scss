@@ -1,3 +1,50 @@
 :host {
   display: block;
 }
+:host {
+  display: block;
+}
+
+.app-loading {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+}
+
+.loading-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 249, 242, 0.7);
+  backdrop-filter: blur(6px);
+}
+
+.loading-card {
+  position: relative;
+  z-index: 1;
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 1.5rem 2rem;
+  box-shadow: 0 12px 30px rgba(127, 19, 236, 0.12);
+  display: grid;
+  gap: 0.75rem;
+  justify-items: center;
+  color: rgba(27, 18, 36, 0.7);
+  font-weight: 600;
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 3px solid rgba(127, 19, 236, 0.2);
+  border-top-color: #7f13ec;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

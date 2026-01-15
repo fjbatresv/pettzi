@@ -2,7 +2,9 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatNativeDateModule } from '@angular/material/core';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslateModule } from '@ngx-translate/core';
@@ -22,7 +24,9 @@ type WeightUnit = 'lb' | 'kg';
     CommonModule,
     CreateHeaderComponent,
     FormsModule,
+    MatDatepickerModule,
     MatFormFieldModule,
+    MatNativeDateModule,
     MatInputModule,
     MatSelectModule,
     RouterLink,
@@ -39,9 +43,9 @@ export class PetCreateStep2Component implements OnInit {
   private readonly pets = inject(PetsService);
   private readonly uploads = inject(UploadsService);
   private readonly weightUnitKey = 'pettzi.weightUnit';
+  private readonly draftStorageKey = 'petCreateDraft';
   draft: PetCreateDraft | null = null;
   selectedDate: Date | null = null;
-  birthdayValue = '';
   ageLabel = '';
   weightValue: number | null = null;
   weightUnit: WeightUnit = 'lb';
@@ -51,7 +55,8 @@ export class PetCreateStep2Component implements OnInit {
   errorMessage = '';
 
   get maxDate() {
-    return this.toDateInputValue(new Date());
+    const today = new Date();
+    return new Date(today.getFullYear(), today.getMonth(), today.getDate());
   }
 
   get ageDisplay() {
@@ -79,7 +84,6 @@ export class PetCreateStep2Component implements OnInit {
       this.weightUnit = storedUnit;
     }
     const defaultDate = this.getDefaultBirthday();
-    this.birthdayValue = this.toDateInputValue(defaultDate);
     this.selectedDate = defaultDate;
     this.updateAgeLabel();
   }
@@ -99,27 +103,20 @@ export class PetCreateStep2Component implements OnInit {
     localStorage.setItem(this.weightUnitKey, unit);
   }
 
-  onDateChange(value: string) {
-    this.birthdayValue = value;
+  onDateChange(value: Date | null) {
     if (!value) {
       this.selectedDate = null;
       this.ageLabel = '';
       return;
     }
-    const date = new Date(`${value}T00:00:00`);
+    const date = new Date(value);
     if (Number.isNaN(date.getTime())) {
       this.selectedDate = null;
       this.ageLabel = '';
       return;
     }
-    const today = new Date();
-    const maxDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    if (date > maxDate) {
-      this.selectedDate = maxDate;
-      this.birthdayValue = this.toDateInputValue(maxDate);
-    } else {
-      this.selectedDate = date;
-    }
+    const maxDate = this.maxDate;
+    this.selectedDate = date > maxDate ? maxDate : date;
     this.updateAgeLabel();
   }
 
@@ -148,6 +145,7 @@ export class PetCreateStep2Component implements OnInit {
       }
 
       this.state.clear();
+      sessionStorage.removeItem(this.draftStorageKey);
       void this.router.navigate(['/dashboard']);
     } catch (error: any) {
       this.errorMessage = error?.message ?? this.i18n.t('errors.network');
@@ -257,10 +255,4 @@ export class PetCreateStep2Component implements OnInit {
     return new Date(today.getFullYear(), today.getMonth() - 2, today.getDate());
   }
 
-  private toDateInputValue(date: Date) {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  }
 }

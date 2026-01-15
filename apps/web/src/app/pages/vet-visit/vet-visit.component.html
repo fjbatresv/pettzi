@@ -1,0 +1,102 @@
+<section class="vet-visit-page">
+  <header class="vet-visit-header">
+    <button mat-button class="back-btn" routerLink="/dashboard/pet">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h2>
+      {{ 'vetVisit.titlePrefix' | translate }}
+      <span class="pet-name">{{ petName || ('dashboard.petFallback' | translate) }}</span>
+    </h2>
+  </header>
+
+  <section class="vet-visit-card">
+    <div class="section-title">
+      <span class="section-icon">
+        <mat-icon>medical_services</mat-icon>
+      </span>
+      <h3>{{ 'vetVisit.details' | translate }}</h3>
+    </div>
+
+    <div class="form-grid">
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>{{ 'vetVisit.reason' | translate }}</mat-label>
+        <input matInput [(ngModel)]="reason" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>{{ 'vetVisit.date' | translate }}</mat-label>
+        <input
+          matInput
+          [matDatepicker]="visitPicker"
+          [(ngModel)]="visitDate"
+          [max]="maxVisitDate"
+          readonly
+        />
+        <mat-datepicker-toggle matIconSuffix [for]="visitPicker"></mat-datepicker-toggle>
+        <mat-datepicker #visitPicker></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>{{ 'vetVisit.clinic' | translate }}</mat-label>
+        <input matInput [(ngModel)]="clinic" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>{{ 'vetVisit.vet' | translate }}</mat-label>
+        <input matInput [(ngModel)]="veterinarian" />
+      </mat-form-field>
+    </div>
+
+    <div class="section-title">
+      <span class="section-icon">
+        <mat-icon>description</mat-icon>
+      </span>
+      <h3>{{ 'vetVisit.notes' | translate }}</h3>
+    </div>
+    <textarea
+      class="notes"
+      [(ngModel)]="notes"
+      [placeholder]="'vetVisit.notesPlaceholder' | translate"
+      rows="4"
+    ></textarea>
+
+    <div class="section-title">
+      <span class="section-icon">
+        <mat-icon>attach_file</mat-icon>
+      </span>
+      <h3>{{ 'vetVisit.attachments' | translate }}</h3>
+    </div>
+    <div class="upload-row">
+      <label class="upload-btn">
+        <input type="file" multiple (change)="onFilesSelected($event)" />
+        <mat-icon>upload</mat-icon>
+        {{ 'vetVisit.upload' | translate }}
+      </label>
+      <p class="upload-hint">{{ 'vetVisit.uploadHint' | translate }}</p>
+    </div>
+
+    <div class="attachment-list" *ngIf="attachments.length">
+      <div class="attachment" *ngFor="let file of attachments; let i = index">
+        <span>{{ file.name }}</span>
+        <button type="button" (click)="removeAttachment(i)">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="link-btn" routerLink="/dashboard/pet">
+        {{ 'vetVisit.cancel' | translate }}
+      </button>
+      <button
+        mat-raised-button
+        color="primary"
+        class="primary-cta"
+        [disabled]="!isFormValid || isSubmitting"
+        (click)="saveVisit()"
+      >
+        {{ 'vetVisit.save' | translate }}
+      </button>
+    </div>
+  </section>
+</section>

@@ -8,13 +8,8 @@ import { AuthService } from '../services/auth.service';
 let refreshPromise: Promise<string | null> | null = null;
 
 const refreshAccessToken = (auth: AuthService) => {
-  const refreshToken = localStorage.getItem('pettzi.refreshToken');
-  if (!refreshToken) {
-    return Promise.resolve(null);
-  }
-
   if (!refreshPromise) {
-    refreshPromise = firstValueFrom(auth.refreshTokens(refreshToken))
+    refreshPromise = firstValueFrom(auth.refreshTokens())
       .then((tokens) => tokens.accessToken)
       .catch(() => null)
       .finally(() => {
@@ -43,9 +38,15 @@ const isTokenExpired = (token: string) => {
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthService);
   const router = inject(Router);
-  const isAuthRequest = req.url.includes('/auth/');
-  const accessToken = localStorage.getItem('pettzi.accessToken');
-  const refreshToken = localStorage.getItem('pettzi.refreshToken');
+  const authPublicPaths = [
+    '/auth/login',
+    '/auth/register',
+    '/auth/refresh',
+    '/auth/forgot-password',
+    '/auth/complete-new-password',
+    '/auth/confirm-email',
+  ];
+  const isAuthRequest = authPublicPaths.some((path) => req.url.includes(path));
 
   if (isAuthRequest) {
     return next(req);
@@ -62,6 +63,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   const handleAuthError = (error: HttpErrorResponse) => {
     if (error.status !== 401 && error.status !== 403) {
+      return throwError(() => error);
+    }
+
+    if (!auth.hasRefreshToken()) {
+      auth.clearSession();
+      void router.navigate(['/login']);
       return throwError(() => error);
     }
 
@@ -82,41 +89,37 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     );
   };
 
-  if (!accessToken && refreshToken) {
-    return from(refreshAccessToken(auth)).pipe(
-      switchMap((newToken) => {
-        if (!newToken) {
-          auth.clearSession();
-          void router.navigate(['/login']);
-          return throwError(() => new HttpErrorResponse({ status: 401 }));
-        }
-        return next(attachToken(newToken));
-      }),
-      catchError((refreshError) => {
-        auth.clearSession();
-        void router.navigate(['/login']);
-        return throwError(() => refreshError);
-      }),
-    );
-  }
+  return from(auth.getAccessToken()).pipe(
+    switchMap((accessToken) => {
+      if (accessToken && isTokenExpired(accessToken)) {
+        return from(refreshAccessToken(auth)).pipe(
+          switchMap((newToken) => {
+            if (!newToken) {
+              auth.clearSession();
+              void router.navigate(['/login']);
+              return throwError(() => new HttpErrorResponse({ status: 401 }));
+            }
+            return next(attachToken(newToken));
+          }),
+        );
+      }
 
-  if (accessToken && refreshToken && isTokenExpired(accessToken)) {
-    return from(refreshAccessToken(auth)).pipe(
-      switchMap((newToken) => {
-        if (!newToken) {
-          auth.clearSession();
-          void router.navigate(['/login']);
-          return throwError(() => new HttpErrorResponse({ status: 401 }));
+      if (!accessToken) {
+        if (!auth.hasRefreshToken()) {
+          return next(req);
         }
-        return next(attachToken(newToken));
-      }),
-      catchError((refreshError) => {
-        auth.clearSession();
-        void router.navigate(['/login']);
-        return throwError(() => refreshError);
-      }),
-    );
-  }
+        return from(refreshAccessToken(auth)).pipe(
+          switchMap((newToken) => {
+            if (!newToken) {
+              return next(req);
+            }
+            return next(attachToken(newToken));
+          }),
+        );
+      }
 
-  return next(attachToken(accessToken)).pipe(catchError(handleAuthError));
+      return next(attachToken(accessToken));
+    }),
+    catchError(handleAuthError),
+  );
 };

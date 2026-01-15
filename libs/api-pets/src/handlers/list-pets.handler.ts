@@ -13,6 +13,7 @@ import {
   fromItemPet,
 } from '@pettzi/domain-model';
 import { getOwnerId, PETTZI_TABLE_NAME } from '../utils';
+import { computeHealthIndex, fetchVaccineStatus } from './health';
 
 const docClient = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const GSI1 = 'GSI1';
@@ -65,7 +66,21 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
       .map((item) => fromItemPet(item))
       .filter((p) => !p.isArchived);
 
-    return ok({ pets });
+    const enriched = await Promise.all(
+      pets.map(async (pet) => {
+        if (pet.healthIndex !== undefined && pet.healthIndex !== null) {
+          return pet;
+        }
+        const vaccineStatus = await fetchVaccineStatus(
+          docClient,
+          PETTZI_TABLE_NAME,
+          pet.petId
+        );
+        return { ...pet, ...computeHealthIndex(pet, vaccineStatus) };
+      })
+    );
+
+    return ok({ pets: enriched });
   } catch (error: any) {
     if (error.name === 'ValidationException') {
       return unauthorized('Invalid owner');

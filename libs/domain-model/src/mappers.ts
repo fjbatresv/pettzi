@@ -35,7 +35,11 @@ type DynamoItem = {
   updatedAt?: any;
   ownerId?: any;
   fullName?: any;
+  firstName?: any;
+  lastName?: any;
   phone?: any;
+  profilePhotoKey?: any;
+  locale?: any;
   petId?: any;
   name?: any;
   species?: any;
@@ -45,6 +49,7 @@ type DynamoItem = {
   color?: any;
   weightKg?: any;
   photoKey?: any;
+  photoThumbnailKey?: any;
   isArchived?: any;
   archivedAt?: any;
   role?: any;
@@ -108,7 +113,12 @@ export const toItemOwnerProfile = (owner: OwnerProfile): DynamoItem => {
     ownerId: owner.ownerId,
     userId: owner.userId,
     fullName: owner.fullName,
+    firstName: owner.firstName,
+    lastName: owner.lastName,
+    email: owner.email,
     phone: owner.phone,
+    profilePhotoKey: owner.profilePhotoKey,
+    locale: owner.locale,
     createdAt: toIso(owner.createdAt),
     updatedAt: toIso(owner.updatedAt),
   };
@@ -118,7 +128,12 @@ export const fromItemOwnerProfile = (item: DynamoItem): OwnerProfile => ({
   ownerId: item.ownerId,
   userId: item.userId,
   fullName: item.fullName,
+  firstName: item.firstName,
+  lastName: item.lastName,
+  email: item.email,
   phone: item.phone,
+  profilePhotoKey: item.profilePhotoKey,
+  locale: item.locale,
   createdAt: new Date(item.createdAt),
   updatedAt: parseDate(item.updatedAt),
 });
@@ -143,6 +158,10 @@ export const toItemPet = (pet: Pet): DynamoItem => {
     color: pet.color,
     weightKg: pet.weightKg,
     photoKey: pet.photoKey,
+    photoThumbnailKey: pet.photoThumbnailKey,
+    lastGroomingDate: toIso(pet.lastGroomingDate),
+    lastVetVisitDate: toIso(pet.lastVetVisitDate),
+    healthIndex: pet.healthIndex,
     isArchived: pet.isArchived ?? false,
     archivedAt: toIso(pet.archivedAt),
     createdAt: toIso(pet.createdAt),
@@ -161,6 +180,10 @@ export const fromItemPet = (item: DynamoItem): Pet => ({
   color: item.color,
   weightKg: item.weightKg,
   photoKey: item.photoKey,
+  photoThumbnailKey: item['photoThumbnailKey'],
+  lastGroomingDate: parseDate(item['lastGroomingDate']),
+  lastVetVisitDate: parseDate(item['lastVetVisitDate']),
+  healthIndex: item['healthIndex'],
   isArchived: item.isArchived,
   archivedAt: parseDate(item.archivedAt),
   createdAt: new Date(item.createdAt),
@@ -249,6 +272,7 @@ export const toItemPetReminder = (reminder: PetReminder): DynamoItem => {
     eventId: reminder.eventId,
     dueDate: toIso(reminder.dueDate),
     message: reminder.message,
+    metadata: reminder.metadata,
     createdAt: toIso(reminder.createdAt),
     completedAt: toIso(reminder.completedAt),
   };
@@ -260,6 +284,7 @@ export const fromItemPetReminder = (item: DynamoItem): PetReminder => ({
   eventId: item.eventId,
   dueDate: new Date(item.dueDate),
   message: item.message,
+  metadata: item.metadata,
   createdAt: new Date(item.createdAt),
   completedAt: parseDate(item.completedAt),
 });

@@ -12,6 +12,7 @@ interface CreateReminderRequest {
   dueDate: string;
   message?: string;
   eventId?: string;
+  metadata?: Record<string, unknown>;
 }
 
 @Injectable({ providedIn: 'root' })

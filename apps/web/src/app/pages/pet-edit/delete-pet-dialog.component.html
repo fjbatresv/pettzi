@@ -1,0 +1,36 @@
+<div class="delete-dialog">
+  <div class="dialog-header">
+    <span class="warn-icon">
+      <mat-icon>warning</mat-icon>
+    </span>
+    <div>
+      <h2>{{ 'petEdit.deleteTitle' | translate }}</h2>
+      <p>{{ 'petEdit.deleteSubtitle' | translate:{ name: data.petName } }}</p>
+    </div>
+  </div>
+
+  <div class="confirm-block">
+    <p>
+      {{ 'petEdit.deletePrompt' | translate }}
+      <span class="confirm-word">{{ data.word }}</span>
+    </p>
+    <mat-form-field appearance="outline" class="confirm-field">
+      <mat-label>{{ 'petEdit.deleteLabel' | translate }}</mat-label>
+      <input matInput [(ngModel)]="confirmInput" />
+    </mat-form-field>
+  </div>
+
+  <div class="dialog-actions">
+    <button mat-button mat-dialog-close>
+      {{ 'petEdit.cancel' | translate }}
+    </button>
+    <button
+      mat-raised-button
+      color="warn"
+      [disabled]="!isMatch"
+      [mat-dialog-close]="true"
+    >
+      {{ 'petEdit.deleteConfirm' | translate }}
+    </button>
+  </div>
+</div>

@@ -9,6 +9,13 @@ paths:
     get:
       summary: List species
       security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: locale
+          required: false
+          schema:
+            type: string
+            enum: [es, en]
       responses:
         '200':
           description: Species list
@@ -27,6 +34,12 @@ paths:
           name: species
           required: false
           schema: { type: string }
+        - in: query
+          name: locale
+          required: false
+          schema:
+            type: string
+            enum: [es, en]
       responses:
         '200':
           description: Breeds list
@@ -46,6 +59,12 @@ paths:
           name: species
           required: false
           schema: { type: string }
+        - in: query
+          name: locale
+          required: false
+          schema:
+            type: string
+            enum: [es, en]
       responses:
         '200':
           description: Vaccines list
