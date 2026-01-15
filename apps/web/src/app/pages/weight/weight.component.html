@@ -1,0 +1,76 @@
+<section class="weight-page">
+  <header class="weight-header">
+    <button mat-button class="back-btn" routerLink="/dashboard/pet">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h2>
+      {{ 'weight.titlePrefix' | translate }}
+      <span class="pet-name">{{ petName || ('dashboard.petFallback' | translate) }}</span>
+    </h2>
+  </header>
+
+  <section class="weight-card">
+    <div class="section-title">
+      <span class="section-icon">
+        <mat-icon>monitor_weight</mat-icon>
+      </span>
+      <h3>{{ 'weight.details' | translate }}</h3>
+    </div>
+
+    <div class="form-grid">
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>{{ 'weight.value' | translate }}</mat-label>
+        <input matInput type="number" min="0" step="0.1" [(ngModel)]="weightValue" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>{{ 'weight.unit' | translate }}</mat-label>
+        <mat-select [(ngModel)]="weightUnit">
+          <mat-option value="kg">{{ 'weight.unitKg' | translate }}</mat-option>
+          <mat-option value="lb">{{ 'weight.unitLb' | translate }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>{{ 'weight.date' | translate }}</mat-label>
+        <input
+          matInput
+          [matDatepicker]="weightPicker"
+          [(ngModel)]="weightDate"
+          [max]="maxWeightDate"
+          readonly
+        />
+        <mat-datepicker-toggle matIconSuffix [for]="weightPicker"></mat-datepicker-toggle>
+        <mat-datepicker #weightPicker></mat-datepicker>
+      </mat-form-field>
+    </div>
+
+    <div class="section-title">
+      <span class="section-icon">
+        <mat-icon>description</mat-icon>
+      </span>
+      <h3>{{ 'weight.observations' | translate }}</h3>
+    </div>
+    <textarea
+      class="notes"
+      [(ngModel)]="observations"
+      [placeholder]="'weight.observationsPlaceholder' | translate"
+      rows="4"
+    ></textarea>
+
+    <div class="actions">
+      <button type="button" class="link-btn" routerLink="/dashboard/pet">
+        {{ 'weight.cancel' | translate }}
+      </button>
+      <button
+        mat-raised-button
+        color="primary"
+        class="primary-cta"
+        [disabled]="!isFormValid || isSubmitting"
+        (click)="saveWeight()"
+      >
+        {{ 'weight.save' | translate }}
+      </button>
+    </div>
+  </section>
+</section>

@@ -144,7 +144,7 @@ components:
         eventId: { type: string }
         eventType:
           type: string
-          enum: [VACCINE, VET_VISIT, GROOMING, OTHER]
+          enum: [VACCINE, VET_VISIT, MEDICATION, WEIGHT, GROOMING, OTHER]
         eventDate: { type: string, format: date-time }
         title: { type: string }
         notes: { type: string }
@@ -159,7 +159,7 @@ components:
       properties:
         eventType:
           type: string
-          enum: [VACCINE, VET_VISIT, GROOMING, OTHER]
+          enum: [VACCINE, VET_VISIT, MEDICATION, WEIGHT, GROOMING, OTHER]
         date: { type: string, format: date-time }
         title: { type: string }
         notes: { type: string }
@@ -171,7 +171,7 @@ components:
       properties:
         eventType:
           type: string
-          enum: [VACCINE, VET_VISIT, GROOMING, OTHER]
+          enum: [VACCINE, VET_VISIT, MEDICATION, WEIGHT, GROOMING, OTHER]
         eventDate: { type: string, format: date-time }
         title: { type: string }
         notes: { type: string }

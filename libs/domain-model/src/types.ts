@@ -18,7 +18,12 @@ export interface OwnerProfile {
   ownerId: OwnerId;
   userId: UserId;
   fullName: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
   phone?: string;
+  profilePhotoKey?: string;
+  locale?: 'es' | 'en';
   createdAt: Date;
   updatedAt?: Date;
 }
@@ -34,6 +39,10 @@ export interface Pet {
   color?: string;
   weightKg?: number;
   photoKey?: string;
+  photoThumbnailKey?: string;
+  lastGroomingDate?: Date;
+  lastVetVisitDate?: Date;
+  healthIndex?: number;
   isArchived?: boolean;
   archivedAt?: Date;
   createdAt: Date;
@@ -65,6 +74,8 @@ export interface PetReminder {
   eventId?: EventId;
   dueDate: Date;
   message?: string;
+  metadata?: Record<string, unknown>;
+  recurring?: boolean;
   createdAt: Date;
   completedAt?: Date;
 }

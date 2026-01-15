@@ -31,6 +31,7 @@ export class PetCreateStep1Component implements OnInit {
   private readonly catalogs = inject(CatalogsService);
   private readonly state = inject(PetCreateStateService);
   private readonly router = inject(Router);
+  private readonly draftStorageKey = 'petCreateDraft';
 
   imageUrl = '';
   currentYear = new Date().getFullYear();
@@ -46,21 +47,19 @@ export class PetCreateStep1Component implements OnInit {
   }
 
   ngOnInit() {
-    const local = this.state.getDraft();
-    if (local) {
-      this.name = local.name;
-      this.imageUrl = local.imageDataUrl ?? '';
-    }
+    const local = this.restoreDraft();
     this.catalogs.getSpecies().subscribe({
       next: ({ species }) => {
         this.speciesOptions = species ?? [];
         const preferredSpeciesCode = local?.speciesCode;
-        this.selectedSpeciesCode =
-          preferredSpeciesCode &&
-          this.speciesOptions.some((item) => item.code === preferredSpeciesCode)
-            ? preferredSpeciesCode
-            : this.speciesOptions[0]?.code ?? '';
-        if (this.selectedSpeciesCode) {
+        if (this.speciesOptions.length > 0) {
+          this.selectedSpeciesCode =
+            preferredSpeciesCode &&
+            this.speciesOptions.some((item) => item.code === preferredSpeciesCode)
+              ? preferredSpeciesCode
+              : this.speciesOptions[0]?.code ?? '';
+        }
+        if (this.selectedSpeciesCode && this.speciesOptions.length > 0) {
           this.loadBreeds(this.selectedSpeciesCode, local?.breedCode);
         }
       },
@@ -95,12 +94,14 @@ export class PetCreateStep1Component implements OnInit {
       this.showValidation = true;
       return;
     }
-    this.state.setDraft({
+    const draft = {
       name: this.name.trim(),
       speciesCode: this.selectedSpeciesCode,
       breedCode: this.selectedBreedCode,
       imageDataUrl: this.imageUrl || undefined,
-    });
+    };
+    this.state.setDraft(draft);
+    sessionStorage.setItem(this.draftStorageKey, JSON.stringify(draft));
     void this.router.navigate(['/pets/new/details']);
   }
 
@@ -119,5 +120,66 @@ export class PetCreateStep1Component implements OnInit {
         this.selectedBreedCode = '';
       },
     });
+  }
+
+  private restoreDraft() {
+    const stored = this.readDraftFromStorage();
+    const draft = stored ?? this.state.getDraft();
+    if (!draft) {
+      return null;
+    }
+
+    const normalized = {
+      name: draft.name ?? '',
+      speciesCode: draft.speciesCode ?? '',
+      breedCode: draft.breedCode ?? '',
+      imageDataUrl: draft.imageDataUrl ?? undefined,
+    };
+    if (
+      !normalized.name &&
+      !normalized.speciesCode &&
+      !normalized.breedCode &&
+      !normalized.imageDataUrl
+    ) {
+      return null;
+    }
+
+    this.state.setDraft(normalized);
+    this.name = normalized.name;
+    this.imageUrl = normalized.imageDataUrl ?? '';
+    this.selectedSpeciesCode = normalized.speciesCode;
+    this.selectedBreedCode = normalized.breedCode;
+
+    return normalized;
+  }
+
+  private readDraftFromStorage() {
+    const raw = sessionStorage.getItem(this.draftStorageKey);
+    if (!raw) {
+      return null;
+    }
+
+    try {
+      const parsed = JSON.parse(raw) as Partial<{
+        name: string;
+        speciesCode: string;
+        breedCode: string;
+        imageDataUrl?: string;
+      }>;
+
+      if (!parsed || typeof parsed !== 'object') {
+        return null;
+      }
+
+      return {
+        name: typeof parsed.name === 'string' ? parsed.name : '',
+        speciesCode: typeof parsed.speciesCode === 'string' ? parsed.speciesCode : '',
+        breedCode: typeof parsed.breedCode === 'string' ? parsed.breedCode : '',
+        imageDataUrl:
+          typeof parsed.imageDataUrl === 'string' ? parsed.imageDataUrl : undefined,
+      };
+    } catch {
+      return null;
+    }
   }
 }

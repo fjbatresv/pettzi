@@ -1,19 +1,32 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, HostListener, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Pet, PetEvent, PetReminder } from '@pettzi/domain-model';
 import { PetsService } from '../../core/services/pets.service';
 import { UploadsService } from '../../core/services/uploads.service';
 import { EventsService } from '../../core/services/events.service';
 import { RemindersService } from '../../core/services/reminders.service';
+import { BreedItem, CatalogsService, SpeciesItem } from '../../core/services/catalogs.service';
+import { ReminderDialogComponent, ReminderDialogResult } from './reminder-dialog.component';
 
 @Component({
   selector: 'app-dashboard-pet',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatIconModule, TranslateModule],
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatCheckboxModule,
+    MatDialogModule,
+    MatIconModule,
+    MatMenuModule,
+    TranslateModule,
+  ],
   templateUrl: './dashboard-pet.component.html',
   styleUrl: './dashboard-pet.component.scss',
 })
@@ -23,17 +36,39 @@ export class DashboardPetComponent implements OnInit {
   private readonly uploads = inject(UploadsService);
   private readonly events = inject(EventsService);
   private readonly reminders = inject(RemindersService);
+  private readonly catalogs = inject(CatalogsService);
   private readonly translate = inject(TranslateService);
+  private readonly dialog = inject(MatDialog);
   private readonly weightUnitKey = 'pettzi.weightUnit';
   private readonly activePetKey = 'pettzi.activePetId';
 
   pet: Pet | null = null;
   petPhotoUrl = '';
+  speciesOptions: SpeciesItem[] = [];
+  breedOptions: BreedItem[] = [];
   activityLog: PetEvent[] = [];
   remindersList: PetReminder[] = [];
   showActivityMenu = false;
+  showPetMenu = false;
+  activityVisibleCount = 5;
+  selectedEventTypes = new Set<string>(['MEDICATION', 'GROOMING', 'VET_VISIT', 'VACCINE', 'WEIGHT']);
+  readonly activityFilterOptions = [
+    'MEDICATION',
+    'GROOMING',
+    'VET_VISIT',
+    'VACCINE',
+    'WEIGHT',
+  ];
 
   ngOnInit() {
+    this.catalogs.getSpecies().subscribe({
+      next: ({ species }) => {
+        this.speciesOptions = species ?? [];
+        if (this.pet?.species) {
+          this.loadBreeds(this.pet.species);
+        }
+      },
+    });
     this.pets.listPets().subscribe({
       next: ({ pets }) => {
         const list = pets ?? [];
@@ -45,18 +80,38 @@ export class DashboardPetComponent implements OnInit {
         if (this.pet?.petId) {
           localStorage.setItem(this.activePetKey, this.pet.petId);
         }
-        if (this.pet?.petId && this.pet.photoKey) {
-          this.loadPhoto(this.pet.petId, this.pet.photoKey);
+        const photoKey = this.pet?.photoThumbnailKey ?? this.pet?.photoKey;
+        if (this.pet?.petId && photoKey) {
+          this.loadPhoto(this.pet.petId, photoKey);
         }
         if (this.pet?.petId) {
           this.loadEvents(this.pet.petId);
           this.loadReminders(this.pet.petId);
+        }
+        if (this.pet?.species) {
+          this.loadBreeds(this.pet.species);
         }
       },
       error: () => {
         void this.router.navigate(['/']);
       },
     });
+  }
+
+  get speciesLabel() {
+    if (!this.pet?.species) {
+      return '';
+    }
+    const match = this.speciesOptions.find((item) => item.code === this.pet?.species);
+    return match?.label || this.pet.species;
+  }
+
+  get breedLabel() {
+    if (!this.pet?.breed) {
+      return '';
+    }
+    const match = this.breedOptions.find((item) => item.code === this.pet?.breed);
+    return match?.label || this.pet.breed;
   }
 
   get ageLabel() {
@@ -127,17 +182,29 @@ export class DashboardPetComponent implements OnInit {
   }
 
   get healthScoreLabel() {
-    return this.activityLog.length ? '98%' : this.translate.instant('dashboard.healthDataNeeded');
+    return `${this.healthIndex}/5`;
   }
 
   get healthScoreSubtitle() {
-    return this.activityLog.length
+    return this.healthIndex > 0
       ? this.translate.instant('dashboard.healthKeepUp')
       : this.translate.instant('dashboard.healthAddData');
   }
 
   get showHealthStatus() {
-    return this.activityLog.length > 0;
+    return this.healthIndex > 0;
+  }
+
+  get healthIndex() {
+    const value = this.pet?.healthIndex;
+    if (typeof value !== 'number' || Number.isNaN(value)) {
+      return 0;
+    }
+    return Math.min(5, Math.max(0, value));
+  }
+
+  get hasHealthIndexData() {
+    return this.pet?.healthIndex !== null && this.pet?.healthIndex !== undefined;
   }
 
   get lastVetLabel() {
@@ -164,6 +231,227 @@ export class DashboardPetComponent implements OnInit {
     return this.translate.instant('dashboard.lastVaccineWithDate', { date: dateLabel });
   }
 
+  getEventTypeLabel(eventType?: string) {
+    switch (eventType) {
+      case 'GROOMING':
+        return this.translate.instant('dashboard.eventType.grooming');
+      case 'VET_VISIT':
+        return this.translate.instant('dashboard.eventType.vetVisit');
+      case 'MEDICATION':
+        return this.translate.instant('dashboard.eventType.medication');
+      case 'WEIGHT':
+        return this.translate.instant('dashboard.eventType.weight');
+      case 'VACCINE':
+        return this.translate.instant('dashboard.eventType.vaccine');
+      case 'OTHER':
+        return this.translate.instant('dashboard.eventType.other');
+      default:
+        return eventType || '';
+    }
+  }
+
+  getValueOrUnknown(value?: string) {
+    const cleaned = value?.trim();
+    return cleaned || this.translate.instant('dashboard.unknown');
+  }
+
+  getMedicationName(event: PetEvent) {
+    const meta = (event.metadata ?? {}) as Record<string, unknown>;
+    const name =
+      (meta['name'] as string) ||
+      (meta['medicationName'] as string) ||
+      (meta['medicineName'] as string) ||
+      (meta['medicine'] as string) ||
+      (meta['title'] as string) ||
+      event.title ||
+      '';
+    return this.getValueOrUnknown(name);
+  }
+
+  getMedicationPeriodicity(event: PetEvent) {
+    const meta = (event.metadata ?? {}) as Record<string, unknown>;
+    const periodicity = (meta['periodicity'] ?? {}) as Record<string, unknown>;
+    const type = periodicity['type'];
+    if (type === 'hours') {
+      const everyHours = Number(periodicity['everyHours'] ?? 0);
+      return this.translate
+        .instant('medication.periodicityHours')
+        .replace('X', String(everyHours || 1));
+    }
+    if (type === 'weekly') {
+      const day = Number(periodicity['weekday'] ?? 0);
+      const time = String(periodicity['time'] ?? '').trim();
+      const dayLabel = this.getWeekdayLabel(day);
+      return `${this.translate.instant('medication.periodicityWeekly')} · ${dayLabel}${
+        time ? ` ${time}` : ''
+      }`;
+    }
+    if (type === 'monthly') {
+      const day = Number(periodicity['dayOfMonth'] ?? 1);
+      const time = String(periodicity['time'] ?? '').trim();
+      return `${this.translate.instant('medication.periodicityMonthly')} · ${day}${
+        time ? ` ${time}` : ''
+      }`;
+    }
+    const time = String(periodicity['time'] ?? '').trim();
+    return `${this.translate.instant('medication.periodicityDaily')}${time ? ` ${time}` : ''}`;
+  }
+
+  getMedicationEndDate(event: PetEvent) {
+    const meta = (event.metadata ?? {}) as Record<string, unknown>;
+    const indefinite = Boolean(meta['indefinite']);
+    if (indefinite) {
+      return this.translate.instant('medication.indefinite');
+    }
+    const endDate = meta['endDate'];
+    if (!endDate) {
+      return this.translate.instant('dashboard.unknown');
+    }
+    return this.formatEventDate(endDate as string);
+  }
+
+  getActivityStatus(event: PetEvent) {
+    if (event.eventType === 'MEDICATION') {
+      const meta = (event.metadata ?? {}) as Record<string, unknown>;
+      const indefinite = Boolean(meta['indefinite']);
+      const endDate = meta['endDate'];
+      if (indefinite || !endDate) {
+        return { key: 'dashboard.statusInProgress', className: 'status-progress' };
+      }
+      const end = new Date(endDate as string);
+      if (Number.isNaN(end.getTime())) {
+        return { key: 'dashboard.statusInProgress', className: 'status-progress' };
+      }
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      end.setHours(0, 0, 0, 0);
+      return end.getTime() >= today.getTime()
+        ? { key: 'dashboard.statusInProgress', className: 'status-progress' }
+        : { key: 'dashboard.statusCompleted', className: 'status-complete' };
+    }
+    return { key: 'dashboard.statusCompleted', className: 'status-complete' };
+  }
+
+  getVetClinic(event: PetEvent) {
+    const meta = (event.metadata ?? {}) as Record<string, unknown>;
+    return this.getValueOrUnknown(String(meta['clinic'] ?? ''));
+  }
+
+  getVetName(event: PetEvent) {
+    const meta = (event.metadata ?? {}) as Record<string, unknown>;
+    return this.getValueOrUnknown(String(meta['veterinarian'] ?? ''));
+  }
+
+  getVetReason(event: PetEvent) {
+    const meta = (event.metadata ?? {}) as Record<string, unknown>;
+    const reason =
+      (meta['reason'] as string) ||
+      (meta['visitReason'] as string) ||
+      (meta['visitTitle'] as string) ||
+      (meta['title'] as string) ||
+      event.title ||
+      '';
+    return this.getValueOrUnknown(reason);
+  }
+
+  getVaccineName(event: PetEvent) {
+    const meta = (event.metadata ?? {}) as Record<string, unknown>;
+    const name =
+      (meta['name'] as string) ||
+      event.title ||
+      '';
+    return this.getValueOrUnknown(name);
+  }
+
+  getVaccineBatch(event: PetEvent) {
+    const meta = (event.metadata ?? {}) as Record<string, unknown>;
+    return this.getValueOrUnknown(String(meta['batchNumber'] ?? ''));
+  }
+
+  getVaccineClinic(event: PetEvent) {
+    const meta = (event.metadata ?? {}) as Record<string, unknown>;
+    return this.getValueOrUnknown(String(meta['clinic'] ?? ''));
+  }
+
+  getVaccineVet(event: PetEvent) {
+    const meta = (event.metadata ?? {}) as Record<string, unknown>;
+    return this.getValueOrUnknown(String(meta['veterinarian'] ?? ''));
+  }
+
+  getVaccineExpiry(event: PetEvent) {
+    const meta = (event.metadata ?? {}) as Record<string, unknown>;
+    const expiry = meta['expiryDate'];
+    if (!expiry) {
+      return this.translate.instant('dashboard.unknown');
+    }
+    const label = this.formatEventDateWithYear(expiry as string);
+    return label;
+  }
+
+  isVaccineExpired(event: PetEvent) {
+    const meta = (event.metadata ?? {}) as Record<string, unknown>;
+    const expiry = meta['expiryDate'];
+    if (!expiry) {
+      return false;
+    }
+    const expiryDate = new Date(expiry as string);
+    if (Number.isNaN(expiryDate.getTime())) {
+      return false;
+    }
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    expiryDate.setHours(0, 0, 0, 0);
+    return expiryDate.getTime() < today.getTime();
+  }
+
+  getGroomingServices(event: PetEvent) {
+    const meta = (event.metadata ?? {}) as Record<string, unknown>;
+    const services = Array.isArray(meta['services']) ? (meta['services'] as string[]) : [];
+    if (!services.length) {
+      return this.translate.instant('dashboard.unknown');
+    }
+    return services
+      .map((service) => {
+        const normalized = service.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
+        const label = this.translate.instant(`grooming.services.${normalized}`);
+        return label.startsWith('grooming.services.') ? service : label;
+      })
+      .join(', ');
+  }
+
+  getWeightNewLabel(event: PetEvent) {
+    return this.formatWeightFromEvent(event);
+  }
+
+  getWeightPreviousLabel(event: PetEvent) {
+    const weightEvents = this.activityLog.filter((item) => item.eventType === 'WEIGHT');
+    const index = weightEvents.findIndex((item) => item.eventId === event.eventId);
+    if (index === -1 || index + 1 >= weightEvents.length) {
+      return this.translate.instant('dashboard.unknown');
+    }
+    return this.formatWeightFromEvent(weightEvents[index + 1]);
+  }
+
+  getWeightChangeLabel(event: PetEvent) {
+    const previous = this.getWeightPreviousLabel(event);
+    const current = this.getWeightNewLabel(event);
+    if (!previous || previous === this.translate.instant('dashboard.unknown')) {
+      return current;
+    }
+    if (!current || current === this.translate.instant('dashboard.unknown')) {
+      return previous;
+    }
+    return `${previous} → ${current}`;
+  }
+
+  getHealthBones() {
+    return Array.from({ length: 5 }, (_, index) => index);
+  }
+
+  getObservationLabel(event: PetEvent) {
+    return event.notes?.trim() || this.translate.instant('dashboard.noDetails');
+  }
+
   toggleActivityMenu() {
     this.showActivityMenu = !this.showActivityMenu;
   }
@@ -172,11 +460,115 @@ export class DashboardPetComponent implements OnInit {
     this.showActivityMenu = false;
   }
 
+  togglePetMenu() {
+    this.showPetMenu = !this.showPetMenu;
+  }
+
+  selectPetMenu(_action: 'edit' | 'share' | 'delete') {
+    this.showPetMenu = false;
+    if (_action === 'edit') {
+      void this.router.navigate(['/dashboard/pet/edit']);
+    }
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    if (!this.showPetMenu) {
+      return;
+    }
+    const target = event.target as HTMLElement | null;
+    if (!target?.closest('.card-menu')) {
+      this.showPetMenu = false;
+    }
+  }
+
   selectActivity(type: string) {
     this.closeActivityMenu();
     if (type === 'GROOMING') {
       void this.router.navigate(['/dashboard/grooming']);
     }
+    if (type === 'VET_VISIT') {
+      void this.router.navigate(['/dashboard/vet-visit']);
+    }
+    if (type === 'MEDICATION') {
+      void this.router.navigate(['/dashboard/medication']);
+    }
+    if (type === 'VACCINE') {
+      void this.router.navigate(['/dashboard/vaccine']);
+    }
+    if (type === 'WEIGHT') {
+      void this.router.navigate(['/dashboard/weight']);
+    }
+  }
+
+  get displayedActivityLog() {
+    return this.filteredActivityLog.slice(0, this.activityVisibleCount);
+  }
+
+  get canLoadMoreActivity() {
+    return this.activityVisibleCount < this.filteredActivityLog.length;
+  }
+
+  loadMoreActivity() {
+    this.activityVisibleCount = Math.min(
+      this.activityVisibleCount + 5,
+      this.filteredActivityLog.length
+    );
+  }
+
+  get filteredActivityLog() {
+    if (!this.selectedEventTypes.size) {
+      return [];
+    }
+    return this.activityLog.filter((event) => this.selectedEventTypes.has(event.eventType));
+  }
+
+  toggleEventTypeFilter(eventType: string) {
+    if (this.selectedEventTypes.has(eventType)) {
+      this.selectedEventTypes.delete(eventType);
+    } else {
+      this.selectedEventTypes.add(eventType);
+    }
+    this.activityVisibleCount = 5;
+  }
+
+  openReminderDialog() {
+    const petId = this.pet?.petId;
+    if (!petId) {
+      return;
+    }
+    this.dialog
+      .open<ReminderDialogComponent, void, ReminderDialogResult>(ReminderDialogComponent, {
+        panelClass: 'pet-dialog',
+      })
+      .afterClosed()
+      .subscribe((result) => {
+        if (!result) {
+          return;
+        }
+        const metadata: Record<string, unknown> = {
+          notes: result.notes || undefined,
+        };
+        if (result.recurring && result.periodicity) {
+          metadata['recurring'] = true;
+          metadata['periodicity'] = result.periodicity;
+        }
+        this.reminders
+          .createPetReminder(petId, {
+            dueDate: result.dueDate.toISOString(),
+            message: result.title,
+            metadata,
+          })
+          .subscribe({
+            next: (created) => {
+              this.remindersList = [...this.remindersList, created].sort((a, b) => {
+                const aDate = new Date(a.dueDate as unknown as string).getTime();
+                const bDate = new Date(b.dueDate as unknown as string).getTime();
+                return aDate - bDate;
+              });
+            },
+          });
+      });
   }
 
   formatEventDate(value?: Date | string) {
@@ -207,8 +599,48 @@ export class DashboardPetComponent implements OnInit {
     });
   }
 
+  formatReminderDateTime(value?: Date | string) {
+    if (!value) {
+      return '';
+    }
+    const date = value instanceof Date ? value : new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      return '';
+    }
+    return date.toLocaleString(this.getLocale(), {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  }
+
+  isReminderRecurring(reminder: PetReminder) {
+    const recurring = reminder.recurring;
+    if (typeof recurring === 'boolean') {
+      return recurring;
+    }
+    const meta = this.getReminderMetadata(reminder);
+    return Boolean(meta['recurring'] || meta['periodicity']);
+  }
+
   private getLocale() {
     return this.translate.currentLang || this.translate.defaultLang || 'es';
+  }
+
+  private formatEventDateWithYear(value?: Date | string) {
+    if (!value) {
+      return '';
+    }
+    const date = value instanceof Date ? value : new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      return '';
+    }
+    return date.toLocaleDateString(this.getLocale(), {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
   }
 
   private loadEvents(petId: string) {
@@ -220,6 +652,7 @@ export class DashboardPetComponent implements OnInit {
           const bDate = new Date(b.eventDate as unknown as string).getTime();
           return bDate - aDate;
         });
+        this.activityVisibleCount = 5;
       },
     });
   }
@@ -253,6 +686,17 @@ export class DashboardPetComponent implements OnInit {
     });
   }
 
+  private loadBreeds(speciesCode: string) {
+    this.catalogs.getBreeds(speciesCode).subscribe({
+      next: ({ breeds }) => {
+        this.breedOptions = breeds ?? [];
+      },
+      error: () => {
+        this.breedOptions = [];
+      },
+    });
+  }
+
   private getPreferredWeightUnit() {
     const stored = localStorage.getItem(this.weightUnitKey);
     return stored === 'lb' ? 'lb' : 'kg';
@@ -262,4 +706,49 @@ export class DashboardPetComponent implements OnInit {
     const value = valueKg / 0.45359237;
     return Math.round(value * 10) / 10;
   }
+
+  private formatWeightFromEvent(event: PetEvent) {
+    const meta = (event.metadata ?? {}) as Record<string, unknown>;
+    const weightKg = Number(meta['weightKg']);
+    if (!Number.isFinite(weightKg)) {
+      return this.translate.instant('dashboard.unknown');
+    }
+    const unit = String(meta['unit'] ?? 'kg');
+    if (unit === 'lb') {
+      return `${this.toLb(weightKg)} lb`;
+    }
+    return `${weightKg} kg`;
+  }
+
+  private getWeekdayLabel(dayIndex: number) {
+    const keys = [
+      'medication.weekdaySun',
+      'medication.weekdayMon',
+      'medication.weekdayTue',
+      'medication.weekdayWed',
+      'medication.weekdayThu',
+      'medication.weekdayFri',
+      'medication.weekdaySat',
+    ];
+    const key = keys[dayIndex] ?? keys[0];
+    return this.translate.instant(key);
+  }
+
+
+  private getReminderMetadata(reminder: PetReminder): Record<string, unknown> {
+    const meta = reminder.metadata;
+    if (!meta) {
+      return {};
+    }
+    if (typeof meta === 'string') {
+      try {
+        const parsed = JSON.parse(meta) as Record<string, unknown>;
+        return parsed ?? {};
+      } catch {
+        return {};
+      }
+    }
+    return meta as Record<string, unknown>;
+  }
+
 }

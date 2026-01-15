@@ -9,7 +9,7 @@ interface EventsListResponse {
 }
 
 interface CreateEventRequest {
-  eventType: 'VACCINE' | 'VET_VISIT' | 'GROOMING' | 'OTHER';
+  eventType: 'VACCINE' | 'VET_VISIT' | 'MEDICATION' | 'WEIGHT' | 'GROOMING' | 'OTHER';
   date: string;
   title?: string;
   notes?: string;

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { I18nService } from '../../core/i18n/i18n.service';
@@ -14,12 +14,13 @@ import { PetsService } from '../../core/services/pets.service';
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   private readonly i18n = inject(I18nService);
   private readonly auth = inject(AuthService);
   private readonly pets = inject(PetsService);
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
+  private readonly resetSessionKey = 'pettzi.resetPasswordSession';
 
   readonly form = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -29,6 +30,10 @@ export class LoginComponent {
   errorMessage = '';
   challengeMessage = '';
   isSubmitting = false;
+
+  ngOnInit() {
+    void this.redirectIfAuthenticated();
+  }
 
   get locale() {
     return this.i18n.locale;
@@ -54,21 +59,30 @@ export class LoginComponent {
 
     this.isSubmitting = true;
     this.auth.login(email, password).subscribe({
-      next: (response) => {
+      next: async (response) => {
         if ('challenge' in response) {
-          this.challengeMessage = response.message;
-          this.isSubmitting = false;
+          sessionStorage.setItem(
+            this.resetSessionKey,
+            JSON.stringify({ email, session: response.session })
+          );
+          void this.router.navigate(['/reset-password']);
           return;
         }
         this.challengeMessage = '';
-        this.persistTokens(response);
+        await this.persistTokens(response);
         this.pets.listPets().subscribe({
           next: ({ pets }) => {
             if (!pets || pets.length === 0) {
               void this.router.navigate(['/pets/new']);
               return;
             }
-            void this.router.navigate(['/']);
+            if (pets.length == 1) {
+              void this.router.navigate(['/dashboard/pet']);
+              return;
+            }
+            if (pets.length > 1) {
+              void this.router.navigate(['/dashboard/main'])
+            }
           },
           error: () => {
             void this.router.navigate(['/pets/new']);
@@ -90,20 +104,31 @@ export class LoginComponent {
     return !!control && control.touched && control.invalid;
   }
 
-  private persistTokens(tokens: {
+  private async persistTokens(tokens: {
     idToken: string;
     accessToken: string;
     refreshToken?: string;
     expiresIn?: number;
   }) {
-    localStorage.setItem('pettzi.idToken', tokens.idToken);
-    localStorage.setItem('pettzi.accessToken', tokens.accessToken);
-    if (tokens.refreshToken) {
-      localStorage.setItem('pettzi.refreshToken', tokens.refreshToken);
+    await this.auth.storeTokens(tokens);
+  }
+
+  private async redirectIfAuthenticated() {
+    const accessToken = await this.auth.getAccessToken();
+    if (accessToken) {
+      await this.router.navigate(['/dashboard']);
+      return;
     }
-    if (tokens.expiresIn) {
-      const expiresAt = Date.now() + tokens.expiresIn * 1000;
-      localStorage.setItem('pettzi.accessTokenExpiresAt', String(expiresAt));
+    if (!this.auth.hasRefreshToken()) {
+      return;
     }
+    this.auth.refreshTokens().subscribe({
+      next: () => {
+        void this.router.navigate(['/dashboard']);
+      },
+      error: () => {
+        // stay on login
+      },
+    });
   }
 }

@@ -9,6 +9,7 @@ import {
   serverError,
   unauthorized,
 } from '@pettzi/utils-dynamo/http';
+import { buildRefreshCookie } from './handlers/cookies';
 
 interface LoginPayload {
   email?: string;
@@ -70,11 +71,19 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
       return serverError('Invalid auth response from Cognito');
     }
 
-    return ok({
-      idToken: authResult.IdToken,
-      accessToken: authResult.AccessToken,
-      refreshToken: authResult.RefreshToken,
-    });
+    const cookie =
+      authResult.RefreshToken != null
+        ? buildRefreshCookie(authResult.RefreshToken)
+        : undefined;
+
+    return ok(
+      {
+        idToken: authResult.IdToken,
+        accessToken: authResult.AccessToken,
+      },
+      undefined,
+      cookie ? [cookie] : undefined
+    );
   } catch (error: any) {
     const code = error?.name;
     if (code === 'NotAuthorizedException') {

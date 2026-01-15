@@ -1,0 +1,36 @@
+<div class="delete-dialog">
+  <div class="dialog-header">
+    <span class="warn-icon">
+      <mat-icon>warning</mat-icon>
+    </span>
+    <div>
+      <h2>{{ 'settings.deleteAccountTitle' | translate }}</h2>
+      <p>{{ 'settings.deleteAccountSubtitle' | translate }}</p>
+    </div>
+  </div>
+
+  <div class="confirm-block">
+    <p>
+      {{ 'settings.deleteAccountPrompt' | translate }}
+      <span class="confirm-word">{{ data.word }}</span>
+    </p>
+    <mat-form-field appearance="outline" class="confirm-field">
+      <mat-label>{{ 'settings.deleteAccountLabel' | translate }}</mat-label>
+      <input matInput [(ngModel)]="confirmInput" />
+    </mat-form-field>
+  </div>
+
+  <div class="dialog-actions">
+    <button mat-button mat-dialog-close>
+      {{ 'settings.cancelDeleteAccount' | translate }}
+    </button>
+    <button
+      mat-raised-button
+      color="warn"
+      [disabled]="!isMatch"
+      [mat-dialog-close]="true"
+    >
+      {{ 'settings.deleteAccountConfirm' | translate }}
+    </button>
+  </div>
+</div>

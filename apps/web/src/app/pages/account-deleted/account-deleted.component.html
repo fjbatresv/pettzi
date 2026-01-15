@@ -1,0 +1,58 @@
+<div class="deleted-shell">
+  <header class="login-topbar">
+    <div class="topbar-spacer"></div>
+    <div class="topbar-action">
+      <div
+        class="lang-toggle"
+        role="group"
+        [attr.aria-label]="'login.langToggle' | translate"
+      >
+        <button
+          type="button"
+          class="lang-btn"
+          [class.active]="locale === 'es'"
+          [attr.aria-pressed]="locale === 'es'"
+          (click)="setLocale('es')"
+        >
+          {{ 'login.langEs' | translate }}
+        </button>
+        <button
+          type="button"
+          class="lang-btn"
+          [class.active]="locale === 'en'"
+          [attr.aria-pressed]="locale === 'en'"
+          (click)="setLocale('en')"
+        >
+          {{ 'login.langEn' | translate }}
+        </button>
+      </div>
+      <a class="ghost" routerLink="/">{{ 'accountDeleted.signIn' | translate }}</a>
+    </div>
+  </header>
+
+  <main class="deleted-main">
+    <section class="deleted-card">
+      <div class="card-hero">
+        <div class="hero-icon success">
+          <mat-icon>check_circle</mat-icon>
+        </div>
+      </div>
+      <h1>{{ 'accountDeleted.title' | translate }}</h1>
+      <p class="subtitle">{{ 'accountDeleted.subtitle' | translate }}</p>
+      <p class="hint">{{ 'accountDeleted.hint' | translate }}</p>
+
+      <button type="button" class="primary" (click)="backToLogin()">
+        {{ 'accountDeleted.cta' | translate }}
+      </button>
+    </section>
+  </main>
+
+  <footer class="login-footer">
+    <span>{{ 'login.copyright' | translate }}</span>
+    <div class="footer-links">
+      <button type="button" class="link">{{ 'login.support' | translate }}</button>
+      <button type="button" class="link">{{ 'login.privacy' | translate }}</button>
+      <button type="button" class="link">{{ 'login.terms' | translate }}</button>
+    </div>
+  </footer>
+</div>

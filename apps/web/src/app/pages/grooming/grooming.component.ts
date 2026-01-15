@@ -10,6 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PetsService } from '../../core/services/pets.service';
+import { Pet } from '@pettzi/domain-model';
 import { EventsService } from '../../core/services/events.service';
 import { RemindersService } from '../../core/services/reminders.service';
 
@@ -57,6 +58,7 @@ export class GroomingComponent implements OnInit {
   instructions = '';
   petName = '';
   petId = '';
+  activePet: Pet | null = null;
   isSubmitting = false;
 
   get isFormValid() {
@@ -88,6 +90,7 @@ export class GroomingComponent implements OnInit {
         const list = pets ?? [];
         const activeId = localStorage.getItem(this.activePetKey);
         const activePet = activeId ? list.find((pet) => pet.petId === activeId) : list[0];
+        this.activePet = activePet ?? null;
         this.petName = activePet?.name ?? '';
         this.petId = activePet?.petId ?? '';
       },
@@ -119,6 +122,7 @@ export class GroomingComponent implements OnInit {
 
     this.events.createPetEvent(this.petId, payload).subscribe({
       next: (createdEvent) => {
+        this.updateLastGroomingDate();
         if (!this.nextGroomingDate) {
           void this.router.navigate(['/dashboard/pet']);
           return;
@@ -141,6 +145,21 @@ export class GroomingComponent implements OnInit {
         this.isSubmitting = false;
       },
     });
+  }
+
+  private updateLastGroomingDate() {
+    if (!this.activePet || !this.preferredDate) {
+      return;
+    }
+    const last = this.activePet.lastGroomingDate
+      ? new Date(this.activePet.lastGroomingDate as unknown as string)
+      : null;
+    if (last && last.getTime() >= this.preferredDate.getTime()) {
+      return;
+    }
+    this.pets
+      .updatePet(this.activePet.petId, { lastGroomingDate: this.preferredDate })
+      .subscribe();
   }
 
   private startOfDay(value: Date) {

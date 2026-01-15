@@ -14,7 +14,7 @@
           <h2>{{ pet?.name || ('dashboard.petFallback' | translate) }}</h2>
         </div>
         <p class="pet-meta">
-          {{ pet?.breed || pet?.species || ('dashboard.unknown' | translate) }} ·
+          {{ breedLabel || speciesLabel || ('dashboard.unknown' | translate) }} ·
           {{ ageLabel || ('dashboard.ageUnknown' | translate) }}
         </p>
         <div class="pet-tags">
@@ -24,10 +24,22 @@
       </div>
     </div>
     <div class="pet-actions">
-      <button mat-stroked-button class="ghost">{{ 'dashboard.editProfile' | translate }}</button>
-      <button mat-raised-button color="primary" class="primary">
-        {{ 'dashboard.shareLog' | translate }}
+      <button mat-raised-button color="primary" class="primary send-record">
+        {{ 'dashboard.sendRecord' | translate }}
       </button>
+    </div>
+    <div class="card-menu">
+      <button class="dots-btn" type="button" (click)="togglePetMenu()">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <div class="pet-menu" *ngIf="showPetMenu">
+        <button type="button" (click)="selectPetMenu('edit')">
+          {{ 'dashboard.menuEditProfile' | translate }}
+        </button>
+        <button type="button" (click)="selectPetMenu('share')">
+          {{ 'dashboard.menuSharePet' | translate }}
+        </button>
+      </div>
     </div>
   </div>
 
@@ -51,9 +63,6 @@
       </div>
       <h3>{{ nextVaccineDateLabel || ('dashboard.schedule' | translate) }}</h3>
       <p class="stat-note">{{ nextVaccineSubtitle }}</p>
-      <button class="stat-action" mat-stroked-button>
-        {{ 'dashboard.scheduleVaccine' | translate }}
-      </button>
     </div>
     <div class="stat-card">
       <div class="stat-head">
@@ -62,11 +71,24 @@
           <mat-icon>favorite</mat-icon>
         </span>
       </div>
-      <h3>{{ healthScoreLabel }}</h3>
-      <p class="stat-note">{{ healthScoreSubtitle }}</p>
-      <div class="progress" *ngIf="activityLog.length">
-        <span style="width: 98%"></span>
-      </div>
+      <ng-container *ngIf="hasHealthIndexData; else healthMissing">
+        <div class="health-score">
+          <div class="bone-row">
+            <mat-icon
+              *ngFor="let bone of getHealthBones(); let i = index"
+              class="bone"
+              [class.filled]="i < healthIndex"
+            >
+              pets
+            </mat-icon>
+          </div>
+          <span class="score-value">{{ healthScoreLabel }}</span>
+        </div>
+        <p class="stat-note">{{ healthScoreSubtitle }}</p>
+      </ng-container>
+      <ng-template #healthMissing>
+        <p class="stat-note">{{ 'dashboard.healthDataMissing' | translate }}</p>
+      </ng-template>
     </div>
   </div>
 
@@ -76,14 +98,37 @@
         <div>
           <h3>{{ 'dashboard.activityLog' | translate }}</h3>
           <p class="activity-sub">
-            {{ lastVaccineLabel || ('dashboard.activityHintEmpty' | translate) }}
+            {{ 'dashboard.activitySubtitle' | translate }}
           </p>
+        </div>
+        <div class="activity-actions">
+          <button type="button" class="activity-filter" [matMenuTriggerFor]="activityFilterMenu">
+            <mat-icon>filter_list</mat-icon>
+          </button>
+          <mat-menu
+            #activityFilterMenu="matMenu"
+            class="activity-filter-menu"
+            panelClass="activity-filter-panel"
+          >
+            <div
+              class="filter-option"
+              *ngFor="let type of activityFilterOptions"
+            >
+              <mat-checkbox
+                [checked]="selectedEventTypes.has(type)"
+                (click)="$event.stopPropagation()"
+                (change)="toggleEventTypeFilter(type)"
+              >
+                {{ getEventTypeLabel(type) }}
+              </mat-checkbox>
+            </div>
+          </mat-menu>
         </div>
       </div>
 
       <div class="activity-list">
-        <article class="activity-item" *ngFor="let event of activityLog">
-          <div class="activity-icon" [class.alt]="event.eventType === 'GROOMING'">
+        <article class="activity-item" *ngFor="let event of displayedActivityLog">
+          <div class="activity-icon">
             <ng-container [ngSwitch]="event.eventType">
               <mat-icon *ngSwitchCase="'GROOMING'">content_cut</mat-icon>
               <mat-icon *ngSwitchCase="'VET_VISIT'">local_hospital</mat-icon>
@@ -93,70 +138,196 @@
               <mat-icon *ngSwitchDefault>event_note</mat-icon>
             </ng-container>
           </div>
-          <div>
+          <div class="activity-content">
             <div class="activity-title">
-              <h4>{{ event.title || event.eventType }}</h4>
-              <span>{{ formatEventDate(event.eventDate) }}</span>
+              <div>
+                <h4>{{ getEventTypeLabel(event.eventType) }}</h4>
+                <span class="status-pill" [ngClass]="getActivityStatus(event).className">
+                  {{ getActivityStatus(event).key | translate }}
+                </span>
+              </div>
+              <span class="activity-date">{{ formatEventDate(event.eventDate) }}</span>
             </div>
-            <p>{{ event.notes || ('dashboard.noDetails' | translate) }}</p>
-            <div class="activity-tags">
-              <span class="chip">{{ event.eventType }}</span>
+            <div class="activity-details" [ngSwitch]="event.eventType">
+              <div *ngSwitchCase="'MEDICATION'">
+                <div class="detail-grid">
+                  <p class="detail-row">
+                    <span>{{ 'dashboard.medicationName' | translate }}</span>
+                    {{ getMedicationName(event) }}
+                  </p>
+                  <p class="detail-row">
+                    <span>{{ 'dashboard.medicationPeriodicity' | translate }}</span>
+                    {{ getMedicationPeriodicity(event) }}
+                  </p>
+                  <p class="detail-row full">
+                    <span>{{ 'dashboard.medicationEnd' | translate }}</span>
+                    {{ getMedicationEndDate(event) }}
+                  </p>
+                  <p class="detail-row full">
+                    <span>{{ 'dashboard.observations' | translate }}</span>
+                    {{ getObservationLabel(event) }}
+                  </p>
+                </div>
+              </div>
+              <div *ngSwitchCase="'VET_VISIT'">
+                <div class="detail-grid">
+                  <p class="detail-row">
+                    <span>{{ 'dashboard.vetClinic' | translate }}</span>
+                    {{ getVetClinic(event) }}
+                  </p>
+                  <p class="detail-row">
+                    <span>{{ 'dashboard.vetDoctor' | translate }}</span>
+                    {{ getVetName(event) }}
+                  </p>
+                  <p class="detail-row full">
+                    <span>{{ 'dashboard.vetReason' | translate }}</span>
+                    {{ getVetReason(event) }}
+                  </p>
+                  <p class="detail-row full">
+                    <span>{{ 'dashboard.observations' | translate }}</span>
+                    {{ getObservationLabel(event) }}
+                  </p>
+                </div>
+              </div>
+              <div *ngSwitchCase="'VACCINE'">
+                <div class="detail-grid">
+                  <p class="detail-row">
+                    <span>{{ 'dashboard.vaccineName' | translate }}</span>
+                    {{ getVaccineName(event) }}
+                  </p>
+                  <p class="detail-row">
+                    <span>{{ 'dashboard.vaccineBatch' | translate }}</span>
+                    {{ getVaccineBatch(event) }}
+                  </p>
+                  <p class="detail-row">
+                    <span>{{ 'dashboard.vaccineClinic' | translate }}</span>
+                    {{ getVaccineClinic(event) }}
+                  </p>
+                  <p class="detail-row">
+                    <span>{{ 'dashboard.vaccineVet' | translate }}</span>
+                    {{ getVaccineVet(event) }}
+                  </p>
+                  <p class="detail-row full">
+                    <span>{{ 'dashboard.vaccineExpiry' | translate }}</span>
+                    <span class="expiry" [class.expired]="isVaccineExpired(event)">
+                      {{
+                        isVaccineExpired(event)
+                          ? ('dashboard.expiredWithDate' | translate: { date: getVaccineExpiry(event) })
+                          : getVaccineExpiry(event)
+                      }}
+                    </span>
+                  </p>
+                  <p class="detail-row full">
+                    <span>{{ 'dashboard.observations' | translate }}</span>
+                    {{ getObservationLabel(event) }}
+                  </p>
+                </div>
+              </div>
+              <div *ngSwitchCase="'GROOMING'">
+                <div class="detail-grid">
+                  <p class="detail-row full">
+                    <span>{{ 'dashboard.groomingServices' | translate }}</span>
+                    {{ getGroomingServices(event) }}
+                  </p>
+                  <p class="detail-row full">
+                    <span>{{ 'dashboard.observations' | translate }}</span>
+                    {{ getObservationLabel(event) }}
+                  </p>
+                </div>
+              </div>
+              <div *ngSwitchCase="'WEIGHT'">
+                <div class="detail-grid">
+                  <p class="detail-row full">
+                    <span>{{ 'dashboard.weightChange' | translate }}</span>
+                    {{ getWeightChangeLabel(event) }}
+                  </p>
+                  <p class="detail-row full">
+                    <span>{{ 'dashboard.observations' | translate }}</span>
+                    {{ getObservationLabel(event) }}
+                  </p>
+                </div>
+              </div>
+              <div *ngSwitchDefault>
+                <div class="detail-grid">
+                  <p class="detail-row full">
+                    <span>{{ 'dashboard.observations' | translate }}</span>
+                    {{ getObservationLabel(event) }}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </article>
-        <p class="empty-state" *ngIf="!activityLog.length">
+        <p class="empty-state" *ngIf="!filteredActivityLog.length">
           {{ 'dashboard.noActivity' | translate }}
         </p>
+        <button
+          type="button"
+          class="load-more-btn"
+          *ngIf="canLoadMoreActivity"
+          (click)="loadMoreActivity()"
+        >
+          {{ 'dashboard.loadMore' | translate }}
+        </button>
       </div>
     </section>
 
     <aside class="right-rail">
       <div class="fab-wrap">
         <button class="fab-action" type="button" (click)="toggleActivityMenu()">
-          <span class="fab-plus">+</span>
-          {{ 'dashboard.activity' | translate }}
+          <mat-icon class="fab-plus">add</mat-icon>
         </button>
         <div class="fab-menu" *ngIf="showActivityMenu">
-          <button type="button" (click)="selectActivity('GROOMING')">
-            {{ 'dashboard.activityGrooming' | translate }}
-          </button>
-          <button type="button" (click)="selectActivity('VET_VISIT')">
-            {{ 'dashboard.activityVetVisit' | translate }}
-          </button>
-          <button type="button" (click)="selectActivity('MEDICATION')">
-            {{ 'dashboard.activityMedication' | translate }}
-          </button>
           <button type="button" (click)="selectActivity('WEIGHT')">
             {{ 'dashboard.activityWeight' | translate }}
           </button>
           <button type="button" (click)="selectActivity('VACCINE')">
             {{ 'dashboard.activityVaccine' | translate }}
           </button>
+          <button type="button" (click)="selectActivity('MEDICATION')">
+            {{ 'dashboard.activityMedication' | translate }}
+          </button>
+          <button type="button" (click)="selectActivity('VET_VISIT')">
+            {{ 'dashboard.activityVetVisit' | translate }}
+          </button>
+          <button type="button" (click)="selectActivity('GROOMING')">
+            {{ 'dashboard.activityGrooming' | translate }}
+          </button>
         </div>
       </div>
       <section class="reminders-card">
         <div class="card-header">
-          <h3>
-            <mat-icon class="reminders-icon">calendar_today</mat-icon>
-            {{ 'dashboard.reminders' | translate }}
-          </h3>
-          <span class="badge">
-            {{ 'dashboard.pendingCount' | translate: { count: remindersList.length } }}
-          </span>
+          <div class="card-header-left">
+            <h3>
+              <mat-icon class="reminders-icon">calendar_today</mat-icon>
+              {{ 'dashboard.reminders' | translate }}
+            </h3>
+            <span class="badge">
+              {{ 'dashboard.pendingCount' | translate: { count: remindersList.length } }}
+            </span>
+          </div>
+          <button
+            type="button"
+            class="reminder-add-btn"
+            [attr.aria-label]="'dashboard.addNewReminder' | translate"
+            (click)="openReminderDialog()"
+          >
+            <mat-icon>add</mat-icon>
+          </button>
         </div>
         <div class="reminder" *ngFor="let reminder of remindersList">
           <div class="checkbox"></div>
-          <div>
+          <div class="reminder-body">
             <h4>{{ reminder.message || ('dashboard.reminderFallback' | translate) }}</h4>
-            <p>{{ formatReminderDate(reminder.dueDate) }}</p>
+            <p class="reminder-meta">
+              <mat-icon *ngIf="isReminderRecurring(reminder)">repeat</mat-icon>
+              <span>{{ formatReminderDateTime(reminder.dueDate) }}</span>
+            </p>
           </div>
         </div>
         <p class="empty-state" *ngIf="!remindersList.length">
           {{ 'dashboard.noReminders' | translate }}
         </p>
-        <button mat-stroked-button class="link-btn">
-          {{ 'dashboard.addNewReminder' | translate }}
-        </button>
       </section>
 
     </aside>

@@ -28,9 +28,14 @@ interface UpdatePetRequest {
   notes?: string;
   color?: string;
   weightKg?: number;
+  species?: string;
   breed?: string;
   birthDate?: string;
   photoKey?: string;
+  photoThumbnailKey?: string;
+  lastGroomingDate?: string;
+  lastVetVisitDate?: string;
+  healthIndex?: number;
 }
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
@@ -89,10 +94,19 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     if (payload.notes !== undefined) setField('notes', payload.notes);
     if (payload.color !== undefined) setField('color', payload.color);
     if (payload.weightKg !== undefined) setField('weightKg', payload.weightKg);
+    if (payload.species !== undefined) setField('species', payload.species);
     if (payload.breed !== undefined) setField('breed', payload.breed);
     if (payload.birthDate !== undefined)
       setField('birthDate', payload.birthDate);
     if (payload.photoKey !== undefined) setField('photoKey', payload.photoKey);
+    if (payload.photoThumbnailKey !== undefined)
+      setField('photoThumbnailKey', payload.photoThumbnailKey);
+    if (payload.lastGroomingDate !== undefined)
+      setField('lastGroomingDate', payload.lastGroomingDate);
+    if (payload.lastVetVisitDate !== undefined)
+      setField('lastVetVisitDate', payload.lastVetVisitDate);
+    if (payload.healthIndex !== undefined)
+      setField('healthIndex', payload.healthIndex);
 
     setField('updatedAt', expressionValues[':updatedAt']);
 

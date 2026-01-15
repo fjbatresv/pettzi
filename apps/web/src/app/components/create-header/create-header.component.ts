@@ -1,7 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { LanguageToggleComponent } from '../language-toggle/language-toggle.component';
+import { AuthService } from '../../core/services/auth.service';
+import { UploadsService } from '../../core/services/uploads.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-create-header',
@@ -11,17 +14,51 @@ import { LanguageToggleComponent } from '../language-toggle/language-toggle.comp
   styleUrl: './create-header.component.scss',
 })
 export class CreateHeaderComponent implements OnInit {
+  private readonly auth = inject(AuthService);
+  private readonly uploads = inject(UploadsService);
   @Input() userName = '';
 
   avatarLabel = '??';
+  avatarUrl = '';
 
   ngOnInit() {
-    const resolvedName = this.userName.trim() || this.getNameFromToken();
+    void this.loadAvatar();
+  }
+
+  private async loadAvatar() {
+    let resolvedName = this.userName.trim();
+    try {
+      const profile = await firstValueFrom(this.auth.getUserProfile());
+      const profileName =
+        profile.fullName?.trim() ||
+        [profile.firstName, profile.lastName].filter(Boolean).join(' ').trim();
+      if (!resolvedName && profileName) {
+        resolvedName = profileName;
+      }
+      const photoKey = profile.profilePhotoKey?.trim();
+      if (photoKey) {
+        this.loadProfilePhoto(photoKey);
+      }
+    } catch {
+      // fallback to token below
+    }
+
+    if (!resolvedName) {
+      resolvedName = await this.getNameFromToken();
+    }
     this.avatarLabel = this.buildAvatarLabel(resolvedName);
   }
 
-  private getNameFromToken() {
-    const token = localStorage.getItem('pettzi.idToken');
+  private loadProfilePhoto(fileKey: string) {
+    this.uploads.generateProfileDownloadUrl(fileKey).subscribe({
+      next: ({ downloadUrl }) => {
+        this.avatarUrl = downloadUrl;
+      },
+    });
+  }
+
+  private async getNameFromToken() {
+    const token = await this.auth.getIdToken();
     if (!token) {
       return '';
     }
@@ -40,9 +77,7 @@ export class CreateHeaderComponent implements OnInit {
         return fullName;
       }
 
-      return (
-        this.getStringField(payload, ['name', 'preferred_username', 'email', 'cognito:username']) || ''
-      );
+      return this.getStringField(payload, ['name', 'preferred_username']) || '';
     } catch {
       return '';
     }
@@ -69,11 +104,7 @@ export class CreateHeaderComponent implements OnInit {
     if (!trimmed) {
       return '??';
     }
-
-    const normalized = trimmed.includes('@')
-      ? trimmed.split('@')[0].replace(/[._-]+/g, ' ')
-      : trimmed;
-    const parts = normalized.split(/\s+/).filter(Boolean);
+    const parts = trimmed.split(/\s+/).filter(Boolean);
 
     if (parts.length >= 2) {
       return `${parts[0][0] ?? ''}${parts[parts.length - 1][0] ?? ''}`.toUpperCase();

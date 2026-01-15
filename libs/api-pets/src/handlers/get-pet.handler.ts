@@ -18,6 +18,7 @@ import {
   fromItemPet,
 } from '@pettzi/domain-model';
 import { getOwnerId, PETTZI_TABLE_NAME } from '../utils';
+import { computeHealthIndex, fetchVaccineStatus } from './health';
 
 const docClient = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 
@@ -63,9 +64,18 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
       return notFound('Pet not found');
     }
 
-    const pet = fromItemPet(petRes.Item);
+    let pet = fromItemPet(petRes.Item);
     if (pet.isArchived) {
       return notFound('Pet archived');
+    }
+
+    if (pet.healthIndex === undefined || pet.healthIndex === null) {
+      const vaccineStatus = await fetchVaccineStatus(
+        docClient,
+        PETTZI_TABLE_NAME,
+        pet.petId
+      );
+      pet = { ...pet, ...computeHealthIndex(pet, vaccineStatus) };
     }
 
     return ok(pet);

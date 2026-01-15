@@ -1,3 +1,10 @@
 {
-  "cSpell.words": ["pettzi"]
+  "cSpell.words": [
+    "pettzi"
+  ],
+  "i18n-ally.localesPaths": [
+    "apps/web/public/i18n",
+    "apps/web/src/locale",
+    "apps/web/src/app/core/i18n"
+  ]
 }

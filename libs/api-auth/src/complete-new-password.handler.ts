@@ -4,6 +4,7 @@ import {
   RespondToAuthChallengeCommand,
 } from '@aws-sdk/client-cognito-identity-provider';
 import { badRequest, ok, serverError } from '@pettzi/utils-dynamo/http';
+import { buildRefreshCookie } from './handlers/cookies';
 
 interface CompletePasswordPayload {
   email?: string;
@@ -48,11 +49,19 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
       return serverError('Invalid auth response from Cognito');
     }
 
-    return ok({
-      idToken: authResult.IdToken,
-      accessToken: authResult.AccessToken,
-      refreshToken: authResult.RefreshToken,
-    });
+    const cookie =
+      authResult.RefreshToken != null
+        ? buildRefreshCookie(authResult.RefreshToken)
+        : undefined;
+
+    return ok(
+      {
+        idToken: authResult.IdToken,
+        accessToken: authResult.AccessToken,
+      },
+      undefined,
+      cookie ? [cookie] : undefined
+    );
   } catch (error: any) {
     console.error('Complete new password error', { error });
     if (error?.name === 'NotAuthorizedException') {

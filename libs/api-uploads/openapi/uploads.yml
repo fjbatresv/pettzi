@@ -30,6 +30,26 @@ paths:
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '500': { $ref: '#/components/responses/ServerError' }
+  /profile/photo:
+    post:
+      summary: Generate presigned upload URL for a profile photo
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateUploadUrlRequest'
+      responses:
+        '201':
+          description: Upload URL generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenerateUploadUrlResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
   /pets/{petId}/document:
     post:
       summary: Generate presigned upload URL for a pet document
@@ -83,6 +103,26 @@ paths:
           name: petId
           required: true
           schema: { type: string }
+        - in: query
+          name: fileKey
+          required: true
+          schema: { type: string }
+          description: URL-encoded S3 key
+      responses:
+        '200':
+          description: Download URL generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenerateDownloadUrlResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+  /profile/download-url:
+    get:
+      summary: Generate download URL for a profile photo
+      security: [{ bearerAuth: [] }]
+      parameters:
         - in: query
           name: fileKey
           required: true

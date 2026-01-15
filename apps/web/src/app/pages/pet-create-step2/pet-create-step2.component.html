@@ -26,15 +26,19 @@
           <h3>{{ 'createPet.birthdayTitle' | translate }}</h3>
         </div>
         <div class="form-row single">
-          <div class="input-group">
+          <mat-form-field appearance="outline" class="select-field">
+            <mat-label>{{ 'createPet.birthdayPlaceholder' | translate }}</mat-label>
             <input
-              type="date"
-              [attr.placeholder]="'createPet.birthdayPlaceholder' | translate"
-              [ngModel]="birthdayValue"
-              (ngModelChange)="onDateChange($event)"
-              [attr.max]="maxDate"
+              matInput
+              [matDatepicker]="birthdayPicker"
+              [(ngModel)]="selectedDate"
+              [max]="maxDate"
+              readonly
+              (dateChange)="onDateChange($event.value)"
             />
-          </div>
+            <mat-datepicker-toggle matIconSuffix [for]="birthdayPicker"></mat-datepicker-toggle>
+            <mat-datepicker #birthdayPicker></mat-datepicker>
+          </mat-form-field>
         </div>
         <span class="pill">{{ ageDisplay }}</span>
       </div>

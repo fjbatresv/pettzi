@@ -5,6 +5,9 @@
   </div>
   <div class="top-actions">
     <app-language-toggle></app-language-toggle>
-    <div class="avatar">{{ avatarLabel }}</div>
+    <div class="avatar">
+      <img *ngIf="avatarUrl" [src]="avatarUrl" [alt]="avatarLabel" />
+      <span *ngIf="!avatarUrl">{{ avatarLabel }}</span>
+    </div>
   </div>
 </header>

@@ -57,7 +57,10 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         const due = reminder.dueDate.getTime();
         if (from && due < from.getTime()) continue;
         if (to && due > to.getTime()) continue;
-        reminders.push(reminder);
+        reminders.push({
+          ...reminder,
+          recurring: Boolean(reminder.metadata?.recurring || reminder.metadata?.periodicity),
+        });
       }
     }
 

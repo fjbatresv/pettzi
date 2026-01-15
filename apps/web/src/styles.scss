@@ -17,3 +17,34 @@ body {
   color: var(--pet-ink);
   font-family: 'Spline Sans', 'Segoe UI', sans-serif;
 }
+
+.pet-dialog .mat-mdc-dialog-container {
+  border-radius: 20px;
+}
+
+.pet-dialog .mat-mdc-dialog-surface {
+  border-radius: 20px;
+  padding: 1.5rem;
+}
+
+.activity-filter-panel {
+  border-radius: 16px;
+  box-shadow: 0 18px 30px rgba(27, 18, 36, 0.12);
+  --mdc-theme-primary: var(--pet-purple);
+  --mdc-checkbox-selected-icon-color: var(--pet-purple);
+  --mdc-checkbox-selected-checkmark-color: #ffffff;
+  --mdc-checkbox-unselected-icon-color: rgba(27, 18, 36, 0.35);
+}
+
+.activity-filter-panel .mat-mdc-menu-content {
+  padding: 0.6rem 0.8rem;
+}
+
+.activity-filter-panel .mdc-checkbox__background {
+  border-radius: 6px;
+}
+
+.activity-filter-panel .mdc-form-field {
+  color: rgba(27, 18, 36, 0.85);
+  font-weight: 600;
+}

@@ -9,6 +9,8 @@ import { Pet } from '@pettzi/domain-model';
 import { LanguageToggleComponent } from '../language-toggle/language-toggle.component';
 import { PetsService } from '../../core/services/pets.service';
 import { UploadsService } from '../../core/services/uploads.service';
+import { AuthService } from '../../core/services/auth.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard-layout',
@@ -28,22 +30,26 @@ import { UploadsService } from '../../core/services/uploads.service';
 export class DashboardLayoutComponent implements OnInit {
   private readonly pets = inject(PetsService);
   private readonly uploads = inject(UploadsService);
+  private readonly auth = inject(AuthService);
 
   activePet: Pet | null = null;
   activePetPhotoUrl = '';
   userInitials = '??';
+  userPhotoUrl = '';
   activePetAge = '';
   isMobile = false;
 
   ngOnInit() {
     this.updateViewport();
-    this.userInitials = this.buildAvatarLabel(this.getUserNameFromToken());
+    void this.loadUserProfile();
     this.pets.listPets().subscribe({
       next: ({ pets }) => {
         this.activePet = pets?.[0] ?? null;
         this.activePetAge = this.getAgeLabel(this.activePet?.birthDate);
-        if (this.activePet?.petId && this.activePet.photoKey) {
-          this.loadPhoto(this.activePet.petId, this.activePet.photoKey);
+        const photoKey =
+          this.activePet?.photoThumbnailKey ?? this.activePet?.photoKey;
+        if (this.activePet?.petId && photoKey) {
+          this.loadPhoto(this.activePet.petId, photoKey);
         }
       },
     });
@@ -69,8 +75,36 @@ export class DashboardLayoutComponent implements OnInit {
     });
   }
 
-  private getUserNameFromToken() {
-    const token = localStorage.getItem('pettzi.idToken');
+  private async loadUserProfile() {
+    try {
+      const profile = await firstValueFrom(this.auth.getUserProfile());
+      const name =
+        profile.fullName?.trim() ||
+        [profile.firstName, profile.lastName].filter(Boolean).join(' ').trim();
+      this.userInitials = this.buildAvatarLabel(name);
+      const photoKey = profile.profilePhotoKey?.trim();
+      if (photoKey) {
+        this.loadProfilePhoto(photoKey);
+      }
+      return;
+    } catch {
+      // fallback to token parsing below
+    }
+
+    const name = await this.getUserNameFromToken();
+    this.userInitials = this.buildAvatarLabel(name);
+  }
+
+  private loadProfilePhoto(fileKey: string) {
+    this.uploads.generateProfileDownloadUrl(fileKey).subscribe({
+      next: ({ downloadUrl }) => {
+        this.userPhotoUrl = downloadUrl;
+      },
+    });
+  }
+
+  private async getUserNameFromToken() {
+    const token = await this.auth.getIdToken();
     if (!token) {
       return '';
     }
@@ -80,10 +114,13 @@ export class DashboardLayoutComponent implements OnInit {
     }
     try {
       const payload = JSON.parse(this.decodeBase64Url(parts[1])) as Record<string, unknown>;
-      return (
-        this.getStringField(payload, ['name', 'given_name', 'family_name', 'preferred_username', 'email']) ||
-        ''
-      );
+      const fullName = this.getStringField(payload, ['name']);
+      if (fullName) {
+        return fullName;
+      }
+      const given = this.getStringField(payload, ['given_name']);
+      const family = this.getStringField(payload, ['family_name']);
+      return [given, family].filter(Boolean).join(' ').trim() || '';
     } catch {
       return '';
     }
@@ -110,10 +147,7 @@ export class DashboardLayoutComponent implements OnInit {
     if (!trimmed) {
       return '??';
     }
-    const normalized = trimmed.includes('@')
-      ? trimmed.split('@')[0].replace(/[._-]+/g, ' ')
-      : trimmed;
-    const parts = normalized.split(/\s+/).filter(Boolean);
+    const parts = trimmed.split(/\s+/).filter(Boolean);
     if (parts.length >= 2) {
       return `${parts[0][0] ?? ''}${parts[parts.length - 1][0] ?? ''}`.toUpperCase();
     }

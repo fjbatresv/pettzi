@@ -1,0 +1,160 @@
+:host {
+  display: block;
+}
+
+.confirm-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: radial-gradient(circle at 50% 30%, rgba(127, 19, 236, 0.12) 0%, rgba(255, 255, 255, 0) 55%),
+    var(--pet-sand);
+  color: var(--pet-ink);
+}
+
+.confirm-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 3rem;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.brand img {
+  height: 40px;
+}
+
+.confirm-main {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: 2.5rem 1.5rem;
+}
+
+.confirm-card {
+  width: min(520px, 100%);
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 2.75rem 2.5rem;
+  box-shadow: 0 30px 60px rgba(127, 19, 236, 0.12);
+  display: grid;
+  gap: 1.5rem;
+  text-align: center;
+}
+
+.card-hero {
+  display: grid;
+  place-items: center;
+}
+
+.hero-media {
+  width: min(360px, 100%);
+  height: 180px;
+  border-radius: 24px;
+  background: linear-gradient(120deg, #f4d3dc 0%, #f6c4d0 40%, #e6c7ff 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-sky {
+  position: absolute;
+  inset: 24px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.5);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.7);
+}
+
+.hero-icons {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  z-index: 1;
+}
+
+.icon-dot {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #ffffff;
+  display: grid;
+  place-items: center;
+  color: var(--pet-purple);
+  box-shadow: 0 10px 18px rgba(127, 19, 236, 0.2);
+}
+
+.icon-dot.alt {
+  background: #59d1a4;
+  color: #ffffff;
+}
+
+mat-icon {
+  font-size: 22px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 2.1rem;
+}
+
+.accent {
+  color: var(--pet-purple);
+}
+
+.subtitle {
+  margin: 0;
+  color: rgba(27, 18, 36, 0.7);
+  line-height: 1.6;
+}
+
+.primary {
+  border: none;
+  background: linear-gradient(120deg, var(--pet-purple), var(--pet-lilac));
+  color: #ffffff;
+  font-weight: 600;
+  padding: 0.9rem 1.4rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  text-decoration: none;
+  box-shadow: 0 16px 30px rgba(127, 19, 236, 0.25);
+}
+
+.support {
+  margin: 0;
+  color: rgba(27, 18, 36, 0.6);
+  font-size: 0.9rem;
+}
+
+.link {
+  color: var(--pet-purple);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.confirm-footer {
+  text-align: center;
+  padding: 1.5rem 1rem 2rem;
+  color: rgba(27, 18, 36, 0.55);
+  font-size: 0.85rem;
+}
+
+@media (max-width: 720px) {
+  .confirm-topbar {
+    padding: 1.5rem;
+  }
+
+  .confirm-card {
+    padding: 2.25rem 1.75rem;
+  }
+}

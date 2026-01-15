@@ -139,6 +139,11 @@ components:
         message:
           type: string
           nullable: true
+        metadata:
+          type: object
+          additionalProperties: true
+        recurring:
+          type: boolean
         createdAt:
           type: string
           format: date-time
@@ -165,6 +170,9 @@ components:
         eventId:
           type: string
           nullable: true
+        metadata:
+          type: object
+          additionalProperties: true
     ErrorResponse:
       type: object
       properties:

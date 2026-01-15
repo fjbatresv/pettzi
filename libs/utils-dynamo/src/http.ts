@@ -11,10 +11,11 @@ export interface ErrorBody {
     };
   }
   
-  export interface ApiResponse<T = unknown> {
+export interface ApiResponse<T = unknown> {
     statusCode: number;
     headers?: Record<string, string>;
     body?: string;
+    cookies?: string[];
   }
   
   /**
@@ -24,12 +25,14 @@ export interface ErrorBody {
     statusCode: number,
     body: T,
     extraHeaders?: Record<string, string>,
+    cookies?: string[],
   ): ApiResponse<T> => ({
     statusCode,
     headers: {
       'Content-Type': 'application/json',
       ...(extraHeaders ?? {}),
     },
+    ...(cookies && cookies.length ? { cookies } : {}),
     body: JSON.stringify(body),
   });
   
@@ -37,13 +40,17 @@ export interface ErrorBody {
    * 2xx helpers
    * ------------------------------------------------------------------ */
   
-  export const ok = <T>(body: T, headers?: Record<string, string>): ApiResponse<T> =>
-    jsonResponse(200, body, headers);
+export const ok = <T>(
+  body: T,
+  headers?: Record<string, string>,
+  cookies?: string[]
+): ApiResponse<T> => jsonResponse(200, body, headers, cookies);
   
-  export const created = <T>(
-    body: T,
-    headers?: Record<string, string>,
-  ): ApiResponse<T> => jsonResponse(201, body, headers);
+export const created = <T>(
+  body: T,
+  headers?: Record<string, string>,
+  cookies?: string[]
+): ApiResponse<T> => jsonResponse(201, body, headers, cookies);
   
   /**
    * 204 No Content – usually no body.
