@@ -310,7 +310,8 @@ input:focus {
 .visual-photo {
   height: 240px;
   border-radius: 20px;
-  background: radial-gradient(circle at 20% 20%, #fef3c7, #f1d1ff 60%, #e9d5ff 100%);
+  background: url('/assets/login.webp');
+  background-position: center;
   margin-bottom: 1.5rem;
 }
 

@@ -62,19 +62,6 @@ const sanitizeAuthResponse = (resp?: InitiateAuthCommandOutput) => ({
   authenticationResultPresent: !!resp?.AuthenticationResult,
 });
 
-const decodeJwtSub = (token: string | undefined) => {
-  if (!token) return null;
-  const [, payload] = token.split('.');
-  if (!payload) return null;
-  try {
-    const decoded = Buffer.from(payload, 'base64url').toString('utf8');
-    const parsed = JSON.parse(decoded) as { sub?: string };
-    return parsed?.sub ?? null;
-  } catch {
-    return null;
-  }
-};
-
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   if (!PETTZI_TABLE_NAME) {
     return serverError('PETTZI_TABLE_NAME is required');
@@ -154,17 +141,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
       return serverError('Failed to start session after registration');
     }
 
-    const ownerId =
-      createResponse?.User?.Attributes?.find((attr) => attr.Name === 'sub')
-        ?.Value ?? decodeJwtSub(authResult.IdToken);
-
-    if (!ownerId) {
-      console.error('Missing ownerId after registration', {
-        ...createEmailLogContext(email),
-        userAttributes: createResponse?.User?.Attributes?.map((attr) => attr.Name),
-      });
-      return serverError('Failed to register user');
-    }
+    const ownerId = email;
 
     const createdAt = new Date();
     await docClient.send(

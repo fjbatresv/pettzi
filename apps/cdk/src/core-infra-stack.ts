@@ -12,6 +12,7 @@ import { Construct } from 'constructs';
 
 export interface CoreInfraStackProps extends StackProps {
   stage: string;
+  useKms?: boolean;
 }
 
 export class CoreInfraStack extends Stack {
@@ -24,6 +25,7 @@ export class CoreInfraStack extends Stack {
     super(scope, id, props);
 
     const stage = props.stage.toLowerCase().replaceAll(/[^a-z0-9-]/g, '-');
+    const useKms = props.useKms ?? false;
 
     Tags.of(this).add('project', 'pettzi');
     Tags.of(this).add('AppManagerCFNStackKey', id);
@@ -32,10 +34,22 @@ export class CoreInfraStack extends Stack {
       topicName: `pettzi-alarms-${stage}`,
     });
 
+    const s3Key = useKms
+      ? (() => {
+          const key = new kms.Key(this, 'PettziS3Key', {
+            enableKeyRotation: true,
+            description: `CMK for Pettzi S3 buckets (${stage})`,
+          });
+          key.applyRemovalPolicy(RemovalPolicy.DESTROY);
+          return key;
+        })()
+      : undefined;
+
     this.logsBucket = new s3.Bucket(this, 'DocsAccessLogsBucket', {
       bucketName: `pettzi-docs-logs-${stage}`,
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
-      encryption: s3.BucketEncryption.S3_MANAGED,
+      encryption: useKms ? s3.BucketEncryption.KMS : s3.BucketEncryption.S3_MANAGED,
+      ...(useKms && s3Key ? { encryptionKey: s3Key } : {}),
       objectOwnership: s3.ObjectOwnership.BUCKET_OWNER_PREFERRED,
       accessControl: s3.BucketAccessControl.LOG_DELIVERY_WRITE,
       versioned: true,
@@ -71,19 +85,26 @@ export class CoreInfraStack extends Stack {
       })
     );
 
-    const tableKey = new kms.Key(this, 'PettziTableKey', {
-      enableKeyRotation: true,
-      description: `CMK for Pettzi DynamoDB table (${stage})`,
-    });
-    tableKey.applyRemovalPolicy(RemovalPolicy.DESTROY);
+    const tableKey = useKms
+      ? (() => {
+          const key = new kms.Key(this, 'PettziTableKey', {
+            enableKeyRotation: true,
+            description: `CMK for Pettzi DynamoDB table (${stage})`,
+          });
+          key.applyRemovalPolicy(RemovalPolicy.DESTROY);
+          return key;
+        })()
+      : undefined;
 
     this.table = new dynamodb.Table(this, 'PettziTable', {
       tableName: `pettzi-table-${stage}`,
       partitionKey: { name: 'PK', type: dynamodb.AttributeType.STRING },
       sortKey: { name: 'SK', type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-      encryption: dynamodb.TableEncryption.CUSTOMER_MANAGED,
-      encryptionKey: tableKey,
+      encryption: useKms
+        ? dynamodb.TableEncryption.CUSTOMER_MANAGED
+        : dynamodb.TableEncryption.AWS_MANAGED,
+      ...(useKms && tableKey ? { encryptionKey: tableKey } : {}),
       pointInTimeRecovery: true,
       removalPolicy: RemovalPolicy.DESTROY,
     });
@@ -97,7 +118,8 @@ export class CoreInfraStack extends Stack {
     this.docsBucket = new s3.Bucket(this, 'DocsBucket', {
       bucketName: `pettzi-docs-${stage}`,
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
-      encryption: s3.BucketEncryption.S3_MANAGED,
+      encryption: useKms ? s3.BucketEncryption.KMS : s3.BucketEncryption.S3_MANAGED,
+      ...(useKms && s3Key ? { encryptionKey: s3Key } : {}),
       versioned: true,
       eventBridgeEnabled: true,
       serverAccessLogsBucket: this.logsBucket,

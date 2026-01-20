@@ -16,11 +16,14 @@ export class AppRegistryAssociationsStack extends Stack {
   constructor(scope: Construct, id: string, props: AppRegistryAssociationsStackProps) {
     super(scope, id, props);
 
-    props.stacks.forEach((stack, index) => {
+    props.stacks.forEach((stack) => {
       // Enforce deployment order
       this.addDependency(stack);
 
-      new appreg.CfnResourceAssociation(this, `AppAssoc${index}`, {
+      const safeId = stack.stackName.replace(/[^A-Za-z0-9]/g, '');
+      const assocId = safeId ? `AppAssoc${safeId}` : `AppAssoc${stack.node.id}`;
+
+      new appreg.CfnResourceAssociation(this, assocId, {
         application: props.applicationArn,
         resource: stack.stackId,
         resourceType: 'CFN_STACK',

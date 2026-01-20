@@ -469,6 +469,9 @@ export class DashboardPetComponent implements OnInit {
     if (_action === 'edit') {
       void this.router.navigate(['/dashboard/pet/edit']);
     }
+    if (_action === 'share') {
+      void this.router.navigate(['/dashboard/pet/share']);
+    }
   }
 
   @HostListener('document:click', ['$event'])

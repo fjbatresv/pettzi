@@ -1,11 +1,14 @@
 @use '../login/login.component.scss' as *;
 
 .visual-photo.alt {
-  background: radial-gradient(circle at 20% 20%, #d1fae5, #c084fc 55%, #f5f2ed 100%);
+  background: url('/assets/signup.webp');
+  background-position: center;
 }
 
 .float-card.alt {
   left: 2rem;
+  top: 14rem;
+  left: 16rem;
   right: auto;
 }
 

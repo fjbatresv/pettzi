@@ -1,0 +1,141 @@
+<section class="share-pet-page">
+  <header class="share-header">
+    <button mat-button class="back-btn" routerLink="/dashboard/pet">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div class="header-text">
+      <h2>{{ 'sharePet.title' | translate }}</h2>
+      <p>
+        {{
+          'sharePet.subtitle'
+            | translate: { petName: petNameLabel }
+        }}
+      </p>
+    </div>
+  </header>
+
+  <section class="share-card pet-card">
+    <div class="pet-hero">
+      <div class="pet-avatar">
+        <img *ngIf="petPhotoUrl" [src]="petPhotoUrl" [attr.alt]="petNameLabel" />
+        <span *ngIf="!petPhotoUrl">{{ petInitial }}</span>
+      </div>
+      <div class="pet-hero-text">
+        <h3>{{ 'sharePet.petCardTitle' | translate: { petName: petNameLabel } }}</h3>
+        <p>{{ 'sharePet.petCardSubtitle' | translate: { petName: petNameLabel } }}</p>
+        <div class="pet-meta">
+          <span>{{ breedLabel || speciesLabel || ('dashboard.unknown' | translate) }}</span>
+          <span class="dot">·</span>
+          <span>{{ ageLabel || ('dashboard.ageUnknown' | translate) }}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="share-grid">
+    <div class="share-column">
+      <section class="share-card owners-card">
+        <div class="section-title">
+          <span class="section-icon">
+            <mat-icon>group</mat-icon>
+          </span>
+          <h3>{{ 'sharePet.currentOwners' | translate }}</h3>
+        </div>
+
+        <div class="owner-item" *ngIf="primaryOwner">
+          <div class="owner-avatar">
+            <img
+              *ngIf="primaryOwner.photoUrl"
+              [src]="primaryOwner.photoUrl"
+              [attr.alt]="primaryOwner.name"
+            />
+            <span *ngIf="!primaryOwner.photoUrl">{{ primaryOwner.initials }}</span>
+          </div>
+          <div class="owner-info">
+            <h4>{{ primaryOwner.name }}</h4>
+            <p>{{ 'sharePet.primaryOwner' | translate }}</p>
+          </div>
+          <mat-icon class="owner-check">verified</mat-icon>
+        </div>
+      </section>
+
+      <section class="share-card shared-card">
+        <div class="section-title">
+          <span class="section-icon">
+            <mat-icon>person_add</mat-icon>
+          </span>
+          <h3>{{ 'sharePet.sharedWith' | translate }}</h3>
+        </div>
+
+        <div class="empty-state" *ngIf="!coOwners.length">
+          <mat-icon>group_add</mat-icon>
+          <p>{{ 'sharePet.noCoOwners' | translate }}</p>
+        </div>
+
+        <div class="owner-item" *ngFor="let owner of coOwners">
+          <div class="owner-avatar muted">{{ owner.initials }}</div>
+          <div class="owner-info">
+            <h4>{{ owner.name }}</h4>
+            <p>{{ owner.email || ('sharePet.coOwner' | translate) }}</p>
+          </div>
+          <button
+            mat-icon-button
+            type="button"
+            class="owner-remove"
+            [disabled]="!owner.canRemove"
+            [attr.aria-label]="'sharePet.removeOwner' | translate"
+            (click)="removeOwner(owner.ownerId)"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </section>
+    </div>
+
+    <section class="share-card invite-card">
+      <div class="invite-header">
+        <h3>{{ 'sharePet.inviteTitle' | translate }}</h3>
+        <p>{{ 'sharePet.inviteCopy' | translate }}</p>
+      </div>
+
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>{{ 'sharePet.emailLabel' | translate }}</mat-label>
+        <mat-icon matPrefix>mail</mat-icon>
+        <input
+          matInput
+          type="email"
+          [(ngModel)]="inviteEmail"
+          [placeholder]="'sharePet.emailPlaceholder' | translate"
+        />
+      </mat-form-field>
+
+      <div class="invite-note">
+        <mat-icon>info</mat-icon>
+        <span>{{ 'sharePet.inviteHint' | translate: { petName: petNameLabel } }}</span>
+      </div>
+
+      <p class="invite-error" *ngIf="inviteError">{{ inviteError }}</p>
+      <p class="invite-success" *ngIf="inviteSent">{{ 'sharePet.inviteSent' | translate }}</p>
+
+      <button
+        mat-raised-button
+        color="primary"
+        class="primary-cta"
+        type="button"
+        (click)="sendInvite()"
+        [disabled]="!canSendInvite || isSending"
+      >
+        {{
+          isSending
+            ? ('sharePet.sendingInvite' | translate)
+            : ('sharePet.sendInvite' | translate)
+        }}
+      </button>
+    </section>
+  </div>
+
+  <div class="share-help">
+    <mat-icon>help_outline</mat-icon>
+    <span>{{ 'sharePet.help' | translate }}</span>
+  </div>
+</section>

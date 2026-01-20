@@ -20,6 +20,10 @@ export class SesTemplatesStack extends Stack {
   public static readonly REMINDER_TEMPLATE_EN = 'PettziReminderNotificationEmailEn';
   public static readonly EVENT_TEMPLATE_ES = 'PettziEventNotificationEmailEs';
   public static readonly EVENT_TEMPLATE_EN = 'PettziEventNotificationEmailEn';
+  public static readonly SHARE_PET_INVITE_TEMPLATE_ES =
+    'PettziSharePetInviteEmailEs';
+  public static readonly SHARE_PET_INVITE_TEMPLATE_EN =
+    'PettziSharePetInviteEmailEn';
 
   constructor(scope: Construct, id: string, props: SesTemplatesStackProps) {
     super(scope, id, props);
@@ -120,24 +124,25 @@ export class SesTemplatesStack extends Stack {
       },
     });
 
-    new ses.CfnTemplate(this, 'EventTemplateEs', {
+    new ses.CfnTemplate(this, 'SharePetInviteTemplateEs', {
       template: {
-        templateName: SesTemplatesStack.EVENT_TEMPLATE_ES,
-        subjectPart: 'Evento PETTZI: {{eventType}} para {{petName}}',
-        htmlPart: loadHtml('event.es.html'),
+        templateName: SesTemplatesStack.SHARE_PET_INVITE_TEMPLATE_ES,
+        subjectPart: '{{inviterName}} te invitó a cuidar de {{petName}}',
+        htmlPart: loadHtml('share-pet-invite.es.html'),
         textPart:
-          'Evento registrado: {{eventType}} para {{petName}} el {{eventDate}}. Notas: {{notes}}',
+          '{{inviterName}} te invitó a compartir el perfil de {{petName}} en PETTZI. Raza: {{petBreed}}. Edad: {{petAge}}. Acepta aquí: {{acceptInvitationUrl}}. Expira en {{expirationDays}} días.',
       },
     });
 
-    new ses.CfnTemplate(this, 'EventTemplateEn', {
+    new ses.CfnTemplate(this, 'SharePetInviteTemplateEn', {
       template: {
-        templateName: SesTemplatesStack.EVENT_TEMPLATE_EN,
-        subjectPart: 'PETTZI Event: {{eventType}} for {{petName}}',
-        htmlPart: loadHtml('event.en.html'),
+        templateName: SesTemplatesStack.SHARE_PET_INVITE_TEMPLATE_EN,
+        subjectPart: '{{inviterName}} invited you to care for {{petName}}',
+        htmlPart: loadHtml('share-pet-invite.en.html'),
         textPart:
-          'Event logged: {{eventType}} for {{petName}} on {{eventDate}}. Notes: {{notes}}',
+          '{{inviterName}} invited you to share {{petName}} on PETTZI. Breed: {{petBreed}}. Age: {{petAge}}. Accept here: {{acceptInvitationUrl}}. Expires in {{expirationDays}} days.',
       },
     });
+
   }
 }

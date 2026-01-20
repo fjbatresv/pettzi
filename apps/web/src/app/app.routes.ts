@@ -13,6 +13,7 @@ import { MedicationComponent } from './pages/medication/medication.component';
 import { VaccineComponent } from './pages/vaccine/vaccine.component';
 import { WeightComponent } from './pages/weight/weight.component';
 import { PetEditComponent } from './pages/pet-edit/pet-edit.component';
+import { PetShareComponent } from './pages/pet-share/pet-share.component';
 import { SettingsComponent } from './pages/settings/settings.component';
 import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
@@ -97,6 +98,10 @@ export const appRoutes: Route[] = [
       {
         path: 'weight',
         component: WeightComponent,
+      },
+      {
+        path: 'pet/share',
+        component: PetShareComponent,
       },
       {
         path: 'pet',

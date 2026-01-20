@@ -5,21 +5,31 @@ import { HttpUserPoolAuthorizer } from 'aws-cdk-lib/aws-apigatewayv2-authorizers
 import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
 import * as cloudwatchActions from 'aws-cdk-lib/aws-cloudwatch-actions';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
+import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction, OutputFormat } from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import { UserPool, UserPoolClient } from 'aws-cdk-lib/aws-cognito';
 import * as sns from 'aws-cdk-lib/aws-sns';
+import * as s3 from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 import * as path from 'path';
 
 export interface OwnersApiStackProps extends StackProps {
   table: dynamodb.Table;
+  docsBucket: s3.Bucket;
   userPool: UserPool;
   userPoolClient: UserPoolClient;
   sharedLayer?: lambda.ILayerVersion;
+  s3Layer?: lambda.ILayerVersion;
+  sesLayer?: lambda.ILayerVersion;
   ddbLayer?: lambda.ILayerVersion;
   stage: string;
+  sesFromEmail?: string;
+  sharePetInviteTemplateNameEs?: string;
+  sharePetInviteTemplateNameEn?: string;
+  inviteBaseUrl?: string;
+  inviteTokenSecret?: string;
   alarmTopic?: sns.ITopic;
 }
 
@@ -39,7 +49,17 @@ export class OwnersApiStack extends Stack {
 
     const commonEnv = {
       PETTZI_TABLE_NAME: props.table.tableName,
+      PETTZI_DOCS_BUCKET_NAME: props.docsBucket.bucketName,
       STAGE: props.stage,
+      ...(props.sesFromEmail ? { SES_FROM_EMAIL: props.sesFromEmail } : {}),
+      ...(props.sharePetInviteTemplateNameEs
+        ? { SES_SHARE_PET_INVITE_TEMPLATE_NAME_ES: props.sharePetInviteTemplateNameEs }
+        : {}),
+      ...(props.sharePetInviteTemplateNameEn
+        ? { SES_SHARE_PET_INVITE_TEMPLATE_NAME_EN: props.sharePetInviteTemplateNameEn }
+        : {}),
+      ...(props.inviteBaseUrl ? { PET_SHARE_INVITE_BASE_URL: props.inviteBaseUrl } : {}),
+      ...(props.inviteTokenSecret ? { PET_SHARE_INVITE_SECRET: props.inviteTokenSecret } : {}),
     };
 
     const getMeFn = this.createFn(
@@ -70,11 +90,26 @@ export class OwnersApiStack extends Stack {
       commonEnv,
       [props.sharedLayer, props.ddbLayer]
     );
+    const inviteOwnerFn = this.createFn(
+      'InvitePetOwnerHandler',
+      props.stage,
+      handlerPath('libs/api-owners/src/handlers/invite-pet-owner.handler.ts'),
+      commonEnv,
+      [props.sharedLayer, props.s3Layer, props.sesLayer, props.ddbLayer]
+    );
 
     props.table.grantReadWriteData(getMeFn);
     props.table.grantReadWriteData(listOwnersFn);
     props.table.grantReadWriteData(addOwnerFn);
     props.table.grantReadWriteData(removeOwnerFn);
+    props.table.grantReadData(inviteOwnerFn);
+    props.docsBucket.grantRead(inviteOwnerFn);
+    inviteOwnerFn.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: ['ses:SendTemplatedEmail'],
+        resources: ['*'],
+      })
+    );
 
     const authorizer = new HttpUserPoolAuthorizer(
       'OwnersJwtAuthorizer',
@@ -124,6 +159,14 @@ export class OwnersApiStack extends Stack {
         removeOwnerFn
       ),
     });
+    this.httpApi.addRoutes({
+      path: '/pets/{petId}/owners/invite',
+      methods: [apigwv2.HttpMethod.POST],
+      integration: new HttpLambdaIntegration(
+        'InviteOwnerIntegration',
+        inviteOwnerFn
+      ),
+    });
 
     this.addApiGatewayAlarm('OwnersApi5xxAlarm', this.httpApi.apiId);
 
@@ -146,6 +189,9 @@ export class OwnersApiStack extends Stack {
     const external =
       layers.length > 0
         ? [
+            '@aws-sdk/client-s3',
+            '@aws-sdk/s3-request-presigner',
+            '@aws-sdk/client-ses',
             '@aws-sdk/client-dynamodb',
             '@aws-sdk/lib-dynamodb',
           ]
