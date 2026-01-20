@@ -7,7 +7,12 @@ export const getOwnerId = (event: APIGatewayProxyEventV2): string => {
   const claims = (event.requestContext as unknown as {
     authorizer?: { jwt?: { claims?: Record<string, unknown> } };
   })?.authorizer?.jwt?.claims;
-  const ownerId = typeof claims?.sub === 'string' ? claims.sub : undefined;
+  const ownerId =
+    (typeof claims?.email === 'string' && claims.email) ||
+    (typeof claims?.username === 'string' && claims.username) ||
+    (typeof claims?.['cognito:username'] === 'string' && claims['cognito:username']) ||
+    (typeof claims?.sub === 'string' && claims.sub) ||
+    undefined;
   if (!ownerId) {
     throw unauthorized('Missing owner identity');
   }

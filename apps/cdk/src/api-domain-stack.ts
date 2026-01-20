@@ -1,5 +1,7 @@
-import { CfnOutput, Stack, StackProps, Tags } from 'aws-cdk-lib';
+import { CfnOutput, Fn, Stack, StackProps, Tags } from 'aws-cdk-lib';
 import * as apigwv2 from 'aws-cdk-lib/aws-apigatewayv2';
+import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
+import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as route53 from 'aws-cdk-lib/aws-route53';
 import * as targets from 'aws-cdk-lib/aws-route53-targets';
 import * as certmgr from 'aws-cdk-lib/aws-certificatemanager';
@@ -60,14 +62,9 @@ export class ApiDomainStack extends Stack {
       {
         domainName: props.domainName,
         hostedZone: zone,
-        region: Stack.of(this).region,
+        region: 'us-east-1',
       }
     );
-
-    const domain = new apigwv2.DomainName(this, 'ApiDomain', {
-      domainName: props.domainName,
-      certificate,
-    });
 
     const mappings: Array<{
       id: string;
@@ -95,14 +92,37 @@ export class ApiDomainStack extends Stack {
       },
     ];
 
+    const distribution = new cloudfront.Distribution(this, 'ApiDistribution', {
+      comment: `Pettzi unified API CDN for ${props.domainName}`,
+      certificate,
+      domainNames: [props.domainName],
+      defaultBehavior: {
+        origin: this.buildHttpApiOrigin(props.authApi),
+        viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+        allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
+        cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
+        originRequestPolicy: cloudfront.OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER,
+        functionAssociations: [
+          {
+            eventType: cloudfront.FunctionEventType.VIEWER_REQUEST,
+            function: this.createPathRewriteFunction('auth', AUTH_API_BASE_PATH),
+          },
+        ],
+      },
+    });
+
     mappings.forEach(({ id: mappingId, api, basePath }) => {
-      new apigwv2.ApiMapping(this, mappingId, {
-        api,
-        domainName: domain,
-        stage:
-          api.defaultStage ??
-          api.addStage(`${basePath}Stage`, { autoDeploy: true }),
-        apiMappingKey: basePath,
+      distribution.addBehavior(`${basePath}/*`, this.buildHttpApiOrigin(api), {
+        viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+        allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
+        cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
+        originRequestPolicy: cloudfront.OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER,
+        functionAssociations: [
+          {
+            eventType: cloudfront.FunctionEventType.VIEWER_REQUEST,
+            function: this.createPathRewriteFunction(mappingId, basePath),
+          },
+        ],
       });
     });
 
@@ -110,10 +130,7 @@ export class ApiDomainStack extends Stack {
       zone,
       recordName: props.domainName,
       target: route53.RecordTarget.fromAlias(
-        new targets.ApiGatewayv2DomainProperties(
-          domain.regionalDomainName,
-          domain.regionalHostedZoneId
-        )
+        new targets.CloudFrontTarget(distribution)
       ),
     });
 
@@ -123,6 +140,33 @@ export class ApiDomainStack extends Stack {
         /[^A-Za-z0-9-]/g,
         '-'
       )}`,
+    });
+  }
+
+  private buildHttpApiOrigin(api: apigwv2.HttpApi) {
+    const domainName = Fn.select(2, Fn.split('/', api.apiEndpoint));
+    return new origins.HttpOrigin(domainName, {
+      protocolPolicy: cloudfront.OriginProtocolPolicy.HTTPS_ONLY,
+    });
+  }
+
+  private createPathRewriteFunction(id: string, basePath: string) {
+    const normalized = basePath.startsWith('/') ? basePath : `/${basePath}`;
+    return new cloudfront.Function(this, `${id}PathRewrite`, {
+      code: cloudfront.FunctionCode.fromInline(`
+function handler(event) {
+  var request = event.request;
+  var prefix = "${normalized}";
+  if (request.uri === prefix) {
+    request.uri = "/";
+    return request;
+  }
+  if (request.uri.startsWith(prefix + "/")) {
+    request.uri = request.uri.substring(prefix.length);
+  }
+  return request;
+}
+      `),
     });
   }
 }

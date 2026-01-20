@@ -22,7 +22,11 @@ export const getOwnerId = (event: APIGatewayProxyEventV2): string => {
   const claims = (event.requestContext as any)?.authorizer?.jwt?.claims as
     | Record<string, any>
     | undefined;
-  const ownerId = claims?.sub as string | undefined;
+  const ownerId =
+    (claims?.email as string | undefined) ||
+    (claims?.username as string | undefined) ||
+    (claims?.['cognito:username'] as string | undefined) ||
+    (claims?.sub as string | undefined);
   if (!ownerId) {
     throw unauthorized('Missing owner identity');
   }

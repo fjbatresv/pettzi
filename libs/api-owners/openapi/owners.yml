@@ -43,6 +43,39 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '500': { $ref: '#/components/responses/ServerError' }
+  /pets/{petId}/owners/invite:
+    post:
+      summary: Invite co-owner by email (primary only)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: petId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: string }
+      responses:
+        '200':
+          description: Invitation sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '500': { $ref: '#/components/responses/ServerError' }
     post:
       summary: Add co-owner (primary only)
       security: [{ bearerAuth: [] }]
@@ -123,6 +156,17 @@ components:
           type: string
           enum: [PRIMARY, SECONDARY]
         linkedAt: { type: string, format: date-time }
+        profile:
+          $ref: '#/components/schemas/OwnerProfileSummary'
+    OwnerProfileSummary:
+      type: object
+      properties:
+        fullName: { type: string }
+        email: { type: string }
+        profilePhotoKey: { type: string }
+        locale:
+          type: string
+          enum: [es, en]
     AddPetOwnerRequest:
       type: object
       required: [ownerId]

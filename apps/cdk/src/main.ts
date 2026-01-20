@@ -13,8 +13,7 @@ import { OwnersApiStack } from './owners-api-stack';
 import { CatalogsApiStack } from './catalogs-api-stack';
 import { ApiDomainStack, AUTH_API_BASE_PATH } from './api-domain-stack';
 import { SesTemplatesStack } from './ses-templates-stack';
-import { PettziApplicationStack } from './application-stack';
-import { AppRegistryAssociationsStack } from './app-registry-associations-stack';
+import { EmailAssetsCdnStack } from './email-assets-cdn-stack';
 
 dotenvConfig({
   path: '../../.env',
@@ -40,9 +39,12 @@ const apiDomainName = (() => {
 })();
 const apiHostedZoneName = process.env.API_HOSTED_ZONE_NAME?.trim();
 const apiHostedZoneId = process.env.API_HOSTED_ZONE_ID?.trim();
+const dsnPrefix = process.env.DSN_PREFIX?.trim();
 const sesFromEmail = process.env.SES_FROM_EMAIL ?? 'no-reply@pettzi.app';
-const appRegistryApplicationName =
-  process.env.APPREG_APPLICATION_NAME ?? 'PettziPlatform';
+const useKms =
+  process.env.KMS_ENABLED != null
+    ? ['true', '1', 'yes'].includes(process.env.KMS_ENABLED.trim().toLowerCase())
+    : stage === 'prod';
 const emailVerificationBaseUrl =
   process.env.EMAIL_VERIFY_BASE_URL ??
   (apiDomainName
@@ -64,6 +66,10 @@ const passwordResetBaseUrl =
   (apiDomainName
     ? `https://${apiDomainName}/${AUTH_API_BASE_PATH}/reset-password`
     : undefined);
+const petShareInviteBaseUrl =
+  process.env.PET_SHARE_INVITE_BASE_URL ?? 'https://app.pettzi.net/accept-invite';
+const petShareInviteSecret =
+  process.env.PET_SHARE_INVITE_SECRET ?? emailVerificationSecret;
 
 // Ensure SDK picks the intended profile when not provided via CLI.
 process.env.AWS_PROFILE = profile;
@@ -80,17 +86,7 @@ console.log('CDK using AWS region:', region || '(default)');
 
 const app = new App();
 
-const appRegistry = new PettziApplicationStack(app, 'PettziApplicationStack', {
-  env: { account, region },
-  stackName: 'PettziApplicationStack',
-  description: `Pettzi application metadata (${stage})`,
-  applicationName: appRegistryApplicationName,
-  applicationDescription: `PETTZI platform (${stage})`,
-});
-
-const resolvedAppArn = appRegistry.applicationArn;
-
-const sesTemplates = new SesTemplatesStack(app, 'PettziSesTemplatesStack', {
+new SesTemplatesStack(app, 'PettziSesTemplatesStack', {
   env: { account, region },
   stackName: 'PettziSesTemplatesStack',
   description: `Pettzi SES templates (${stage})`,
@@ -98,6 +94,36 @@ const sesTemplates = new SesTemplatesStack(app, 'PettziSesTemplatesStack', {
   hostedZoneName: apiHostedZoneName,
   hostedZoneId: apiHostedZoneId,
 });
+
+if (dsnPrefix && apiHostedZoneName) {
+  const domainName =
+    dsnPrefix === apiHostedZoneName ||
+    dsnPrefix.endsWith(`.${apiHostedZoneName}`)
+      ? dsnPrefix
+      : `${dsnPrefix}.${apiHostedZoneName}`;
+  const inHostedZone =
+    domainName === apiHostedZoneName ||
+    domainName.endsWith(`.${apiHostedZoneName}`);
+
+  if (!inHostedZone) {
+    console.warn(
+      `EmailAssetsCdnStack will be deployed in disabled mode: hosted zone "${apiHostedZoneName}" is not authoritative for domain "${domainName}".`
+    );
+  }
+
+  if (inHostedZone) {
+    new EmailAssetsCdnStack(app, 'PettziEmailAssetsCdnStack', {
+      env: { account, region },
+      stackName: 'PettziEmailAssetsCdnStack',
+      description: `Pettzi email assets CDN (${stage})`,
+      stage,
+      prefix: domainName,
+      hostedZoneName: apiHostedZoneName,
+      hostedZoneId: apiHostedZoneId,
+      useKms,
+    });
+  }
+}
 
 const layers = new LayersStack(app, 'PettziLayersStack', {
   env: { account, region },
@@ -111,6 +137,7 @@ const core = new CoreInfraStack(app, 'PettziCoreInfraStack', {
   stage,
   stackName: `PettziCoreInfraStack`,
   description: `Pettzi core infrastructure (${stage})`,
+  useKms,
 });
 
 const auth = new AuthStack(app, 'PettziAuthStack', {
@@ -201,10 +228,18 @@ const ownersApi = new OwnersApiStack(app, 'PettziOwnersApiStack', {
   stackName: 'PettziOwnersApiStack',
   description: `Pettzi owners API (${stage})`,
   table: core.table,
+  docsBucket: core.docsBucket,
   userPool: auth.userPool,
   userPoolClient: auth.userPoolClient,
   sharedLayer: layers.cognitoDepsLayer,
+  s3Layer: layers.s3DepsLayer,
+  sesLayer: layers.sesDepsLayer,
   ddbLayer: layers.ddbDepsLayer,
+  sesFromEmail,
+  sharePetInviteTemplateNameEs: SesTemplatesStack.SHARE_PET_INVITE_TEMPLATE_ES,
+  sharePetInviteTemplateNameEn: SesTemplatesStack.SHARE_PET_INVITE_TEMPLATE_EN,
+  inviteBaseUrl: petShareInviteBaseUrl,
+  inviteTokenSecret: petShareInviteSecret,
   stage,
   alarmTopic: core.alarmTopic,
 });
@@ -220,58 +255,33 @@ const catalogsApi = new CatalogsApiStack(app, 'PettziCatalogsApiStack', {
   alarmTopic: core.alarmTopic,
 });
 
-const apiDomain =
-  apiDomainName && apiHostedZoneName
-    ? (() => {
-        const inHostedZone =
-          apiDomainName === apiHostedZoneName ||
-          apiDomainName.endsWith(`.${apiHostedZoneName}`);
+if (apiDomainName && apiHostedZoneName) {
+  const inHostedZone =
+    apiDomainName === apiHostedZoneName ||
+    apiDomainName.endsWith(`.${apiHostedZoneName}`);
 
-        if (!inHostedZone) {
-          console.warn(
-            `ApiDomainStack will be deployed in disabled mode: hosted zone "${apiHostedZoneName}" is not authoritative for domain "${apiDomainName}".`
-          );
-        }
+  if (!inHostedZone) {
+    console.warn(
+      `ApiDomainStack will be deployed in disabled mode: hosted zone "${apiHostedZoneName}" is not authoritative for domain "${apiDomainName}".`
+    );
+  }
 
-        return new ApiDomainStack(app, 'PettziApiDomainStack', {
-          env: { account, region },
-          stackName: 'PettziApiDomainStack',
-          description: `Pettzi API custom domain (${stage})`,
-          domainName: apiDomainName,
-          hostedZoneName: apiHostedZoneName,
-          hostedZoneId: apiHostedZoneId,
-          enabled: inHostedZone,
-          authApi: authApi.httpApi,
-          petsApi: petsApi.httpApi,
-          ownersApi: ownersApi.httpApi,
-          eventsApi: eventsApi.httpApi,
-          remindersApi: remindersApi.httpApi,
-          uploadsApi: uploadsApi.httpApi,
-          catalogsApi: catalogsApi.httpApi,
-        });
-      })()
-    : undefined;
-
-new AppRegistryAssociationsStack(app, 'PettziAppRegistryAssociationsStack', {
-  env: { account, region },
-  stackName: 'PettziAppRegistryAssociationsStack',
-  description: `Pettzi AppRegistry associations (${stage})`,
-  applicationArn: resolvedAppArn,
-  applicationName: appRegistryApplicationName,
-  stacks: [
-    core,
-    auth,
-    layers,
-    authApi,
-    petsApi,
-    eventsApi,
-    remindersApi,
-    uploadsApi,
-    ownersApi,
-    catalogsApi,
-    sesTemplates,
-    ...(apiDomain ? [apiDomain] : []),
-  ],
-}).addDependency(appRegistry);
+  new ApiDomainStack(app, 'PettziApiDomainStack', {
+    env: { account, region },
+    stackName: 'PettziApiDomainStack',
+    description: `Pettzi API custom domain (${stage})`,
+    domainName: apiDomainName,
+    hostedZoneName: apiHostedZoneName,
+    hostedZoneId: apiHostedZoneId,
+    enabled: inHostedZone,
+    authApi: authApi.httpApi,
+    petsApi: petsApi.httpApi,
+    ownersApi: ownersApi.httpApi,
+    eventsApi: eventsApi.httpApi,
+    remindersApi: remindersApi.httpApi,
+    uploadsApi: uploadsApi.httpApi,
+    catalogsApi: catalogsApi.httpApi,
+  });
+}
 
 app.synth();

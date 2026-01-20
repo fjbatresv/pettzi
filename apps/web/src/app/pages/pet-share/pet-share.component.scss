@@ -1,0 +1,331 @@
+.share-pet-page {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.share-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header-text h2 {
+  margin: 0;
+  font-size: 1.6rem;
+}
+
+.header-text p {
+  margin: 0.2rem 0 0;
+  color: rgba(27, 18, 36, 0.6);
+}
+
+.back-btn {
+  color: #7f13ec;
+  font-weight: 600;
+}
+
+.share-card {
+  background: #ffffff;
+  border-radius: 22px;
+  padding: 1.6rem;
+  border: 1px solid rgba(127, 19, 236, 0.1);
+  box-shadow: 0 16px 36px rgba(127, 19, 236, 0.08);
+}
+
+.pet-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f7f2ff 100%);
+}
+
+.pet-hero {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.pet-avatar {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: #7f13ec;
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  font-size: 1.8rem;
+  font-weight: 700;
+  border: 3px solid rgba(127, 19, 236, 0.2);
+  overflow: hidden;
+}
+
+.pet-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pet-hero-text h3 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.pet-hero-text p {
+  margin: 0.4rem 0 0.7rem;
+  color: rgba(27, 18, 36, 0.6);
+}
+
+.pet-meta {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  color: rgba(27, 18, 36, 0.65);
+  font-weight: 600;
+}
+
+.dot {
+  color: rgba(127, 19, 236, 0.5);
+}
+
+.share-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 1.5rem;
+}
+
+.share-column {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.section-title h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.section-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: rgba(127, 19, 236, 0.12);
+  display: grid;
+  place-items: center;
+}
+
+.section-icon mat-icon {
+  color: #7f13ec;
+  font-size: 20px;
+}
+
+.owner-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  border-radius: 16px;
+  border: 1px solid rgba(127, 19, 236, 0.12);
+  background: #ffffff;
+}
+
+.owner-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(127, 19, 236, 0.15);
+  color: #7f13ec;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  overflow: hidden;
+}
+
+.owner-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.owner-avatar.muted {
+  background: rgba(27, 18, 36, 0.08);
+  color: rgba(27, 18, 36, 0.65);
+}
+
+.owner-info h4 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.owner-info p {
+  margin: 0.2rem 0 0;
+  color: rgba(27, 18, 36, 0.6);
+  font-size: 0.85rem;
+}
+
+.owner-check {
+  margin-left: auto;
+  color: #7f13ec;
+}
+
+.owner-remove {
+  margin-left: auto;
+  color: rgba(27, 18, 36, 0.5);
+}
+
+.owner-remove mat-icon {
+  font-size: 20px;
+}
+
+.owner-remove[disabled] {
+  color: rgba(27, 18, 36, 0.25);
+}
+
+.shared-card .empty-state {
+  border: 1px dashed rgba(127, 19, 236, 0.2);
+  border-radius: 16px;
+  padding: 1.4rem;
+  text-align: center;
+  color: rgba(27, 18, 36, 0.5);
+  display: grid;
+  gap: 0.5rem;
+  justify-items: center;
+}
+
+.shared-card .empty-state mat-icon {
+  color: rgba(127, 19, 236, 0.4);
+}
+
+.invite-card {
+  background: #fff9ff;
+  border: 1px solid rgba(127, 19, 236, 0.16);
+  max-width: 520px;
+  width: 100%;
+  justify-self: start;
+  height: fit-content;
+}
+
+.invite-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.invite-header p {
+  margin: 0.4rem 0 1.2rem;
+  color: rgba(27, 18, 36, 0.6);
+}
+
+.invite-card .field {
+  width: 100%;
+  margin-bottom: 0.75rem;
+}
+
+.invite-note {
+  margin-top: 0.6rem;
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  background: rgba(127, 19, 236, 0.08);
+  border-radius: 14px;
+  padding: 0.85rem 1rem;
+  color: rgba(27, 18, 36, 0.65);
+  font-size: 0.9rem;
+}
+
+.invite-note mat-icon {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  color: #7f13ec;
+  font-size: 20px;
+  line-height: 20px;
+}
+
+.invite-error {
+  margin: 0.8rem 0 0;
+  color: #c53030;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.invite-success {
+  margin: 0.8rem 0 0;
+  color: #2f855a;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.primary-cta.mat-mdc-raised-button {
+  margin-top: 1rem;
+  width: 100%;
+  background: #7f13ec;
+  color: #ffffff;
+  padding: 0.8rem 1.5rem;
+  border-radius: 14px;
+  font-weight: 600;
+}
+
+.primary-cta.mat-mdc-raised-button[disabled] {
+  background: rgba(127, 19, 236, 0.35);
+  color: #ffffff;
+  box-shadow: none;
+}
+
+.share-help {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(27, 18, 36, 0.5);
+  font-weight: 600;
+}
+
+.share-help mat-icon {
+  color: rgba(127, 19, 236, 0.6);
+}
+
+:host ::ng-deep .field .mat-mdc-text-field-wrapper {
+  background: #ffffff;
+  border-radius: 14px;
+}
+
+:host ::ng-deep .invite-card .mat-mdc-form-field {
+  width: 100%;
+}
+
+:host ::ng-deep .field .mdc-notched-outline__leading,
+:host ::ng-deep .field .mdc-notched-outline__notch,
+:host ::ng-deep .field .mdc-notched-outline__trailing {
+  border-color: rgba(127, 19, 236, 0.2);
+}
+
+:host ::ng-deep .field .mat-mdc-form-field-flex {
+  min-height: 48px;
+}
+
+:host ::ng-deep .field .mat-mdc-form-field-subscript-wrapper {
+  display: none;
+}
+
+@media (max-width: 960px) {
+  .share-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .share-card {
+    padding: 1.25rem;
+  }
+
+  .pet-hero {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .share-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

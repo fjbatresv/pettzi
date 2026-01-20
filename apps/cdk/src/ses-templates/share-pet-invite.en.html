@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="x-apple-disable-message-reformatting" />
+    <title>Pettzi Invitation</title>
+  </head>
+
+  <body style="margin:0;padding:0;background-color:#f6f3fb;">
+    <!-- Preheader -->
+    <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">
+      {{inviterName}} invited you to care for {{petName}}. Expires in {{expirationDays}} days.
+    </div>
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f6f3fb;">
+      <tr>
+        <td align="center" style="padding:24px 12px;">
+          <!-- Container -->
+          <table
+            role="presentation"
+            width="640"
+            cellpadding="0"
+            cellspacing="0"
+            style="max-width:640px;background-color:#ffffff;border-radius:18px;box-shadow:0 10px 30px rgba(17,24,39,0.06);overflow:hidden;"
+          >
+            <!-- Header -->
+            <tr>
+              <td align="center" style="padding:22px;">
+                <img
+                  src="https://img.pettzi.net/email/brand/logo.svg"
+                  width="32"
+                  height="32"
+                  alt="Pettzi"
+                  style="display:block;border-radius:8px;"
+                />
+                <div style="margin-top:6px;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;font-size:16px;font-weight:700;color:#111827;">
+                  Pettzi
+                </div>
+              </td>
+            </tr>
+
+            <!-- Hero image -->
+            <tr>
+              <td align="center" style="padding:0 22px;">
+                <img
+                  src="https://img.pettzi.net/email/share-pet/hero.webp"
+                  alt="share pet hero"
+                  style="width:100%;max-width:596px;border-radius:16px;display:block;"
+                />
+              </td>
+            </tr>
+
+            <!-- Main content -->
+            <tr>
+              <td style="padding:26px 22px;">
+                <h1 style="margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;font-size:28px;line-height:34px;font-weight:800;color:#111827;text-align:center;">
+                  Join {{petName}}'s care team!
+                </h1>
+
+                <div style="height:12px;"></div>
+
+                <p style="margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;font-size:15px;line-height:24px;color:#4b5563;text-align:center;">
+                  Caring for <strong>{{petName}}</strong> works best as a team.
+                  <strong>{{inviterName}}</strong> invited you to coordinate walks,
+                  track health moments, and share memories in Pettzi.
+                </p>
+
+                <div style="height:22px;"></div>
+
+                <!-- CTA -->
+                <table role="presentation" align="center" cellpadding="0" cellspacing="0">
+                  <tr>
+                    <td bgcolor="#6d28d9" style="border-radius:14px;box-shadow:0 10px 22px rgba(109,40,217,0.28);">
+                      <a
+                        href="{{acceptInvitationUrl}}"
+                        target="_blank"
+                        style="display:inline-block;padding:16px 26px;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;font-size:15px;font-weight:800;color:#ffffff;text-decoration:none;border-radius:14px;"
+                      >
+                        Accept invitation →
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+
+                <div style="height:10px;"></div>
+
+                <p style="margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;font-size:12px;color:#9ca3af;text-align:center;">
+                  This invitation expires in {{expirationDays}} days
+                </p>
+
+                <div style="height:28px;"></div>
+
+                <!-- Pet card -->
+                <table
+                  role="presentation"
+                  width="100%"
+                  cellpadding="0"
+                  cellspacing="0"
+                  style="background-color:#fbf9ff;border:1px solid #efe9ff;border-radius:16px;"
+                >
+                  <tr>
+                    <td style="padding:16px;">
+                      <div style="font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;font-size:11px;font-weight:800;color:#a855f7;">
+                        GET TO KNOW {{petName}}
+                      </div>
+
+                      <div style="height:6px;"></div>
+
+                      <div style="display:flex;align-items:center;">
+                        <img
+                          src="{{petImageUrl}}"
+                          width="48"
+                          height="48"
+                          style="border-radius:50%;display:block;"
+                          alt="{{petName}}"
+                        />
+                        <div style="padding-left:12px;">
+                          <div style="font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;font-size:15px;font-weight:800;color:#111827;">
+                            {{petName}}
+                          </div>
+                          <div style="font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;font-size:12px;color:#6b7280;">
+                            {{petBreed}} · {{petAge}}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+
+                <div style="height:28px;"></div>
+
+                <!-- Benefits -->
+                <h2 style="margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;font-size:18px;font-weight:800;color:#111827;text-align:center;">
+                  Why join the team?
+                </h2>
+
+                <div style="height:16px;"></div>
+
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                  <tr>
+                    <td align="center" width="33%">
+                      <div style="font-size:24px;">📅</div>
+                      <div style="font-size:13px;font-weight:700;color:#111827;">Share schedules</div>
+                      <div style="font-size:12px;color:#6b7280;">Walks and meals</div>
+                    </td>
+                    <td align="center" width="33%">
+                      <div style="font-size:24px;">🔔</div>
+                      <div style="font-size:13px;font-weight:700;color:#111827;">Stay updated</div>
+                      <div style="font-size:12px;color:#6b7280;">Photos and alerts</div>
+                    </td>
+                    <td align="center" width="33%">
+                      <div style="font-size:24px;">📈</div>
+                      <div style="font-size:13px;font-weight:700;color:#111827;">Health on track</div>
+                      <div style="font-size:12px;color:#6b7280;">Visits and vaccines</div>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td style="padding:22px;background-color:#0f0f14;color:#9ca3af;text-align:center;">
+                <div style="font-size:12px;">
+                  Sent with 💜 by Pettzi
+                </div>
+                <div style="font-size:11px;margin-top:6px;">
+                  © Pettzi Inc. · This is an automated message
+                </div>
+              </td>
+            </tr>
+          </table>
+          <!-- /Container -->
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

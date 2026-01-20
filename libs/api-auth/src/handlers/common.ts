@@ -14,7 +14,8 @@ export const getClaims = (event: APIGatewayProxyEventV2) => {
 
 export const getOwnerId = (event: APIGatewayProxyEventV2): string => {
   const claims = getClaims(event);
-  const ownerId = claims?.sub;
+  const ownerId =
+    claims?.email || claims?.username || claims?.['cognito:username'] || claims?.sub;
   if (!ownerId) {
     throw unauthorized('Missing owner identity');
   }
