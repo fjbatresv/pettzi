@@ -63,6 +63,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   const reminder: PetReminder = {
     reminderId: crypto.randomUUID(),
     petId,
+    ownerId,
     eventId: payload.eventId,
     dueDate,
     message: payload.message,

@@ -1,6 +1,6 @@
 <section class="grooming-page">
   <header class="grooming-header">
-    <button mat-button class="back-btn" routerLink="/dashboard/pet">
+    <button mat-button class="back-btn" [routerLink]="['/pets', petId]">
       <mat-icon>arrow_back</mat-icon>
     </button>
     <h2>
@@ -87,7 +87,7 @@
     ></textarea>
 
     <div class="actions">
-      <button type="button" class="link-btn" routerLink="/dashboard/pet">
+      <button type="button" class="link-btn" [routerLink]="['/pets', petId]">
         {{ 'grooming.cancel' | translate }}
       </button>
       <button

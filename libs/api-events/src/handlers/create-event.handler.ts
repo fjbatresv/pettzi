@@ -50,6 +50,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   const now = new Date();
   const petEvent: PetEvent = {
     petId,
+    ownerId,
     eventId,
     eventType: payload.eventType,
     eventDate: new Date(payload.date),

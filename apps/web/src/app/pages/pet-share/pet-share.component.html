@@ -1,6 +1,6 @@
 <section class="share-pet-page">
   <header class="share-header">
-    <button mat-button class="back-btn" routerLink="/dashboard/pet">
+    <button mat-button class="back-btn" [routerLink]="['/pets', petId]">
       <mat-icon>arrow_back</mat-icon>
     </button>
     <div class="header-text">
@@ -84,7 +84,7 @@
             class="owner-remove"
             [disabled]="!owner.canRemove"
             [attr.aria-label]="'sharePet.removeOwner' | translate"
-            (click)="removeOwner(owner.ownerId)"
+            (click)="removeOwner(owner.ownerId, owner.name)"
           >
             <mat-icon>delete</mat-icon>
           </button>

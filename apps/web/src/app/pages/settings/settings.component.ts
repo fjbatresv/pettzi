@@ -114,7 +114,7 @@ export class SettingsComponent implements OnInit {
 
   logout() {
     this.auth.clearSession();
-    void this.router.navigate(['/']);
+    void this.router.navigate(['/login']);
   }
 
   async requestDeleteAccount() {

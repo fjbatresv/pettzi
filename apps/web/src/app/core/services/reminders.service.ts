@@ -38,6 +38,12 @@ export class RemindersService {
     return this.http.post<PetReminder>(this.buildUrl(`/pets/${petId}`), payload);
   }
 
+  deletePetReminder(petId: string, reminderId: string): Observable<{ message?: string }> {
+    return this.http.delete<{ message?: string }>(
+      this.buildUrl(`/pets/${petId}/${reminderId}`)
+    );
+  }
+
   private buildUrl(path: string) {
     const base = this.baseUrl || '';
     const remindersBase = this.resolveRemindersBase(base);

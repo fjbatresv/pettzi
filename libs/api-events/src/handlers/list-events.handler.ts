@@ -24,6 +24,12 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   try {
     await assertOwnership(petId, ownerId);
 
+    const limitRaw = event.queryStringParameters?.limit;
+    const cursorRaw = event.queryStringParameters?.cursor;
+    const limit = Math.min(Math.max(Number(limitRaw) || 20, 1), 50);
+    const startKey =
+      cursorRaw ? (JSON.parse(Buffer.from(cursorRaw, 'base64').toString('utf8')) as any) : undefined;
+
     const res = await docClient.send(
       new QueryCommand({
         TableName: PETTZI_TABLE_NAME,
@@ -32,11 +38,17 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
           ':pk': buildPetEventPk(petId),
           ':sk': 'EVENT#',
         },
+        Limit: limit,
+        ExclusiveStartKey: startKey,
+        ScanIndexForward: false,
       })
     );
 
     const events = (res.Items ?? []).map((item) => fromItemPetEvent(item));
-    return ok({ events });
+    const nextCursor = res.LastEvaluatedKey
+      ? Buffer.from(JSON.stringify(res.LastEvaluatedKey)).toString('base64')
+      : undefined;
+    return ok({ events, nextCursor });
   } catch (error) {
     console.error('List events error', error);
     return serverError('Failed to list events');

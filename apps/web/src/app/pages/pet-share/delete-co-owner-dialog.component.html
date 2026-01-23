@@ -1,0 +1,14 @@
+<div class="dialog-card">
+  <h2>{{ 'sharePet.removeConfirmTitle' | translate }}</h2>
+  <p>
+    {{ 'sharePet.removeConfirmCopy' | translate: { ownerName: data.ownerName } }}
+  </p>
+  <div class="dialog-actions">
+    <button mat-button [mat-dialog-close]="false">
+      {{ 'sharePet.removeCancel' | translate }}
+    </button>
+    <button mat-raised-button color="warn" [mat-dialog-close]="true">
+      {{ 'sharePet.removeConfirm' | translate }}
+    </button>
+  </div>
+</div>

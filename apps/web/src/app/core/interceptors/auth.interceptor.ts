@@ -7,10 +7,10 @@ import { AuthService } from '../services/auth.service';
 
 let refreshPromise: Promise<string | null> | null = null;
 
-const refreshAccessToken = (auth: AuthService) => {
+const refreshIdToken = (auth: AuthService) => {
   if (!refreshPromise) {
     refreshPromise = firstValueFrom(auth.refreshTokens())
-      .then((tokens) => tokens.accessToken)
+      .then((tokens) => tokens.idToken)
       .catch(() => null)
       .finally(() => {
         refreshPromise = null;
@@ -72,7 +72,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       return throwError(() => error);
     }
 
-    return from(refreshAccessToken(auth)).pipe(
+    return from(refreshIdToken(auth)).pipe(
       switchMap((newToken) => {
         if (!newToken) {
           auth.clearSession();
@@ -89,10 +89,10 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     );
   };
 
-  return from(auth.getAccessToken()).pipe(
-    switchMap((accessToken) => {
-      if (accessToken && isTokenExpired(accessToken)) {
-        return from(refreshAccessToken(auth)).pipe(
+  return from(auth.getIdToken()).pipe(
+    switchMap((idToken) => {
+      if (idToken && isTokenExpired(idToken)) {
+        return from(refreshIdToken(auth)).pipe(
           switchMap((newToken) => {
             if (!newToken) {
               auth.clearSession();
@@ -104,11 +104,11 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         );
       }
 
-      if (!accessToken) {
+      if (!idToken) {
         if (!auth.hasRefreshToken()) {
           return next(req);
         }
-        return from(refreshAccessToken(auth)).pipe(
+        return from(refreshIdToken(auth)).pipe(
           switchMap((newToken) => {
             if (!newToken) {
               return next(req);
@@ -118,7 +118,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         );
       }
 
-      return next(attachToken(accessToken));
+      return next(attachToken(idToken));
     }),
     catchError(handleAuthError),
   );

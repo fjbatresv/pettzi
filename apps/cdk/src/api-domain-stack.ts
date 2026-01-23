@@ -56,15 +56,10 @@ export class ApiDomainStack extends Stack {
             domainName: props.hostedZoneName,
           });
 
-    const certificate = new certmgr.DnsValidatedCertificate(
-      this,
-      'ApiDomainCertificate',
-      {
-        domainName: props.domainName,
-        hostedZone: zone,
-        region: 'us-east-1',
-      }
-    );
+    const certificate = new certmgr.Certificate(this, 'ApiDomainCertificate', {
+      domainName: props.domainName,
+      validation: certmgr.CertificateValidation.fromDns(zone),
+    });
 
     const mappings: Array<{
       id: string;
@@ -102,16 +97,11 @@ export class ApiDomainStack extends Stack {
         allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
         cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
         originRequestPolicy: cloudfront.OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER,
-        functionAssociations: [
-          {
-            eventType: cloudfront.FunctionEventType.VIEWER_REQUEST,
-            function: this.createPathRewriteFunction('auth', AUTH_API_BASE_PATH),
-          },
-        ],
       },
     });
 
-    mappings.forEach(({ id: mappingId, api, basePath }) => {
+    const prefixRewriteFn = this.createPrefixStripFunction('ApiPrefix');
+    mappings.forEach(({ api, basePath }) => {
       distribution.addBehavior(`${basePath}/*`, this.buildHttpApiOrigin(api), {
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
@@ -120,7 +110,7 @@ export class ApiDomainStack extends Stack {
         functionAssociations: [
           {
             eventType: cloudfront.FunctionEventType.VIEWER_REQUEST,
-            function: this.createPathRewriteFunction(mappingId, basePath),
+            function: prefixRewriteFn,
           },
         ],
       });
@@ -150,20 +140,25 @@ export class ApiDomainStack extends Stack {
     });
   }
 
-  private createPathRewriteFunction(id: string, basePath: string) {
-    const normalized = basePath.startsWith('/') ? basePath : `/${basePath}`;
+  private createPrefixStripFunction(id: string) {
+    const stackName = Stack.of(this).stackName;
+    const rawName = `${stackName}-${id}-rewrite`;
+    const functionName = rawName.replace(/[^A-Za-z0-9-_]/g, '').slice(0, 64);
     return new cloudfront.Function(this, `${id}PathRewrite`, {
+      functionName,
       code: cloudfront.FunctionCode.fromInline(`
 function handler(event) {
   var request = event.request;
-  var prefix = "${normalized}";
-  if (request.uri === prefix) {
+  var uri = request.uri;
+  if (uri === "/") {
+    return request;
+  }
+  var nextSlash = uri.indexOf("/", 1);
+  if (nextSlash === -1) {
     request.uri = "/";
     return request;
   }
-  if (request.uri.startsWith(prefix + "/")) {
-    request.uri = request.uri.substring(prefix.length);
-  }
+  request.uri = uri.substring(nextSlash);
   return request;
 }
       `),

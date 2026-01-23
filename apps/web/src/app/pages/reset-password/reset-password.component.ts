@@ -122,10 +122,10 @@ export class ResetPasswordComponent {
           return;
         }
         if (pets.length === 1) {
-          void this.router.navigate(['/dashboard/pet']);
+          void this.router.navigate(['/pets', pets[0].petId]);
           return;
         }
-        void this.router.navigate(['/dashboard/main']);
+        void this.router.navigate(['/home']);
       },
       error: () => {
         void this.router.navigate(['/pets/new']);

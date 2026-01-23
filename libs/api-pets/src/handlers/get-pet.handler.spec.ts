@@ -10,6 +10,7 @@ jest.mock('@aws-sdk/lib-dynamodb', () => {
   return {
     DynamoDBDocumentClient: { from: () => ({ send: mockSend }) },
     GetCommand: Cmd,
+    QueryCommand: Cmd,
     __sendMock: mockSend,
   };
 });
@@ -87,7 +88,8 @@ describe('get-pet.handler', () => {
           species: PetSpecies.DOG,
           createdAt: new Date(),
         }),
-      });
+      })
+      .mockResolvedValueOnce({ Items: [] });
 
     const res = await handler(
       buildEvent({

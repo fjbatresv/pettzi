@@ -1,6 +1,6 @@
 <section class="weight-page">
   <header class="weight-header">
-    <button mat-button class="back-btn" routerLink="/dashboard/pet">
+    <button mat-button class="back-btn" [routerLink]="['/pets', petId]">
       <mat-icon>arrow_back</mat-icon>
     </button>
     <h2>
@@ -59,7 +59,7 @@
     ></textarea>
 
     <div class="actions">
-      <button type="button" class="link-btn" routerLink="/dashboard/pet">
+      <button type="button" class="link-btn" [routerLink]="['/pets', petId]">
         {{ 'weight.cancel' | translate }}
       </button>
       <button

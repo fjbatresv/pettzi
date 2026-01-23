@@ -39,11 +39,11 @@ describe('get-species.handler', () => {
     expect(body.species?.length).toBeGreaterThan(0);
   });
 
-  it('requires auth', async () => {
+  it('returns species without auth', async () => {
     const res = await (handler as any)({
       ...baseEvent,
       requestContext: { ...baseEvent.requestContext, authorizer: undefined },
     });
-    expect(res.statusCode).toBe(401);
+    expect(res.statusCode).toBe(200);
   });
 });

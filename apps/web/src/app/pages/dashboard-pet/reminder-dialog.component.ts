@@ -43,6 +43,7 @@ export type ReminderDialogResult = {
 })
 export class ReminderDialogComponent {
   private readonly dialogRef = inject(MatDialogRef<ReminderDialogComponent>);
+  private readonly minDateValue = this.startOfDay(new Date());
 
   title = '';
   dueDate: Date | null = null;
@@ -61,6 +62,12 @@ export class ReminderDialogComponent {
     if (!this.title.trim() || !this.dueDate || !this.time) {
       return false;
     }
+    if (this.isDateInPast()) {
+      return false;
+    }
+    if (this.isTimeInPast()) {
+      return false;
+    }
     if (!this.recurring) {
       return true;
     }
@@ -77,6 +84,24 @@ export class ReminderDialogComponent {
       return Boolean(this.monthlyTime) && this.monthlyDay >= 1;
     }
     return false;
+  }
+
+  get dateTimeErrorKey() {
+    if (this.isDateInPast()) {
+      return 'dashboard.reminderDateInvalid';
+    }
+    if (this.isTimeInPast()) {
+      return 'dashboard.reminderTimeInvalid';
+    }
+    return '';
+  }
+
+  get showDateTimeError() {
+    return !!this.dueDate && !!this.time && !!this.dateTimeErrorKey;
+  }
+
+  get minDate() {
+    return this.minDateValue;
   }
 
   close() {
@@ -125,6 +150,22 @@ export class ReminderDialogComponent {
     }
   }
 
+  private isDateInPast() {
+    if (!this.dueDate) {
+      return false;
+    }
+    return this.startOfDay(this.dueDate) < this.minDateValue;
+  }
+
+  private isTimeInPast() {
+    if (!this.dueDate || !this.time) {
+      return false;
+    }
+    const due = new Date(this.dueDate);
+    due.setHours(this.time.getHours(), this.time.getMinutes(), 0, 0);
+    return due.getTime() < Date.now();
+  }
+
   private timeToString(value: Date | null) {
     if (!value) {
       return '';
@@ -132,5 +173,11 @@ export class ReminderDialogComponent {
     const hours = String(value.getHours()).padStart(2, '0');
     const minutes = String(value.getMinutes()).padStart(2, '0');
     return `${hours}:${minutes}`;
+  }
+
+  private startOfDay(value: Date) {
+    const date = new Date(value);
+    date.setHours(0, 0, 0, 0);
+    return date;
   }
 }

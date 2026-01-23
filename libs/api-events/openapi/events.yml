@@ -142,6 +142,7 @@ components:
       properties:
         petId: { type: string }
         eventId: { type: string }
+        ownerId: { type: string }
         eventType:
           type: string
           enum: [VACCINE, VET_VISIT, MEDICATION, WEIGHT, GROOMING, OTHER]

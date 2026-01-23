@@ -97,13 +97,31 @@ export class OwnersApiStack extends Stack {
       commonEnv,
       [props.sharedLayer, props.s3Layer, props.sesLayer, props.ddbLayer]
     );
+    const previewInviteFn = this.createFn(
+      'PreviewPetInviteHandler',
+      props.stage,
+      handlerPath('libs/api-owners/src/handlers/preview-pet-invite.handler.ts'),
+      commonEnv,
+      [props.sharedLayer, props.s3Layer, props.ddbLayer]
+    );
+    const acceptInviteFn = this.createFn(
+      'AcceptPetInviteHandler',
+      props.stage,
+      handlerPath('libs/api-owners/src/handlers/accept-pet-invite.handler.ts'),
+      commonEnv,
+      [props.sharedLayer, props.s3Layer, props.ddbLayer]
+    );
 
     props.table.grantReadWriteData(getMeFn);
     props.table.grantReadWriteData(listOwnersFn);
     props.table.grantReadWriteData(addOwnerFn);
     props.table.grantReadWriteData(removeOwnerFn);
     props.table.grantReadData(inviteOwnerFn);
+    props.table.grantReadData(previewInviteFn);
+    props.table.grantReadWriteData(acceptInviteFn);
     props.docsBucket.grantRead(inviteOwnerFn);
+    props.docsBucket.grantRead(previewInviteFn);
+    props.docsBucket.grantRead(acceptInviteFn);
     inviteOwnerFn.addToRolePolicy(
       new iam.PolicyStatement({
         actions: ['ses:SendTemplatedEmail'],
@@ -165,6 +183,23 @@ export class OwnersApiStack extends Stack {
       integration: new HttpLambdaIntegration(
         'InviteOwnerIntegration',
         inviteOwnerFn
+      ),
+    });
+    this.httpApi.addRoutes({
+      path: '/pet-invites/preview',
+      methods: [apigwv2.HttpMethod.GET],
+      integration: new HttpLambdaIntegration(
+        'PreviewPetInviteIntegration',
+        previewInviteFn
+      ),
+      authorizer: new apigwv2.HttpNoneAuthorizer(),
+    });
+    this.httpApi.addRoutes({
+      path: '/pet-invites/accept',
+      methods: [apigwv2.HttpMethod.POST],
+      integration: new HttpLambdaIntegration(
+        'AcceptPetInviteIntegration',
+        acceptInviteFn
       ),
     });
 

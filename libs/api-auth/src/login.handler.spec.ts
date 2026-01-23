@@ -40,7 +40,6 @@ describe('login.handler', () => {
     expect(JSON.parse(res.body!)).toEqual({
       idToken: 'id',
       accessToken: 'access',
-      refreshToken: 'refresh',
     });
   });
 

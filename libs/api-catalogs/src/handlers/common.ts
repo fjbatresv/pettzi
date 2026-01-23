@@ -20,9 +20,12 @@ export const getOwnerId = (event: APIGatewayProxyEventV2): string => {
 };
 
 export const getLocale = (event: APIGatewayProxyEventV2): CatalogLocale => {
-  const queryLocale = event.queryStringParameters?.locale;
-  if (queryLocale === 'es' || queryLocale === 'en') {
-    return queryLocale;
+  const queryLocale = event.queryStringParameters?.locale?.toLowerCase();
+  if (queryLocale?.startsWith('es')) {
+    return 'es';
+  }
+  if (queryLocale?.startsWith('en')) {
+    return 'en';
   }
 
   const headerLocale =

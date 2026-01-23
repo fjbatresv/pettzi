@@ -24,6 +24,9 @@ interface CreatePetRequest {
   birthDate?: string;
   notes?: string;
   color?: string;
+  sex?: string;
+  isNeutered?: boolean;
+  bloodType?: string;
   weightKg?: number;
 }
 
@@ -58,6 +61,9 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     birthDate: input.birthDate ? new Date(input.birthDate) : undefined,
     notes: input.notes,
     color: input.color,
+    sex: input.sex,
+    isNeutered: input.isNeutered,
+    bloodType: input.bloodType,
     weightKg: input.weightKg,
     createdAt: now,
   };

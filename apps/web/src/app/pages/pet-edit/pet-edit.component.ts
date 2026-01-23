@@ -1,12 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatDialog } from '@angular/material/dialog';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Pet, PetSpecies } from '@pettzi/domain-model';
@@ -28,6 +29,7 @@ import { DeletePetDialogComponent } from './delete-pet-dialog.component';
     MatIconModule,
     MatInputModule,
     MatSelectModule,
+    MatSlideToggleModule,
     TranslateModule,
   ],
   templateUrl: './pet-edit.component.html',
@@ -38,6 +40,7 @@ export class PetEditComponent {
   private readonly catalogs = inject(CatalogsService);
   private readonly uploads = inject(UploadsService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly translate = inject(TranslateService);
   private readonly dialog = inject(MatDialog);
   private readonly activePetKey = 'pettzi.activePetId';
@@ -59,6 +62,9 @@ export class PetEditComponent {
   breed = '';
   birthDate: Date | null = null;
   color = '';
+  sex = '';
+  isNeutered = false;
+  bloodType = '';
   petPhotoUrl = '';
   chipId = '';
   observations = '';
@@ -86,6 +92,7 @@ export class PetEditComponent {
   }
 
   ngOnInit() {
+    const routePetId = this.route.snapshot.paramMap.get('petId') ?? '';
     this.catalogs.getSpecies().subscribe({
       next: ({ species }) => {
         this.speciesOptions = species ?? [];
@@ -103,17 +110,22 @@ export class PetEditComponent {
           return;
         }
         const activeId = localStorage.getItem(this.activePetKey);
-        const activePet = activeId ? list.find((pet) => pet.petId === activeId) : list[0];
+        const targetId = routePetId || activeId || '';
+        const activePet = targetId ? list.find((pet) => pet.petId === targetId) : list[0];
         this.pet = activePet ?? null;
         if (!this.pet) {
           return;
         }
         this.petId = this.pet.petId;
+        localStorage.setItem(this.activePetKey, this.petId);
         this.name = this.pet.name || '';
         this.species = this.pet.species || '';
         this.breed = this.pet.breed || '';
         this.birthDate = this.pet.birthDate ? new Date(this.pet.birthDate as unknown as string) : null;
         this.color = this.pet.color || '';
+        this.sex = this.pet.sex || '';
+        this.isNeutered = this.pet.isNeutered ?? false;
+        this.bloodType = this.pet.bloodType || '';
         const parsed = this.parseNotes(this.pet.notes);
         this.chipId = parsed.chipId;
         this.observations = parsed.observations;
@@ -177,11 +189,14 @@ export class PetEditComponent {
         species: this.species || undefined,
         breed: this.breed.trim() || undefined,
         color: this.color.trim() || undefined,
+        sex: this.sex || undefined,
+        isNeutered: this.isNeutered,
+        bloodType: this.bloodType.trim() || undefined,
         notes: notes || undefined,
       })
       .subscribe({
         next: () => {
-          void this.router.navigate(['/dashboard/pet']);
+          void this.router.navigate(['/pets', this.petId]);
         },
         error: () => {
           this.isSubmitting = false;
@@ -210,7 +225,7 @@ export class PetEditComponent {
       const list = next.pets ?? [];
       if (list.length > 0) {
         localStorage.setItem(this.activePetKey, list[0]?.petId ?? '');
-        void this.router.navigate(['/dashboard/pet']);
+        void this.router.navigate(['/pets', this.petId]);
       } else {
         localStorage.removeItem(this.activePetKey);
         void this.router.navigate(['/pets/new']);

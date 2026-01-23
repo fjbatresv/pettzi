@@ -174,6 +174,7 @@ const petsApi = new PetsApiStack(app, 'PettziPetsApiStack', {
   stackName: 'PettziPetsApiStack',
   description: `Pettzi pets API (${stage})`,
   table: core.table,
+  docsBucket: core.docsBucket,
   depsLayer: layers.cognitoDepsLayer,
   userPool: auth.userPool,
   userPoolClient: auth.userPoolClient,

@@ -8,7 +8,7 @@ import {
   buildReminderVaccinationGsiPk,
 } from '@pettzi/utils-dynamo/key';
 
-import { EventId, OwnerId, PetId, ReminderId, UserId } from './types';
+import { EventId, OwnerId, PetId, ReminderId, SharedRecordToken, UserId } from './types';
 
 const toIso = (value: string | Date): string =>
   value instanceof Date ? value.toISOString() : value;
@@ -49,3 +49,8 @@ export const buildReminderGsi1Sk = (
   petId: PetId,
   eventId: EventId,
 ): string => buildReminderVaccinationGsiSk(toIso(dueDate), petId, eventId);
+
+export const buildSharedRecordPk = (token: SharedRecordToken): string =>
+  `SHARED_RECORD#${token}`;
+export const buildSharedRecordSk = (petId: PetId): string =>
+  buildPetPk(petId);

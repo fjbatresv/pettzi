@@ -23,13 +23,13 @@ export class DashboardComponent implements OnInit {
           return;
         }
         if (count === 1) {
-          void this.router.navigate(['/dashboard/pet']);
+          void this.router.navigate(['/pets', pets?.[0]?.petId]);
           return;
         }
-        void this.router.navigate(['/dashboard/main']);
+        // stay on /home for multi-pet view
       },
       error: () => {
-        void this.router.navigate(['/']);
+        void this.router.navigate(['/login']);
       },
     });
   }

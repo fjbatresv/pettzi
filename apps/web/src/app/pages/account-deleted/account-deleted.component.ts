@@ -25,6 +25,6 @@ export class AccountDeletedComponent {
   }
 
   backToLogin() {
-    void this.router.navigate(['/']);
+    void this.router.navigate(['/login']);
   }
 }

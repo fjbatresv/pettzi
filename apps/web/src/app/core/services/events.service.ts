@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../tokens';
@@ -6,6 +6,7 @@ import { PetEvent } from '@pettzi/domain-model';
 
 interface EventsListResponse {
   events: PetEvent[];
+  nextCursor?: string;
 }
 
 interface CreateEventRequest {
@@ -21,12 +22,28 @@ export class EventsService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = inject(API_BASE_URL);
 
-  listPetEvents(petId: string): Observable<EventsListResponse> {
-    return this.http.get<EventsListResponse>(this.buildUrl(`/pets/${petId}`));
+  listPetEvents(
+    petId: string,
+    options?: { limit?: number; cursor?: string }
+  ): Observable<EventsListResponse> {
+    let params = new HttpParams();
+    if (options?.limit) {
+      params = params.set('limit', String(options.limit));
+    }
+    if (options?.cursor) {
+      params = params.set('cursor', options.cursor);
+    }
+    return this.http.get<EventsListResponse>(this.buildUrl(`/pets/${petId}`), {
+      params,
+    });
   }
 
   createPetEvent(petId: string, payload: CreateEventRequest): Observable<PetEvent> {
     return this.http.post<PetEvent>(this.buildUrl(`/pets/${petId}`), payload);
+  }
+
+  deletePetEvent(petId: string, eventId: string): Observable<{ message?: string }> {
+    return this.http.delete<{ message?: string }>(this.buildUrl(`/pets/${petId}/${eventId}`));
   }
 
   private buildUrl(path: string) {

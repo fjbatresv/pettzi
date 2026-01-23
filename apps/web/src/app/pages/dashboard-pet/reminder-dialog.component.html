@@ -14,7 +14,7 @@
   <div class="date-time-row">
     <mat-form-field appearance="outline">
       <mat-label>{{ 'dashboard.reminderDate' | translate }}</mat-label>
-      <input matInput [matDatepicker]="picker" [(ngModel)]="dueDate" />
+      <input matInput [matDatepicker]="picker" [(ngModel)]="dueDate" [min]="minDate" />
       <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
       <mat-datepicker #picker></mat-datepicker>
     </mat-form-field>
@@ -25,6 +25,9 @@
       <mat-timepicker #timePicker></mat-timepicker>
     </mat-form-field>
   </div>
+  <p class="date-time-error" *ngIf="showDateTimeError">
+    {{ dateTimeErrorKey | translate }}
+  </p>
 
   <mat-checkbox [(ngModel)]="recurring">
     {{ 'dashboard.reminderRecurring' | translate }}

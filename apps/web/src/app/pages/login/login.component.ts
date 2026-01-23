@@ -21,6 +21,7 @@ export class LoginComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly resetSessionKey = 'pettzi.resetPasswordSession';
+  private readonly inviteTokenKey = 'pettzi.petInviteToken';
 
   readonly form = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -70,6 +71,12 @@ export class LoginComponent implements OnInit {
         }
         this.challengeMessage = '';
         await this.persistTokens(response);
+        const inviteToken = sessionStorage.getItem(this.inviteTokenKey);
+        if (inviteToken) {
+          void this.router.navigate(['/accept-invite'], { queryParams: { token: inviteToken } });
+          this.isSubmitting = false;
+          return;
+        }
         this.pets.listPets().subscribe({
           next: ({ pets }) => {
             if (!pets || pets.length === 0) {
@@ -77,11 +84,11 @@ export class LoginComponent implements OnInit {
               return;
             }
             if (pets.length == 1) {
-              void this.router.navigate(['/dashboard/pet']);
+              void this.router.navigate(['/pets', pets[0].petId]);
               return;
             }
             if (pets.length > 1) {
-              void this.router.navigate(['/dashboard/main'])
+              void this.router.navigate(['/home']);
             }
           },
           error: () => {
@@ -116,7 +123,7 @@ export class LoginComponent implements OnInit {
   private async redirectIfAuthenticated() {
     const accessToken = await this.auth.getAccessToken();
     if (accessToken) {
-      await this.router.navigate(['/dashboard']);
+      await this.router.navigate(['/home']);
       return;
     }
     if (!this.auth.hasRefreshToken()) {
@@ -124,7 +131,7 @@ export class LoginComponent implements OnInit {
     }
     this.auth.refreshTokens().subscribe({
       next: () => {
-        void this.router.navigate(['/dashboard']);
+        void this.router.navigate(['/home']);
       },
       error: () => {
         // stay on login

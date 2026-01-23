@@ -13,6 +13,8 @@ import {
   buildPetReminderSk,
   buildReminderGsi1Pk,
   buildReminderGsi1Sk,
+  buildSharedRecordPk,
+  buildSharedRecordSk,
   buildUserAccountPk,
   buildUserAccountSk,
   buildPetSkMetadata,
@@ -23,6 +25,7 @@ import {
   PetEvent,
   PetOwner,
   PetReminder,
+  SharedRecord,
   UserAccount,
 } from './types';
 
@@ -63,6 +66,12 @@ type DynamoItem = {
   dueDate?: any;
   message?: any;
   completedAt?: any;
+  token?: any;
+  items?: any;
+  expiresAt?: any;
+  passwordHash?: any;
+  passwordSalt?: any;
+  ttl?: any;
 };
 
 const requireField = (value: unknown, name: string) => {
@@ -156,6 +165,9 @@ export const toItemPet = (pet: Pet): DynamoItem => {
     birthDate: toIso(pet.birthDate),
     notes: pet.notes,
     color: pet.color,
+    isNeutered: pet.isNeutered,
+    bloodType: pet.bloodType,
+    sex: pet.sex,
     weightKg: pet.weightKg,
     photoKey: pet.photoKey,
     photoThumbnailKey: pet.photoThumbnailKey,
@@ -178,6 +190,9 @@ export const fromItemPet = (item: DynamoItem): Pet => ({
   birthDate: parseDate(item.birthDate),
   notes: item.notes,
   color: item.color,
+  isNeutered: item['isNeutered'],
+  bloodType: item['bloodType'],
+  sex: item['sex'],
   weightKg: item.weightKg,
   photoKey: item.photoKey,
   photoThumbnailKey: item['photoThumbnailKey'],
@@ -229,6 +244,7 @@ export const toItemPetEvent = (event: PetEvent): DynamoItem => {
     type: 'PetEvent',
     petId: event.petId,
     eventId: event.eventId,
+    ownerId: event.ownerId,
     eventType: event.eventType,
     eventDate: toIso(event.eventDate),
     title: event.title,
@@ -242,6 +258,7 @@ export const toItemPetEvent = (event: PetEvent): DynamoItem => {
 export const fromItemPetEvent = (item: DynamoItem): PetEvent => ({
   petId: item.petId,
   eventId: item.eventId,
+  ownerId: item.ownerId,
   eventType: item.eventType as EventType,
   eventDate: new Date(item.eventDate),
   title: item.title,
@@ -269,6 +286,7 @@ export const toItemPetReminder = (reminder: PetReminder): DynamoItem => {
     type: 'PetReminder',
     petId: reminder.petId,
     reminderId: reminder.reminderId,
+    ownerId: reminder.ownerId,
     eventId: reminder.eventId,
     dueDate: toIso(reminder.dueDate),
     message: reminder.message,
@@ -281,10 +299,46 @@ export const toItemPetReminder = (reminder: PetReminder): DynamoItem => {
 export const fromItemPetReminder = (item: DynamoItem): PetReminder => ({
   petId: item.petId,
   reminderId: item.reminderId,
+  ownerId: item.ownerId,
   eventId: item.eventId,
   dueDate: new Date(item.dueDate),
   message: item.message,
   metadata: item.metadata,
   createdAt: new Date(item.createdAt),
   completedAt: parseDate(item.completedAt),
+});
+
+export const toItemSharedRecord = (record: SharedRecord): DynamoItem => {
+  requireField(record.token, 'token');
+  requireField(record.petId, 'petId');
+  requireField(record.ownerId, 'ownerId');
+  requireField(record.items, 'items');
+  requireField(record.expiresAt, 'expiresAt');
+  requireField(record.createdAt, 'createdAt');
+
+  return {
+    PK: buildSharedRecordPk(record.token),
+    SK: buildSharedRecordSk(record.petId),
+    type: 'SharedRecord',
+    token: record.token,
+    petId: record.petId,
+    ownerId: record.ownerId,
+    items: record.items,
+    expiresAt: toIso(record.expiresAt),
+    createdAt: toIso(record.createdAt),
+    passwordHash: record.passwordHash,
+    passwordSalt: record.passwordSalt,
+    ttl: Math.floor(record.expiresAt.getTime() / 1000),
+  };
+};
+
+export const fromItemSharedRecord = (item: DynamoItem): SharedRecord => ({
+  token: item.token,
+  petId: item.petId,
+  ownerId: item.ownerId,
+  items: item.items ?? [],
+  expiresAt: new Date(item.expiresAt),
+  createdAt: new Date(item.createdAt),
+  passwordHash: item.passwordHash,
+  passwordSalt: item.passwordSalt,
 });

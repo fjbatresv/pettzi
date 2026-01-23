@@ -12,6 +12,9 @@
   "references": [
     {
       "path": "../utils-dynamo/tsconfig.lib.json"
+    },
+    {
+      "path": "../domain-model/tsconfig.lib.json"
     }
   ],
   "exclude": [

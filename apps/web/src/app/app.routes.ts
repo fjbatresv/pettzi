@@ -3,7 +3,6 @@ import { LoginComponent } from './pages/login/login.component';
 import { SignupComponent } from './pages/signup/signup.component';
 import { PetCreateStep1Component } from './pages/pet-create-step1/pet-create-step1.component';
 import { PetCreateStep2Component } from './pages/pet-create-step2/pet-create-step2.component';
-import { DashboardMainComponent } from './pages/dashboard-main/dashboard-main.component';
 import { DashboardPetComponent } from './pages/dashboard-pet/dashboard-pet.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { DashboardLayoutComponent } from './components/dashboard-layout/dashboard-layout.component';
@@ -19,17 +18,20 @@ import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password
 import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
 import { EmailConfirmComponent } from './pages/email-confirm/email-confirm.component';
 import { AccountDeletedComponent } from './pages/account-deleted/account-deleted.component';
+import { PetInviteConfirmComponent } from './pages/pet-invite-confirm/pet-invite-confirm.component';
+import { PetRecordComponent } from './pages/pet-record/pet-record.component';
 import { authenticatedGuard } from './core/guards/authenticated.guard';
 import { unauthenticatedGuard } from './core/guards/unauthenticated.guard';
+import { resetPasswordGuard } from './core/guards/reset-password.guard';
 
 export const appRoutes: Route[] = [
   {
-    path: '',
+    path: 'login',
     component: LoginComponent,
     canActivate: [unauthenticatedGuard],
   },
   {
-    path: 'signup',
+    path: 'register',
     component: SignupComponent,
     canActivate: [unauthenticatedGuard],
   },
@@ -41,11 +43,19 @@ export const appRoutes: Route[] = [
   {
     path: 'reset-password',
     component: ResetPasswordComponent,
-    canActivate: [unauthenticatedGuard],
+    canActivate: [resetPasswordGuard],
   },
   {
     path: 'email-confirm',
     component: EmailConfirmComponent,
+  },
+  {
+    path: 'accept-invite',
+    component: PetInviteConfirmComponent,
+  },
+  {
+    path: 'pet-record',
+    component: PetRecordComponent,
   },
   {
     path: 'account-deleted',
@@ -53,64 +63,68 @@ export const appRoutes: Route[] = [
     canActivate: [unauthenticatedGuard],
   },
   {
-    path: 'pets/new',
-    component: PetCreateStep1Component,
-    canActivate: [authenticatedGuard],
-  },
-  {
-    path: 'pets/new/details',
-    component: PetCreateStep2Component,
-    canActivate: [authenticatedGuard],
-  },
-  {
-    path: 'dashboard',
+    path: '',
     component: DashboardLayoutComponent,
     canActivate: [authenticatedGuard],
     children: [
       {
-        path: '',
+        path: 'home',
         component: DashboardComponent,
       },
       {
-        path: 'main',
-        component: DashboardMainComponent,
+        path: 'pets/new',
+        component: PetCreateStep1Component,
       },
       {
-        path: 'pet/edit',
+        path: 'pets/new/details',
+        component: PetCreateStep2Component,
+      },
+      {
+        path: 'pets/:petId',
+        component: DashboardPetComponent,
+      },
+      {
+        path: 'pets/:petId/edit',
         component: PetEditComponent,
       },
       {
-        path: 'grooming',
-        component: GroomingComponent,
-      },
-      {
-        path: 'vet-visit',
-        component: VetVisitComponent,
-      },
-      {
-        path: 'medication',
-        component: MedicationComponent,
-      },
-      {
-        path: 'vaccine',
-        component: VaccineComponent,
-      },
-      {
-        path: 'weight',
-        component: WeightComponent,
-      },
-      {
-        path: 'pet/share',
+        path: 'pets/:petId/share',
         component: PetShareComponent,
       },
       {
-        path: 'pet',
-        component: DashboardPetComponent,
+        path: 'pets/:petId/grooming/new',
+        component: GroomingComponent,
+      },
+      {
+        path: 'pets/:petId/vet-visits/new',
+        component: VetVisitComponent,
+      },
+      {
+        path: 'pets/:petId/medicines/new',
+        component: MedicationComponent,
+      },
+      {
+        path: 'pets/:petId/weights/new',
+        component: WeightComponent,
+      },
+      {
+        path: 'pets/:petId/vaccines/new',
+        component: VaccineComponent,
       },
       {
         path: 'settings',
         component: SettingsComponent,
       },
+      {
+        path: '',
+        redirectTo: 'home',
+        pathMatch: 'full',
+      },
     ],
+  },
+  {
+    path: '',
+    redirectTo: 'home',
+    pathMatch: 'full',
   },
 ];

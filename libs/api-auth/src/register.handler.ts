@@ -182,15 +182,14 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
       selectedLocale === 'en'
         ? process.env.SES_WELCOME_TEMPLATE_NAME_EN
         : process.env.SES_WELCOME_TEMPLATE_NAME_ES;
-    const fallbackTemplate = process.env.SES_WELCOME_TEMPLATE_NAME;
 
-    if (process.env.SES_FROM_EMAIL && (templateName || fallbackTemplate)) {
+    if (process.env.SES_FROM_EMAIL && templateName) {
       try {
         await ses.send(
           new SendTemplatedEmailCommand({
             Source: process.env.SES_FROM_EMAIL,
             Destination: { ToAddresses: [email] },
-            Template: templateName ?? fallbackTemplate ?? '',
+            Template: templateName,
             TemplateData: JSON.stringify({
               userName: fullName || email,
               email,
@@ -200,7 +199,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         );
         console.debug('Welcome email sent', {
           ...createEmailLogContext(email),
-          template: templateName ?? fallbackTemplate,
+          template: templateName,
         });
       } catch (sesErr) {
         console.error(
@@ -212,7 +211,8 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     } else {
       console.warn('Skipping welcome email; SES not configured', {
         sesFromEmail: process.env.SES_FROM_EMAIL,
-        template: process.env.SES_WELCOME_TEMPLATE_NAME,
+        templateEs: process.env.SES_WELCOME_TEMPLATE_NAME_ES,
+        templateEn: process.env.SES_WELCOME_TEMPLATE_NAME_EN,
       });
     }
 

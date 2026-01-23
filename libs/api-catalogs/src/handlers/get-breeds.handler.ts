@@ -2,15 +2,9 @@ import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
 import { ok, badRequest, serverError } from '@pettzi/utils-dynamo/http';
 import { catalogSpecies, PetSpecies } from '@pettzi/domain-model';
 import { getLocalizedBreeds } from './catalog-localization';
-import { getLocale, getOwnerId } from './common';
+import { getLocale } from './common';
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
-  try {
-    getOwnerId(event);
-  } catch (err) {
-    return err as any;
-  }
-
   const locale = getLocale(event);
   const speciesParam = event.queryStringParameters?.species;
   let speciesFilter: PetSpecies | undefined;

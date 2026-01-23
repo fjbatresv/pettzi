@@ -1,12 +1,39 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { API_BASE_URL } from '../tokens';
-import { Pet } from '@pettzi/domain-model';
+import { EventType, Pet, PetEvent } from '@pettzi/domain-model';
 
 interface PetsListResponse {
   pets: Pet[];
+}
+
+export interface CreateSharedRecordRequest {
+  items: EventType[];
+  expiresIn: '24h' | '3d' | '1w' | '1m';
+  password?: string;
+}
+
+export interface CreateSharedRecordResponse {
+  token: string;
+  petId: string;
+  items: EventType[];
+  expiresAt: string;
+}
+
+export interface SharedRecordResponse {
+  token?: string;
+  petId?: string;
+  items?: EventType[];
+  expiresAt?: string;
+  createdAt?: string;
+  pet?: Pet;
+  photoUrl?: string;
+  events?: PetEvent[];
+  nextCursor?: string;
+  requiresPassword?: boolean;
+  message?: string;
 }
 
 export type CreatePetRequest = Pick<
@@ -17,6 +44,9 @@ export type CreatePetRequest = Pick<
   | 'birthDate'
   | 'notes'
   | 'color'
+  | 'sex'
+  | 'isNeutered'
+  | 'bloodType'
   | 'weightKg'
   | 'lastGroomingDate'
   | 'lastVetVisitDate'
@@ -33,6 +63,9 @@ export type UpdatePetRequest = Partial<
     | 'breed'
     | 'species'
     | 'birthDate'
+    | 'sex'
+    | 'isNeutered'
+    | 'bloodType'
     | 'photoKey'
     | 'photoThumbnailKey'
     | 'lastGroomingDate'
@@ -67,6 +100,36 @@ export class PetsService {
   updatePet(petId: string, payload: UpdatePetRequest): Observable<Pet> {
     return this.http.patch<Pet>(this.buildUrl(`/${petId}`), payload).pipe(
       tap(() => this.clearPetsCache())
+    );
+  }
+
+  createSharedRecord(
+    petId: string,
+    payload: CreateSharedRecordRequest
+  ): Observable<CreateSharedRecordResponse> {
+    return this.http.post<CreateSharedRecordResponse>(
+      this.buildUrl(`/${petId}/shared-records`),
+      payload
+    );
+  }
+
+  getSharedRecord(
+    token: string,
+    options?: { password?: string; limit?: number; cursor?: string }
+  ): Observable<SharedRecordResponse> {
+    let params = new HttpParams();
+    if (options?.password) {
+      params = params.set('password', options.password);
+    }
+    if (options?.limit) {
+      params = params.set('limit', String(options.limit));
+    }
+    if (options?.cursor) {
+      params = params.set('cursor', options.cursor);
+    }
+    return this.http.get<SharedRecordResponse>(
+      this.buildUrl(`/shared-records/${encodeURIComponent(token)}`),
+      { params }
     );
   }
 

@@ -89,11 +89,13 @@ export class CatalogsApiStack extends Stack {
         'GetSpeciesIntegration',
         speciesFn
       ),
+      authorizer: new apigwv2.HttpNoneAuthorizer(),
     });
     this.httpApi.addRoutes({
       path: '/breeds',
       methods: [apigwv2.HttpMethod.GET],
       integration: new HttpLambdaIntegration('GetBreedsIntegration', breedsFn),
+      authorizer: new apigwv2.HttpNoneAuthorizer(),
     });
     this.httpApi.addRoutes({
       path: '/vaccines',
@@ -102,6 +104,7 @@ export class CatalogsApiStack extends Stack {
         'GetVaccinesIntegration',
         vaccinesFn
       ),
+      authorizer: new apigwv2.HttpNoneAuthorizer(),
     });
 
     this.addApiGatewayAlarm('CatalogsApi5xxAlarm', this.httpApi.apiId);

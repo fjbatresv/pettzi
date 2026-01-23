@@ -68,6 +68,7 @@ describe('register.handler', () => {
   });
 
   const invokeHandler = async (payload: {
+    name?: string;
     email?: string;
     password?: string;
     locale?: 'es' | 'en';
@@ -109,6 +110,7 @@ describe('register.handler', () => {
     process.env.EMAIL_VERIFY_BASE_URL = 'https://app/confirm-email';
 
     const res = await invokeHandler({
+      name: 'Test User',
       email: 'a@b.com',
       password: makeTestPassword(),
       locale: 'es',
@@ -119,7 +121,6 @@ describe('register.handler', () => {
       message: 'User registered. Please confirm your email.',
       idToken: 'id',
       accessToken: 'access',
-      refreshToken: 'refresh',
       tokenType: 'Bearer',
       expiresIn: 3600,
     });
@@ -144,6 +145,7 @@ describe('register.handler', () => {
       .mockResolvedValueOnce({});
 
     const res = await invokeHandler({
+      name: 'Test User',
       email: 'a@b.com',
       password: makeTestPassword(),
       locale: 'es',
@@ -165,6 +167,7 @@ describe('register.handler', () => {
       .mockResolvedValueOnce({});
 
     const res = await invokeHandler({
+      name: 'Test User',
       email: 'a@b.com',
       password: makeTestPassword(),
       locale: 'es',
@@ -183,6 +186,7 @@ describe('register.handler', () => {
       .mockResolvedValueOnce({});
 
     const res = await invokeHandler({
+      name: 'Test User',
       email: 'a@b.com',
       password: makeTestPassword(),
       locale: 'es',
@@ -208,6 +212,7 @@ describe('register.handler', () => {
       });
 
     const res = await invokeHandler({
+      name: 'Test User',
       email: 'a@b.com',
       password: makeTestPassword(),
       locale: 'es',
@@ -234,13 +239,15 @@ describe('register.handler', () => {
       });
 
     process.env.SES_FROM_EMAIL = 'no-reply@pettzi.app';
-    process.env.SES_WELCOME_TEMPLATE_NAME = 'template';
+    process.env.SES_WELCOME_TEMPLATE_NAME_ES = 'template-es';
+    process.env.SES_WELCOME_TEMPLATE_NAME_EN = 'template-en';
     process.env.EMAIL_VERIFY_SECRET = 'secret';
     process.env.EMAIL_VERIFY_BASE_URL = 'https://app/confirm-email';
 
     sesSendMock.mockRejectedValueOnce(new Error('boom'));
 
     const res = await invokeHandler({
+      name: 'Test User',
       email: 'a@b.com',
       password: makeTestPassword(),
       locale: 'es',

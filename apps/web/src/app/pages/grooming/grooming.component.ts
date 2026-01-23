@@ -7,7 +7,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PetsService } from '../../core/services/pets.service';
 import { Pet } from '@pettzi/domain-model';
@@ -43,6 +43,7 @@ export class GroomingComponent implements OnInit {
   private readonly events = inject(EventsService);
   private readonly reminders = inject(RemindersService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly translate = inject(TranslateService);
   private readonly activePetKey = 'pettzi.activePetId';
 
@@ -85,14 +86,19 @@ export class GroomingComponent implements OnInit {
   }
 
   ngOnInit() {
+    const routePetId = this.route.snapshot.paramMap.get('petId') ?? '';
     this.pets.listPets().subscribe({
       next: ({ pets }) => {
         const list = pets ?? [];
         const activeId = localStorage.getItem(this.activePetKey);
-        const activePet = activeId ? list.find((pet) => pet.petId === activeId) : list[0];
+        const targetId = routePetId || activeId || '';
+        const activePet = targetId ? list.find((pet) => pet.petId === targetId) : list[0];
         this.activePet = activePet ?? null;
         this.petName = activePet?.name ?? '';
         this.petId = activePet?.petId ?? '';
+        if (this.petId) {
+          localStorage.setItem(this.activePetKey, this.petId);
+        }
       },
     });
   }
@@ -124,7 +130,7 @@ export class GroomingComponent implements OnInit {
       next: (createdEvent) => {
         this.updateLastGroomingDate();
         if (!this.nextGroomingDate) {
-          void this.router.navigate(['/dashboard/pet']);
+          void this.router.navigate(['/pets', this.petId]);
           return;
         }
         const reminderPayload = {
@@ -134,7 +140,7 @@ export class GroomingComponent implements OnInit {
         };
         this.reminders.createPetReminder(this.petId, reminderPayload).subscribe({
           next: () => {
-            void this.router.navigate(['/dashboard/pet']);
+            void this.router.navigate(['/pets', this.petId]);
           },
           error: () => {
             this.isSubmitting = false;
