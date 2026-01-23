@@ -31,6 +31,7 @@ export class DashboardLayoutComponent implements OnInit {
   private readonly pets = inject(PetsService);
   private readonly uploads = inject(UploadsService);
   private readonly auth = inject(AuthService);
+  private readonly activePetKey = 'pettzi.activePetId';
 
   activePet: Pet | null = null;
   activePetPhotoUrl = '';
@@ -44,7 +45,11 @@ export class DashboardLayoutComponent implements OnInit {
     void this.loadUserProfile();
     this.pets.listPets().subscribe({
       next: ({ pets }) => {
-        this.activePet = pets?.[0] ?? null;
+        const list = pets ?? [];
+        const activeId = localStorage.getItem(this.activePetKey);
+        this.activePet = activeId
+          ? list.find((pet) => pet.petId === activeId) ?? list[0] ?? null
+          : list[0] ?? null;
         this.activePetAge = this.getAgeLabel(this.activePet?.birthDate);
         const photoKey =
           this.activePet?.photoThumbnailKey ?? this.activePet?.photoKey;

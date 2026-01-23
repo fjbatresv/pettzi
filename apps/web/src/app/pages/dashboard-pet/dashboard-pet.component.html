@@ -24,19 +24,25 @@
       </div>
     </div>
     <div class="pet-actions">
-      <button mat-raised-button color="primary" class="primary send-record">
+      <button
+        mat-raised-button
+        color="primary"
+        class="primary send-record"
+        type="button"
+        (click)="openShareRecordDialog()"
+      >
         {{ 'dashboard.sendRecord' | translate }}
       </button>
     </div>
-    <div class="card-menu">
+    <div class="card-menu" *ngIf="canManagePet">
       <button class="dots-btn" type="button" (click)="togglePetMenu()">
         <mat-icon>more_vert</mat-icon>
       </button>
       <div class="pet-menu" *ngIf="showPetMenu">
-        <button type="button" (click)="selectPetMenu('edit')">
+        <button type="button" (click)="selectPetMenu('edit')" *ngIf="canManagePet">
           {{ 'dashboard.menuEditProfile' | translate }}
         </button>
-        <button type="button" (click)="selectPetMenu('share')">
+        <button type="button" (click)="selectPetMenu('share')" *ngIf="canManagePet">
           {{ 'dashboard.menuSharePet' | translate }}
         </button>
       </div>
@@ -52,7 +58,6 @@
           </span>
         </div>
       <h3>{{ weightLabel }}</h3>
-      <p class="stat-note">{{ 'dashboard.weightNote' | translate }}</p>
       </div>
     <div class="stat-card">
       <div class="stat-head">
@@ -146,7 +151,12 @@
                   {{ getActivityStatus(event).key | translate }}
                 </span>
               </div>
-              <span class="activity-date">{{ formatEventDate(event.eventDate) }}</span>
+              <div class="activity-actions-inline">
+                <span class="activity-date">{{ formatEventDate(event.eventDate) }}</span>
+                <span class="activity-owner" *ngIf="hasCoOwners && event.ownerId">
+                  {{ 'dashboard.createdBy' | translate: { name: getOwnerLabel(event.ownerId) } }}
+                </span>
+              </div>
             </div>
             <div class="activity-details" [ngSwitch]="event.eventType">
               <div *ngSwitchCase="'MEDICATION'">
@@ -257,6 +267,15 @@
               </div>
             </div>
           </div>
+          <button
+            type="button"
+            class="icon-btn activity-delete"
+            [attr.aria-label]="'dashboard.deleteEvent' | translate"
+            (click)="confirmDeleteActivity(event)"
+            [disabled]="deletingEventIds.has(event.eventId)"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
         </article>
         <p class="empty-state" *ngIf="!filteredActivityLog.length">
           {{ 'dashboard.noActivity' | translate }}
@@ -266,8 +285,9 @@
           class="load-more-btn"
           *ngIf="canLoadMoreActivity"
           (click)="loadMoreActivity()"
+          [disabled]="isLoadingMoreActivity"
         >
-          {{ 'dashboard.loadMore' | translate }}
+          {{ (isLoadingMoreActivity ? 'dashboard.loadingMore' : 'dashboard.loadMore') | translate }}
         </button>
       </div>
     </section>
@@ -316,14 +336,25 @@
           </button>
         </div>
         <div class="reminder" *ngFor="let reminder of remindersList">
-          <div class="checkbox"></div>
           <div class="reminder-body">
             <h4>{{ reminder.message || ('dashboard.reminderFallback' | translate) }}</h4>
             <p class="reminder-meta">
               <mat-icon *ngIf="isReminderRecurring(reminder)">repeat</mat-icon>
               <span>{{ formatReminderDateTime(reminder.dueDate) }}</span>
+              <span class="reminder-owner" *ngIf="hasCoOwners && reminder.ownerId">
+                {{ 'dashboard.createdBy' | translate: { name: getOwnerLabel(reminder.ownerId) } }}
+              </span>
             </p>
           </div>
+          <button
+            type="button"
+            class="icon-btn"
+            [attr.aria-label]="'dashboard.deleteReminder' | translate"
+            (click)="deleteReminder(reminder)"
+            [disabled]="deletingReminderIds.has(reminder.reminderId)"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
         </div>
         <p class="empty-state" *ngIf="!remindersList.length">
           {{ 'dashboard.noReminders' | translate }}

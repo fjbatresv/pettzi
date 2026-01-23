@@ -7,7 +7,9 @@ import {
 } from '@aws-sdk/lib-dynamodb';
 import {
   EventType,
+  PetSpecies,
   toItemPetEvent,
+  toItemPet,
   toItemPetReminder,
 } from '@pettzi/domain-model';
 import { handler } from './delete-event.handler';
@@ -72,6 +74,12 @@ describe('delete-event.handler', () => {
       createdAt: now,
       updatedAt: now,
     });
+    const petItem = toItemPet({
+      petId: 'pet-1',
+      name: 'Max',
+      species: PetSpecies.DOG,
+      createdAt: now,
+    });
     const reminderItem = toItemPetReminder({
       petId: 'pet-1',
       reminderId: 'rem-1',
@@ -83,10 +91,12 @@ describe('delete-event.handler', () => {
 
     const responses = [
       { Item: { PK: 'PET#pet-1', SK: 'OWNER#owner-1' } }, // ownership check
-      { Item: eventItem }, // fetch event
+      { Items: [eventItem] }, // list events
+      { Item: petItem }, // fetch pet
       {}, // delete event
       { Items: [reminderItem] }, // query reminders
       {}, // batch delete
+      {}, // update pet
     ];
 
     sendMock.mockImplementation(() => {
@@ -105,7 +115,7 @@ describe('delete-event.handler', () => {
     expect(res.statusCode).toBe(200);
     const body = JSON.parse(res.body ?? '{}');
     expect(body.message).toMatch(/deleted/i);
-    expect(sendMock).toHaveBeenCalledTimes(5);
+    expect(sendMock).toHaveBeenCalledTimes(7);
   });
 
   it('returns bad request when params missing', async () => {

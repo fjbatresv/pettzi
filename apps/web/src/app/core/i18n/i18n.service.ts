@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { DateAdapter } from '@angular/material/core';
 import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 
@@ -8,12 +9,13 @@ export type Locale = 'es' | 'en';
 export class I18nService {
   private readonly storageKey = 'pettzi.locale';
   private readonly translate = inject(TranslateService);
+  private readonly dateAdapter = inject(DateAdapter);
 
   init() {
     const stored = localStorage.getItem(this.storageKey) as Locale | null;
     const locale = stored === 'en' ? 'en' : 'es';
     this.translate.setDefaultLang('es');
-    document.documentElement.lang = locale;
+    this.applyLocale(locale);
     return firstValueFrom(this.translate.use(locale));
   }
 
@@ -28,8 +30,14 @@ export class I18nService {
     }
 
     localStorage.setItem(this.storageKey, locale);
-    document.documentElement.lang = locale;
+    this.applyLocale(locale);
     this.translate.use(locale).subscribe();
+  }
+
+  private applyLocale(locale: Locale) {
+    document.documentElement.lang = locale;
+    const adapterLocale = locale === 'en' ? 'en-US' : 'es-ES';
+    this.dateAdapter.setLocale(adapterLocale);
   }
 
   t(key: string) {

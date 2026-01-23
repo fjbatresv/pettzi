@@ -47,6 +47,9 @@ describe('list-pets.handler', () => {
             }),
           ],
         },
+      })
+      .mockResolvedValueOnce({
+        Items: [],
       });
 
     const res = await (handler as any)({

@@ -443,6 +443,7 @@
   border-radius: 20px;
   border: 1px solid rgba(127, 19, 236, 0.12);
   background: #ffffff;
+  position: relative;
 }
 
 .activity-icon {
@@ -466,6 +467,15 @@
   gap: 1rem;
 }
 
+.activity-actions-inline {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  text-align: end;
+}
+
 .activity-title > div {
   display: grid;
   gap: 0.35rem;
@@ -479,6 +489,42 @@
 .activity-date {
   font-size: 0.8rem;
   color: rgba(27, 18, 36, 0.5);
+}
+
+.activity-owner {
+  font-size: 0.75rem;
+  color: rgba(27, 18, 36, 0.45);
+}
+
+.icon-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  border: 1px solid rgba(127, 19, 236, 0.2);
+  background: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #7f13ec;
+  cursor: pointer;
+}
+
+.icon-btn mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+}
+
+.icon-btn[disabled] {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.activity-delete {
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
 }
 
 .status-pill {
@@ -681,6 +727,10 @@
   font-size: 0.95rem;
 }
 
+.reminder .icon-btn {
+  margin-left: auto;
+}
+
 .reminder-meta {
   margin: 0;
   display: inline-flex;
@@ -688,6 +738,11 @@
   gap: 0.4rem;
   color: rgba(27, 18, 36, 0.6);
   font-size: 0.85rem;
+}
+
+.reminder-owner {
+  font-size: 0.8rem;
+  color: rgba(27, 18, 36, 0.45);
 }
 
 .reminder-meta mat-icon {

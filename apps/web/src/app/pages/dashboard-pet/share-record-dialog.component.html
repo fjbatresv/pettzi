@@ -1,0 +1,63 @@
+<div class="share-dialog">
+  <header class="dialog-header">
+    <div>
+      <h2>{{ 'shareRecord.title' | translate }}</h2>
+      <p>{{ 'shareRecord.subtitle' | translate:{ name: data.petName } }}</p>
+    </div>
+    <button mat-icon-button mat-dialog-close type="button" aria-label="Close">
+      <mat-icon>close</mat-icon>
+    </button>
+  </header>
+
+  <section class="dialog-section">
+    <h3>{{ 'shareRecord.includeRecords' | translate }}</h3>
+    <div class="record-options">
+      <div class="record-option" *ngFor="let option of recordOptions">
+        <mat-checkbox
+          [checked]="selectedTypes.has(option.type)"
+          (change)="selectedTypes.has(option.type) ? selectedTypes.delete(option.type) : selectedTypes.add(option.type)"
+        >
+          {{ option.label | translate }}
+        </mat-checkbox>
+      </div>
+    </div>
+  </section>
+
+  <section class="dialog-section options-row">
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'shareRecord.linkExpiration' | translate }}</mat-label>
+      <mat-select [(ngModel)]="expiration">
+        <mat-option *ngFor="let option of expirationOptions" [value]="option.value">
+          {{ option.label | translate }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'shareRecord.password' | translate }}</mat-label>
+      <input
+        matInput
+        [(ngModel)]="password"
+        [placeholder]="'shareRecord.passwordPlaceholder' | translate"
+      />
+    </mat-form-field>
+  </section>
+
+  <button
+    mat-raised-button
+    color="primary"
+    class="primary-cta"
+    [disabled]="!canSubmit"
+    (click)="createLink()"
+  >
+    {{ (isSubmitting ? 'shareRecord.creating' : 'shareRecord.createLink') | translate }}
+  </button>
+
+  <div class="status" *ngIf="statusMessage" [class.error]="!copiedLink">
+    <mat-icon>{{ copiedLink ? 'check_circle' : 'error' }}</mat-icon>
+    <span>{{ statusMessage }}</span>
+  </div>
+
+  <div class="copy-link" *ngIf="copiedLink">
+    <input type="text" [value]="copiedLink" readonly />
+  </div>
+</div>

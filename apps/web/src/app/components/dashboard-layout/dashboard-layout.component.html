@@ -12,30 +12,14 @@
     <nav class="nav">
       <a
         class="nav-link"
-        routerLink="/dashboard"
+        routerLink="/home"
         routerLinkActive="active"
         [routerLinkActiveOptions]="{ exact: true }"
       >
         <mat-icon class="nav-icon" aria-hidden="true">dashboard</mat-icon>
         {{ 'dashboard.navDashboard' | translate }}
       </a>
-      <a class="nav-link" href="#">
-        <mat-icon class="nav-icon" aria-hidden="true">pets</mat-icon>
-        {{ 'dashboard.navPets' | translate }}
-      </a>
-      <a class="nav-link" routerLink="/dashboard/grooming" routerLinkActive="active">
-        <mat-icon class="nav-icon" aria-hidden="true">content_cut</mat-icon>
-        {{ 'dashboard.navGrooming' | translate }}
-      </a>
-      <a class="nav-link" href="#">
-        <mat-icon class="nav-icon" aria-hidden="true">local_hospital</mat-icon>
-        {{ 'dashboard.navVets' | translate }}
-      </a>
-      <a class="nav-link" href="#">
-        <mat-icon class="nav-icon" aria-hidden="true">photo_library</mat-icon>
-        {{ 'dashboard.navGallery' | translate }}
-      </a>
-      <a class="nav-link" routerLink="/dashboard/settings" routerLinkActive="active">
+      <a class="nav-link" routerLink="/settings" routerLinkActive="active">
         <mat-icon class="nav-icon" aria-hidden="true">settings</mat-icon>
         {{ 'dashboard.navSettings' | translate }}
       </a>

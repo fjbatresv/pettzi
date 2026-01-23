@@ -100,6 +100,7 @@ export class CoreInfraStack extends Stack {
       tableName: `pettzi-table-${stage}`,
       partitionKey: { name: 'PK', type: dynamodb.AttributeType.STRING },
       sortKey: { name: 'SK', type: dynamodb.AttributeType.STRING },
+      timeToLiveAttribute: 'ttl',
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       encryption: useKms
         ? dynamodb.TableEncryption.CUSTOMER_MANAGED

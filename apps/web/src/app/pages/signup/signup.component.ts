@@ -22,6 +22,7 @@ export class SignupComponent {
   private readonly auth = inject(AuthService);
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
+  private readonly inviteTokenKey = 'pettzi.petInviteToken';
 
   readonly form = this.fb.group({
     name: ['', [Validators.required]],
@@ -65,6 +66,11 @@ export class SignupComponent {
       next: (tokens) => {
         this.errorMessage = '';
         this.persistTokens(tokens);
+        const inviteToken = sessionStorage.getItem(this.inviteTokenKey);
+        if (inviteToken) {
+          void this.router.navigate(['/accept-invite'], { queryParams: { token: inviteToken } });
+          return;
+        }
         void this.router.navigate(['/pets/new']);
       },
       error: (err: Error) => {

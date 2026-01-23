@@ -2,3 +2,4 @@ export { handler as listRemindersHandler } from './handlers/list-reminders.handl
 export { handler as listPetRemindersHandler } from './handlers/list-pet-reminders.handler';
 export { handler as processDueRemindersHandler } from './handlers/process-due-reminders.handler';
 export { handler as createReminderHandler } from './handlers/create-reminder.handler';
+export { handler as deleteReminderHandler } from './handlers/delete-reminder.handler';

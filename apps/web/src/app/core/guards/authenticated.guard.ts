@@ -17,11 +17,11 @@ export const authenticatedGuard: CanActivateFn = () => {
         return of(true);
       }
       if (!auth.hasRefreshToken()) {
-        return of(router.createUrlTree(['/']));
+        return of(router.createUrlTree(['/login']));
       }
       return auth.refreshTokens().pipe(
         map(() => true),
-        catchError(() => of(router.createUrlTree(['/'])))
+        catchError(() => of(router.createUrlTree(['/login'])))
       );
     })
   );

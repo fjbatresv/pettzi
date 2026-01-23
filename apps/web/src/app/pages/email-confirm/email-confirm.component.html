@@ -36,7 +36,7 @@
         <p class="subtitle">{{ 'emailConfirm.subtitle' | translate }}</p>
         <p class="subtitle" *ngIf="responseMessage">{{ responseMessage }}</p>
 
-        <a class="primary" routerLink="/dashboard">
+        <a class="primary" routerLink="/home">
           {{ 'emailConfirm.cta' | translate }}
           <mat-icon aria-hidden="true">arrow_forward</mat-icon>
         </a>
@@ -47,7 +47,7 @@
         <p class="subtitle">
           {{ errorMessage || ('emailConfirm.errorSubtitle' | translate) }}
         </p>
-        <a class="primary" routerLink="/">
+        <a class="primary" routerLink="/login">
           {{ 'emailConfirm.backToLogin' | translate }}
         </a>
       </ng-container>

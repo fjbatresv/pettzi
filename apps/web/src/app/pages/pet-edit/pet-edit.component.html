@@ -1,6 +1,6 @@
 <section class="pet-edit-page">
   <header class="pet-edit-header">
-    <button mat-button class="back-btn" routerLink="/dashboard/pet">
+    <button mat-button class="back-btn" [routerLink]="['/pets', petId]">
       <mat-icon>arrow_back</mat-icon>
     </button>
     <h2>{{ 'petEdit.title' | translate }}</h2>
@@ -74,6 +74,22 @@
         <mat-label>{{ 'petEdit.color' | translate }}</mat-label>
         <input matInput [(ngModel)]="color" />
       </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'petEdit.sex' | translate }}</mat-label>
+        <mat-select [(ngModel)]="sex">
+          <mat-option value="MALE">{{ 'petEdit.sexMale' | translate }}</mat-option>
+          <mat-option value="FEMALE">{{ 'petEdit.sexFemale' | translate }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <div class="toggle-field">
+        <mat-slide-toggle [(ngModel)]="isNeutered">
+          {{ 'petEdit.neutered' | translate }}
+        </mat-slide-toggle>
+      </div>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'petEdit.bloodType' | translate }}</mat-label>
+        <input matInput [(ngModel)]="bloodType" />
+      </mat-form-field>
       <mat-form-field appearance="outline" class="full-row">
         <mat-label>{{ 'petEdit.chip' | translate }}</mat-label>
         <input matInput [(ngModel)]="chipId" />
@@ -96,7 +112,7 @@
     </div>
 
     <div class="actions">
-      <button type="button" class="link-btn" routerLink="/dashboard/pet">
+      <button type="button" class="link-btn" [routerLink]="['/pets', petId]">
         {{ 'petEdit.cancel' | translate }}
       </button>
       <button

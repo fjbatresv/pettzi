@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, HostListener, inject, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
@@ -14,6 +14,10 @@ import { EventsService } from '../../core/services/events.service';
 import { RemindersService } from '../../core/services/reminders.service';
 import { BreedItem, CatalogsService, SpeciesItem } from '../../core/services/catalogs.service';
 import { ReminderDialogComponent, ReminderDialogResult } from './reminder-dialog.component';
+import { DeleteActivityDialogComponent } from './delete-activity-dialog.component';
+import { ShareRecordDialogComponent } from './share-record-dialog.component';
+import { OwnersService, PetOwner } from '../../core/services/owners.service';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-dashboard-pet',
@@ -33,24 +37,36 @@ import { ReminderDialogComponent, ReminderDialogResult } from './reminder-dialog
 export class DashboardPetComponent implements OnInit {
   private readonly pets = inject(PetsService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly uploads = inject(UploadsService);
   private readonly events = inject(EventsService);
   private readonly reminders = inject(RemindersService);
   private readonly catalogs = inject(CatalogsService);
   private readonly translate = inject(TranslateService);
   private readonly dialog = inject(MatDialog);
+  private readonly owners = inject(OwnersService);
+  private readonly auth = inject(AuthService);
   private readonly weightUnitKey = 'pettzi.weightUnit';
   private readonly activePetKey = 'pettzi.activePetId';
 
   pet: Pet | null = null;
+  petId = '';
   petPhotoUrl = '';
   speciesOptions: SpeciesItem[] = [];
   breedOptions: BreedItem[] = [];
   activityLog: PetEvent[] = [];
   remindersList: PetReminder[] = [];
+  ownersList: PetOwner[] = [];
+  eventsCursor = '';
+  hasMoreEvents = false;
+  isLoadingMoreActivity = false;
+  hasCoOwners = false;
+  currentOwnerId = '';
   showActivityMenu = false;
   showPetMenu = false;
-  activityVisibleCount = 5;
+  canManagePet = false;
+  deletingEventIds = new Set<string>();
+  deletingReminderIds = new Set<string>();
   selectedEventTypes = new Set<string>(['MEDICATION', 'GROOMING', 'VET_VISIT', 'VACCINE', 'WEIGHT']);
   readonly activityFilterOptions = [
     'MEDICATION',
@@ -61,6 +77,7 @@ export class DashboardPetComponent implements OnInit {
   ];
 
   ngOnInit() {
+    this.petId = this.route.snapshot.paramMap.get('petId') ?? '';
     this.catalogs.getSpecies().subscribe({
       next: ({ species }) => {
         this.speciesOptions = species ?? [];
@@ -76,8 +93,13 @@ export class DashboardPetComponent implements OnInit {
           void this.router.navigate(['/pets/new']);
           return;
         }
-        this.pet = list[0] ?? null;
+        const activeId = localStorage.getItem(this.activePetKey);
+        const targetId = this.petId || activeId || '';
+        this.pet = targetId
+          ? list.find((item) => item.petId === targetId) ?? list[0] ?? null
+          : list[0] ?? null;
         if (this.pet?.petId) {
+          this.petId = this.pet.petId;
           localStorage.setItem(this.activePetKey, this.pet.petId);
         }
         const photoKey = this.pet?.photoThumbnailKey ?? this.pet?.photoKey;
@@ -87,6 +109,7 @@ export class DashboardPetComponent implements OnInit {
         if (this.pet?.petId) {
           this.loadEvents(this.pet.petId);
           this.loadReminders(this.pet.petId);
+          this.loadOwners(this.pet.petId);
         }
         if (this.pet?.species) {
           this.loadBreeds(this.pet.species);
@@ -467,11 +490,93 @@ export class DashboardPetComponent implements OnInit {
   selectPetMenu(_action: 'edit' | 'share' | 'delete') {
     this.showPetMenu = false;
     if (_action === 'edit') {
-      void this.router.navigate(['/dashboard/pet/edit']);
+      if (!this.canManagePet) {
+        return;
+      }
+      if (this.pet?.petId) {
+        void this.router.navigate(['/pets', this.pet.petId, 'edit']);
+      }
     }
     if (_action === 'share') {
-      void this.router.navigate(['/dashboard/pet/share']);
+      if (!this.canManagePet) {
+        return;
+      }
+      if (this.pet?.petId) {
+        void this.router.navigate(['/pets', this.pet.petId, 'share']);
+      }
     }
+  }
+
+  private async loadOwners(petId: string) {
+    const currentOwnerId = await this.getCurrentOwnerId();
+    this.currentOwnerId = currentOwnerId;
+    if (!currentOwnerId) {
+      this.canManagePet = false;
+      this.hasCoOwners = false;
+      this.ownersList = [];
+      return;
+    }
+    this.owners.listPetOwners(petId).subscribe({
+      next: ({ owners }) => {
+        this.ownersList = owners ?? [];
+        this.hasCoOwners = this.ownersList.length > 1;
+        const match = this.ownersList.find((owner) => owner.ownerId === currentOwnerId);
+        this.canManagePet = match?.role === 'PRIMARY';
+      },
+      error: () => {
+        this.canManagePet = false;
+        this.hasCoOwners = false;
+        this.ownersList = [];
+      },
+    });
+  }
+
+  private async getCurrentOwnerId() {
+    const token = await this.auth.getIdToken();
+    if (!token) {
+      return '';
+    }
+    try {
+      const payload = this.getTokenPayload(token);
+      return this.getStringField(payload, ['email', 'username', 'cognito:username', 'sub']);
+    } catch {
+      return '';
+    }
+  }
+
+  private getTokenPayload(token: string) {
+    const parts = token.split('.');
+    if (parts.length < 2) {
+      return {} as Record<string, unknown>;
+    }
+    return JSON.parse(this.decodeBase64Url(parts[1])) as Record<string, unknown>;
+  }
+
+  private getStringField(payload: Record<string, unknown>, keys: string[]) {
+    for (const key of keys) {
+      const value = payload[key];
+      if (typeof value === 'string' && value.trim()) {
+        return value.trim();
+      }
+    }
+    return '';
+  }
+
+  private decodeBase64Url(value: string) {
+    const base = value.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = base.padEnd(Math.ceil(base.length / 4) * 4, '=');
+    return atob(padded);
+  }
+
+  getOwnerLabel(ownerId?: string) {
+    if (!ownerId) {
+      return '';
+    }
+    if (ownerId === this.currentOwnerId) {
+      return this.translate.instant('sharePet.you');
+    }
+    const match = this.ownersList.find((owner) => owner.ownerId === ownerId);
+    return match?.profile?.fullName || match?.profile?.email || ownerId;
   }
 
   @HostListener('document:click', ['$event'])
@@ -487,36 +592,52 @@ export class DashboardPetComponent implements OnInit {
 
   selectActivity(type: string) {
     this.closeActivityMenu();
+    if (!this.pet?.petId) {
+      return;
+    }
     if (type === 'GROOMING') {
-      void this.router.navigate(['/dashboard/grooming']);
+      void this.router.navigate(['/pets', this.pet.petId, 'grooming', 'new']);
     }
     if (type === 'VET_VISIT') {
-      void this.router.navigate(['/dashboard/vet-visit']);
+      void this.router.navigate(['/pets', this.pet.petId, 'vet-visits', 'new']);
     }
     if (type === 'MEDICATION') {
-      void this.router.navigate(['/dashboard/medication']);
+      void this.router.navigate(['/pets', this.pet.petId, 'medicines', 'new']);
     }
     if (type === 'VACCINE') {
-      void this.router.navigate(['/dashboard/vaccine']);
+      void this.router.navigate(['/pets', this.pet.petId, 'vaccines', 'new']);
     }
     if (type === 'WEIGHT') {
-      void this.router.navigate(['/dashboard/weight']);
+      void this.router.navigate(['/pets', this.pet.petId, 'weights', 'new']);
     }
   }
 
   get displayedActivityLog() {
-    return this.filteredActivityLog.slice(0, this.activityVisibleCount);
+    return this.filteredActivityLog;
   }
 
   get canLoadMoreActivity() {
-    return this.activityVisibleCount < this.filteredActivityLog.length;
+    return this.hasMoreEvents;
   }
 
   loadMoreActivity() {
-    this.activityVisibleCount = Math.min(
-      this.activityVisibleCount + 5,
-      this.filteredActivityLog.length
-    );
+    if (!this.pet?.petId || !this.hasMoreEvents) {
+      return;
+    }
+    this.isLoadingMoreActivity = true;
+    this.events.listPetEvents(this.pet.petId, { limit: 10, cursor: this.eventsCursor }).subscribe({
+      next: ({ events, nextCursor }) => {
+        this.activityLog = [...this.activityLog, ...(events ?? [])];
+        this.eventsCursor = nextCursor ?? '';
+        this.hasMoreEvents = Boolean(nextCursor);
+      },
+      error: () => {
+        this.isLoadingMoreActivity = false;
+      },
+      complete: () => {
+        this.isLoadingMoreActivity = false;
+      },
+    });
   }
 
   get filteredActivityLog() {
@@ -532,7 +653,6 @@ export class DashboardPetComponent implements OnInit {
     } else {
       this.selectedEventTypes.add(eventType);
     }
-    this.activityVisibleCount = 5;
   }
 
   openReminderDialog() {
@@ -572,6 +692,56 @@ export class DashboardPetComponent implements OnInit {
             },
           });
       });
+  }
+
+  confirmDeleteActivity(event: PetEvent) {
+    const ref = this.dialog.open(DeleteActivityDialogComponent, {
+      panelClass: 'pet-dialog',
+    });
+    ref.afterClosed().subscribe((confirmed) => {
+      if (!confirmed) {
+        return;
+      }
+      this.deleteActivityEvent(event);
+    });
+  }
+
+  private deleteActivityEvent(event: PetEvent) {
+    if (!this.pet?.petId || !event?.eventId || this.deletingEventIds.has(event.eventId)) {
+      return;
+    }
+    this.deletingEventIds.add(event.eventId);
+    this.events.deletePetEvent(this.pet.petId, event.eventId).subscribe({
+      next: () => {
+        this.loadEvents(this.pet!.petId);
+        this.loadReminders(this.pet!.petId);
+        this.refreshPet();
+      },
+      complete: () => {
+        this.deletingEventIds.delete(event.eventId);
+      },
+      error: () => {
+        this.deletingEventIds.delete(event.eventId);
+      },
+    });
+  }
+
+  deleteReminder(reminder: PetReminder) {
+    if (!this.pet?.petId || !reminder?.reminderId || this.deletingReminderIds.has(reminder.reminderId)) {
+      return;
+    }
+    this.deletingReminderIds.add(reminder.reminderId);
+    this.reminders.deletePetReminder(this.pet.petId, reminder.reminderId).subscribe({
+      next: () => {
+        this.loadReminders(this.pet!.petId);
+      },
+      complete: () => {
+        this.deletingReminderIds.delete(reminder.reminderId);
+      },
+      error: () => {
+        this.deletingReminderIds.delete(reminder.reminderId);
+      },
+    });
   }
 
   formatEventDate(value?: Date | string) {
@@ -627,6 +797,19 @@ export class DashboardPetComponent implements OnInit {
     return Boolean(meta['recurring'] || meta['periodicity']);
   }
 
+  openShareRecordDialog() {
+    if (!this.petId) {
+      return;
+    }
+    this.dialog.open(ShareRecordDialogComponent, {
+      panelClass: 'pet-dialog',
+      data: {
+        petId: this.petId,
+        petName: this.pet?.name ?? this.translate.instant('dashboard.petFallback'),
+      },
+    });
+  }
+
   private getLocale() {
     return this.translate.currentLang || this.translate.defaultLang || 'es';
   }
@@ -647,15 +830,11 @@ export class DashboardPetComponent implements OnInit {
   }
 
   private loadEvents(petId: string) {
-    this.events.listPetEvents(petId).subscribe({
-      next: ({ events }) => {
-        const list = events ?? [];
-        this.activityLog = list.sort((a, b) => {
-          const aDate = new Date(a.eventDate as unknown as string).getTime();
-          const bDate = new Date(b.eventDate as unknown as string).getTime();
-          return bDate - aDate;
-        });
-        this.activityVisibleCount = 5;
+    this.events.listPetEvents(petId, { limit: 5 }).subscribe({
+      next: ({ events, nextCursor }) => {
+        this.activityLog = events ?? [];
+        this.eventsCursor = nextCursor ?? '';
+        this.hasMoreEvents = Boolean(nextCursor);
       },
     });
   }
@@ -669,6 +848,20 @@ export class DashboardPetComponent implements OnInit {
           const bDate = new Date(b.dueDate as unknown as string).getTime();
           return aDate - bDate;
         });
+      },
+    });
+  }
+
+  private refreshPet() {
+    this.pets.listPetsFresh().subscribe({
+      next: ({ pets }) => {
+        const list = pets ?? [];
+        if (!list.length) {
+          this.pet = null;
+          return;
+        }
+        const activeId = localStorage.getItem(this.activePetKey);
+        this.pet = list.find((item) => item.petId === activeId) ?? list[0] ?? null;
       },
     });
   }

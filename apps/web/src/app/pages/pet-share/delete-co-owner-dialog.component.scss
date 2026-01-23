@@ -1,0 +1,20 @@
+.dialog-card {
+  padding: 1.5rem;
+  max-width: 360px;
+}
+
+.dialog-card h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.2rem;
+}
+
+.dialog-card p {
+  margin: 0 0 1.25rem;
+  color: rgba(27, 18, 36, 0.65);
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}

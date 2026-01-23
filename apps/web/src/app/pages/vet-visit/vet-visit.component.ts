@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -44,6 +44,7 @@ export class VetVisitComponent {
   private readonly events = inject(EventsService);
   private readonly uploads = inject(UploadsService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly translate = inject(TranslateService);
   private readonly activePetKey = 'pettzi.activePetId';
 
@@ -74,14 +75,19 @@ export class VetVisitComponent {
   }
 
   ngOnInit() {
+    const routePetId = this.route.snapshot.paramMap.get('petId') ?? '';
     this.pets.listPets().subscribe({
       next: ({ pets }) => {
         const list = pets ?? [];
         const activeId = localStorage.getItem(this.activePetKey);
-        const activePet = activeId ? list.find((pet) => pet.petId === activeId) : list[0];
+        const targetId = routePetId || activeId || '';
+        const activePet = targetId ? list.find((pet) => pet.petId === targetId) : list[0];
         this.activePet = activePet ?? null;
         this.petName = activePet?.name ?? '';
         this.petId = activePet?.petId ?? '';
+        if (this.petId) {
+          localStorage.setItem(this.activePetKey, this.petId);
+        }
       },
     });
   }
@@ -123,7 +129,7 @@ export class VetVisitComponent {
 
       await firstValueFrom(this.events.createPetEvent(this.petId, payload));
       this.updateLastVetVisitDate();
-      void this.router.navigate(['/dashboard/pet']);
+      void this.router.navigate(['/pets', this.petId]);
     } catch {
       this.isSubmitting = false;
     }

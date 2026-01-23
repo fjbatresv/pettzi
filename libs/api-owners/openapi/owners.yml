@@ -43,6 +43,32 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '500': { $ref: '#/components/responses/ServerError' }
+    post:
+      summary: Add co-owner (primary only)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: petId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddPetOwnerRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PetOwner'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '500': { $ref: '#/components/responses/ServerError' }
   /pets/{petId}/owners/invite:
     post:
       summary: Invite co-owner by email (primary only)
@@ -76,30 +102,55 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
         '500': { $ref: '#/components/responses/ServerError' }
-    post:
-      summary: Add co-owner (primary only)
-      security: [{ bearerAuth: [] }]
+  /pet-invites/preview:
+    get:
+      summary: Preview a pet invite (public)
+      security: []
       parameters:
-        - in: path
-          name: petId
+        - in: query
+          name: token
           required: true
           schema: { type: string }
+      responses:
+        '200':
+          description: Invite preview
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PetInvitePreview'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+  /pet-invites/accept:
+    post:
+      summary: Accept a pet invite (authenticated)
+      security: [{ bearerAuth: [] }]
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AddPetOwnerRequest'
+              type: object
+              required: [token]
+              properties:
+                token: { type: string }
       responses:
-        '201':
-          description: Created
+        '200':
+          description: Invite accepted
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PetOwner'
+                allOf:
+                  - $ref: '#/components/schemas/PetInvitePreview'
+                  - type: object
+                    properties:
+                      status:
+                        type: string
+                        enum: [accepted, already-linked]
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
         '500': { $ref: '#/components/responses/ServerError' }
   /pets/{petId}/owners/{ownerId}:
@@ -167,6 +218,34 @@ components:
         locale:
           type: string
           enum: [es, en]
+    PetInvitePreview:
+      type: object
+      required: [pet, inviter, expiresAt]
+      properties:
+        pet:
+          $ref: '#/components/schemas/PetInvitePet'
+        inviter:
+          $ref: '#/components/schemas/PetInviteInviter'
+        expiresAt:
+          type: string
+          format: date-time
+    PetInvitePet:
+      type: object
+      required: [petId, name, breed, species, age, imageUrl]
+      properties:
+        petId: { type: string }
+        name: { type: string }
+        breed: { type: string }
+        species: { type: string }
+        age: { type: string }
+        imageUrl: { type: string }
+    PetInviteInviter:
+      type: object
+      required: [ownerId, fullName, imageUrl]
+      properties:
+        ownerId: { type: string }
+        fullName: { type: string }
+        imageUrl: { type: string }
     AddPetOwnerRequest:
       type: object
       required: [ownerId]

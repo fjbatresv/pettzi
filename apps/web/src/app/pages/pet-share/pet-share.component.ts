@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,6 +14,8 @@ import { BreedItem, CatalogsService, SpeciesItem } from '../../core/services/cat
 import { OwnerRole, OwnersService, PetOwner } from '../../core/services/owners.service';
 import { PetsService } from '../../core/services/pets.service';
 import { UploadsService } from '../../core/services/uploads.service';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { DeleteCoOwnerDialogComponent } from './delete-co-owner-dialog.component';
 
 interface OwnerView {
   ownerId: string;
@@ -30,7 +33,9 @@ interface OwnerView {
   imports: [
     CommonModule,
     FormsModule,
+    RouterModule,
     MatButtonModule,
+    MatDialogModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
@@ -46,9 +51,12 @@ export class PetShareComponent implements OnInit {
   private readonly translate = inject(TranslateService);
   private readonly auth = inject(AuthService);
   private readonly owners = inject(OwnersService);
+  private readonly dialog = inject(MatDialog);
+  private readonly route = inject(ActivatedRoute);
   private readonly activePetKey = 'pettzi.activePetId';
 
   pet: Pet | null = null;
+  petId = '';
   petPhotoUrl = '';
   speciesOptions: SpeciesItem[] = [];
   breedOptions: BreedItem[] = [];
@@ -67,6 +75,7 @@ export class PetShareComponent implements OnInit {
   canManageOwners = false;
 
   ngOnInit() {
+    this.petId = this.route.snapshot.paramMap.get('petId') ?? '';
     void this.loadUserProfile();
     this.catalogs.getSpecies().subscribe({
       next: ({ species }) => {
@@ -83,7 +92,14 @@ export class PetShareComponent implements OnInit {
           return;
         }
         const activeId = localStorage.getItem(this.activePetKey);
-        this.pet = list.find((item) => item.petId === activeId) ?? list[0] ?? null;
+        const targetId = this.petId || activeId || '';
+        this.pet = targetId
+          ? list.find((item) => item.petId === targetId) ?? list[0] ?? null
+          : list[0] ?? null;
+        if (this.pet?.petId) {
+          this.petId = this.pet.petId;
+          localStorage.setItem(this.activePetKey, this.pet.petId);
+        }
         const photoKey = this.pet?.photoThumbnailKey ?? this.pet?.photoKey;
         if (this.pet?.petId && photoKey) {
           this.loadPhoto(this.pet.petId, photoKey);
@@ -197,14 +213,25 @@ export class PetShareComponent implements OnInit {
     });
   }
 
-  removeOwner(ownerId: string) {
+  removeOwner(ownerId: string, ownerName?: string) {
     if (!this.pet?.petId || !ownerId) {
       return;
     }
-    this.owners.removePetOwner(this.pet.petId, ownerId).subscribe({
-      next: () => {
-        this.loadOwners(this.pet!.petId);
+    const ref = this.dialog.open(DeleteCoOwnerDialogComponent, {
+      panelClass: 'pet-dialog',
+      data: {
+        ownerName: ownerName || this.translate.instant('sharePet.coOwner'),
       },
+    });
+    ref.afterClosed().subscribe((confirmed) => {
+      if (!confirmed) {
+        return;
+      }
+      this.owners.removePetOwner(this.pet!.petId, ownerId).subscribe({
+        next: () => {
+          this.loadOwners(this.pet!.petId);
+        },
+      });
     });
   }
 

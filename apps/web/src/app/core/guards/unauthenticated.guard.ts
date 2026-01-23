@@ -8,19 +8,19 @@ export const unauthenticatedGuard: CanActivateFn = () => {
   const router = inject(Router);
 
   if (auth.hasStoredSession()) {
-    return router.createUrlTree(['/dashboard']);
+    return router.createUrlTree(['/home']);
   }
 
   return from(auth.getAccessToken()).pipe(
     switchMap((accessToken) => {
       if (accessToken) {
-        return of(router.createUrlTree(['/dashboard']));
+        return of(router.createUrlTree(['/home']));
       }
       if (!auth.hasRefreshToken()) {
         return of(true);
       }
       return auth.refreshTokens().pipe(
-        map(() => router.createUrlTree(['/dashboard'])),
+        map(() => router.createUrlTree(['/home'])),
         catchError(() => of(true))
       );
     })

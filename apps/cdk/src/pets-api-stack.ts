@@ -5,6 +5,7 @@ import { HttpUserPoolAuthorizer } from 'aws-cdk-lib/aws-apigatewayv2-authorizers
 import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
 import * as cloudwatchActions from 'aws-cdk-lib/aws-cloudwatch-actions';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
+import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction, OutputFormat } from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as logs from 'aws-cdk-lib/aws-logs';
@@ -15,6 +16,7 @@ import * as path from 'path';
 
 export interface PetsApiStackProps extends StackProps {
   table: dynamodb.Table;
+  docsBucket: s3.IBucket;
   depsLayer?: lambda.ILayerVersion;
   userPool: UserPool;
   userPoolClient: UserPoolClient;
@@ -41,6 +43,7 @@ export class PetsApiStack extends Stack {
 
     const commonEnv = {
       PETTZI_TABLE_NAME: props.table.tableName,
+      PETTZI_DOCS_BUCKET_NAME: props.docsBucket.bucketName,
       STAGE: stage,
     };
 
@@ -79,12 +82,29 @@ export class PetsApiStack extends Stack {
       commonEnv,
       [props.depsLayer, props.s3Layer, props.ddbLayer]
     );
+    const createSharedRecordFn = this.createFn(
+      'CreateSharedRecordHandler',
+      stage,
+      handlerPath('libs/api-pets/src/handlers/create-shared-record.handler.ts'),
+      commonEnv,
+      [props.depsLayer, props.s3Layer, props.ddbLayer]
+    );
+    const getSharedRecordFn = this.createFn(
+      'GetSharedRecordHandler',
+      stage,
+      handlerPath('libs/api-pets/src/handlers/get-shared-record.handler.ts'),
+      commonEnv,
+      [props.depsLayer, props.s3Layer, props.ddbLayer]
+    );
 
     props.table.grantReadWriteData(createPetFn);
     props.table.grantReadWriteData(listPetsFn);
     props.table.grantReadWriteData(getPetFn);
     props.table.grantReadWriteData(updatePetFn);
     props.table.grantReadWriteData(archivePetFn);
+    props.table.grantReadWriteData(createSharedRecordFn);
+    props.table.grantReadData(getSharedRecordFn);
+    props.docsBucket.grantRead(getSharedRecordFn);
 
     const authorizer = new HttpUserPoolAuthorizer(
       'PetsJwtAuthorizer',
@@ -141,6 +161,23 @@ export class PetsApiStack extends Stack {
         'ArchivePetIntegration',
         archivePetFn
       ),
+    });
+    this.httpApi.addRoutes({
+      path: '/{petId}/shared-records',
+      methods: [apigwv2.HttpMethod.POST],
+      integration: new HttpLambdaIntegration(
+        'CreateSharedRecordIntegration',
+        createSharedRecordFn
+      ),
+    });
+    this.httpApi.addRoutes({
+      path: '/shared-records/{token}',
+      methods: [apigwv2.HttpMethod.GET],
+      integration: new HttpLambdaIntegration(
+        'GetSharedRecordIntegration',
+        getSharedRecordFn
+      ),
+      authorizer: undefined,
     });
 
     this.addApiGatewayAlarm('PetsApi5xxAlarm', this.httpApi.apiId);

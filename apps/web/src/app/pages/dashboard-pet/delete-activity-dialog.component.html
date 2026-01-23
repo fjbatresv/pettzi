@@ -1,0 +1,12 @@
+<div class="dialog-card">
+  <h2>{{ 'dashboard.deleteActivityTitle' | translate }}</h2>
+  <p>{{ 'dashboard.deleteActivityCopy' | translate }}</p>
+  <div class="dialog-actions">
+    <button mat-button [mat-dialog-close]="false">
+      {{ 'dashboard.deleteActivityCancel' | translate }}
+    </button>
+    <button mat-raised-button color="warn" [mat-dialog-close]="true">
+      {{ 'dashboard.deleteActivityConfirm' | translate }}
+    </button>
+  </div>
+</div>

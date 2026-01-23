@@ -6,6 +6,7 @@ export type OwnerId = string;
 export type PetId = string;
 export type EventId = string;
 export type ReminderId = string;
+export type SharedRecordToken = string;
 
 export interface UserAccount {
   userId: UserId;
@@ -37,6 +38,9 @@ export interface Pet {
   birthDate?: Date;
   notes?: string;
   color?: string;
+  isNeutered?: boolean;
+  bloodType?: string;
+  sex?: string;
   weightKg?: number;
   photoKey?: string;
   photoThumbnailKey?: string;
@@ -59,6 +63,7 @@ export interface PetOwner {
 export interface PetEvent {
   eventId: EventId;
   petId: PetId;
+  ownerId?: OwnerId;
   eventType: EventType;
   eventDate: Date;
   title?: string;
@@ -71,6 +76,7 @@ export interface PetEvent {
 export interface PetReminder {
   reminderId: ReminderId;
   petId: PetId;
+  ownerId?: OwnerId;
   eventId?: EventId;
   dueDate: Date;
   message?: string;
@@ -78,6 +84,17 @@ export interface PetReminder {
   recurring?: boolean;
   createdAt: Date;
   completedAt?: Date;
+}
+
+export interface SharedRecord {
+  token: SharedRecordToken;
+  petId: PetId;
+  ownerId: OwnerId;
+  items: EventType[];
+  expiresAt: Date;
+  createdAt: Date;
+  passwordHash?: string;
+  passwordSalt?: string;
 }
 
 export interface CatalogEntry<T extends string> {

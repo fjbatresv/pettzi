@@ -1,6 +1,6 @@
 <section class="medication-page">
   <header class="medication-header">
-    <button mat-button class="back-btn" routerLink="/dashboard/pet">
+    <button mat-button class="back-btn" [routerLink]="['/pets', petId]">
       <mat-icon>arrow_back</mat-icon>
     </button>
     <h2>
@@ -162,7 +162,7 @@
     </div>
 
     <div class="actions">
-      <button type="button" class="link-btn" routerLink="/dashboard/pet">
+      <button type="button" class="link-btn" [routerLink]="['/pets', petId]">
         {{ 'medication.cancel' | translate }}
       </button>
       <button

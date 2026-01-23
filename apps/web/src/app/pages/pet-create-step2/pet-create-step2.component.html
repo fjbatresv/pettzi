@@ -16,7 +16,7 @@
 
     <section class="card">
       <div class="card-header">
-        <h2>{{ 'createPet.cardTitle' | translate }}</h2>
+        <h2>{{ 'createPet.cardTitle' | translate: { petName: draft?.name } }}</h2>
         <p>{{ 'createPet.cardSubtitle' | translate }}</p>
       </div>
 

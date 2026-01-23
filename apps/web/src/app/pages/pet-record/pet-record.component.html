@@ -1,0 +1,170 @@
+<div class="pet-record-page">
+  <header class="record-topbar">
+    <div class="brand">
+      <div class="brand-icon" aria-hidden="true">
+        <img class="brand-logo" src="/logo.svg" alt="" />
+      </div>
+      <div class="brand-text">
+        <span class="brand-title">Pettzi</span>
+        <span class="brand-subtitle">{{ 'petRecord.headerSubtitle' | translate }}</span>
+      </div>
+    </div>
+    <app-language-toggle [disableProfileUpdate]="true"></app-language-toggle>
+  </header>
+
+  <main class="record-content">
+    <div class="access-card card" *ngIf="isLoading">
+      <h2>{{ 'petRecord.loading' | translate }}</h2>
+    </div>
+
+    <div class="access-card card" *ngIf="!isLoading && requiresPassword">
+      <h2>{{ 'petRecord.passwordTitle' | translate }}</h2>
+      <p>{{ 'petRecord.passwordMessage' | translate }}</p>
+      <div class="access-form">
+        <input
+          type="password"
+          [(ngModel)]="password"
+          [placeholder]="'petRecord.passwordPlaceholder' | translate"
+        />
+        <button type="button" (click)="submitPassword()" [disabled]="isSubmitting || !password">
+          {{ 'petRecord.submitPassword' | translate }}
+        </button>
+      </div>
+      <p class="access-error" *ngIf="errorMessage">{{ errorMessage }}</p>
+    </div>
+
+    <div class="access-card card" *ngIf="!isLoading && !requiresPassword && errorMessage">
+      <h2>{{ 'petRecord.errorTitle' | translate }}</h2>
+      <p>{{ errorMessage }}</p>
+    </div>
+
+    <section class="card pet-summary" *ngIf="hasRecord">
+      <div class="pet-summary-main">
+        <div class="pet-avatar" role="img" [attr.aria-label]="pet?.name || 'Pet'">
+          <img
+            *ngIf="petPhotoUrl; else petFallback"
+            [src]="petPhotoUrl"
+            [alt]="pet?.name || 'Pet'"
+            (error)="onPhotoError()"
+          />
+          <ng-template #petFallback>
+            <span class="pet-initial">{{ pet?.name?.[0] || 'P' }}</span>
+          </ng-template>
+          <span class="online-dot" aria-hidden="true"></span>
+        </div>
+        <div class="pet-summary-details">
+          <div class="pet-name-row">
+            <h1>{{ pet?.name || ('dashboard.petFallback' | translate) }}</h1>
+          </div>
+          <p class="pet-meta">
+            {{ breedLabel || speciesLabel }}
+            <span class="pet-meta-detail">
+              ({{ pet?.isNeutered ? ('petRecord.neutered' | translate) : ('petRecord.notNeutered' | translate) }})
+            </span>
+          </p>
+          <p class="pet-meta" *ngIf="birthDateLabel">
+            {{ 'petRecord.born' | translate }}: {{ birthDateLabel }}
+          </p>
+          <p class="pet-meta">
+            {{ 'petRecord.sex' | translate }}: {{ sexLabel }}
+            <span class="pet-meta-detail" *ngIf="chipId">
+              • {{ 'petRecord.chip' | translate }}: {{ chipId }}
+            </span>
+          </p>
+          <div class="report-pill" *ngIf="ageLabel">
+            {{ 'petRecord.age' | translate }}: {{ ageLabel }}
+          </div>
+        </div>
+      </div>
+      <div class="pet-summary-stats">
+        <div class="stat">
+          <span class="stat-label">{{ 'petRecord.weight' | translate }}</span>
+          <span class="stat-value">{{ pet?.weightKg ? (pet?.weightKg + ' kg') : '-' }}</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">{{ 'petRecord.species' | translate }}</span>
+          <span class="stat-value">{{ speciesLabel }}</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">{{ 'petRecord.healthStatus' | translate }}</span>
+          <div class="stat-value health-status" *ngIf="showHealthStatus; else noHealth">
+            <div class="bone-row">
+              <mat-icon
+                *ngFor="let bone of getHealthBones(); let i = index"
+                class="bone"
+                [class.filled]="i < healthIndex"
+              >
+                pets
+              </mat-icon>
+            </div>
+            <span class="score-value">{{ healthIndex }}/5</span>
+          </div>
+          <ng-template #noHealth>
+            <span class="stat-value">-</span>
+          </ng-template>
+        </div>
+        <div class="stat">
+          <span class="stat-label">{{ 'petRecord.bloodType' | translate }}</span>
+          <span class="stat-value">{{ pet?.bloodType || '-' }}</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="record-section" *ngIf="hasRecord">
+      <header class="section-header">
+        <span class="section-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 5a7 7 0 1 1 0 14 7 7 0 0 1 0-14z" />
+            <path d="M12 8v5l3 2" />
+          </svg>
+        </span>
+        <h2>{{ 'petRecord.activityLog' | translate }}</h2>
+      </header>
+      <div class="card table-card">
+        <div class="table table-events">
+          <div class="table-row table-head">
+            <span>{{ 'petRecord.activityDate' | translate }}</span>
+            <span>{{ 'petRecord.activityCategory' | translate }}</span>
+            <span>{{ 'petRecord.activityDescription' | translate }}</span>
+            <span>{{ 'petRecord.activityFacility' | translate }}</span>
+          </div>
+          <div class="table-row" *ngFor="let event of displayedActivityLog">
+            <span class="cell-title" [attr.data-label]="'petRecord.activityDate' | translate">
+              {{ event.eventDate | date:'mediumDate' }}
+            </span>
+            <span class="category" [attr.data-label]="'petRecord.activityCategory' | translate">
+              {{ getEventTypeLabel(event.eventType) }}
+            </span>
+            <span class="cell-muted" [attr.data-label]="'petRecord.activityDescription' | translate">
+              {{ getEventDescription(event) }}
+            </span>
+            <span [attr.data-label]="'petRecord.activityFacility' | translate">
+              {{ getEventFacility(event) }}
+            </span>
+          </div>
+          <div class="table-row empty-row" *ngIf="activityEmpty">
+            <span class="cell-muted">{{ 'petRecord.activityEmpty' | translate }}</span>
+          </div>
+        </div>
+      </div>
+      <button
+        type="button"
+        class="load-more-btn"
+        *ngIf="canLoadMoreActivity"
+        (click)="loadMoreActivity()"
+        [disabled]="isLoadingMoreActivity"
+      >
+        {{ (isLoadingMoreActivity ? 'dashboard.loadingMore' : 'dashboard.loadMore') | translate }}
+      </button>
+    </section>
+
+    <footer class="record-footer" *ngIf="hasRecord">
+      <p>{{ 'petRecord.footerCopy' | translate }}</p>
+      <div class="footer-actions">
+        <a class="footer-link" href="https://pettzi.net">
+          {{ 'petRecord.footerLink' | translate }}
+        </a>
+      </div>
+    </footer>
+  </main>
+</div>

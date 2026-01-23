@@ -12,6 +12,7 @@ import {
 } from '@pettzi/utils-dynamo/http';
 import {
   OwnerRole,
+  OwnerProfile,
   buildPetPkKey,
   buildPetSkMetadata,
   fromItemPet,
@@ -25,6 +26,7 @@ import {
   getCallerOwnerId,
   linkExists,
 } from './common';
+import { localizePetBreed } from './pet-invite.utils';
 
 interface InvitePayload {
   email?: string;
@@ -135,19 +137,23 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     return err;
   }
 
-  try {
-    const invitee = await ensureOwnerExists(email);
-    const inviteeId = invitee.ownerId;
-    if (inviteeId === inviterId) {
-      return badRequest('Cannot invite yourself');
-    }
+  const inviteeId = email;
+  if (inviteeId === inviterId) {
+    return badRequest('Cannot invite yourself');
+  }
 
+  try {
     const alreadyLinked = await linkExists(petId, inviteeId);
     if (alreadyLinked) {
       return conflict('Owner already linked to this pet');
     }
 
-    const inviterProfile = await ensureOwnerExists(inviterId);
+    let inviterProfile: OwnerProfile;
+    try {
+      inviterProfile = await ensureOwnerExists(inviterId);
+    } catch (err: any) {
+      return err;
+    }
 
     const petRes = await ddb.send(
       new GetCommand({
@@ -164,7 +170,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     const pet = fromItemPet(petRes.Item);
     const locale = inviterProfile.locale === 'en' ? 'en' : 'es';
     const petAge = formatAge(pet.birthDate, locale);
-    const petBreed = pet.breed ?? pet.species ?? '';
+    const petBreed = localizePetBreed(locale, pet.breed, pet.species);
     const petPhotoKey = pet.photoThumbnailKey ?? pet.photoKey ?? '';
 
     let petImageUrl = '';

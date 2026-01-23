@@ -85,6 +85,6 @@ export class ForgotPasswordComponent {
   }
 
   backToLogin() {
-    void this.router.navigate(['/']);
+    void this.router.navigate(['/login']);
   }
 }

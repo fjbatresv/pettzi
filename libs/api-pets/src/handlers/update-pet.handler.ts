@@ -27,6 +27,9 @@ interface UpdatePetRequest {
   name?: string;
   notes?: string;
   color?: string;
+  sex?: string;
+  isNeutered?: boolean;
+  bloodType?: string;
   weightKg?: number;
   species?: string;
   breed?: string;
@@ -93,6 +96,11 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     if (payload.name !== undefined) setField('name', payload.name);
     if (payload.notes !== undefined) setField('notes', payload.notes);
     if (payload.color !== undefined) setField('color', payload.color);
+    if (payload.sex !== undefined) setField('sex', payload.sex);
+    if (payload.isNeutered !== undefined)
+      setField('isNeutered', payload.isNeutered);
+    if (payload.bloodType !== undefined)
+      setField('bloodType', payload.bloodType);
     if (payload.weightKg !== undefined) setField('weightKg', payload.weightKg);
     if (payload.species !== undefined) setField('species', payload.species);
     if (payload.breed !== undefined) setField('breed', payload.breed);

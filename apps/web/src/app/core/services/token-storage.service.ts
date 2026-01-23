@@ -132,6 +132,8 @@ export class TokenStorageService {
     sessionStorage.removeItem(this.idKey);
     sessionStorage.removeItem(this.expiresKey);
     sessionStorage.removeItem(this.refreshKey);
+    sessionStorage.removeItem('pettzi.petInviteToken');
+    sessionStorage.removeItem('pettzi.petInviteAutoAccept');
     this.encryption.clearKey();
   }
 }

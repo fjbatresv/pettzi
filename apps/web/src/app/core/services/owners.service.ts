@@ -20,6 +20,24 @@ export interface PetOwner {
   profile?: OwnerProfileSummary;
 }
 
+export interface PetInvitePreview {
+  pet: {
+    petId: string;
+    name: string;
+    breed: string;
+    species: string;
+    age: string;
+    imageUrl: string;
+  };
+  inviter: {
+    ownerId: string;
+    fullName: string;
+    imageUrl: string;
+  };
+  expiresAt: string;
+  status?: 'accepted' | 'already-linked';
+}
+
 interface OwnersListResponse {
   owners: PetOwner[];
 }
@@ -45,6 +63,16 @@ export class OwnersService {
     return this.http.delete<{ message?: string }>(
       this.buildUrl(`/pets/${petId}/owners/${encodedOwnerId}`)
     );
+  }
+
+  previewPetInvite(token: string): Observable<PetInvitePreview> {
+    return this.http.get<PetInvitePreview>(
+      this.buildUrl(`/pet-invites/preview?token=${encodeURIComponent(token)}`)
+    );
+  }
+
+  acceptPetInvite(token: string): Observable<PetInvitePreview> {
+    return this.http.post<PetInvitePreview>(this.buildUrl('/pet-invites/accept'), { token });
   }
 
   private buildUrl(path: string) {
