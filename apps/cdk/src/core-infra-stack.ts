@@ -140,9 +140,9 @@ export class CoreInfraStack extends Stack {
       removalPolicy: RemovalPolicy.DESTROY,
     });
 
-    const corsOrigins = ['http://localhost:4200'];
+    const corsOrigins = new Set(['http://localhost:4200']);
     if (props.appDomain) {
-      corsOrigins.push(
+      corsOrigins.add(
         props.appDomain.startsWith('http')
           ? props.appDomain
           : `https://${props.appDomain}`
@@ -151,7 +151,7 @@ export class CoreInfraStack extends Stack {
 
     this.docsBucket.addCorsRule({
       allowedMethods: [s3.HttpMethods.PUT, s3.HttpMethods.GET, s3.HttpMethods.HEAD],
-      allowedOrigins: corsOrigins,
+      allowedOrigins: Array.from(corsOrigins),
       allowedHeaders: ['*'],
       exposedHeaders: ['ETag'],
     });

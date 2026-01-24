@@ -116,9 +116,9 @@ export class PetsApiStack extends Stack {
       }
     );
 
-    const corsOrigins = ['http://localhost:4200'];
+    const corsOrigins = new Set(['http://localhost:4200']);
     if (props.appDomain) {
-      corsOrigins.push(
+      corsOrigins.add(
         props.appDomain.startsWith('http')
           ? props.appDomain
           : `https://${props.appDomain}`
@@ -131,7 +131,7 @@ export class PetsApiStack extends Stack {
       defaultAuthorizer: authorizer,
       createDefaultStage: true,
       corsPreflight: {
-        allowOrigins: corsOrigins,
+        allowOrigins: Array.from(corsOrigins),
         allowMethods: [apigwv2.CorsHttpMethod.ANY],
         allowHeaders: ['authorization', 'content-type'],
         allowCredentials: true,
