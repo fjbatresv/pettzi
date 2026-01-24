@@ -252,9 +252,9 @@ export class AuthApiStack extends Stack {
     props.table.grantReadWriteData(deleteUserFn);
     props.docsBucket.grantReadWrite(deleteUserFn);
 
-    const corsOrigins = ['http://localhost:4200', 'https://app.pettzi.net'];
+    const corsOrigins = new Set(['http://localhost:4200', 'https://app.pettzi.net']);
     if (props.appDomain) {
-      corsOrigins.push(
+      corsOrigins.add(
         props.appDomain.startsWith('http')
           ? props.appDomain
           : `https://${props.appDomain}`
@@ -266,7 +266,7 @@ export class AuthApiStack extends Stack {
       description: `Auth API for Pettzi (${stage})`,
       createDefaultStage: true,
       corsPreflight: {
-        allowOrigins: corsOrigins,
+        allowOrigins: Array.from(corsOrigins),
         allowMethods: [
           apigwv2.CorsHttpMethod.GET,
           apigwv2.CorsHttpMethod.POST,
