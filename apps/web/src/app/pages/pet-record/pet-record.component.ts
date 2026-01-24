@@ -370,13 +370,20 @@ export class PetRecordComponent implements OnDestroy {
 
   getEventFacility(event: PetEvent) {
     const meta = (event.metadata ?? {}) as Record<string, unknown>;
-    const facility =
+    const clinic =
       (meta['clinic'] as string) ||
       (meta['vetClinic'] as string) ||
       (meta['vet'] as string) ||
-      (meta['groomer'] as string) ||
       (meta['facility'] as string) ||
       '';
+    const groomer = (meta['groomer'] as string) || '';
+    if (event.eventType === 'GROOMING') {
+      const combo = [clinic, groomer].filter((value) => value && value.trim());
+      if (combo.length) {
+        return combo.join(' · ');
+      }
+    }
+    const facility = clinic || groomer;
     return facility || this.translate.instant('dashboard.unknown');
   }
 

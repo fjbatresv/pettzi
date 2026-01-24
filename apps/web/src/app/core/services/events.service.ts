@@ -9,6 +9,21 @@ interface EventsListResponse {
   nextCursor?: string;
 }
 
+export interface EventAttachment {
+  fileKey: string;
+  fileName?: string;
+  contentType?: string;
+  downloadUrl?: string;
+  previewUrl?: string;
+  expiresAt?: string;
+  isImage?: boolean;
+}
+
+export interface EventDetailResponse {
+  event: PetEvent;
+  attachments?: EventAttachment[];
+}
+
 interface CreateEventRequest {
   eventType: 'VACCINE' | 'VET_VISIT' | 'MEDICATION' | 'WEIGHT' | 'GROOMING' | 'OTHER';
   date: string;
@@ -40,6 +55,10 @@ export class EventsService {
 
   createPetEvent(petId: string, payload: CreateEventRequest): Observable<PetEvent> {
     return this.http.post<PetEvent>(this.buildUrl(`/pets/${petId}`), payload);
+  }
+
+  getPetEventDetail(petId: string, eventId: string): Observable<EventDetailResponse> {
+    return this.http.get<EventDetailResponse>(this.buildUrl(`/pets/${petId}/${eventId}/detail`));
   }
 
   deletePetEvent(petId: string, eventId: string): Observable<{ message?: string }> {

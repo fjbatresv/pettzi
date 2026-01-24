@@ -1,8 +1,11 @@
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
 import { DeleteCommand, GetCommand } from '@aws-sdk/lib-dynamodb';
+import { DeleteScheduleCommand, SchedulerClient } from '@aws-sdk/client-scheduler';
 import { badRequest, notFound, ok, serverError } from '@pettzi/utils-dynamo/http';
 import { buildPetReminderPk, buildPetReminderSk } from '@pettzi/domain-model';
-import { assertOwnership, docClient, getOwnerId, PETTZI_TABLE_NAME } from './common';
+import { assertOwnership, docClient, getOwnerId, PETTZI_TABLE_NAME, isSchedulerNotFound } from './common';
+
+const scheduler = new SchedulerClient({});
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   const petId = event.pathParameters?.petId;
@@ -32,6 +35,17 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     );
     if (!res.Item) {
       return notFound('Reminder not found');
+    }
+
+    const ruleName = (res.Item as Record<string, any>).ruleName as string | undefined;
+    if (ruleName) {
+      try {
+        await scheduler.send(new DeleteScheduleCommand({ Name: ruleName }));
+      } catch (err) {
+        if (!isSchedulerNotFound(err)) {
+          console.error('Failed to delete reminder rule', { ruleName, err });
+        }
+      }
     }
 
     await docClient.send(

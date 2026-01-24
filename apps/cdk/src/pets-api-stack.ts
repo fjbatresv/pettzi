@@ -22,6 +22,7 @@ export interface PetsApiStackProps extends StackProps {
   userPoolClient: UserPoolClient;
   s3Layer?: lambda.ILayerVersion;
   ddbLayer?: lambda.ILayerVersion;
+  appDomain?: string;
   alarmTopic?: sns.ITopic;
 }
 
@@ -115,13 +116,22 @@ export class PetsApiStack extends Stack {
       }
     );
 
+    const corsOrigins = ['http://localhost:4200'];
+    if (props.appDomain) {
+      corsOrigins.push(
+        props.appDomain.startsWith('http')
+          ? props.appDomain
+          : `https://${props.appDomain}`
+      );
+    }
+
     this.httpApi = new apigwv2.HttpApi(this, 'PetsHttpApi', {
       apiName: `PettziPetsApi-${stage}`,
       description: `Pets API for Pettzi (${stage})`,
       defaultAuthorizer: authorizer,
       createDefaultStage: true,
       corsPreflight: {
-        allowOrigins: ['http://localhost:4200'],
+        allowOrigins: corsOrigins,
         allowMethods: [apigwv2.CorsHttpMethod.ANY],
         allowHeaders: ['authorization', 'content-type'],
         allowCredentials: true,
@@ -177,7 +187,7 @@ export class PetsApiStack extends Stack {
         'GetSharedRecordIntegration',
         getSharedRecordFn
       ),
-      authorizer: undefined,
+      authorizer: new apigwv2.HttpNoneAuthorizer(),
     });
 
     this.addApiGatewayAlarm('PetsApi5xxAlarm', this.httpApi.apiId);

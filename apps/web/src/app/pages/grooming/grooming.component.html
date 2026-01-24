@@ -31,6 +31,17 @@
     </div>
 
     <div class="schedule-grid">
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>{{ 'grooming.clinic' | translate }}</mat-label>
+        <input matInput [(ngModel)]="clinic" [placeholder]="'grooming.clinicPlaceholder' | translate" />
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>{{ 'grooming.groomer' | translate }}</mat-label>
+        <input matInput [(ngModel)]="groomer" [placeholder]="'grooming.groomerPlaceholder' | translate" />
+      </mat-form-field>
+    </div>
+
+    <div class="schedule-grid">
       <div>
         <div class="section-title">
           <span class="section-icon">

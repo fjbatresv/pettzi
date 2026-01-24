@@ -92,6 +92,11 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   return from(auth.getIdToken()).pipe(
     switchMap((idToken) => {
       if (idToken && isTokenExpired(idToken)) {
+        if (!auth.hasRefreshToken()) {
+          auth.clearSession();
+          void router.navigate(['/login']);
+          return throwError(() => new HttpErrorResponse({ status: 401 }));
+        }
         return from(refreshIdToken(auth)).pipe(
           switchMap((newToken) => {
             if (!newToken) {

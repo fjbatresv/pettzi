@@ -25,6 +25,7 @@ export interface UploadsApiStackProps extends StackProps {
   s3Layer?: lambda.ILayerVersion;
   ddbLayer?: lambda.ILayerVersion;
   stage: string;
+  appDomain?: string;
   alarmTopic?: sns.ITopic;
 }
 
@@ -145,13 +146,22 @@ export class UploadsApiStack extends Stack {
       }
     );
 
+    const corsOrigins = ['http://localhost:4200'];
+    if (props.appDomain) {
+      corsOrigins.push(
+        props.appDomain.startsWith('http')
+          ? props.appDomain
+          : `https://${props.appDomain}`
+      );
+    }
+
     this.httpApi = new apigwv2.HttpApi(this, 'UploadsHttpApi', {
       apiName: `PettziUploadsApi-${props.stage}`,
       description: `Uploads API for Pettzi (${props.stage})`,
       defaultAuthorizer: authorizer,
       createDefaultStage: true,
       corsPreflight: {
-        allowOrigins: ['http://localhost:4200'],
+        allowOrigins: corsOrigins,
         allowMethods: [apigwv2.CorsHttpMethod.ANY],
         allowHeaders: ['authorization', 'content-type'],
         allowCredentials: true,

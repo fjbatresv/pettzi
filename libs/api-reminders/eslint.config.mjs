@@ -8,6 +8,10 @@ export default [
       '@nx/dependency-checks': [
         'error',
         {
+          ignoredDependencies: [
+            '@aws-sdk/client-scheduler',
+            '@aws-sdk/client-sqs',
+          ],
           ignoredFiles: ['{projectRoot}/eslint.config.{js,cjs,mjs,ts,cts,mts}'],
         },
       ],

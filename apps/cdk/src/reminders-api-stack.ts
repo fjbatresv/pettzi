@@ -14,11 +14,11 @@ import * as cloudwatchActions from 'aws-cdk-lib/aws-cloudwatch-actions';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction, OutputFormat } from 'aws-cdk-lib/aws-lambda-nodejs';
-import * as events from 'aws-cdk-lib/aws-events';
-import * as targets from 'aws-cdk-lib/aws-events-targets';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import { UserPool, UserPoolClient } from 'aws-cdk-lib/aws-cognito';
 import * as sns from 'aws-cdk-lib/aws-sns';
+import * as sqs from 'aws-cdk-lib/aws-sqs';
+import * as eventSources from 'aws-cdk-lib/aws-lambda-event-sources';
 import { Construct } from 'constructs';
 import * as path from 'path';
 
@@ -32,6 +32,7 @@ export interface RemindersApiStackProps extends StackProps {
   stage?: string;
   remindersEmailFrom: string;
   reminderTemplateName?: string;
+  appDomain?: string;
   alarmTopic?: sns.ITopic;
 }
 
@@ -97,11 +98,20 @@ export class RemindersApiStack extends Stack {
       commonEnv,
       [props.sharedLayer, props.sesLayer, props.ddbLayer]
     );
-    const processDueFn = this.createFn(
-      'ProcessDueRemindersHandler',
+    const dispatchReminderFn = this.createFn(
+      'DispatchReminderHandler',
       stage,
       handlerPath(
-        'libs/api-reminders/src/handlers/process-due-reminders.handler.ts'
+        'libs/api-reminders/src/handlers/dispatch-reminder.handler.ts'
+      ),
+      commonEnv,
+      [props.sharedLayer, props.sesLayer, props.ddbLayer]
+    );
+    const consumeReminderFn = this.createFn(
+      'ConsumeReminderHandler',
+      stage,
+      handlerPath(
+        'libs/api-reminders/src/handlers/consume-reminder.handler.ts'
       ),
       commonEnv,
       [props.sharedLayer, props.sesLayer, props.ddbLayer]
@@ -111,9 +121,10 @@ export class RemindersApiStack extends Stack {
     props.table.grantReadWriteData(listPetRemindersFn);
     props.table.grantReadWriteData(createReminderFn);
     props.table.grantReadWriteData(deleteReminderFn);
-    props.table.grantReadWriteData(processDueFn);
+    props.table.grantReadWriteData(dispatchReminderFn);
+    props.table.grantReadWriteData(consumeReminderFn);
 
-    processDueFn.addToRolePolicy(
+    consumeReminderFn.addToRolePolicy(
       new iam.PolicyStatement({
         actions: [
           'ses:SendEmail',
@@ -124,6 +135,58 @@ export class RemindersApiStack extends Stack {
       })
     );
 
+    const remindersQueue = new sqs.Queue(this, 'RemindersQueue', {
+      queueName: `pettzi-reminders-${stage}.fifo`,
+      fifo: true,
+      contentBasedDeduplication: true,
+      visibilityTimeout: Duration.seconds(30),
+    });
+
+    remindersQueue.grantSendMessages(dispatchReminderFn);
+    remindersQueue.grantConsumeMessages(consumeReminderFn);
+
+    consumeReminderFn.addEventSource(
+      new eventSources.SqsEventSource(remindersQueue, { batchSize: 5 })
+    );
+
+    const scheduleRole = new iam.Role(this, 'ReminderSchedulerRole', {
+      assumedBy: new iam.ServicePrincipal('scheduler.amazonaws.com'),
+    });
+    scheduleRole.addToPolicy(
+      new iam.PolicyStatement({
+        actions: ['lambda:InvokeFunction'],
+        resources: [dispatchReminderFn.functionArn],
+      })
+    );
+
+    const schedulerPolicy = new iam.PolicyStatement({
+      actions: [
+        'scheduler:CreateSchedule',
+        'scheduler:UpdateSchedule',
+        'scheduler:DeleteSchedule',
+        'scheduler:GetSchedule',
+      ],
+      resources: [`arn:aws:scheduler:${this.region}:${this.account}:schedule/default/pettzi-reminder-${stage}-*`],
+    });
+    createReminderFn.addToRolePolicy(schedulerPolicy);
+    deleteReminderFn.addToRolePolicy(schedulerPolicy);
+    consumeReminderFn.addToRolePolicy(schedulerPolicy);
+
+    const passRolePolicy = new iam.PolicyStatement({
+      actions: ['iam:PassRole'],
+      resources: [scheduleRole.roleArn],
+    });
+    createReminderFn.addToRolePolicy(passRolePolicy);
+    consumeReminderFn.addToRolePolicy(passRolePolicy);
+
+    createReminderFn.addEnvironment('REMINDER_DISPATCHER_ARN', dispatchReminderFn.functionArn);
+    deleteReminderFn.addEnvironment('REMINDER_DISPATCHER_ARN', dispatchReminderFn.functionArn);
+    dispatchReminderFn.addEnvironment('REMINDERS_QUEUE_URL', remindersQueue.queueUrl);
+    consumeReminderFn.addEnvironment('REMINDER_DISPATCHER_ARN', dispatchReminderFn.functionArn);
+    consumeReminderFn.addEnvironment('REMINDERS_QUEUE_URL', remindersQueue.queueUrl);
+    createReminderFn.addEnvironment('REMINDER_SCHEDULER_ROLE_ARN', scheduleRole.roleArn);
+    consumeReminderFn.addEnvironment('REMINDER_SCHEDULER_ROLE_ARN', scheduleRole.roleArn);
+
     const authorizer = new HttpUserPoolAuthorizer(
       'RemindersJwtAuthorizer',
       props.userPool,
@@ -133,13 +196,22 @@ export class RemindersApiStack extends Stack {
       }
     );
 
+    const corsOrigins = ['http://localhost:4200'];
+    if (props.appDomain) {
+      corsOrigins.push(
+        props.appDomain.startsWith('http')
+          ? props.appDomain
+          : `https://${props.appDomain}`
+      );
+    }
+
     this.httpApi = new apigwv2.HttpApi(this, 'RemindersHttpApi', {
       apiName: `PettziRemindersApi-${stage}`,
       description: `Reminders API for Pettzi (${stage})`,
       defaultAuthorizer: authorizer,
       createDefaultStage: true,
       corsPreflight: {
-        allowOrigins: ['http://localhost:4200'],
+        allowOrigins: corsOrigins,
         allowMethods: [apigwv2.CorsHttpMethod.ANY],
         allowHeaders: ['authorization', 'content-type'],
         allowCredentials: true,
@@ -181,11 +253,6 @@ export class RemindersApiStack extends Stack {
 
     this.addApiGatewayAlarm('RemindersApi5xxAlarm', this.httpApi.apiId);
 
-    new events.Rule(this, 'DueRemindersRule', {
-      schedule: events.Schedule.rate(Duration.days(1)),
-      targets: [new targets.LambdaFunction(processDueFn)],
-    });
-
     new CfnOutput(this, 'RemindersApiUrl', {
       value: this.httpApi.apiEndpoint,
       exportName: `PettziRemindersApiUrl-${stage}`,
@@ -206,6 +273,8 @@ export class RemindersApiStack extends Stack {
       layers.length > 0
         ? [
             '@aws-sdk/client-ses',
+            '@aws-sdk/client-scheduler',
+            '@aws-sdk/client-sqs',
             '@aws-sdk/client-dynamodb',
             '@aws-sdk/lib-dynamodb',
           ]

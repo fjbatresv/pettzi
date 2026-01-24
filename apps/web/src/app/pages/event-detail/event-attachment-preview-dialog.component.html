@@ -1,0 +1,10 @@
+<div class="preview-header">
+  <h3>{{ data.name || ' ' }}</h3>
+  <button mat-icon-button type="button" (click)="close()" aria-label="Close">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<div class="preview-body">
+  <img [src]="data.url" [alt]="data.name || 'attachment preview'" />
+</div>

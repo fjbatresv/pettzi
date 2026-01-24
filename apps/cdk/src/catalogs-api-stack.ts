@@ -17,6 +17,7 @@ export interface CatalogsApiStackProps extends StackProps {
   userPoolClient: UserPoolClient;
   sharedLayer?: lambda.ILayerVersion;
   stage: string;
+  appDomain?: string;
   alarmTopic?: sns.ITopic;
 }
 
@@ -69,13 +70,22 @@ export class CatalogsApiStack extends Stack {
       }
     );
 
+    const corsOrigins = ['http://localhost:4200'];
+    if (props.appDomain) {
+      corsOrigins.push(
+        props.appDomain.startsWith('http')
+          ? props.appDomain
+          : `https://${props.appDomain}`
+      );
+    }
+
     this.httpApi = new apigwv2.HttpApi(this, 'CatalogsHttpApi', {
       apiName: `PettziCatalogsApi-${props.stage}`,
       description: `Catalogs API for Pettzi (${props.stage})`,
       defaultAuthorizer: authorizer,
       createDefaultStage: true,
       corsPreflight: {
-        allowOrigins: ['http://localhost:4200'],
+        allowOrigins: corsOrigins,
         allowMethods: [apigwv2.CorsHttpMethod.ANY],
         allowHeaders: ['authorization', 'content-type'],
         allowCredentials: true,

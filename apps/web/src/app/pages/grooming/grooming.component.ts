@@ -57,6 +57,8 @@ export class GroomingComponent implements OnInit {
   preferredDate: Date | null = null;
   nextGroomingDate: Date | null = null;
   instructions = '';
+  clinic = '';
+  groomer = '';
   petName = '';
   petId = '';
   activePet: Pet | null = null;
@@ -123,6 +125,8 @@ export class GroomingComponent implements OnInit {
       notes: this.instructions.trim() || undefined,
       metadata: {
         services: Array.from(this.selectedServices),
+        clinic: this.clinic.trim() || undefined,
+        groomer: this.groomer.trim() || undefined,
       },
     };
 

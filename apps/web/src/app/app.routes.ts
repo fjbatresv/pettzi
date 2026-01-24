@@ -20,6 +20,7 @@ import { EmailConfirmComponent } from './pages/email-confirm/email-confirm.compo
 import { AccountDeletedComponent } from './pages/account-deleted/account-deleted.component';
 import { PetInviteConfirmComponent } from './pages/pet-invite-confirm/pet-invite-confirm.component';
 import { PetRecordComponent } from './pages/pet-record/pet-record.component';
+import { EventDetailComponent } from './pages/event-detail/event-detail.component';
 import { authenticatedGuard } from './core/guards/authenticated.guard';
 import { unauthenticatedGuard } from './core/guards/unauthenticated.guard';
 import { resetPasswordGuard } from './core/guards/reset-password.guard';
@@ -78,6 +79,10 @@ export const appRoutes: Route[] = [
       {
         path: 'pets/new/details',
         component: PetCreateStep2Component,
+      },
+      {
+        path: 'pets/:petId/event/:eventId',
+        component: EventDetailComponent,
       },
       {
         path: 'pets/:petId',

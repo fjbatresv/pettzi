@@ -39,6 +39,7 @@ export interface AuthApiStackProps extends StackProps {
   verificationBaseUrl?: string;
   verificationSecret?: string;
   passwordResetBaseUrl?: string;
+  appDomain?: string;
   alarmTopic?: sns.ITopic;
 }
 
@@ -251,12 +252,21 @@ export class AuthApiStack extends Stack {
     props.table.grantReadWriteData(deleteUserFn);
     props.docsBucket.grantReadWrite(deleteUserFn);
 
+    const corsOrigins = ['http://localhost:4200', 'https://app.pettzi.net'];
+    if (props.appDomain) {
+      corsOrigins.push(
+        props.appDomain.startsWith('http')
+          ? props.appDomain
+          : `https://${props.appDomain}`
+      );
+    }
+
     this.httpApi = new apigwv2.HttpApi(this, 'AuthHttpApi', {
       apiName: `PettziAuthApi-${stage}`,
       description: `Auth API for Pettzi (${stage})`,
       createDefaultStage: true,
       corsPreflight: {
-        allowOrigins: ['http://localhost:4200', 'https://app.pettzi.net'],
+        allowOrigins: corsOrigins,
         allowMethods: [
           apigwv2.CorsHttpMethod.GET,
           apigwv2.CorsHttpMethod.POST,

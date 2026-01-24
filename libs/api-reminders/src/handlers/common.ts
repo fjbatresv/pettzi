@@ -15,6 +15,13 @@ import {
 } from '@pettzi/domain-model';
 
 export const PETTZI_TABLE_NAME = process.env.PETTZI_TABLE_NAME ?? '';
+export const REMINDERS_QUEUE_URL = process.env.REMINDERS_QUEUE_URL ?? '';
+export const REMINDER_DISPATCHER_ARN = process.env.REMINDER_DISPATCHER_ARN ?? '';
+export const REMINDER_SCHEDULER_ROLE_ARN = process.env.REMINDER_SCHEDULER_ROLE_ARN ?? '';
+export const SES_REMINDER_TEMPLATE_NAME = process.env.SES_REMINDER_TEMPLATE_NAME ?? '';
+export const STAGE = process.env.STAGE ?? 'dev';
+
+export const REMINDER_RULE_PREFIX = 'pettzi-reminder';
 
 export const docClient = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 
@@ -87,3 +94,31 @@ export const parseIsoDate = (value: string | undefined): Date | undefined => {
   }
   return d;
 };
+
+export const buildReminderRuleName = (reminderId: string): string =>
+  `${REMINDER_RULE_PREFIX}-${STAGE}-${reminderId}`;
+
+export const toScheduleExpression = (date: Date): string => {
+  const minTime = Date.now() + 60_000;
+  if (!Number.isFinite(date.getTime())) {
+    throw new Error('INVALID_SCHEDULE_DATE');
+  }
+  const maxTime = Date.now() + 365 * 24 * 60 * 60 * 1000;
+  const rawTime = date.getTime();
+  if (rawTime > maxTime) {
+    throw new Error('SCHEDULE_DATE_TOO_FAR');
+  }
+  const scheduled = rawTime < minTime ? new Date(minTime) : new Date(rawTime);
+  scheduled.setMilliseconds(0);
+  const pad = (value: number) => String(value).padStart(2, '0');
+  const iso = `${scheduled.getUTCFullYear()}-${pad(scheduled.getUTCMonth() + 1)}-${pad(scheduled.getUTCDate())}T${pad(
+    scheduled.getUTCHours()
+  )}:${pad(scheduled.getUTCMinutes())}:${pad(scheduled.getUTCSeconds())}`;
+  return `at(${iso})`;
+};
+
+export const isSchedulerNotFound = (err: unknown): boolean =>
+  (err as { name?: string } | undefined)?.name === 'ResourceNotFoundException';
+
+export const buildIdempotencyKey = (reminderId: string, dueDateIso: string): string =>
+  `${reminderId}:${dueDateIso}`;
