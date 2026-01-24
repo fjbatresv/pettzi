@@ -1,0 +1,31 @@
+.preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem 0;
+}
+
+.preview-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgba(32, 19, 64, 0.8);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.preview-body {
+  padding: 0.75rem 1rem 1.25rem;
+  display: grid;
+  place-items: center;
+}
+
+.preview-body img {
+  max-width: 100%;
+  max-height: 70vh;
+  border-radius: 16px;
+  object-fit: contain;
+  box-shadow: 0 16px 30px rgba(32, 19, 64, 0.18);
+}

@@ -1,1 +1,86 @@
-<div class="dashboard-shell"></div>
+<div class="home-page" *ngIf="!isLoading; else loading">
+  <header class="home-header">
+    <div>
+      <h1>{{ 'home.title' | translate }}</h1>
+      <p>{{ 'home.subtitle' | translate }}</p>
+    </div>
+  </header>
+
+  <section class="pets-section">
+    <div class="pets-grid">
+      <article class="pet-card" *ngFor="let pet of petsList">
+        <button type="button" class="pet-card-button" (click)="openPet(pet)">
+          <div class="pet-photo">
+            <img *ngIf="getPetPhoto(pet)" [src]="getPetPhoto(pet)" [alt]="pet.name" />
+            <span *ngIf="!getPetPhoto(pet)">{{ pet.name[0] || 'P' }}</span>
+          </div>
+          <div class="pet-info">
+            <h3>{{ pet.name }}</h3>
+            <p>{{ getPetSubtitle(pet) }}</p>
+          </div>
+          <div class="pet-pill" *ngIf="getNextReminder(pet) as next">
+            <mat-icon>event</mat-icon>
+            <span>
+              {{ getReminderTitle(next) }}
+            </span>
+          </div>
+        </button>
+      </article>
+    </div>
+  </section>
+
+  <section class="reminders-section">
+    <div class="reminders-card">
+      <div class="reminders-header">
+        <div class="title">
+          <mat-icon>calendar_today</mat-icon>
+          <h2>{{ 'home.remindersTitle' | translate }}</h2>
+        </div>
+        <span class="count">{{ remindersList.length }}</span>
+      </div>
+
+      <div *ngIf="groupedReminders.length; else emptyReminders">
+        <div class="reminder-group" *ngFor="let group of groupedReminders">
+          <p class="group-label">{{ group.label }}</p>
+          <article class="reminder-item" *ngFor="let item of group.items">
+            <div class="reminder-icon">
+              <mat-icon>pets</mat-icon>
+            </div>
+            <div class="reminder-content">
+              <h4>{{ getReminderTitle(item) }}</h4>
+              <p>
+                {{ item.pet.name }}
+                <span *ngIf="isRecurring(item)">· {{ 'home.recurring' | translate }}</span>
+              </p>
+            </div>
+            <div class="reminder-time">
+              <span class="time">{{ formatReminderTime(item) }}</span>
+              <span class="date">{{ formatReminderDate(item) }}</span>
+            </div>
+            <button
+              type="button"
+              class="reminder-delete"
+              [attr.aria-label]="'home.deleteReminder' | translate"
+              (click)="deleteReminder(item)"
+              [disabled]="deletingReminderIds.has(item.reminder.reminderId)"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </article>
+        </div>
+      </div>
+
+      <ng-template #emptyReminders>
+        <div class="empty-state">
+          <p>{{ 'home.remindersEmpty' | translate }}</p>
+        </div>
+      </ng-template>
+    </div>
+  </section>
+</div>
+
+<ng-template #loading>
+  <div class="home-loading">
+    <p>{{ 'home.loading' | translate }}</p>
+  </div>
+</ng-template>

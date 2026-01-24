@@ -293,6 +293,7 @@ export const toItemPetReminder = (reminder: PetReminder): DynamoItem => {
     metadata: reminder.metadata,
     createdAt: toIso(reminder.createdAt),
     completedAt: toIso(reminder.completedAt),
+    ttl: Math.floor(reminder.dueDate.getTime() / 1000),
   };
 };
 

@@ -84,12 +84,12 @@
           {{ 'login.submit' | translate }}
         </button>
 
-        <div class="divider">
+        <!--<div class="divider">
           <span>{{ 'login.orContinue' | translate }}</span>
         </div>
 
         <div class="social">
-          <button type="button" class="social-btn">
+          <button type="button" class="social-btn" (click)="loginWithGoogle()">
             <span class="icon google" aria-hidden="true">
               <svg viewBox="0 0 24 24" role="img">
                 <path
@@ -111,7 +111,7 @@
             </span>
             <span>{{ 'login.apple' | translate }}</span>
           </button>
-        </div>
+        </div>-->
       </form>
 
       <p class="legal">

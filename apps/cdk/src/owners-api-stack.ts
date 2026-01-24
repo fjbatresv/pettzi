@@ -30,6 +30,7 @@ export interface OwnersApiStackProps extends StackProps {
   sharePetInviteTemplateNameEn?: string;
   inviteBaseUrl?: string;
   inviteTokenSecret?: string;
+  appDomain?: string;
   alarmTopic?: sns.ITopic;
 }
 
@@ -138,13 +139,22 @@ export class OwnersApiStack extends Stack {
       }
     );
 
+    const corsOrigins = ['http://localhost:4200'];
+    if (props.appDomain) {
+      corsOrigins.push(
+        props.appDomain.startsWith('http')
+          ? props.appDomain
+          : `https://${props.appDomain}`
+      );
+    }
+
     this.httpApi = new apigwv2.HttpApi(this, 'OwnersHttpApi', {
       apiName: `PettziOwnersApi-${props.stage}`,
       description: `Owners API for Pettzi (${props.stage})`,
       defaultAuthorizer: authorizer,
       createDefaultStage: true,
       corsPreflight: {
-        allowOrigins: ['http://localhost:4200'],
+        allowOrigins: corsOrigins,
         allowMethods: [apigwv2.CorsHttpMethod.ANY],
         allowHeaders: ['authorization', 'content-type'],
         allowCredentials: true,

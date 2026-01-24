@@ -19,10 +19,15 @@ export class TokenStorageService {
     this.setupChannel();
   }
 
-  async storeTokens(tokens: AuthTokens & { expiresIn?: number }) {
+  async storeTokens(
+    tokens: AuthTokens & { expiresIn?: number },
+    options?: { hasRefreshToken?: boolean }
+  ) {
     await this.storeToken(this.idKey, tokens.idToken);
     await this.storeToken(this.accessKey, tokens.accessToken);
-    sessionStorage.setItem(this.refreshKey, 'true');
+    if (options?.hasRefreshToken !== false) {
+      sessionStorage.setItem(this.refreshKey, 'true');
+    }
     if (tokens.expiresIn) {
       sessionStorage.setItem(this.expiresKey, String(Date.now() + tokens.expiresIn * 1000));
     }

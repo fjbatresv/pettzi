@@ -1,0 +1,189 @@
+<div class="event-detail-page" *ngIf="!isLoading; else loading">
+  <div class="event-detail-header">
+    <button
+      mat-icon-button
+      class="back-btn"
+      type="button"
+      (click)="goBack()"
+      [attr.aria-label]="'eventDetail.back' | translate"
+    >
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div class="header-text" *ngIf="event">
+      <p class="eyebrow">{{ 'eventDetail.title' | translate }}</p>
+      <h2>
+        {{ getEventTypeLabel(event.eventType) }}
+        {{ 'eventDetail.for' | translate }}
+        <span class="pet-name">{{ petName || ('dashboard.petFallback' | translate) }}</span>
+      </h2>
+    </div>
+  </div>
+
+  <section class="event-card" *ngIf="event; else error">
+    <div class="event-hero">
+      <div class="event-icon">
+        <mat-icon>{{ getEventIcon(event.eventType) }}</mat-icon>
+      </div>
+      <div class="event-meta">
+        <h3>{{ event.title || getEventTypeLabel(event.eventType) }}</h3>
+        <p>{{ formatEventDateWithYear(event.eventDate) }}</p>
+      </div>
+    </div>
+
+    <div class="detail-grid" [ngSwitch]="event.eventType">
+      <ng-container *ngSwitchCase="'MEDICATION'">
+        <div class="detail-row">
+          <span>{{ 'dashboard.medicationName' | translate }}</span>
+          {{ getMedicationName(event) }}
+        </div>
+        <div class="detail-row">
+          <span>{{ 'medication.dose' | translate }}</span>
+          {{ getMedicationDose(event) }}
+        </div>
+        <div class="detail-row">
+          <span>{{ 'dashboard.medicationPeriodicity' | translate }}</span>
+          {{ getMedicationPeriodicity(event) }}
+        </div>
+        <div class="detail-row">
+          <span>{{ 'dashboard.medicationEnd' | translate }}</span>
+          {{ getMedicationEndDate(event) }}
+        </div>
+        <div class="detail-row full">
+          <span>{{ 'dashboard.observations' | translate }}</span>
+          {{ getObservationLabel(event) }}
+        </div>
+      </ng-container>
+
+      <ng-container *ngSwitchCase="'VET_VISIT'">
+        <div class="detail-row">
+          <span>{{ 'dashboard.vetClinic' | translate }}</span>
+          {{ getVetClinic(event) }}
+        </div>
+        <div class="detail-row">
+          <span>{{ 'dashboard.vetDoctor' | translate }}</span>
+          {{ getVetName(event) }}
+        </div>
+        <div class="detail-row full">
+          <span>{{ 'dashboard.vetReason' | translate }}</span>
+          {{ getVetReason(event) }}
+        </div>
+        <div class="detail-row full">
+          <span>{{ 'dashboard.observations' | translate }}</span>
+          {{ getObservationLabel(event) }}
+        </div>
+      </ng-container>
+
+      <ng-container *ngSwitchCase="'VACCINE'">
+        <div class="detail-row">
+          <span>{{ 'dashboard.vaccineName' | translate }}</span>
+          {{ getVaccineName(event) }}
+        </div>
+        <div class="detail-row">
+          <span>{{ 'dashboard.vaccineBatch' | translate }}</span>
+          {{ getVaccineBatch(event) }}
+        </div>
+        <div class="detail-row">
+          <span>{{ 'dashboard.vaccineClinic' | translate }}</span>
+          {{ getVaccineClinic(event) }}
+        </div>
+        <div class="detail-row">
+          <span>{{ 'dashboard.vaccineVet' | translate }}</span>
+          {{ getVaccineVet(event) }}
+        </div>
+        <div class="detail-row full">
+          <span>{{ 'dashboard.vaccineExpiry' | translate }}</span>
+          {{ getVaccineExpiry(event) }}
+        </div>
+        <div class="detail-row full">
+          <span>{{ 'dashboard.observations' | translate }}</span>
+          {{ getObservationLabel(event) }}
+        </div>
+      </ng-container>
+
+      <ng-container *ngSwitchCase="'GROOMING'">
+        <div class="detail-row full">
+          <span>{{ 'dashboard.groomingServices' | translate }}</span>
+          {{ getGroomingServices(event) }}
+        </div>
+        <div class="detail-row full">
+          <span>{{ 'dashboard.observations' | translate }}</span>
+          {{ getObservationLabel(event) }}
+        </div>
+      </ng-container>
+
+      <ng-container *ngSwitchCase="'WEIGHT'">
+        <div class="detail-row full">
+          <span>{{ 'dashboard.weightNew' | translate }}</span>
+          {{ getWeightLabel(event) }}
+        </div>
+        <div class="detail-row full">
+          <span>{{ 'dashboard.observations' | translate }}</span>
+          {{ getObservationLabel(event) }}
+        </div>
+      </ng-container>
+
+      <ng-container *ngSwitchDefault>
+        <div class="detail-row full">
+          <span>{{ 'dashboard.observations' | translate }}</span>
+          {{ getObservationLabel(event) }}
+        </div>
+      </ng-container>
+    </div>
+  </section>
+
+  <section class="attachments-card" *ngIf="event && event.eventType !== 'GROOMING'">
+    <div class="section-title">
+      <div class="section-icon">
+        <mat-icon>attach_file</mat-icon>
+      </div>
+      <h3>{{ 'eventDetail.attachments' | translate }}</h3>
+    </div>
+    <div class="attachments-grid" *ngIf="attachments.length; else attachmentsEmpty">
+      <article class="attachment" *ngFor="let file of attachments">
+        <button
+          type="button"
+          class="attachment-preview"
+          (click)="openAttachment(file)"
+          [attr.aria-label]="file.fileName"
+        >
+          <img
+            *ngIf="file.isImage && (file.previewUrl || file.downloadUrl)"
+            [src]="file.previewUrl || file.downloadUrl"
+            [alt]="file.fileName"
+            loading="lazy"
+          />
+          <mat-icon *ngIf="!file.isImage">insert_drive_file</mat-icon>
+        </button>
+        <div class="attachment-meta">
+          <p>{{ file.fileName }}</p>
+          <span>{{ file.contentType || 'file' }}</span>
+        </div>
+        <a
+          class="attachment-download"
+          [href]="file.downloadUrl"
+          target="_blank"
+          rel="noopener"
+        >
+          {{ 'eventDetail.download' | translate }}
+        </a>
+      </article>
+    </div>
+    <ng-template #attachmentsEmpty>
+      <div class="attachments-empty-card">
+        <p>{{ 'eventDetail.noAttachments' | translate }}</p>
+      </div>
+    </ng-template>
+  </section>
+</div>
+
+<ng-template #loading>
+  <div class="event-detail-state">
+    <p>{{ 'eventDetail.loading' | translate }}</p>
+  </div>
+</ng-template>
+
+<ng-template #error>
+  <div class="event-detail-state">
+    <p>{{ errorMessage }}</p>
+  </div>
+</ng-template>

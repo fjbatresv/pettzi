@@ -4,6 +4,7 @@ import { catchError, map, Observable, throwError, tap } from 'rxjs';
 import { API_BASE_URL } from '../tokens';
 import { I18nService } from '../i18n/i18n.service';
 import { TokenStorageService } from './token-storage.service';
+import { environment } from '../../../environments/environment';
 
 interface ApiErrorBody {
   error?: {
@@ -143,6 +144,44 @@ export class AuthService {
     });
   }
 
+  getGoogleAuthUrl(): string | null {
+    const domain = environment.cognitoDomain?.trim();
+    const clientId = environment.cognitoClientId?.trim();
+    const redirectUri = environment.cognitoRedirectUri?.trim();
+    if (!domain || !clientId || !redirectUri) {
+      return null;
+    }
+    const base = domain.startsWith('http') ? domain : `https://${domain}`;
+    const params = new URLSearchParams({
+      response_type: 'token',
+      client_id: clientId,
+      redirect_uri: redirectUri,
+      identity_provider: 'Google',
+      scope: 'openid email profile',
+    });
+    return `${base}/oauth2/authorize?${params.toString()}`;
+  }
+
+  parseHostedUiTokens(hash: string): AuthTokens & { expiresIn?: number } | null {
+    if (!hash || !hash.includes('id_token=')) {
+      return null;
+    }
+    const raw = hash.startsWith('#') ? hash.slice(1) : hash;
+    const params = new URLSearchParams(raw);
+    const idToken = params.get('id_token');
+    const accessToken = params.get('access_token');
+    const expiresInRaw = params.get('expires_in');
+    if (!idToken || !accessToken) {
+      return null;
+    }
+    const expiresIn = expiresInRaw ? Number(expiresInRaw) : undefined;
+    return {
+      idToken,
+      accessToken,
+      expiresIn: Number.isFinite(expiresIn) ? expiresIn : undefined,
+    };
+  }
+
   private buildUrl(path: string) {
     const base = this.baseUrl || '';
     const authBase = this.resolveAuthBase(base);
@@ -216,8 +255,8 @@ export class AuthService {
     return { ...response, message: this.i18n.t('errors.loginChallenge') };
   }
 
-  async storeTokens(tokens: AuthTokens & { expiresIn?: number }) {
-    await this.storage.storeTokens(tokens);
+  async storeTokens(tokens: AuthTokens & { expiresIn?: number }, options?: { hasRefreshToken?: boolean }) {
+    await this.storage.storeTokens(tokens, options);
   }
 
   getAccessToken() {

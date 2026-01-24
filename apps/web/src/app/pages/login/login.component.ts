@@ -33,6 +33,9 @@ export class LoginComponent implements OnInit {
   isSubmitting = false;
 
   ngOnInit() {
+    if (this.handleHostedUiCallback()) {
+      return;
+    }
     void this.redirectIfAuthenticated();
   }
 
@@ -71,33 +74,7 @@ export class LoginComponent implements OnInit {
         }
         this.challengeMessage = '';
         await this.persistTokens(response);
-        const inviteToken = sessionStorage.getItem(this.inviteTokenKey);
-        if (inviteToken) {
-          void this.router.navigate(['/accept-invite'], { queryParams: { token: inviteToken } });
-          this.isSubmitting = false;
-          return;
-        }
-        this.pets.listPets().subscribe({
-          next: ({ pets }) => {
-            if (!pets || pets.length === 0) {
-              void this.router.navigate(['/pets/new']);
-              return;
-            }
-            if (pets.length == 1) {
-              void this.router.navigate(['/pets', pets[0].petId]);
-              return;
-            }
-            if (pets.length > 1) {
-              void this.router.navigate(['/home']);
-            }
-          },
-          error: () => {
-            void this.router.navigate(['/pets/new']);
-          },
-          complete: () => {
-            this.isSubmitting = false;
-          },
-        });
+        this.redirectAfterLogin();
       },
       error: (err: Error) => {
         this.errorMessage = err.message;
@@ -106,18 +83,29 @@ export class LoginComponent implements OnInit {
     });
   }
 
+  loginWithGoogle() {
+    const url = this.auth.getGoogleAuthUrl();
+    if (!url) {
+      return;
+    }
+    window.location.assign(url);
+  }
+
   hasError(controlName: 'email' | 'password') {
     const control = this.form.get(controlName);
     return !!control && control.touched && control.invalid;
   }
 
-  private async persistTokens(tokens: {
+  private async persistTokens(
+    tokens: {
     idToken: string;
     accessToken: string;
     refreshToken?: string;
     expiresIn?: number;
-  }) {
-    await this.auth.storeTokens(tokens);
+  },
+    options?: { hasRefreshToken?: boolean }
+  ) {
+    await this.auth.storeTokens(tokens, options);
   }
 
   private async redirectIfAuthenticated() {
@@ -137,5 +125,48 @@ export class LoginComponent implements OnInit {
         // stay on login
       },
     });
+  }
+
+  private async redirectAfterLogin() {
+    const inviteToken = sessionStorage.getItem(this.inviteTokenKey);
+    if (inviteToken) {
+      void this.router.navigate(['/accept-invite'], { queryParams: { token: inviteToken } });
+      this.isSubmitting = false;
+      return;
+    }
+    this.pets.listPets().subscribe({
+      next: ({ pets }) => {
+        if (!pets || pets.length === 0) {
+          void this.router.navigate(['/pets/new']);
+          return;
+        }
+        if (pets.length == 1) {
+          void this.router.navigate(['/pets', pets[0].petId]);
+          return;
+        }
+        if (pets.length > 1) {
+          void this.router.navigate(['/home']);
+        }
+      },
+      error: () => {
+        void this.router.navigate(['/pets/new']);
+      },
+      complete: () => {
+        this.isSubmitting = false;
+      },
+    });
+  }
+
+  private handleHostedUiCallback() {
+    const tokens = this.auth.parseHostedUiTokens(window.location.hash);
+    if (!tokens) {
+      return false;
+    }
+    this.isSubmitting = true;
+    void this.persistTokens(tokens, { hasRefreshToken: false }).then(() => {
+      window.history.replaceState({}, document.title, window.location.pathname);
+      this.redirectAfterLogin();
+    });
+    return true;
   }
 }

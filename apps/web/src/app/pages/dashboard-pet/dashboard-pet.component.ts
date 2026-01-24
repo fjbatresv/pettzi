@@ -442,6 +442,16 @@ export class DashboardPetComponent implements OnInit {
       .join(', ');
   }
 
+  getGroomingClinic(event: PetEvent) {
+    const meta = (event.metadata ?? {}) as Record<string, unknown>;
+    return this.getValueOrUnknown(String(meta['clinic'] ?? ''));
+  }
+
+  getGroomingGroomer(event: PetEvent) {
+    const meta = (event.metadata ?? {}) as Record<string, unknown>;
+    return this.getValueOrUnknown(String(meta['groomer'] ?? ''));
+  }
+
   getWeightNewLabel(event: PetEvent) {
     return this.formatWeightFromEvent(event);
   }
@@ -724,6 +734,13 @@ export class DashboardPetComponent implements OnInit {
         this.deletingEventIds.delete(event.eventId);
       },
     });
+  }
+
+  openEventDetail(event: PetEvent) {
+    if (!this.pet?.petId || !event?.eventId) {
+      return;
+    }
+    void this.router.navigate(['/pets', this.pet.petId, 'event', event.eventId]);
   }
 
   deleteReminder(reminder: PetReminder) {

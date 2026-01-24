@@ -13,6 +13,7 @@ import {
 } from '@pettzi/domain-model';
 
 export const PETTZI_TABLE_NAME = process.env.PETTZI_TABLE_NAME ?? '';
+export const PETTZI_DOCS_BUCKET_NAME = process.env.PETTZI_DOCS_BUCKET_NAME ?? '';
 
 const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 

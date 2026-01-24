@@ -5,6 +5,7 @@ import { HttpUserPoolAuthorizer } from 'aws-cdk-lib/aws-apigatewayv2-authorizers
 import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
 import * as cloudwatchActions from 'aws-cdk-lib/aws-cloudwatch-actions';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
+import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction, OutputFormat } from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as logs from 'aws-cdk-lib/aws-logs';
@@ -15,10 +16,12 @@ import * as path from 'path';
 
 export interface EventsApiStackProps extends StackProps {
   table: dynamodb.Table;
+  docsBucket: s3.Bucket;
   userPool: UserPool;
   userPoolClient: UserPoolClient;
   sharedLayer?: lambda.ILayerVersion;
   stage?: string;
+  appDomain?: string;
   alarmTopic?: sns.ITopic;
 }
 
@@ -43,6 +46,7 @@ export class EventsApiStack extends Stack {
 
     const commonEnv = {
       PETTZI_TABLE_NAME: props.table.tableName,
+      PETTZI_DOCS_BUCKET_NAME: props.docsBucket.bucketName,
       STAGE: stage,
     };
 
@@ -67,6 +71,13 @@ export class EventsApiStack extends Stack {
       commonEnv,
       props.sharedLayer
     );
+    const getEventDetailFn = this.createFn(
+      'GetPetEventDetailHandler',
+      stage,
+      handlerPath('libs/api-events/src/handlers/get-event-detail.handler.ts'),
+      commonEnv,
+      props.sharedLayer
+    );
     const updateEventFn = this.createFn(
       'UpdatePetEventHandler',
       stage,
@@ -85,8 +96,10 @@ export class EventsApiStack extends Stack {
     props.table.grantReadWriteData(createEventFn);
     props.table.grantReadWriteData(listEventsFn);
     props.table.grantReadWriteData(getEventFn);
+    props.table.grantReadWriteData(getEventDetailFn);
     props.table.grantReadWriteData(updateEventFn);
     props.table.grantReadWriteData(deleteEventFn);
+    props.docsBucket.grantRead(getEventDetailFn);
 
     const authorizer = new HttpUserPoolAuthorizer(
       'EventsJwtAuthorizer',
@@ -97,13 +110,22 @@ export class EventsApiStack extends Stack {
       }
     );
 
+    const corsOrigins = ['http://localhost:4200'];
+    if (props.appDomain) {
+      corsOrigins.push(
+        props.appDomain.startsWith('http')
+          ? props.appDomain
+          : `https://${props.appDomain}`
+      );
+    }
+
     this.httpApi = new apigwv2.HttpApi(this, 'EventsHttpApi', {
       apiName: `PettziEventsApi-${stage}`,
       description: `Events API for Pettzi (${stage})`,
       defaultAuthorizer: authorizer,
       createDefaultStage: true,
       corsPreflight: {
-        allowOrigins: ['http://localhost:4200'],
+        allowOrigins: corsOrigins,
         allowMethods: [apigwv2.CorsHttpMethod.ANY],
         allowHeaders: ['authorization', 'content-type'],
         allowCredentials: true,
@@ -130,6 +152,14 @@ export class EventsApiStack extends Stack {
       path: '/pets/{petId}/{eventId}',
       methods: [apigwv2.HttpMethod.GET],
       integration: new HttpLambdaIntegration('GetEventIntegration', getEventFn),
+    });
+    this.httpApi.addRoutes({
+      path: '/pets/{petId}/{eventId}/detail',
+      methods: [apigwv2.HttpMethod.GET],
+      integration: new HttpLambdaIntegration(
+        'GetEventDetailIntegration',
+        getEventDetailFn
+      ),
     });
     this.httpApi.addRoutes({
       path: '/pets/{petId}/{eventId}',

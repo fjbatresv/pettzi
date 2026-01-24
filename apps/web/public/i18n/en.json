@@ -123,7 +123,7 @@
   },
   "dashboard": {
     "brandTagline": "Pet Care Made Easy",
-    "navDashboard": "Dashboard",
+    "navDashboard": "Home",
     "navPets": "My Pets",
     "navGrooming": "Grooming",
     "navVets": "Vet Contacts",
@@ -195,6 +195,8 @@
     "vaccineClinic": "Clinic",
     "vaccineVet": "Veterinarian",
     "vaccineExpiry": "Expiry date",
+    "groomingClinic": "Clinic / salon",
+    "groomingGroomer": "Groomer",
     "groomingServices": "Services",
     "observations": "Observations",
     "statusInProgress": "In progress",
@@ -232,10 +234,37 @@
       "other": "Other"
     }
   },
+  "home": {
+    "title": "My Pack",
+    "subtitle": "Overview of all your furry friends.",
+    "remindersTitle": "Upcoming reminders",
+    "remindersEmpty": "No reminders scheduled yet.",
+    "reminderFallback": "Reminder",
+    "noUpcoming": "No upcoming",
+    "deleteReminder": "Delete reminder",
+    "recurring": "Recurring",
+    "loading": "Loading dashboard...",
+    "yearsOld": "{{count}} years",
+    "monthsOld": "{{count}} months"
+  },
+  "eventDetail": {
+    "title": "Event details",
+    "for": "for",
+    "back": "Back",
+    "attachments": "Attachments",
+    "download": "Download",
+    "noAttachments": "No attachments for this event.",
+    "loading": "Loading event...",
+    "loadError": "We couldn't load this event."
+  },
   "grooming": {
     "back": "Back",
     "titlePrefix": "Grooming for",
     "selectServices": "Select Services",
+    "clinic": "Clinic / salon",
+    "clinicPlaceholder": "Add the clinic or salon",
+    "groomer": "Groomer",
+    "groomerPlaceholder": "Add the groomer's name",
     "date": "Date",
     "datePlaceholder": "Select a date",
     "nextDate": "Next grooming date",
@@ -249,7 +278,7 @@
     "services": {
       "fullBath": "Full Bath",
       "haircut": "Haircut",
-      "nails": "Nails Only"
+      "nails": "Nail trim"
     }
   },
   "petEdit": {

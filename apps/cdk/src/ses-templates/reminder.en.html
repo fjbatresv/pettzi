@@ -1,5 +1,21 @@
-<p>Hello,</p>
-<p>
-  You have a {{eventType}} reminder for {{petName}} on {{eventDate}}.
-</p>
-<p>Details: {{notes}}</p>
+<div style="background-color: #FDF8F1; padding: 40px; font-family: sans-serif; text-align: center;">
+  <img src="https://img.pettzi.net/email/brand/logo.png" alt="Pettzi Logo" style="width: 80px;">
+  <h1 style="color: #7C3AED;">Pettzi</h1>
+
+  <div style="background-color: #ffffff; border: 2px solid #E9D5FF; border-radius: 16px; padding: 30px; max-width: 450px; margin: 0 auto;">
+    <h2 style="color: #7C3AED; margin-bottom: 5px;">Reminder for {{petName}}!</h2>
+    <p style="color: #6B7280; font-size: 16px;">It's time for <strong>{{reminderName}}</strong>.</p>
+
+    <div style="background-color: #F9FAFB; border-radius: 12px; padding: 15px; margin: 20px 0; text-align: left;">
+      <p style="margin: 0; color: #374151; font-size: 14px;"><strong>Date:</strong> {{eventDate}}</p>
+      <p style="margin: 5px 0 0; color: #4B5563; font-size: 14px; line-height: 1.5;"><strong>Notes:</strong> {{notes}}</p>
+    </div>
+
+    <a href="https://app.pettzi.net/home" style="display: inline-block; background-color: #8B5CF6; color: #ffffff; padding: 12px 25px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-top: 10px;">View in Pettzi</a>
+  </div>
+
+  <p style="color: #9CA3AF; font-size: 12px; margin-top: 30px;">
+    Sent with ❤️ by Pettzi.net <br>
+    If you already did it, you can ignore this email.
+  </p>
+</div>

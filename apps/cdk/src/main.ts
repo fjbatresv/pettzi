@@ -14,6 +14,7 @@ import { CatalogsApiStack } from './catalogs-api-stack';
 import { ApiDomainStack, AUTH_API_BASE_PATH } from './api-domain-stack';
 import { SesTemplatesStack } from './ses-templates-stack';
 import { EmailAssetsCdnStack } from './email-assets-cdn-stack';
+import { FrontendStack } from './frontend-stack';
 
 dotenvConfig({
   path: '../../.env',
@@ -39,6 +40,18 @@ const apiDomainName = (() => {
 })();
 const apiHostedZoneName = process.env.API_HOSTED_ZONE_NAME?.trim();
 const apiHostedZoneId = process.env.API_HOSTED_ZONE_ID?.trim();
+const appDomainName = (() => {
+  const explicit = process.env.APP_DOMAIN_NAME?.trim();
+  if (explicit) return explicit;
+
+  const prefix = process.env.APP_PREFIX?.trim();
+  const zone = apiHostedZoneName;
+  if (!prefix || !zone) return undefined;
+
+  return prefix === zone || prefix.endsWith(`.${zone}`)
+    ? prefix
+    : `${prefix}.${zone}`;
+})();
 const dsnPrefix = process.env.DSN_PREFIX?.trim();
 const sesFromEmail = process.env.SES_FROM_EMAIL ?? 'no-reply@pettzi.app';
 const useKms =
@@ -138,6 +151,7 @@ const core = new CoreInfraStack(app, 'PettziCoreInfraStack', {
   stackName: `PettziCoreInfraStack`,
   description: `Pettzi core infrastructure (${stage})`,
   useKms,
+  appDomain: appDomainName,
 });
 
 const auth = new AuthStack(app, 'PettziAuthStack', {
@@ -166,6 +180,7 @@ const authApi = new AuthApiStack(app, 'PettziAuthApiStack', {
   verificationBaseUrl: emailVerificationBaseUrl,
   verificationSecret: emailVerificationSecret,
   passwordResetBaseUrl,
+  appDomain: appDomainName,
   alarmTopic: core.alarmTopic,
 });
 
@@ -178,6 +193,7 @@ const petsApi = new PetsApiStack(app, 'PettziPetsApiStack', {
   depsLayer: layers.cognitoDepsLayer,
   userPool: auth.userPool,
   userPoolClient: auth.userPoolClient,
+  appDomain: appDomainName,
   alarmTopic: core.alarmTopic,
 });
 
@@ -186,10 +202,12 @@ const eventsApi = new EventsApiStack(app, 'PettziEventsApiStack', {
   stackName: 'PettziEventsApiStack',
   description: `Pettzi events API (${stage})`,
   table: core.table,
+  docsBucket: core.docsBucket,
   sharedLayer: layers.cognitoDepsLayer,
   userPool: auth.userPool,
   userPoolClient: auth.userPoolClient,
   stage,
+  appDomain: appDomainName,
   alarmTopic: core.alarmTopic,
 });
 
@@ -204,8 +222,9 @@ const remindersApi = new RemindersApiStack(app, 'PettziRemindersApiStack', {
   userPool: auth.userPool,
   userPoolClient: auth.userPoolClient,
   stage,
-  remindersEmailFrom: process.env.REMINDERS_EMAIL_FROM ?? 'no-reply@pettzi.dev',
+  remindersEmailFrom: process.env.REMINDERS_EMAIL_FROM ?? 'no-reply@pettzi.net',
   reminderTemplateName: SesTemplatesStack.REMINDER_TEMPLATE_ES,
+  appDomain: appDomainName,
   alarmTopic: core.alarmTopic,
 });
 
@@ -221,6 +240,7 @@ const uploadsApi = new UploadsApiStack(app, 'PettziUploadsApiStack', {
   s3Layer: layers.s3DepsLayer,
   ddbLayer: layers.ddbDepsLayer,
   stage,
+  appDomain: appDomainName,
   alarmTopic: core.alarmTopic,
 });
 
@@ -242,6 +262,7 @@ const ownersApi = new OwnersApiStack(app, 'PettziOwnersApiStack', {
   inviteBaseUrl: petShareInviteBaseUrl,
   inviteTokenSecret: petShareInviteSecret,
   stage,
+  appDomain: appDomainName,
   alarmTopic: core.alarmTopic,
 });
 
@@ -253,8 +274,34 @@ const catalogsApi = new CatalogsApiStack(app, 'PettziCatalogsApiStack', {
   userPoolClient: auth.userPoolClient,
   sharedLayer: layers.cognitoDepsLayer,
   stage,
+  appDomain: appDomainName,
   alarmTopic: core.alarmTopic,
 });
+
+if (appDomainName && apiHostedZoneName) {
+  const inHostedZone =
+    appDomainName === apiHostedZoneName ||
+    appDomainName.endsWith(`.${apiHostedZoneName}`);
+
+  if (!inHostedZone) {
+    console.warn(
+      `FrontendStack will be deployed in disabled mode: hosted zone "${apiHostedZoneName}" is not authoritative for domain "${appDomainName}".`
+    );
+  }
+
+  if (inHostedZone) {
+    new FrontendStack(app, 'PettziFrontendStack', {
+      env: { account, region },
+      stackName: 'PettziFrontendStack',
+      description: `Pettzi frontend (${stage})`,
+      stage,
+      domainName: appDomainName,
+      hostedZoneName: apiHostedZoneName,
+      hostedZoneId: apiHostedZoneId,
+      useKms,
+    });
+  }
+}
 
 if (apiDomainName && apiHostedZoneName) {
   const inHostedZone =

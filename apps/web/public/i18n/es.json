@@ -123,7 +123,7 @@
   },
   "dashboard": {
     "brandTagline": "Cuidado de mascotas hecho facil",
-    "navDashboard": "Dashboard",
+    "navDashboard": "Inicio",
     "navPets": "Mis mascotas",
     "navGrooming": "Grooming",
     "navVets": "Contactos veterinarios",
@@ -195,6 +195,8 @@
     "vaccineClinic": "Clinica",
     "vaccineVet": "Veterinario",
     "vaccineExpiry": "Vencimiento",
+    "groomingClinic": "Clinica / estetica",
+    "groomingGroomer": "Groomista",
     "groomingServices": "Servicios",
     "observations": "Observaciones",
     "statusInProgress": "En curso",
@@ -232,10 +234,37 @@
       "other": "Otro"
     }
   },
+  "home": {
+    "title": "Mi Manada",
+    "subtitle": "Resumen de todas tus mascotas.",
+    "remindersTitle": "Recordatorios próximos",
+    "remindersEmpty": "Aún no hay recordatorios.",
+    "reminderFallback": "Recordatorio",
+    "noUpcoming": "Sin próximos",
+    "deleteReminder": "Eliminar recordatorio",
+    "recurring": "Recurrente",
+    "loading": "Cargando dashboard...",
+    "yearsOld": "{{count}} años",
+    "monthsOld": "{{count}} meses"
+  },
+  "eventDetail": {
+    "title": "Detalle del evento",
+    "for": "para",
+    "back": "Volver",
+    "attachments": "Adjuntos",
+    "download": "Descargar",
+    "noAttachments": "No hay adjuntos para este evento.",
+    "loading": "Cargando evento...",
+    "loadError": "No pudimos cargar este evento."
+  },
   "grooming": {
     "back": "Atras",
     "titlePrefix": "Grooming para",
     "selectServices": "Selecciona servicios",
+    "clinic": "Clinica / estetica",
+    "clinicPlaceholder": "Agrega la clinica o estetica",
+    "groomer": "Groomista",
+    "groomerPlaceholder": "Agrega el nombre del groomista",
     "date": "Fecha",
     "datePlaceholder": "Selecciona una fecha",
     "nextDate": "Proximo grooming",
@@ -249,7 +278,7 @@
     "services": {
       "fullBath": "Bano completo",
       "haircut": "Corte de pelo",
-      "nails": "Solo unas"
+      "nails": "Corte de unas"
     }
   },
   "petEdit": {

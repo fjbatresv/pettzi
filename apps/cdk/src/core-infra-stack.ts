@@ -13,6 +13,7 @@ import { Construct } from 'constructs';
 export interface CoreInfraStackProps extends StackProps {
   stage: string;
   useKms?: boolean;
+  appDomain?: string;
 }
 
 export class CoreInfraStack extends Stack {
@@ -139,9 +140,18 @@ export class CoreInfraStack extends Stack {
       removalPolicy: RemovalPolicy.DESTROY,
     });
 
+    const corsOrigins = ['http://localhost:4200'];
+    if (props.appDomain) {
+      corsOrigins.push(
+        props.appDomain.startsWith('http')
+          ? props.appDomain
+          : `https://${props.appDomain}`
+      );
+    }
+
     this.docsBucket.addCorsRule({
       allowedMethods: [s3.HttpMethods.PUT, s3.HttpMethods.GET, s3.HttpMethods.HEAD],
-      allowedOrigins: ['http://localhost:4200'],
+      allowedOrigins: corsOrigins,
       allowedHeaders: ['*'],
       exposedHeaders: ['ETag'],
     });
