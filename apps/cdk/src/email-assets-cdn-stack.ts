@@ -59,7 +59,7 @@ export class EmailAssetsCdnStack extends Stack {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       encryption: useKms ? s3.BucketEncryption.KMS : s3.BucketEncryption.S3_MANAGED,
       ...(useKms && bucketKey ? { encryptionKey: bucketKey } : {}),
-      versioned: true,
+      versioned: false,
       autoDeleteObjects: true,
       removalPolicy: RemovalPolicy.DESTROY,
     });

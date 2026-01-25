@@ -53,7 +53,7 @@ export class CoreInfraStack extends Stack {
       ...(useKms && s3Key ? { encryptionKey: s3Key } : {}),
       objectOwnership: s3.ObjectOwnership.BUCKET_OWNER_PREFERRED,
       accessControl: s3.BucketAccessControl.LOG_DELIVERY_WRITE,
-      versioned: true,
+      versioned: false,
       lifecycleRules: [
         {
           expiration: Duration.days(60),
@@ -122,7 +122,7 @@ export class CoreInfraStack extends Stack {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       encryption: useKms ? s3.BucketEncryption.KMS : s3.BucketEncryption.S3_MANAGED,
       ...(useKms && s3Key ? { encryptionKey: s3Key } : {}),
-      versioned: true,
+      versioned: false,
       eventBridgeEnabled: true,
       metrics: [{ id: 'AllRequests' }],
       serverAccessLogsBucket: this.logsBucket,

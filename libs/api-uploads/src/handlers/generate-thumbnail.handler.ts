@@ -23,6 +23,7 @@ const streamToBuffer = async (stream: any): Promise<Buffer> => {
 };
 
 const isThumbnailKey = (key: string) => key.includes('/photos/thumbnails/');
+const isHeicFile = (fileName: string) => /\.(heic|heif)$/i.test(fileName);
 
 const parsePhotoKey = (key: string) => {
   if (isThumbnailKey(key)) {
@@ -59,19 +60,22 @@ export const handler = async (event: S3Event): Promise<void> => {
         continue;
       }
       const source = await streamToBuffer(object.Body);
+      const baseName = parsed.fileName.replace(/\.[^.]+$/, '');
+      const shouldJpeg = isHeicFile(parsed.fileName);
       const thumbnail = await sharp(source)
         .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE, { fit: 'cover' })
-        .webp({ quality: 80 })
+        .toFormat(shouldJpeg ? 'jpeg' : 'webp', shouldJpeg ? { quality: 82 } : { quality: 80 })
         .toBuffer();
 
-      const thumbKey = `pets/${parsed.petId}/photos/thumbnails/${parsed.fileName.replace(/\.[^.]+$/, '')}.webp`;
+      const thumbExt = shouldJpeg ? 'jpg' : 'webp';
+      const thumbKey = `pets/${parsed.petId}/photos/thumbnails/${baseName}.${thumbExt}`;
 
       await s3.send(
         new PutObjectCommand({
           Bucket: PETTZI_DOCS_BUCKET_NAME,
           Key: thumbKey,
           Body: thumbnail,
-          ContentType: 'image/webp',
+          ContentType: shouldJpeg ? 'image/jpeg' : 'image/webp',
           CacheControl: 'public, max-age=31536000',
         })
       );

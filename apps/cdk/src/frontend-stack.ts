@@ -1,4 +1,4 @@
-import { RemovalPolicy, Stack, StackProps, Tags } from 'aws-cdk-lib';
+import { Duration, RemovalPolicy, Stack, StackProps, Tags } from 'aws-cdk-lib';
 import * as acm from 'aws-cdk-lib/aws-certificatemanager';
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
@@ -54,7 +54,7 @@ export class FrontendStack extends Stack {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       encryption: useKms ? s3.BucketEncryption.KMS : s3.BucketEncryption.S3_MANAGED,
       ...(useKms && bucketKey ? { encryptionKey: bucketKey } : {}),
-      versioned: true,
+      versioned: false,
       autoDeleteObjects: true,
       removalPolicy: RemovalPolicy.DESTROY,
     });
@@ -192,6 +192,20 @@ export class FrontendStack extends Stack {
         priceClass: cloudfront.PriceClass.PRICE_CLASS_100,
         defaultRootObject: 'index.html',
         webAclId: webAcl.attrArn,
+        errorResponses: [
+          {
+            httpStatus: 403,
+            responseHttpStatus: 200,
+            responsePagePath: '/index.html',
+            ttl: Duration.seconds(0),
+          },
+          {
+            httpStatus: 404,
+            responseHttpStatus: 200,
+            responsePagePath: '/index.html',
+            ttl: Duration.seconds(0),
+          },
+        ],
         defaultBehavior: {
           origin: origins.S3BucketOrigin.withOriginAccessControl(
             this.siteBucket,
