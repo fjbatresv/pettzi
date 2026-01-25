@@ -9,7 +9,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslateModule } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
-import { CreateHeaderComponent } from '../../components/create-header/create-header.component';
 import { I18nService } from '../../core/i18n/i18n.service';
 import { PetCreateStateService, PetCreateDraft } from '../../core/services/pet-create-state.service';
 import { PetsService } from '../../core/services/pets.service';
@@ -22,7 +21,6 @@ type WeightUnit = 'lb' | 'kg';
   selector: 'app-pet-create-step2',
   imports: [
     CommonModule,
-    CreateHeaderComponent,
     FormsModule,
     MatDatepickerModule,
     MatFormFieldModule,

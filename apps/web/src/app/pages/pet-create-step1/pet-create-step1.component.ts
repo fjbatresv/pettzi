@@ -11,13 +11,11 @@ import {
   BreedItem,
 } from '../../core/services/catalogs.service';
 import { PetCreateStateService } from '../../core/services/pet-create-state.service';
-import { CreateHeaderComponent } from '../../components/create-header/create-header.component';
 
 @Component({
   selector: 'app-pet-create-step1',
   imports: [
     CommonModule,
-    CreateHeaderComponent,
     FormsModule,
     MatFormFieldModule,
     MatSelectModule,
