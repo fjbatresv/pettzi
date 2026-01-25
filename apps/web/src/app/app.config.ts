@@ -1,6 +1,7 @@
 import {
   APP_INITIALIZER,
   ApplicationConfig,
+  ErrorHandler,
   importProvidersFrom,
   provideBrowserGlobalErrorListeners,
   provideZoneChangeDetection,
@@ -17,6 +18,7 @@ import { API_BASE_URL } from './core/tokens';
 import { I18nService } from './core/i18n/i18n.service';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { loadingInterceptor } from './core/interceptors/loading.interceptor';
+import { SentryErrorHandler } from './core/services/sentry-error-handler';
 
 export function initI18n(i18n: I18nService) {
   return () => i18n.init();
@@ -28,6 +30,9 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideHttpClient(withInterceptors([loadingInterceptor, authInterceptor])),
     { provide: API_BASE_URL, useValue: environment.apiBaseUrl },
+    ...(environment.sentryDsn
+      ? [{ provide: ErrorHandler, useClass: SentryErrorHandler }]
+      : []),
     importProvidersFrom(TranslateModule.forRoot()),
     provideTranslateHttpLoader({
       prefix: '/i18n/',
