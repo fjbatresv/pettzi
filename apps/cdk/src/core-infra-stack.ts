@@ -124,6 +124,7 @@ export class CoreInfraStack extends Stack {
       ...(useKms && s3Key ? { encryptionKey: s3Key } : {}),
       versioned: true,
       eventBridgeEnabled: true,
+      metrics: [{ id: 'AllRequests' }],
       serverAccessLogsBucket: this.logsBucket,
       serverAccessLogsPrefix: 'access-logs/',
       lifecycleRules: [
@@ -186,6 +187,98 @@ export class CoreInfraStack extends Stack {
       alarmDescription: 'DynamoDB throttled requests detected',
     });
     throttlesAlarm.addAlarmAction(new cloudwatchActions.SnsAction(this.alarmTopic));
+
+    const readThrottles = this.table.metric('ReadThrottledEvents', {
+      statistic: 'Sum',
+      period: Duration.minutes(5),
+    });
+    const readThrottleAlarm = new cloudwatch.Alarm(this, 'DynamoReadThrottleAlarm', {
+      metric: readThrottles,
+      threshold: 0,
+      evaluationPeriods: 1,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_THRESHOLD,
+      alarmDescription: 'DynamoDB read throttling detected',
+    });
+    readThrottleAlarm.addAlarmAction(new cloudwatchActions.SnsAction(this.alarmTopic));
+
+    const writeThrottles = this.table.metric('WriteThrottledEvents', {
+      statistic: 'Sum',
+      period: Duration.minutes(5),
+    });
+    const writeThrottleAlarm = new cloudwatch.Alarm(this, 'DynamoWriteThrottleAlarm', {
+      metric: writeThrottles,
+      threshold: 0,
+      evaluationPeriods: 1,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_THRESHOLD,
+      alarmDescription: 'DynamoDB write throttling detected',
+    });
+    writeThrottleAlarm.addAlarmAction(new cloudwatchActions.SnsAction(this.alarmTopic));
+
+    const s3ErrorDimensions = {
+      BucketName: this.docsBucket.bucketName,
+      FilterId: 'AllRequests',
+    };
+    const s3Errors4xx = new cloudwatch.Metric({
+      namespace: 'AWS/S3',
+      metricName: '4xxErrors',
+      statistic: 'Sum',
+      period: Duration.minutes(5),
+      dimensionsMap: s3ErrorDimensions,
+    });
+    const s3Errors5xx = new cloudwatch.Metric({
+      namespace: 'AWS/S3',
+      metricName: '5xxErrors',
+      statistic: 'Sum',
+      period: Duration.minutes(5),
+      dimensionsMap: s3ErrorDimensions,
+    });
+    const s3Upload4xxAlarm = new cloudwatch.Alarm(this, 'S3Upload4xxAlarm', {
+      metric: s3Errors4xx,
+      threshold: stage === 'prod' ? 5 : 20,
+      evaluationPeriods: 1,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_THRESHOLD,
+      alarmDescription: 'S3 upload 4xx errors detected',
+    });
+    s3Upload4xxAlarm.addAlarmAction(new cloudwatchActions.SnsAction(this.alarmTopic));
+
+    const s3Upload5xxAlarm = new cloudwatch.Alarm(this, 'S3Upload5xxAlarm', {
+      metric: s3Errors5xx,
+      threshold: stage === 'prod' ? 1 : 3,
+      evaluationPeriods: 1,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_THRESHOLD,
+      alarmDescription: 'S3 upload 5xx errors detected',
+    });
+    s3Upload5xxAlarm.addAlarmAction(new cloudwatchActions.SnsAction(this.alarmTopic));
+
+    const sesBounceRate = new cloudwatch.Metric({
+      namespace: 'AWS/SES',
+      metricName: 'Reputation.BounceRate',
+      statistic: 'Average',
+      period: Duration.minutes(5),
+    });
+    const sesComplaintRate = new cloudwatch.Metric({
+      namespace: 'AWS/SES',
+      metricName: 'Reputation.ComplaintRate',
+      statistic: 'Average',
+      period: Duration.minutes(5),
+    });
+    const sesBounceAlarm = new cloudwatch.Alarm(this, 'SesBounceRateAlarm', {
+      metric: sesBounceRate,
+      threshold: stage === 'prod' ? 2 : 5,
+      evaluationPeriods: 1,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_THRESHOLD,
+      alarmDescription: 'SES bounce rate above 5%',
+    });
+    sesBounceAlarm.addAlarmAction(new cloudwatchActions.SnsAction(this.alarmTopic));
+
+    const sesComplaintAlarm = new cloudwatch.Alarm(this, 'SesComplaintRateAlarm', {
+      metric: sesComplaintRate,
+      threshold: stage === 'prod' ? 0.05 : 0.1,
+      evaluationPeriods: 1,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_THRESHOLD,
+      alarmDescription: 'SES complaint rate above 0.1%',
+    });
+    sesComplaintAlarm.addAlarmAction(new cloudwatchActions.SnsAction(this.alarmTopic));
 
     const trail = new cloudtrail.Trail(this, 'DocsAccessTrail', {
       bucket: this.logsBucket,

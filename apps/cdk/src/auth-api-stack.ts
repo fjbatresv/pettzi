@@ -18,6 +18,7 @@ import { UserPool, UserPoolClient } from 'aws-cdk-lib/aws-cognito';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as sns from 'aws-cdk-lib/aws-sns';
+import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
 import * as path from 'path';
 
@@ -37,7 +38,6 @@ export interface AuthApiStackProps extends StackProps {
   resetTemplateNameEs?: string;
   resetTemplateNameEn?: string;
   verificationBaseUrl?: string;
-  verificationSecret?: string;
   passwordResetBaseUrl?: string;
   appDomain?: string;
   alarmTopic?: sns.ITopic;
@@ -47,15 +47,25 @@ export class AuthApiStack extends Stack {
   public readonly httpApi: apigwv2.HttpApi;
   public readonly authorizer: HttpUserPoolAuthorizer;
   private readonly alarmTopic?: sns.ITopic;
+  private readonly stageName: string;
 
   constructor(scope: Construct, id: string, props: AuthApiStackProps) {
     super(scope, id, props);
 
     const stage =
       this.node.tryGetContext('stage') ?? process.env.STAGE ?? 'dev';
+    this.stageName = stage.toLowerCase();
     Tags.of(this).add('project', 'pettzi');
     Tags.of(this).add('AppManagerCFNStackKey', id);
     this.alarmTopic = props.alarmTopic;
+
+    const emailVerifySecret = new secretsmanager.Secret(this, 'EmailVerifySecret', {
+      description: `Email verification HMAC secret (${stage})`,
+      generateSecretString: {
+        passwordLength: 64,
+        excludePunctuation: true,
+      },
+    });
 
     const commonEnv = {
       COGNITO_USER_POOL_ID: props.userPool.userPoolId,
@@ -63,6 +73,7 @@ export class AuthApiStack extends Stack {
       PETTZI_TABLE_NAME: props.table.tableName,
       PETTZI_DOCS_BUCKET_NAME: props.docsBucket.bucketName,
       STAGE: stage,
+      EMAIL_VERIFY_SECRET_ARN: emailVerifySecret.secretArn,
       ...(props.sesFromEmail ? { SES_FROM_EMAIL: props.sesFromEmail } : {}),
       ...(props.welcomeTemplateName
         ? { SES_WELCOME_TEMPLATE_NAME: props.welcomeTemplateName }
@@ -84,9 +95,6 @@ export class AuthApiStack extends Stack {
         : {}),
       ...(props.verificationBaseUrl
         ? { EMAIL_VERIFY_BASE_URL: props.verificationBaseUrl }
-        : {}),
-      ...(props.verificationSecret
-        ? { EMAIL_VERIFY_SECRET: props.verificationSecret }
         : {}),
       ...(props.passwordResetBaseUrl
         ? { PASSWORD_RESET_BASE_URL: props.passwordResetBaseUrl }
@@ -204,6 +212,21 @@ export class AuthApiStack extends Stack {
       props.sesLayer,
       props.ddbLayer
     );
+
+    const authFns = [
+      registerFn,
+      confirmEmailFn,
+      loginFn,
+      refreshTokenFn,
+      forgotPasswordFn,
+      completeNewPasswordFn,
+      getUserProfileFn,
+      getUserSettingsFn,
+      updateUserProfileFn,
+      updateUserSettingsFn,
+      deleteUserFn,
+    ];
+    authFns.forEach((fn) => emailVerifySecret.grantRead(fn));
 
     const cognitoActions = [
       'cognito-idp:AdminCreateUser',
@@ -403,6 +426,7 @@ export class AuthApiStack extends Stack {
       functionName: `${id}-${stage}`,
       handler: 'handler',
       tracing: lambda.Tracing.ACTIVE,
+      architecture: lambda.Architecture.ARM_64,
       memorySize: 256,
       logGroup,
       bundling: {
@@ -414,6 +438,7 @@ export class AuthApiStack extends Stack {
           ? [
               '@aws-sdk/client-cognito-identity-provider',
               '@aws-sdk/client-ses',
+              '@aws-sdk/client-secrets-manager',
               '@aws-sdk/client-dynamodb',
               '@aws-sdk/lib-dynamodb',
             ]
@@ -435,6 +460,7 @@ export class AuthApiStack extends Stack {
       return;
     }
     const period = Duration.minutes(5);
+    const isProd = this.stageName === 'prod';
     const errors = fn.metricErrors({ statistic: 'Sum', period });
     const invocations = fn.metricInvocations({ statistic: 'Sum', period });
     const errorRate = new cloudwatch.MathExpression({
@@ -459,6 +485,24 @@ export class AuthApiStack extends Stack {
       alarmDescription: 'Lambda duration above 5 seconds',
     });
     durationAlarm.addAlarmAction(new cloudwatchActions.SnsAction(this.alarmTopic));
+
+    const throttlesAlarm = new cloudwatch.Alarm(this, `${id}ThrottleAlarm`, {
+      metric: fn.metricThrottles({ statistic: 'Sum', period }),
+      threshold: 0,
+      evaluationPeriods: 1,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_THRESHOLD,
+      alarmDescription: 'Lambda throttles detected',
+    });
+    throttlesAlarm.addAlarmAction(new cloudwatchActions.SnsAction(this.alarmTopic));
+
+    const concurrencyAlarm = new cloudwatch.Alarm(this, `${id}ConcurrencyAlarm`, {
+      metric: fn.metric('ConcurrentExecutions', { statistic: 'Maximum', period }),
+      threshold: isProd ? 700 : 300,
+      evaluationPeriods: 1,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_THRESHOLD,
+      alarmDescription: 'Lambda concurrent executions near account limit',
+    });
+    concurrencyAlarm.addAlarmAction(new cloudwatchActions.SnsAction(this.alarmTopic));
   }
 
   private addApiGatewayAlarm(id: string, apiId: string) {
@@ -466,10 +510,18 @@ export class AuthApiStack extends Stack {
       return;
     }
     const period = Duration.minutes(5);
+    const isProd = this.stageName === 'prod';
     const dimensionsMap = { ApiId: apiId, Stage: '$default' };
     const errors = new cloudwatch.Metric({
       namespace: 'AWS/ApiGateway',
       metricName: '5xx',
+      statistic: 'Sum',
+      period,
+      dimensionsMap,
+    });
+    const clientErrors = new cloudwatch.Metric({
+      namespace: 'AWS/ApiGateway',
+      metricName: '4xx',
       statistic: 'Sum',
       period,
       dimensionsMap,
@@ -488,11 +540,25 @@ export class AuthApiStack extends Stack {
     });
     const alarm = new cloudwatch.Alarm(this, id, {
       metric: errorRate,
-      threshold: 0.5,
+      threshold: isProd ? 0.5 : 1,
       evaluationPeriods: 1,
       comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_THRESHOLD,
       alarmDescription: 'API Gateway 5xx error rate above 0.5%',
     });
     alarm.addAlarmAction(new cloudwatchActions.SnsAction(this.alarmTopic));
+
+    const clientErrorRate = new cloudwatch.MathExpression({
+      expression: '100 * errors / IF(requests > 0, requests, 1)',
+      usingMetrics: { errors: clientErrors, requests },
+      period,
+    });
+    const clientAlarm = new cloudwatch.Alarm(this, `${id}4xxRate`, {
+      metric: clientErrorRate,
+      threshold: isProd ? 5 : 10,
+      evaluationPeriods: 1,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_THRESHOLD,
+      alarmDescription: 'API Gateway 4xx error rate above 5%',
+    });
+    clientAlarm.addAlarmAction(new cloudwatchActions.SnsAction(this.alarmTopic));
   }
 }

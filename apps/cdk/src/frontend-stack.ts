@@ -6,6 +6,7 @@ import * as kms from 'aws-cdk-lib/aws-kms';
 import * as route53 from 'aws-cdk-lib/aws-route53';
 import * as targets from 'aws-cdk-lib/aws-route53-targets';
 import * as s3 from 'aws-cdk-lib/aws-s3';
+import * as wafv2 from 'aws-cdk-lib/aws-wafv2';
 import { Construct } from 'constructs';
 
 export interface FrontendStackProps extends StackProps {
@@ -72,6 +73,115 @@ export class FrontendStack extends Stack {
       validation: acm.CertificateValidation.fromDns(hostedZone),
     });
 
+    const rateLimit = stage === 'prod' ? 1000 : 2000;
+    const webAcl = new wafv2.CfnWebACL(this, 'FrontendWebAcl', {
+      scope: 'CLOUDFRONT',
+      defaultAction: { allow: {} },
+      visibilityConfig: {
+        cloudWatchMetricsEnabled: true,
+        metricName: `pettzi-frontend-${stage}`,
+        sampledRequestsEnabled: true,
+      },
+      rules: [
+        {
+          name: 'RateLimit',
+          priority: 0,
+          action: { block: {} },
+          statement: {
+            rateBasedStatement: {
+              limit: rateLimit,
+              aggregateKeyType: 'IP',
+            },
+          },
+          visibilityConfig: {
+            cloudWatchMetricsEnabled: true,
+            metricName: `pettzi-frontend-rate-${stage}`,
+            sampledRequestsEnabled: true,
+          },
+        },
+        {
+          name: 'AWSManagedCommon',
+          priority: 1,
+          overrideAction: { none: {} },
+          statement: {
+            managedRuleGroupStatement: {
+              vendorName: 'AWS',
+              name: 'AWSManagedRulesCommonRuleSet',
+            },
+          },
+          visibilityConfig: {
+            cloudWatchMetricsEnabled: true,
+            metricName: `pettzi-frontend-common-${stage}`,
+            sampledRequestsEnabled: true,
+          },
+        },
+        {
+          name: 'AWSManagedKnownBadInputs',
+          priority: 2,
+          overrideAction: { none: {} },
+          statement: {
+            managedRuleGroupStatement: {
+              vendorName: 'AWS',
+              name: 'AWSManagedRulesKnownBadInputsRuleSet',
+            },
+          },
+          visibilityConfig: {
+            cloudWatchMetricsEnabled: true,
+            metricName: `pettzi-frontend-badinputs-${stage}`,
+            sampledRequestsEnabled: true,
+          },
+        },
+        {
+          name: 'AWSManagedSQLi',
+          priority: 3,
+          overrideAction: { none: {} },
+          statement: {
+            managedRuleGroupStatement: {
+              vendorName: 'AWS',
+              name: 'AWSManagedRulesSQLiRuleSet',
+            },
+          },
+          visibilityConfig: {
+            cloudWatchMetricsEnabled: true,
+            metricName: `pettzi-frontend-sqli-${stage}`,
+            sampledRequestsEnabled: true,
+          },
+        },
+        {
+          name: 'AWSManagedIPReputation',
+          priority: 4,
+          overrideAction: { none: {} },
+          statement: {
+            managedRuleGroupStatement: {
+              vendorName: 'AWS',
+              name: 'AWSManagedRulesAmazonIpReputationList',
+            },
+          },
+          visibilityConfig: {
+            cloudWatchMetricsEnabled: true,
+            metricName: `pettzi-frontend-iprep-${stage}`,
+            sampledRequestsEnabled: true,
+          },
+        },
+        {
+          name: 'AWSManagedAnonymousIP',
+          priority: 5,
+          overrideAction: { none: {} },
+          statement: {
+            managedRuleGroupStatement: {
+              vendorName: 'AWS',
+              name: 'AWSManagedRulesAnonymousIpList',
+            },
+          },
+          visibilityConfig: {
+            cloudWatchMetricsEnabled: true,
+            metricName: `pettzi-frontend-anonip-${stage}`,
+            sampledRequestsEnabled: true,
+          },
+        },
+      ],
+    });
+
     this.distribution = new cloudfront.Distribution(
       this,
       'FrontendDistribution',
@@ -81,6 +191,7 @@ export class FrontendStack extends Stack {
         domainNames: [props.domainName],
         priceClass: cloudfront.PriceClass.PRICE_CLASS_100,
         defaultRootObject: 'index.html',
+        webAclId: webAcl.attrArn,
         defaultBehavior: {
           origin: origins.S3BucketOrigin.withOriginAccessControl(
             this.siteBucket,

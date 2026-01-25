@@ -14,6 +14,7 @@ import { CatalogsApiStack } from './catalogs-api-stack';
 import { ApiDomainStack, AUTH_API_BASE_PATH } from './api-domain-stack';
 import { SesTemplatesStack } from './ses-templates-stack';
 import { EmailAssetsCdnStack } from './email-assets-cdn-stack';
+import { MonitoringStack } from './monitoring-stack';
 import { FrontendStack } from './frontend-stack';
 
 dotenvConfig({
@@ -63,17 +64,6 @@ const emailVerificationBaseUrl =
   (apiDomainName
     ? `https://app.pettzi.net/email-confirm`
     : undefined);
-const emailVerificationSecret = process.env.EMAIL_VERIFY_SECRET;
-if (
-  (emailVerificationBaseUrl && !emailVerificationSecret) ||
-  (!emailVerificationBaseUrl && emailVerificationSecret)
-) {
-  throw new Error(
-    `EMAIL_VERIFY_BASE_URL and EMAIL_VERIFY_SECRET must both be set together (missing ${
-      emailVerificationBaseUrl ? 'EMAIL_VERIFY_SECRET' : 'EMAIL_VERIFY_BASE_URL'
-    }).`
-  );
-}
 const passwordResetBaseUrl =
   process.env.PASSWORD_RESET_BASE_URL ??
   (apiDomainName
@@ -81,8 +71,7 @@ const passwordResetBaseUrl =
     : undefined);
 const petShareInviteBaseUrl =
   process.env.PET_SHARE_INVITE_BASE_URL ?? 'https://app.pettzi.net/accept-invite';
-const petShareInviteSecret =
-  process.env.PET_SHARE_INVITE_SECRET ?? emailVerificationSecret;
+const petShareInviteSecret = process.env.PET_SHARE_INVITE_SECRET;
 
 // Ensure SDK picks the intended profile when not provided via CLI.
 process.env.AWS_PROFILE = profile;
@@ -178,7 +167,6 @@ const authApi = new AuthApiStack(app, 'PettziAuthApiStack', {
   resetTemplateNameEs: SesTemplatesStack.RESET_TEMPLATE_ES,
   resetTemplateNameEn: SesTemplatesStack.RESET_TEMPLATE_EN,
   verificationBaseUrl: emailVerificationBaseUrl,
-  verificationSecret: emailVerificationSecret,
   passwordResetBaseUrl,
   appDomain: appDomainName,
   alarmTopic: core.alarmTopic,
@@ -278,6 +266,27 @@ const catalogsApi = new CatalogsApiStack(app, 'PettziCatalogsApiStack', {
   alarmTopic: core.alarmTopic,
 });
 
+new MonitoringStack(app, 'PettziMonitoringStack', {
+  env: { account, region },
+  stackName: 'PettziMonitoringStack',
+  description: `Pettzi monitoring (${stage})`,
+  stage,
+  alarmTopic: core.alarmTopic,
+  table: core.table,
+  docsBucket: core.docsBucket,
+  userPool: auth.userPool,
+  userPoolClient: auth.userPoolClient,
+  apis: {
+    auth: authApi.httpApi,
+    pets: petsApi.httpApi,
+    owners: ownersApi.httpApi,
+    events: eventsApi.httpApi,
+    reminders: remindersApi.httpApi,
+    uploads: uploadsApi.httpApi,
+    catalogs: catalogsApi.httpApi,
+  },
+});
+
 if (appDomainName && apiHostedZoneName) {
   const inHostedZone =
     appDomainName === apiHostedZoneName ||
@@ -321,6 +330,7 @@ if (apiDomainName && apiHostedZoneName) {
     domainName: apiDomainName,
     hostedZoneName: apiHostedZoneName,
     hostedZoneId: apiHostedZoneId,
+    stage,
     enabled: inHostedZone,
     authApi: authApi.httpApi,
     petsApi: petsApi.httpApi,

@@ -18,6 +18,7 @@ import type { InitiateAuthCommandOutput } from '@aws-sdk/client-cognito-identity
 import { toItemOwnerProfile } from '@pettzi/domain-model';
 import { docClient, PETTZI_TABLE_NAME } from './handlers/common';
 import { buildRefreshCookie } from './handlers/cookies';
+import { getEmailVerifySecret } from './handlers/email-verify-secret';
 
 interface RegisterPayload {
   name?: string;
@@ -164,12 +165,12 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
       })
     );
 
-    const emailVerifySecret = process.env.EMAIL_VERIFY_SECRET;
+    const emailVerifySecret = await getEmailVerifySecret();
     const emailVerifyBaseUrl = process.env.EMAIL_VERIFY_BASE_URL;
     const token = buildVerificationToken(email, emailVerifySecret);
     if (!token) {
       console.warn(
-        'Verification token not generated; EMAIL_VERIFY_SECRET missing',
+        'Verification token not generated; EMAIL_VERIFY_SECRET_ARN missing',
         createEmailLogContext(email)
       );
     }
@@ -228,6 +229,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         accessToken: authResult.AccessToken,
         tokenType: authResult.TokenType,
         expiresIn: authResult.ExpiresIn,
+        ...(authResult.RefreshToken ? { refreshToken: authResult.RefreshToken } : {}),
       },
       undefined,
       cookie ? [cookie] : undefined

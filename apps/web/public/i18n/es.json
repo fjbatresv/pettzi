@@ -237,7 +237,7 @@
   "home": {
     "title": "Mi Manada",
     "subtitle": "Resumen de todas tus mascotas.",
-    "remindersTitle": "Recordatorios próximos",
+    "remindersTitle": "Recordatorios",
     "remindersEmpty": "Aún no hay recordatorios.",
     "reminderFallback": "Recordatorio",
     "noUpcoming": "Sin próximos",

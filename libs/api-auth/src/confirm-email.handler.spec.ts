@@ -82,17 +82,14 @@ describe('confirm-email.handler', () => {
     });
   });
 
-  it('returns 500 if secret missing', async () => {
+  it('returns 400 for invalid token when secret is unavailable', async () => {
     delete process.env.EMAIL_VERIFY_SECRET;
     const res = await (handler as any)({
       body: JSON.stringify({ token: buildToken('foo') }),
     } as any);
-    expect(res.statusCode).toBe(500);
+    expect(res.statusCode).toBe(400);
     expect(JSON.parse(res.body!)).toEqual({
-      error: {
-        code: 'INTERNAL_ERROR',
-        message: 'Email verification not configured',
-      },
+      error: { code: 'BAD_REQUEST', message: 'invalid or expired token' },
     });
   });
 });

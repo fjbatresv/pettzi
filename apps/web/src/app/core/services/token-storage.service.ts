@@ -9,6 +9,7 @@ export class TokenStorageService {
   private readonly idKey = 'pettzi.idToken';
   private readonly expiresKey = 'pettzi.accessTokenExpiresAt';
   private readonly refreshKey = 'pettzi.hasRefreshToken';
+  private readonly refreshTokenKey = 'pettzi.refreshToken';
   private readonly channel =
     typeof BroadcastChannel !== 'undefined'
       ? new BroadcastChannel('pettzi.session')
@@ -25,8 +26,14 @@ export class TokenStorageService {
   ) {
     await this.storeToken(this.idKey, tokens.idToken);
     await this.storeToken(this.accessKey, tokens.accessToken);
-    if (options?.hasRefreshToken !== false) {
+    if (tokens.refreshToken) {
+      await this.storeToken(this.refreshTokenKey, tokens.refreshToken);
       sessionStorage.setItem(this.refreshKey, 'true');
+    } else if (options?.hasRefreshToken !== false) {
+      sessionStorage.setItem(this.refreshKey, 'true');
+    } else {
+      sessionStorage.removeItem(this.refreshKey);
+      sessionStorage.removeItem(this.refreshTokenKey);
     }
     if (tokens.expiresIn) {
       sessionStorage.setItem(this.expiresKey, String(Date.now() + tokens.expiresIn * 1000));
@@ -42,6 +49,10 @@ export class TokenStorageService {
     return this.getToken(this.idKey);
   }
 
+  async getRefreshToken() {
+    return this.getToken(this.refreshTokenKey);
+  }
+
   hasStoredSession() {
     return !!(
       sessionStorage.getItem(this.accessKey)
@@ -49,7 +60,10 @@ export class TokenStorageService {
   }
 
   hasRefreshToken() {
-    return sessionStorage.getItem(this.refreshKey) === 'true';
+    return (
+      sessionStorage.getItem(this.refreshKey) === 'true' ||
+      !!sessionStorage.getItem(this.refreshTokenKey)
+    );
   }
 
   clear() {
@@ -95,10 +109,13 @@ export class TokenStorageService {
         if (payload?.idToken) {
           sessionStorage.setItem(this.idKey, payload.idToken);
         }
+        if (payload?.refreshToken) {
+          sessionStorage.setItem(this.refreshTokenKey, payload.refreshToken);
+        }
         if (payload?.expiresAt) {
           sessionStorage.setItem(this.expiresKey, payload.expiresAt);
         }
-        if (payload?.hasRefresh === true) {
+        if (payload?.hasRefresh === true || payload?.refreshToken) {
           sessionStorage.setItem(this.refreshKey, 'true');
         }
         return;
@@ -126,6 +143,7 @@ export class TokenStorageService {
         key: this.encryption.getStoredKey(),
         accessToken,
         idToken,
+        refreshToken: sessionStorage.getItem(this.refreshTokenKey),
         expiresAt: sessionStorage.getItem(this.expiresKey),
         hasRefresh: sessionStorage.getItem(this.refreshKey) === 'true',
       },
@@ -137,6 +155,7 @@ export class TokenStorageService {
     sessionStorage.removeItem(this.idKey);
     sessionStorage.removeItem(this.expiresKey);
     sessionStorage.removeItem(this.refreshKey);
+    sessionStorage.removeItem(this.refreshTokenKey);
     sessionStorage.removeItem('pettzi.petInviteToken');
     sessionStorage.removeItem('pettzi.petInviteAutoAccept');
     this.encryption.clearKey();

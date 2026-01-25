@@ -123,6 +123,7 @@ describe('register.handler', () => {
       accessToken: 'access',
       tokenType: 'Bearer',
       expiresIn: 3600,
+      refreshToken: 'refresh',
     });
     expect(sesSendMock).toHaveBeenCalledTimes(1);
     const sendArgs = sesSendMock.mock.calls[0][0];
