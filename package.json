@@ -53,7 +53,7 @@
     "jest-preset-angular": "^16.0.0",
     "jest-util": "^30.0.2",
     "jsonc-eslint-parser": "^2.1.0",
-    "mintlify": "^4.2.226",
+    "mintlify": "^4.2.296",
     "nx": "22.0.0",
     "prettier": "^2.6.2",
     "ts-jest": "^29.4.0",
