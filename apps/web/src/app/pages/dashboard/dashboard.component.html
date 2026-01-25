@@ -53,19 +53,21 @@
                 <span *ngIf="isRecurring(item)">· {{ 'home.recurring' | translate }}</span>
               </p>
             </div>
-            <div class="reminder-time">
-              <span class="time">{{ formatReminderTime(item) }}</span>
-              <span class="date">{{ formatReminderDate(item) }}</span>
+            <div class="reminder-actions">
+              <div class="reminder-time">
+                <span class="time">{{ formatReminderTime(item) }}</span>
+                <span class="date">{{ formatReminderDate(item) }}</span>
+              </div>
+              <button
+                type="button"
+                class="reminder-delete"
+                [attr.aria-label]="'home.deleteReminder' | translate"
+                (click)="deleteReminder(item)"
+                [disabled]="deletingReminderIds.has(item.reminder.reminderId)"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
             </div>
-            <button
-              type="button"
-              class="reminder-delete"
-              [attr.aria-label]="'home.deleteReminder' | translate"
-              (click)="deleteReminder(item)"
-              [disabled]="deletingReminderIds.has(item.reminder.reminderId)"
-            >
-              <mat-icon>delete</mat-icon>
-            </button>
           </article>
         </div>
       </div>

@@ -58,6 +58,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
       {
         idToken: authResult.IdToken,
         accessToken: authResult.AccessToken,
+        ...(authResult.RefreshToken ? { refreshToken: authResult.RefreshToken } : {}),
       },
       undefined,
       cookie ? [cookie] : undefined

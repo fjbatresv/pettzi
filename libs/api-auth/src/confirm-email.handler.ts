@@ -5,6 +5,7 @@ import {
 } from '@aws-sdk/client-cognito-identity-provider';
 import { badRequest, ok, serverError } from '@pettzi/utils-dynamo/http';
 import crypto from 'crypto';
+import { getEmailVerifySecret } from './handlers/email-verify-secret';
 
 const client = new CognitoIdentityProviderClient({});
 
@@ -58,7 +59,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     return badRequest('token is required');
   }
 
-  const secret = process.env.EMAIL_VERIFY_SECRET;
+  const secret = await getEmailVerifySecret();
   const userPoolId = process.env.COGNITO_USER_POOL_ID;
   if (!secret || !userPoolId) {
     return serverError('Email verification not configured');

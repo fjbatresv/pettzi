@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
-import { catchError, map, Observable, throwError, tap } from 'rxjs';
+import { catchError, map, Observable, throwError, tap, from, switchMap } from 'rxjs';
 import { API_BASE_URL } from '../tokens';
 import { I18nService } from '../i18n/i18n.service';
 import { TokenStorageService } from './token-storage.service';
@@ -61,12 +61,17 @@ export class AuthService {
   }
 
   refreshTokens(): Observable<AuthTokens> {
-    return this.http
-      .post<AuthTokens>(this.buildUrl('/refresh'), {}, { withCredentials: true })
-      .pipe(
-        tap((tokens) => this.storeTokens(tokens)),
-        catchError((error) => this.handleError(error, 'login'))
-      );
+    return from(this.storage.getRefreshToken()).pipe(
+      switchMap((refreshToken) =>
+        this.http.post<AuthTokens>(
+          this.buildUrl('/refresh'),
+          refreshToken ? { refreshToken } : {},
+          { withCredentials: true }
+        )
+      ),
+      tap((tokens) => this.storeTokens(tokens)),
+      catchError((error) => this.handleError(error, 'login'))
+    );
   }
 
   clearSession() {

@@ -5,12 +5,14 @@ import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as route53 from 'aws-cdk-lib/aws-route53';
 import * as targets from 'aws-cdk-lib/aws-route53-targets';
 import * as certmgr from 'aws-cdk-lib/aws-certificatemanager';
+import * as wafv2 from 'aws-cdk-lib/aws-wafv2';
 import { Construct } from 'constructs';
 
 export interface ApiDomainStackProps extends StackProps {
   domainName: string;
   hostedZoneName: string;
   hostedZoneId?: string;
+  stage: string;
   /**
    * When false, the stack will synthesize without creating any
    * custom domain resources. Useful to gracefully disable the
@@ -87,10 +89,120 @@ export class ApiDomainStack extends Stack {
       },
     ];
 
+    const rateLimit = props.stage.toLowerCase() === 'prod' ? 1000 : 2000;
+    const webAcl = new wafv2.CfnWebACL(this, 'ApiWebAcl', {
+      scope: 'CLOUDFRONT',
+      defaultAction: { allow: {} },
+      visibilityConfig: {
+        cloudWatchMetricsEnabled: true,
+        metricName: `pettzi-api-${props.domainName.replaceAll(/[^A-Za-z0-9-]/g, '-')}`,
+        sampledRequestsEnabled: true,
+      },
+      rules: [
+        {
+          name: 'RateLimit',
+          priority: 0,
+          action: { block: {} },
+          statement: {
+            rateBasedStatement: {
+              limit: rateLimit,
+              aggregateKeyType: 'IP',
+            },
+          },
+          visibilityConfig: {
+            cloudWatchMetricsEnabled: true,
+            metricName: `pettzi-api-rate-${props.domainName.replaceAll(/[^A-Za-z0-9-]/g, '-')}`,
+            sampledRequestsEnabled: true,
+          },
+        },
+        {
+          name: 'AWSManagedCommon',
+          priority: 1,
+          overrideAction: { none: {} },
+          statement: {
+            managedRuleGroupStatement: {
+              vendorName: 'AWS',
+              name: 'AWSManagedRulesCommonRuleSet',
+            },
+          },
+          visibilityConfig: {
+            cloudWatchMetricsEnabled: true,
+            metricName: `pettzi-api-common-${props.domainName.replaceAll(/[^A-Za-z0-9-]/g, '-')}`,
+            sampledRequestsEnabled: true,
+          },
+        },
+        {
+          name: 'AWSManagedKnownBadInputs',
+          priority: 2,
+          overrideAction: { none: {} },
+          statement: {
+            managedRuleGroupStatement: {
+              vendorName: 'AWS',
+              name: 'AWSManagedRulesKnownBadInputsRuleSet',
+            },
+          },
+          visibilityConfig: {
+            cloudWatchMetricsEnabled: true,
+            metricName: `pettzi-api-badinputs-${props.domainName.replaceAll(/[^A-Za-z0-9-]/g, '-')}`,
+            sampledRequestsEnabled: true,
+          },
+        },
+        {
+          name: 'AWSManagedSQLi',
+          priority: 3,
+          overrideAction: { none: {} },
+          statement: {
+            managedRuleGroupStatement: {
+              vendorName: 'AWS',
+              name: 'AWSManagedRulesSQLiRuleSet',
+            },
+          },
+          visibilityConfig: {
+            cloudWatchMetricsEnabled: true,
+            metricName: `pettzi-api-sqli-${props.domainName.replaceAll(/[^A-Za-z0-9-]/g, '-')}`,
+            sampledRequestsEnabled: true,
+          },
+        },
+        {
+          name: 'AWSManagedIPReputation',
+          priority: 4,
+          overrideAction: { none: {} },
+          statement: {
+            managedRuleGroupStatement: {
+              vendorName: 'AWS',
+              name: 'AWSManagedRulesAmazonIpReputationList',
+            },
+          },
+          visibilityConfig: {
+            cloudWatchMetricsEnabled: true,
+            metricName: `pettzi-api-iprep-${props.domainName.replaceAll(/[^A-Za-z0-9-]/g, '-')}`,
+            sampledRequestsEnabled: true,
+          },
+        },
+        {
+          name: 'AWSManagedAnonymousIP',
+          priority: 5,
+          overrideAction: { none: {} },
+          statement: {
+            managedRuleGroupStatement: {
+              vendorName: 'AWS',
+              name: 'AWSManagedRulesAnonymousIpList',
+            },
+          },
+          visibilityConfig: {
+            cloudWatchMetricsEnabled: true,
+            metricName: `pettzi-api-anonip-${props.domainName.replaceAll(/[^A-Za-z0-9-]/g, '-')}`,
+            sampledRequestsEnabled: true,
+          },
+        },
+      ],
+    });
+
     const distribution = new cloudfront.Distribution(this, 'ApiDistribution', {
       comment: `Pettzi unified API CDN for ${props.domainName}`,
       certificate,
       domainNames: [props.domainName],
+      webAclId: webAcl.attrArn,
       defaultBehavior: {
         origin: this.buildHttpApiOrigin(props.authApi),
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,

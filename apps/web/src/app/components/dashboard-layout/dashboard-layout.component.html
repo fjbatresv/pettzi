@@ -44,6 +44,12 @@
         >
           <mat-icon>menu</mat-icon>
         </button>
+        <img
+          *ngIf="isMobile"
+          class="header-logo"
+          src="/logo.svg"
+          alt="Pettzi"
+        />
       </div>
       <div class="header-actions">
         <app-language-toggle></app-language-toggle>

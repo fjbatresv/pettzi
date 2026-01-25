@@ -24,21 +24,27 @@
 .pet-photo {
   width: 96px;
   height: 96px;
+  min-width: 96px;
+  min-height: 96px;
   border-radius: 50%;
   overflow: hidden;
   border: 3px solid rgba(127, 19, 236, 0.2);
   background: #7f13ec;
   display: grid;
   place-items: center;
+  aspect-ratio: 1 / 1;
   color: #ffffff;
   font-weight: 600;
   font-size: 1.8rem;
+  flex: 0 0 96px;
 }
 
 .pet-photo img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  border-radius: 50%;
+  display: block;
 }
 
 .pet-name {
@@ -437,7 +443,7 @@
 
 .activity-item {
   display: grid;
-  grid-template-columns: 56px 1fr;
+  grid-template-columns: 56px minmax(0, 1fr);
   gap: 1.25rem;
   padding: 1.25rem;
   border-radius: 20px;
@@ -467,6 +473,14 @@
   gap: 1rem;
 }
 
+.activity-content {
+  min-width: 0;
+}
+
+.activity-title > div {
+  min-width: 0;
+}
+
 .activity-actions-inline {
   margin-left: auto;
   display: inline-flex;
@@ -474,6 +488,7 @@
   justify-content: flex-end;
   gap: 0.6rem;
   text-align: end;
+  flex-wrap: wrap;
 }
 
 .activity-title > div {
@@ -484,16 +499,19 @@
 .activity-title h4 {
   margin: 0;
   font-size: 1.05rem;
+  overflow-wrap: break-word;
 }
 
 .activity-date {
   font-size: 0.8rem;
   color: rgba(27, 18, 36, 0.5);
+  overflow-wrap: break-word;
 }
 
 .activity-owner {
   font-size: 0.75rem;
   color: rgba(27, 18, 36, 0.45);
+  overflow-wrap: break-word;
 }
 
 .icon-btn {
@@ -552,6 +570,8 @@
   display: grid;
   gap: 0.35rem;
   margin-top: 0.5rem;
+  min-width: 0;
+  overflow-wrap: break-word;
 }
 
 .detail-grid {
@@ -565,8 +585,9 @@
   font-size: 0.9rem;
   color: rgba(27, 18, 36, 0.75);
   display: grid;
-  grid-template-columns: 130px 1fr;
+  grid-template-columns: minmax(0, 130px) minmax(0, 1fr);
   gap: 0.65rem;
+  overflow-wrap: break-word;
 }
 
 .detail-row span:first-child {
@@ -790,7 +811,63 @@
     gap: 1rem;
   }
 
+  .pet-actions {
+    width: 100%;
+  }
+
+  .send-record {
+    position: static;
+    width: 100%;
+  }
+
   .stats-grid {
     grid-template-columns: 1fr;
+  }
+
+  .activity-item {
+    grid-template-columns: 48px minmax(0, 1fr);
+    padding: 1rem;
+  }
+
+  .activity-title {
+    flex-wrap: wrap;
+  }
+
+  .activity-actions-inline {
+    margin-left: 0;
+    justify-content: flex-start;
+    text-align: left;
+  }
+}
+
+@media (max-width: 600px) {
+  .pet-photo {
+    width: 72px;
+    height: 72px;
+    min-width: 72px;
+    min-height: 72px;
+    flex-basis: 72px;
+    font-size: 1.4rem;
+  }
+
+  .activity-actions-inline {
+    width: 100%;
+    flex-basis: 100%;
+    justify-content: flex-start;
+  }
+
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-row {
+    grid-template-columns: 1fr;
+    gap: 0.3rem;
+  }
+
+  .detail-row span:first-child {
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
   }
 }

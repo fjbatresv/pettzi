@@ -29,12 +29,14 @@ export interface PetsApiStackProps extends StackProps {
 export class PetsApiStack extends Stack {
   public readonly httpApi: apigwv2.HttpApi;
   private readonly alarmTopic?: sns.ITopic;
+  private readonly stageName: string;
 
   constructor(scope: Construct, id: string, props: PetsApiStackProps) {
     super(scope, id, props);
 
     const stage =
       this.node.tryGetContext('stage') ?? process.env.STAGE ?? 'dev';
+    this.stageName = stage.toLowerCase();
     Tags.of(this).add('project', 'pettzi');
     Tags.of(this).add('AppManagerCFNStackKey', id);
     this.alarmTopic = props.alarmTopic;
@@ -217,6 +219,7 @@ export class PetsApiStack extends Stack {
       handler: 'handler',
       functionName: `${id}-${stage}`,
       tracing: lambda.Tracing.ACTIVE,
+      architecture: lambda.Architecture.ARM_64,
       memorySize: 256,
       logGroup,
       bundling: {
@@ -249,6 +252,7 @@ export class PetsApiStack extends Stack {
       return;
     }
     const period = Duration.minutes(5);
+    const isProd = this.stageName === 'prod';
     const errors = fn.metricErrors({ statistic: 'Sum', period });
     const invocations = fn.metricInvocations({ statistic: 'Sum', period });
     const errorRate = new cloudwatch.MathExpression({
@@ -273,6 +277,24 @@ export class PetsApiStack extends Stack {
       alarmDescription: 'Lambda duration above 5 seconds',
     });
     durationAlarm.addAlarmAction(new cloudwatchActions.SnsAction(this.alarmTopic));
+
+    const throttlesAlarm = new cloudwatch.Alarm(this, `${id}ThrottleAlarm`, {
+      metric: fn.metricThrottles({ statistic: 'Sum', period }),
+      threshold: 0,
+      evaluationPeriods: 1,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_THRESHOLD,
+      alarmDescription: 'Lambda throttles detected',
+    });
+    throttlesAlarm.addAlarmAction(new cloudwatchActions.SnsAction(this.alarmTopic));
+
+    const concurrencyAlarm = new cloudwatch.Alarm(this, `${id}ConcurrencyAlarm`, {
+      metric: fn.metric('ConcurrentExecutions', { statistic: 'Maximum', period }),
+      threshold: isProd ? 700 : 300,
+      evaluationPeriods: 1,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_THRESHOLD,
+      alarmDescription: 'Lambda concurrent executions near account limit',
+    });
+    concurrencyAlarm.addAlarmAction(new cloudwatchActions.SnsAction(this.alarmTopic));
   }
 
   private addApiGatewayAlarm(id: string, apiId: string) {
@@ -280,10 +302,18 @@ export class PetsApiStack extends Stack {
       return;
     }
     const period = Duration.minutes(5);
+    const isProd = this.stageName === 'prod';
     const dimensionsMap = { ApiId: apiId, Stage: '$default' };
     const errors = new cloudwatch.Metric({
       namespace: 'AWS/ApiGateway',
       metricName: '5xx',
+      statistic: 'Sum',
+      period,
+      dimensionsMap,
+    });
+    const clientErrors = new cloudwatch.Metric({
+      namespace: 'AWS/ApiGateway',
+      metricName: '4xx',
       statistic: 'Sum',
       period,
       dimensionsMap,
@@ -302,11 +332,25 @@ export class PetsApiStack extends Stack {
     });
     const alarm = new cloudwatch.Alarm(this, id, {
       metric: errorRate,
-      threshold: 0.5,
+      threshold: isProd ? 0.5 : 1,
       evaluationPeriods: 1,
       comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_THRESHOLD,
       alarmDescription: 'API Gateway 5xx error rate above 0.5%',
     });
     alarm.addAlarmAction(new cloudwatchActions.SnsAction(this.alarmTopic));
+
+    const clientErrorRate = new cloudwatch.MathExpression({
+      expression: '100 * errors / IF(requests > 0, requests, 1)',
+      usingMetrics: { errors: clientErrors, requests },
+      period,
+    });
+    const clientAlarm = new cloudwatch.Alarm(this, `${id}4xxRate`, {
+      metric: clientErrorRate,
+      threshold: isProd ? 5 : 10,
+      evaluationPeriods: 1,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_THRESHOLD,
+      alarmDescription: 'API Gateway 4xx error rate above 5%',
+    });
+    clientAlarm.addAlarmAction(new cloudwatchActions.SnsAction(this.alarmTopic));
   }
 }
