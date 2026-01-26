@@ -38,14 +38,39 @@ const parsePhotoKey = (key: string) => {
   return { petId: match[1], fileName: match[2] };
 };
 
-export const handler = async (event: S3Event): Promise<void> => {
+type EventBridgeS3Event = {
+  detail?: {
+    bucket?: { name?: string };
+    object?: { key?: string };
+  };
+};
+
+const extractObjectKeys = (event: S3Event | EventBridgeS3Event): string[] => {
+  if (Array.isArray((event as S3Event).Records)) {
+    return (event as S3Event).Records
+      .map((record) => record?.s3?.object?.key)
+      .filter((key): key is string => typeof key === 'string' && key.length > 0);
+  }
+
+  const key = (event as EventBridgeS3Event)?.detail?.object?.key;
+  return typeof key === 'string' && key.length > 0 ? [key] : [];
+};
+
+export const handler = async (event: S3Event | EventBridgeS3Event): Promise<void> => {
   if (!PETTZI_DOCS_BUCKET_NAME || !PETTZI_TABLE_NAME) {
     console.warn('Missing bucket or table configuration');
     return;
   }
 
-  for (const record of event.Records ?? []) {
-    const key = decodeURIComponent(record.s3.object.key.replace(/\+/g, ' '));
+  const keys = extractObjectKeys(event);
+  console.info('Thumbnail handler invoked', { keysCount: keys.length });
+  if (keys.length === 0) {
+    console.warn('No S3 object keys found in event payload');
+    return;
+  }
+
+  for (const rawKey of keys) {
+    const key = decodeURIComponent(rawKey.replace(/\+/g, ' '));
     const parsed = parsePhotoKey(key);
     if (!parsed) {
       console.warn('Record key no parsed', {key, parsed});

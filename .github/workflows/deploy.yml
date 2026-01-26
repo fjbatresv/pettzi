@@ -136,7 +136,9 @@ jobs:
           release="${SENTRY_RELEASE:-beta}"
           echo "Using Sentry release: ${release}"
           npx @sentry/cli releases new "${release}"
-          npx @sentry/cli releases files "${release}" upload-sourcemaps "dist/web/browser" \
+          npx @sentry/cli sourcemaps inject "dist/web/browser"
+          npx @sentry/cli sourcemaps upload "dist/web/browser" \
+            --release "${release}" \
             --url-prefix "~/" \
             --validate \
             --rewrite
