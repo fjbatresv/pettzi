@@ -9,7 +9,7 @@ on:
         default: "dev"
 
 permissions:
-  contents: read
+  contents: write
   id-token: write
 
 env:
@@ -22,6 +22,11 @@ env:
   DSN_PREFIX: img
   SES_FROM_EMAIL: no-reply@pettzi.net
   KMS_ENABLED: false
+  SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+  SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+  SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+  SENTRY_RELEASE: frontend-${{ inputs.stage }}-${{ github.run_number }}
+  SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
 
 jobs:
   deploy_cdk:
@@ -102,8 +107,45 @@ jobs:
         run: |
           echo "Frontend bucket: pettzi-frontend-${STAGE_SLUG}"
 
+      - name: Configure Sentry release/DSN for frontend
+        if: ${{ env.SENTRY_DSN != '' }}
+        run: |
+          cat > apps/web/src/environments/environment.prod.ts <<EOF
+          export const environment = {
+            production: true,
+            apiBaseUrl: 'https://api.pettzi.net',
+            cognitoDomain: 'https://us-east-1xx_hce2yn2.auth.us-east-1.amazoncognito.com',
+            cognitoClientId: '1hhkaipbk6vt8i1nagm643br5l',
+            cognitoRedirectUri: 'https://app.pettzi.net',
+            sentryDsn: '${SENTRY_DSN}',
+            sentryRelease: '${SENTRY_RELEASE}',
+            sentryTracesSampleRate: 0.1,
+            sentryProfilesSampleRate: 0.05,
+          };
+          EOF
+
       - name: Build frontend
-        run: npx nx build web
+        run: npx nx build web --configuration production --source-map
+
+      - name: Create Sentry release and upload sourcemaps
+        if: ${{ env.SENTRY_AUTH_TOKEN != '' && env.SENTRY_ORG != '' && env.SENTRY_PROJECT != '' }}
+        run: |
+          release="${SENTRY_RELEASE:-beta}"
+          echo "Using Sentry release: ${release}"
+          npx @sentry/cli releases new "${release}"
+          npx @sentry/cli releases files "${release}" upload-sourcemaps "dist/web/browser" \
+            --url-prefix "~/" \
+            --validate \
+            --rewrite
+          npx @sentry/cli releases finalize "${release}"
+
+      - name: Create GitHub tag and release
+        if: ${{ env.SENTRY_AUTH_TOKEN != '' && env.SENTRY_ORG != '' && env.SENTRY_PROJECT != '' }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.SENTRY_RELEASE }}
+          name: Frontend Release ${{ env.SENTRY_RELEASE }}
+          generate_release_notes: true
 
       - name: Sync frontend to S3
         run: |
