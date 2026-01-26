@@ -80,13 +80,6 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker
-        uses: docker/setup-buildx-action@v3
-
       - uses: actions/setup-node@v6
         with:
           node-version-file: ".nvmrc"
@@ -99,19 +92,20 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
-
-      - name: Compute stage slug
-        run: |
-          stage_slug=$(echo "${STAGE}" | tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9-' '-')
-          echo "STAGE_SLUG=${stage_slug}" >> "$GITHUB_ENV"
-
+        run: npm ci
       - name: Build frontend
         run: npx nx build web
 
       - name: Sync frontend to S3
         run: |
-          aws s3 sync "dist/web/browser" "s3://pettzi-frontend-${STAGE_SLUG}" --delete
+          frontend_bucket=$(aws cloudformation list-stack-resources \
+            --stack-name "PettziFrontendStack" \
+            --query "StackResourceSummaries[?LogicalResourceId=='FrontendBucket'].PhysicalResourceId | [0]" \
+            --output text)
+          if [ -z "$frontend_bucket" ] || [ "$frontend_bucket" = "None" ]; then
+            frontend_bucket="pettzi-frontend-${STAGE_SLUG}"
+          fi
+          aws s3 sync "dist/web/browser" "s3://${frontend_bucket}" --delete
 
       - name: Invalidate Frontend CloudFront
         run: |
@@ -136,12 +130,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker
-        uses: docker/setup-buildx-action@v3
-
       - uses: actions/setup-node@v6
         with:
           node-version-file: ".nvmrc"
@@ -153,14 +141,16 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Compute stage slug
-        run: |
-          stage_slug=$(echo "${STAGE}" | tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9-' '-')
-          echo "STAGE_SLUG=${stage_slug}" >> "$GITHUB_ENV"
-
       - name: Sync email images to S3
         run: |
-          aws s3 sync "img" "s3://pettzi-email-assets-${STAGE_SLUG}" --delete
+          email_bucket=$(aws cloudformation list-stack-resources \
+            --stack-name "PettziEmailAssetsCdnStack" \
+            --query "StackResourceSummaries[?LogicalResourceId=='EmailAssetsBucket'].PhysicalResourceId | [0]" \
+            --output text)
+          if [ -z "$email_bucket" ] || [ "$email_bucket" = "None" ]; then
+            email_bucket="pettzi-email-assets-${STAGE_SLUG}"
+          fi
+          aws s3 sync "img" "s3://${email_bucket}" --delete
 
       - name: Invalidate Email Assets CloudFront
         run: |
