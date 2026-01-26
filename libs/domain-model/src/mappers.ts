@@ -15,6 +15,8 @@ import {
   buildReminderGsi1Sk,
   buildSharedRecordPk,
   buildSharedRecordSk,
+  buildSharedRecordGsi1Pk,
+  buildSharedRecordGsi1Sk,
   buildUserAccountPk,
   buildUserAccountSk,
   buildPetSkMetadata,
@@ -320,6 +322,8 @@ export const toItemSharedRecord = (record: SharedRecord): DynamoItem => {
   return {
     PK: buildSharedRecordPk(record.token),
     SK: buildSharedRecordSk(record.petId),
+    GSI1PK: buildSharedRecordGsi1Pk(record.petId),
+    GSI1SK: buildSharedRecordGsi1Sk(record.createdAt, record.token),
     type: 'SharedRecord',
     token: record.token,
     petId: record.petId,

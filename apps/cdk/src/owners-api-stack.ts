@@ -9,6 +9,7 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction, OutputFormat } from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as logs from 'aws-cdk-lib/aws-logs';
+import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import { UserPool, UserPoolClient } from 'aws-cdk-lib/aws-cognito';
 import * as sns from 'aws-cdk-lib/aws-sns';
 import * as s3 from 'aws-cdk-lib/aws-s3';
@@ -29,7 +30,6 @@ export interface OwnersApiStackProps extends StackProps {
   sharePetInviteTemplateNameEs?: string;
   sharePetInviteTemplateNameEn?: string;
   inviteBaseUrl?: string;
-  inviteTokenSecret?: string;
   appDomain?: string;
   alarmTopic?: sns.ITopic;
 }
@@ -50,10 +50,57 @@ export class OwnersApiStack extends Stack {
     const handlerPath = (...segments: string[]) =>
       path.resolve(__dirname, '../../../../../..', ...segments);
 
+    const inviteSecret = new secretsmanager.Secret(this, 'PetShareInviteSecret', {
+      description: `Pet share invite HMAC secret (${this.stageName})`,
+      secretName: `pettzi/pet-share-invite/${this.stageName}`,
+      generateSecretString: {
+        passwordLength: 64,
+        excludePunctuation: true,
+      },
+    });
+
+    const inviteSecretRotationFn = new NodejsFunction(
+      this,
+      'PetShareInviteSecretRotationHandler',
+      {
+        runtime: lambda.Runtime.NODEJS_24_X,
+        entry: handlerPath('apps/cdk/src/rotation/invite-secret-rotation.ts'),
+        handler: 'handler',
+        functionName: `PetShareInviteSecretRotation-${props.stage}`,
+        tracing: lambda.Tracing.ACTIVE,
+        architecture: lambda.Architecture.ARM_64,
+        memorySize: 256,
+        bundling: {
+          tsconfig: path.resolve(__dirname, '../../../../../..', 'tsconfig.base.json'),
+          target: 'node24',
+          format: OutputFormat.CJS,
+          platform: 'node',
+          sourcesContent: false,
+          keepNames: false,
+          minify: true,
+        },
+        timeout: Duration.seconds(30),
+      }
+    );
+
+    inviteSecret.grantRead(inviteSecretRotationFn);
+    inviteSecret.grantWrite(inviteSecretRotationFn);
+    inviteSecretRotationFn.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: ['secretsmanager:GetRandomPassword'],
+        resources: ['*'],
+      })
+    );
+    inviteSecret.addRotationSchedule('PetShareInviteSecretRotationSchedule', {
+      rotationLambda: inviteSecretRotationFn,
+      automaticallyAfter: Duration.days(90),
+    });
+
     const commonEnv = {
       PETTZI_TABLE_NAME: props.table.tableName,
       PETTZI_DOCS_BUCKET_NAME: props.docsBucket.bucketName,
       STAGE: props.stage,
+      PET_SHARE_INVITE_SECRET_ARN: inviteSecret.secretArn,
       ...(props.sesFromEmail ? { SES_FROM_EMAIL: props.sesFromEmail } : {}),
       ...(props.sharePetInviteTemplateNameEs
         ? { SES_SHARE_PET_INVITE_TEMPLATE_NAME_ES: props.sharePetInviteTemplateNameEs }
@@ -62,7 +109,6 @@ export class OwnersApiStack extends Stack {
         ? { SES_SHARE_PET_INVITE_TEMPLATE_NAME_EN: props.sharePetInviteTemplateNameEn }
         : {}),
       ...(props.inviteBaseUrl ? { PET_SHARE_INVITE_BASE_URL: props.inviteBaseUrl } : {}),
-      ...(props.inviteTokenSecret ? { PET_SHARE_INVITE_SECRET: props.inviteTokenSecret } : {}),
     };
 
     const getMeFn = this.createFn(
@@ -125,6 +171,9 @@ export class OwnersApiStack extends Stack {
     props.docsBucket.grantRead(inviteOwnerFn);
     props.docsBucket.grantRead(previewInviteFn);
     props.docsBucket.grantRead(acceptInviteFn);
+    inviteSecret.grantRead(inviteOwnerFn);
+    inviteSecret.grantRead(previewInviteFn);
+    inviteSecret.grantRead(acceptInviteFn);
     inviteOwnerFn.addToRolePolicy(
       new iam.PolicyStatement({
         actions: ['ses:SendTemplatedEmail'],

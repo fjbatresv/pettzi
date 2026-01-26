@@ -15,7 +15,6 @@ import { RemindersService } from '../../core/services/reminders.service';
 import { BreedItem, CatalogsService, SpeciesItem } from '../../core/services/catalogs.service';
 import { ReminderDialogComponent, ReminderDialogResult } from './reminder-dialog.component';
 import { DeleteActivityDialogComponent } from './delete-activity-dialog.component';
-import { ShareRecordDialogComponent } from './share-record-dialog.component';
 import { OwnersService, PetOwner } from '../../core/services/owners.service';
 import { AuthService } from '../../core/services/auth.service';
 
@@ -818,13 +817,7 @@ export class DashboardPetComponent implements OnInit {
     if (!this.petId) {
       return;
     }
-    this.dialog.open(ShareRecordDialogComponent, {
-      panelClass: 'pet-dialog',
-      data: {
-        petId: this.petId,
-        petName: this.pet?.name ?? this.translate.instant('dashboard.petFallback'),
-      },
-    });
+    void this.router.navigate(['/pets', this.petId, 'share-records']);
   }
 
   private getLocale() {

@@ -54,3 +54,9 @@ export const buildSharedRecordPk = (token: SharedRecordToken): string =>
   `SHARED_RECORD#${token}`;
 export const buildSharedRecordSk = (petId: PetId): string =>
   buildPetPk(petId);
+export const buildSharedRecordGsi1Pk = (petId: PetId): string =>
+  buildPetPk(petId);
+export const buildSharedRecordGsi1Sk = (
+  createdAt: string | Date,
+  token: SharedRecordToken,
+): string => `SHARED_RECORD#${toIso(createdAt)}#${token}`;

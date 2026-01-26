@@ -133,6 +133,177 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/ServerError'
+  /{petId}/shared-records:
+    post:
+      summary: Create shared record link
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSharedRecordRequest'
+      responses:
+        '201':
+          description: Shared record created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SharedRecordSummary'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    get:
+      summary: List shared records for pet
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of shared records
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  records:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SharedRecordSummary'
+                  nextCursor:
+                    type: string
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /{petId}/shared-records/{token}:
+    delete:
+      summary: Delete shared record
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Shared record deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  token:
+                    type: string
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /shared-records/{token}:
+    get:
+      summary: Get shared record (public)
+      security: []
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: password
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Shared record detail
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  petId:
+                    type: string
+                  items:
+                    type: array
+                    items:
+                      type: string
+                  expiresAt:
+                    type: string
+                  createdAt:
+                    type: string
+                  pet:
+                    $ref: '#/components/schemas/Pet'
+                  photoUrl:
+                    type: string
+                  events:
+                    type: array
+                    items:
+                      type: object
+                  nextCursor:
+                    type: string
+                  requiresPassword:
+                    type: boolean
+                  message:
+                    type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
 components:
   securitySchemes:
     bearerAuth:
@@ -195,6 +366,39 @@ components:
           type: string
           enum: [DOG, CAT, BIRD, REPTILE, OTHER]
         breed:
+          type: string
+    SharedRecordSummary:
+      type: object
+      required: [token, petId, items, expiresAt, createdAt]
+      properties:
+        token:
+          type: string
+        petId:
+          type: string
+        ownerId:
+          type: string
+        items:
+          type: array
+          items:
+            type: string
+        expiresAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+    CreateSharedRecordRequest:
+      type: object
+      required: [items, expiresIn]
+      properties:
+        items:
+          type: array
+          items:
+            type: string
+        expiresIn:
+          type: string
+          enum: ['24h', '3d', '1w', '1m']
+        password:
           type: string
     CreatePetRequest:
       type: object

@@ -11,16 +11,15 @@
 
   <section class="dialog-section">
     <h3>{{ 'shareRecord.includeRecords' | translate }}</h3>
-    <div class="record-options">
-      <div class="record-option" *ngFor="let option of recordOptions">
-        <mat-checkbox
-          [checked]="selectedTypes.has(option.type)"
-          (change)="selectedTypes.has(option.type) ? selectedTypes.delete(option.type) : selectedTypes.add(option.type)"
-        >
-          {{ option.label | translate }}
-        </mat-checkbox>
-      </div>
-    </div>
+    <mat-chip-listbox class="record-chips" multiple>
+      <mat-chip-option
+        *ngFor="let option of recordOptions"
+        [selected]="selectedTypes.has(option.type)"
+        (selectionChange)="toggleType(option.type, $event.selected)"
+      >
+        {{ option.label | translate }}
+      </mat-chip-option>
+    </mat-chip-listbox>
   </section>
 
   <section class="dialog-section options-row">
@@ -43,6 +42,7 @@
   </section>
 
   <button
+    *ngIf="!copiedLink"
     mat-raised-button
     color="primary"
     class="primary-cta"
@@ -58,6 +58,21 @@
   </div>
 
   <div class="copy-link" *ngIf="copiedLink">
-    <input type="text" [value]="copiedLink" readonly />
+    <input
+      #shareLinkInput
+      type="text"
+      [value]="copiedLink"
+      readonly
+      (click)="selectLink($event)"
+    />
+    <button
+      mat-stroked-button
+      type="button"
+      class="copy-cta"
+      [disabled]="isCopying"
+      (click)="copyLink()"
+    >
+      {{ (isCopying ? 'shareRecord.copying' : 'shareRecord.copyLink') | translate }}
+    </button>
   </div>
 </div>

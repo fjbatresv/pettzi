@@ -1,0 +1,393 @@
+.share-record-page {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.share-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header-text h2 {
+  margin: 0;
+  font-size: 1.6rem;
+}
+
+.header-text p {
+  margin: 0.2rem 0 0;
+  color: rgba(27, 18, 36, 0.6);
+}
+
+.back-btn {
+  color: #7f13ec;
+  font-weight: 600;
+}
+
+.share-card {
+  background: #ffffff;
+  border-radius: 22px;
+  padding: 1.6rem;
+  border: 1px solid rgba(127, 19, 236, 0.1);
+  box-shadow: 0 16px 36px rgba(127, 19, 236, 0.08);
+}
+
+.pet-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f7f2ff 100%);
+}
+
+.pet-hero {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.pet-avatar {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: #7f13ec;
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  font-size: 1.8rem;
+  font-weight: 700;
+  border: 3px solid rgba(127, 19, 236, 0.2);
+  overflow: hidden;
+}
+
+.pet-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pet-hero-text h3 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.pet-hero-text p {
+  margin: 0.4rem 0 0.7rem;
+  color: rgba(27, 18, 36, 0.6);
+}
+
+.pet-meta {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  color: rgba(27, 18, 36, 0.65);
+  font-weight: 600;
+}
+
+.dot {
+  color: rgba(127, 19, 236, 0.5);
+}
+
+.share-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.section-title h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.section-sub {
+  margin: 0.25rem 0 0;
+  color: rgba(27, 18, 36, 0.55);
+  font-size: 0.9rem;
+}
+
+.section-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: rgba(127, 19, 236, 0.12);
+  display: grid;
+  place-items: center;
+}
+
+.section-icon mat-icon {
+  color: #7f13ec;
+  font-size: 20px;
+}
+
+.links-card {
+  display: grid;
+  gap: 1rem;
+}
+
+.empty-state {
+  border: 1px dashed rgba(127, 19, 236, 0.2);
+  border-radius: 16px;
+  padding: 1.4rem;
+  text-align: center;
+  color: rgba(27, 18, 36, 0.5);
+  display: grid;
+  gap: 0.5rem;
+  justify-items: center;
+}
+
+.empty-state mat-icon {
+  color: rgba(127, 19, 236, 0.4);
+}
+
+.link-item {
+  border-radius: 18px;
+  border: 1px solid rgba(127, 19, 236, 0.12);
+  padding: 1rem;
+  display: grid;
+  gap: 0.75rem;
+  background: #ffffff;
+}
+
+.link-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.link-header h4 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.link-header p {
+  margin: 0.25rem 0 0;
+  color: rgba(27, 18, 36, 0.55);
+  font-size: 0.85rem;
+}
+
+.status-pill {
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #1b1224;
+  background: rgba(34, 197, 94, 0.15);
+}
+
+.status-pill.expired {
+  background: rgba(239, 68, 68, 0.15);
+  color: #b91c1c;
+}
+
+.link-meta {
+  color: rgba(27, 18, 36, 0.6);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.chip {
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(127, 19, 236, 0.1);
+  color: #7f13ec;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.link-actions {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.link-actions input {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid rgba(127, 19, 236, 0.2);
+  padding: 0.6rem 0.8rem;
+  font-family: inherit;
+}
+
+.action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.copy-cta.mat-mdc-stroked-button {
+  border-radius: 12px;
+  font-weight: 600;
+  border-color: rgba(127, 19, 236, 0.35);
+}
+
+.delete-cta {
+  color: rgba(27, 18, 36, 0.6);
+  font-weight: 600;
+}
+
+.confirm-cta.mat-mdc-raised-button {
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.cancel-cta {
+  color: rgba(27, 18, 36, 0.6);
+  font-weight: 600;
+}
+
+.create-card {
+  background: #fff9ff;
+  border: 1px solid rgba(127, 19, 236, 0.16);
+  height: fit-content;
+}
+
+.invite-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.invite-header p {
+  margin: 0.4rem 0 1.2rem;
+  color: rgba(27, 18, 36, 0.6);
+}
+
+.dialog-section h4 {
+  margin: 0 0 0.8rem;
+  font-size: 1rem;
+}
+
+.record-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.record-chips ::ng-deep .mat-mdc-chip-option {
+  border-radius: 999px;
+  border: 1px solid rgba(127, 19, 236, 0.5);
+  padding: 0.35rem 0.75rem;
+  font-weight: 600;
+  color: #7f13ec;
+}
+
+.record-chips ::ng-deep .mat-mdc-chip-option.mdc-evolution-chip--selected {
+  background: #7f13ec;
+  border-color: #7f13ec;
+  color: #ffffff;
+}
+
+.record-chips ::ng-deep .mat-mdc-chip-option .mdc-evolution-chip__graphic {
+  display: none;
+}
+
+.chip-check {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  margin-right: 0.35rem;
+}
+
+.record-chips ::ng-deep .mdc-evolution-chip__action {
+  overflow: hidden;
+  padding-right: 0;
+}
+
+.options-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.primary-cta.mat-mdc-raised-button {
+  margin-top: 1rem;
+  width: 100%;
+  background: #7f13ec;
+  color: #ffffff;
+  padding: 0.8rem 1.5rem;
+  border-radius: 14px;
+  font-weight: 600;
+}
+
+.primary-cta.mat-mdc-raised-button[disabled] {
+  background: rgba(127, 19, 236, 0.35);
+  color: #ffffff;
+  box-shadow: none;
+}
+
+.status {
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(27, 18, 36, 0.65);
+  font-weight: 600;
+}
+
+.status mat-icon {
+  color: #22c55e;
+}
+
+.status.error mat-icon {
+  color: #ef4444;
+}
+
+:host ::ng-deep mat-form-field .mat-mdc-text-field-wrapper {
+  background: #ffffff;
+  border-radius: 14px;
+}
+
+:host ::ng-deep .mdc-notched-outline__leading,
+:host ::ng-deep .mdc-notched-outline__notch,
+:host ::ng-deep .mdc-notched-outline__trailing {
+  border-color: rgba(127, 19, 236, 0.2);
+}
+
+:host ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+  display: none;
+}
+
+@media (max-width: 960px) {
+  .share-grid {
+    grid-template-columns: 1fr;
+    .create-card {
+      order: -1;
+    }
+  }
+}
+
+@media (max-width: 720px) {
+  .share-card {
+    padding: 1.25rem;
+  }
+
+  .pet-hero {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .share-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .options-row {
+    grid-template-columns: 1fr;
+  }
+}
