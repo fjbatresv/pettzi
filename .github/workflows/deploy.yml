@@ -93,17 +93,24 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Set stage for buckets
+        run: |
+          echo "STAGE_SLUG=${STAGE}" >> "$GITHUB_ENV"
+
+      - name: Show frontend bucket name
+        run: |
+          echo "Frontend bucket: pettzi-frontend-${STAGE_SLUG}"
+
       - name: Build frontend
         run: npx nx build web
 
       - name: Sync frontend to S3
         run: |
-          frontend_bucket=$(aws cloudformation list-stack-resources \
-            --stack-name "PettziFrontendStack" \
-            --query "StackResourceSummaries[?LogicalResourceId=='FrontendBucket'].PhysicalResourceId | [0]" \
-            --output text)
-          if [ -z "$frontend_bucket" ] || [ "$frontend_bucket" = "None" ]; then
-            frontend_bucket="pettzi-frontend-${STAGE_SLUG}"
+          frontend_bucket="pettzi-frontend-${STAGE_SLUG}"
+          if ! aws s3api head-bucket --bucket "$frontend_bucket" > /dev/null 2>&1; then
+            echo "Frontend bucket ${frontend_bucket} does not exist. Skipping upload."
+            exit 0
           fi
           aws s3 sync "dist/web/browser" "s3://${frontend_bucket}" --delete
 
@@ -141,14 +148,20 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Set stage for buckets
+        run: |
+          echo "STAGE_SLUG=${STAGE}" >> "$GITHUB_ENV"
+
+      - name: Show email assets bucket name
+        run: |
+          echo "Email assets bucket: pettzi-email-assets-${STAGE_SLUG}"
+
       - name: Sync email images to S3
         run: |
-          email_bucket=$(aws cloudformation list-stack-resources \
-            --stack-name "PettziEmailAssetsCdnStack" \
-            --query "StackResourceSummaries[?LogicalResourceId=='EmailAssetsBucket'].PhysicalResourceId | [0]" \
-            --output text)
-          if [ -z "$email_bucket" ] || [ "$email_bucket" = "None" ]; then
-            email_bucket="pettzi-email-assets-${STAGE_SLUG}"
+          email_bucket="pettzi-email-assets-${STAGE_SLUG}"
+          if ! aws s3api head-bucket --bucket "$email_bucket" > /dev/null 2>&1; then
+            echo "Email assets bucket ${email_bucket} does not exist. Skipping upload."
+            exit 0
           fi
           aws s3 sync "img" "s3://${email_bucket}" --delete
 
