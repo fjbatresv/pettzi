@@ -99,7 +99,27 @@ export class PetCreateStep1Component implements OnInit {
       imageDataUrl: this.imageUrl || undefined,
     };
     this.state.setDraft(draft);
-    sessionStorage.setItem(this.draftStorageKey, JSON.stringify(draft));
+    const persistedDraft = {
+      name: draft.name,
+      speciesCode: draft.speciesCode,
+      breedCode: draft.breedCode,
+    };
+    try {
+      sessionStorage.setItem(
+        this.draftStorageKey,
+        JSON.stringify(persistedDraft)
+      );
+    } catch {
+      try {
+        sessionStorage.removeItem(this.draftStorageKey);
+        sessionStorage.setItem(
+          this.draftStorageKey,
+          JSON.stringify(persistedDraft)
+        );
+      } catch {
+        // Ignore storage failures (e.g., quota exceeded) and rely on in-memory draft.
+      }
+    }
     void this.router.navigate(['/pets/new/details']);
   }
 
@@ -122,16 +142,16 @@ export class PetCreateStep1Component implements OnInit {
 
   private restoreDraft() {
     const stored = this.readDraftFromStorage();
-    const draft = stored ?? this.state.getDraft();
-    if (!draft) {
+    const draft = this.state.getDraft();
+    if (!stored && !draft) {
       return null;
     }
 
     const normalized = {
-      name: draft.name ?? '',
-      speciesCode: draft.speciesCode ?? '',
-      breedCode: draft.breedCode ?? '',
-      imageDataUrl: draft.imageDataUrl ?? undefined,
+      name: stored?.name ?? draft?.name ?? '',
+      speciesCode: stored?.speciesCode ?? draft?.speciesCode ?? '',
+      breedCode: stored?.breedCode ?? draft?.breedCode ?? '',
+      imageDataUrl: draft?.imageDataUrl ?? undefined,
     };
     if (
       !normalized.name &&
@@ -162,7 +182,6 @@ export class PetCreateStep1Component implements OnInit {
         name: string;
         speciesCode: string;
         breedCode: string;
-        imageDataUrl?: string;
       }>;
 
       if (!parsed || typeof parsed !== 'object') {
@@ -173,8 +192,6 @@ export class PetCreateStep1Component implements OnInit {
         name: typeof parsed.name === 'string' ? parsed.name : '',
         speciesCode: typeof parsed.speciesCode === 'string' ? parsed.speciesCode : '',
         breedCode: typeof parsed.breedCode === 'string' ? parsed.breedCode : '',
-        imageDataUrl:
-          typeof parsed.imageDataUrl === 'string' ? parsed.imageDataUrl : undefined,
       };
     } catch {
       return null;
