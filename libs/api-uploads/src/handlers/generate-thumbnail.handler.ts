@@ -3,6 +3,7 @@ import { S3Client, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import sharp from 'sharp';
+import heicConvert from 'heic-convert';
 import {
   buildPetPkKey,
   buildPetSkMetadata,
@@ -24,6 +25,14 @@ const streamToBuffer = async (stream: any): Promise<Buffer> => {
 
 const isThumbnailKey = (key: string) => key.includes('/photos/thumbnails/');
 const isHeicFile = (fileName: string) => /\.(heic|heif)$/i.test(fileName);
+const convertHeicToJpeg = async (source: Buffer): Promise<Buffer> => {
+  const output = await heicConvert({
+    buffer: source,
+    format: 'JPEG',
+    quality: 0.82,
+  });
+  return Buffer.from(output);
+};
 
 const parsePhotoKey = (key: string) => {
   if (isThumbnailKey(key)) {
@@ -91,7 +100,8 @@ export const handler = async (event: S3Event | EventBridgeS3Event): Promise<void
       const source = await streamToBuffer(object.Body);
       const baseName = parsed.fileName.replace(/\.[^.]+$/, '');
       const shouldJpeg = isHeicFile(parsed.fileName);
-      const thumbnail = await sharp(source)
+      const input = shouldJpeg ? await convertHeicToJpeg(source) : source;
+      const thumbnail = await sharp(input)
         .resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE, { fit: 'cover' })
         .toFormat(shouldJpeg ? 'jpeg' : 'webp', shouldJpeg ? { quality: 82 } : { quality: 80 })
         .toBuffer();
