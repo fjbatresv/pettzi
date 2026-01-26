@@ -1,0 +1,193 @@
+<section class="share-record-page">
+  <header class="share-header">
+    <button mat-button class="back-btn" [routerLink]="['/pets', petId]">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div class="header-text">
+      <h2>{{ 'shareRecord.title' | translate }}</h2>
+      <p>
+        {{
+          'shareRecord.subtitle'
+            | translate: { name: petNameLabel }
+        }}
+      </p>
+    </div>
+  </header>
+
+  <section class="share-card pet-card">
+    <div class="pet-hero">
+      <div class="pet-avatar">
+        <img *ngIf="petPhotoUrl" [src]="petPhotoUrl" [attr.alt]="petNameLabel" />
+        <span *ngIf="!petPhotoUrl">{{ petInitial }}</span>
+      </div>
+      <div class="pet-hero-text">
+        <h3>{{ 'shareRecord.petCardTitle' | translate: { petName: petNameLabel } }}</h3>
+        <p>{{ 'shareRecord.petCardSubtitle' | translate: { petName: petNameLabel } }}</p>
+        <div class="pet-meta">
+          <span>{{ breedLabel || speciesLabel || ('dashboard.unknown' | translate) }}</span>
+          <span class="dot">·</span>
+          <span>{{ ageLabel || ('dashboard.ageUnknown' | translate) }}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="share-grid">
+    <section class="share-card links-card">
+      <div class="section-title">
+        <span class="section-icon">
+          <mat-icon>link</mat-icon>
+        </span>
+        <div>
+          <h3>{{ 'shareRecord.linksTitle' | translate }}</h3>
+          <p class="section-sub">{{ 'shareRecord.linksSubtitle' | translate }}</p>
+        </div>
+      </div>
+
+      <div class="empty-state" *ngIf="!records.length && !isLoadingRecords">
+        <mat-icon>add_link</mat-icon>
+        <p>{{ 'shareRecord.linksEmpty' | translate }}</p>
+      </div>
+
+      <div class="link-item" *ngFor="let record of records">
+        <div class="link-header">
+          <div>
+            <h4>{{ 'shareRecord.linkLabel' | translate }}</h4>
+            <p>
+              {{ 'shareRecord.createdOn' | translate: { date: formatDate(record.createdAt) } }}
+            </p>
+          </div>
+          <span class="status-pill" [class.expired]="record.isExpired">
+            {{
+              record.isExpired
+                ? ('shareRecord.expired' | translate)
+                : ('shareRecord.active' | translate)
+            }}
+          </span>
+        </div>
+
+        <div class="link-meta">
+          <span>{{ 'shareRecord.expiresOn' | translate: { date: formatDate(record.expiresAt) } }}</span>
+        </div>
+
+        <div class="chip-row">
+          <span class="chip" *ngFor="let item of record.items">
+            {{ getRecordLabel(item) | translate }}
+          </span>
+        </div>
+
+        <div class="link-actions">
+          <input
+            #linkInput
+            type="text"
+            [value]="record.shareUrl"
+            readonly
+            (click)="selectLink($event, linkInput)"
+          />
+          <div class="action-buttons">
+            <button
+              mat-stroked-button
+              type="button"
+              class="copy-cta"
+              [disabled]="copyingToken === record.token"
+              (click)="copyLink(record, linkInput)"
+            >
+              {{
+                copyingToken === record.token
+                  ? ('shareRecord.copying' | translate)
+                  : ('shareRecord.copyLink' | translate)
+              }}
+            </button>
+            <ng-container *ngIf="confirmDeleteToken !== record.token; else confirmDelete">
+              <button
+                mat-button
+                type="button"
+                class="delete-cta"
+                [disabled]="record.isDeleting"
+                (click)="startDelete(record.token)"
+              >
+                {{ 'shareRecord.deleteLink' | translate }}
+              </button>
+            </ng-container>
+            <ng-template #confirmDelete>
+              <button
+                mat-raised-button
+                color="warn"
+                type="button"
+                class="confirm-cta"
+                [disabled]="record.isDeleting"
+                (click)="deleteLink(record)"
+              >
+                {{ 'shareRecord.confirmDelete' | translate }}
+              </button>
+              <button
+                mat-button
+                type="button"
+                class="cancel-cta"
+                [disabled]="record.isDeleting"
+                (click)="cancelDelete()"
+              >
+                {{ 'shareRecord.cancelDelete' | translate }}
+              </button>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="share-card create-card">
+      <div class="invite-header">
+        <h3>{{ 'shareRecord.createTitle' | translate }}</h3>
+        <p>{{ 'shareRecord.createSubtitle' | translate }}</p>
+      </div>
+
+      <div class="dialog-section">
+        <h4>{{ 'shareRecord.includeRecords' | translate }}</h4>
+        <mat-chip-listbox class="record-chips" multiple>
+          <mat-chip-option
+            *ngFor="let option of recordOptions"
+            [selected]="selectedTypes.has(option.type)"
+            (selectionChange)="toggleType(option.type, $event.selected)"
+          >
+            <mat-icon class="chip-check" *ngIf="selectedTypes.has(option.type)">check</mat-icon>
+            {{ option.label | translate }}
+          </mat-chip-option>
+        </mat-chip-listbox>
+      </div>
+
+      <div class="options-row">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'shareRecord.linkExpiration' | translate }}</mat-label>
+          <mat-select [(ngModel)]="expiration">
+            <mat-option *ngFor="let option of expirationOptions" [value]="option.value">
+              {{ option.label | translate }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'shareRecord.password' | translate }}</mat-label>
+          <input
+            matInput
+            [(ngModel)]="password"
+            [placeholder]="'shareRecord.passwordPlaceholder' | translate"
+          />
+        </mat-form-field>
+      </div>
+
+      <button
+        mat-raised-button
+        color="primary"
+        class="primary-cta"
+        [disabled]="!canSubmit"
+        (click)="createLink()"
+      >
+        {{ (isSubmitting ? 'shareRecord.creating' : 'shareRecord.createLink') | translate }}
+      </button>
+
+      <div class="status" *ngIf="statusMessage" [class.error]="statusTone === 'error'">
+        <mat-icon>{{ statusTone === 'error' ? 'error' : 'check_circle' }}</mat-icon>
+        <span>{{ statusMessage }}</span>
+      </div>
+    </section>
+  </div>
+</section>

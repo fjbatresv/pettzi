@@ -63,6 +63,8 @@ const breedLabels: Record<'es' | 'en', Record<string, string>> = {
   en: {
     LABRADOR: 'Labrador Retriever',
     GOLDEN: 'Golden Retriever',
+    CHIHUAHUA: 'Chihuahua',
+    DACHSHUND: 'Dachshund',
     MIX: 'Mixed / Other',
     NEWFOUNDLAND: 'Newfoundland',
     SIAMESE: 'Siamese',
@@ -77,6 +79,8 @@ const breedLabels: Record<'es' | 'en', Record<string, string>> = {
   es: {
     LABRADOR: 'Labrador Retriever',
     GOLDEN: 'Golden Retriever',
+    CHIHUAHUA: 'Chihuahua',
+    DACHSHUND: 'Salchicha',
     MIX: 'Mestizo / Otro',
     NEWFOUNDLAND: 'Terranova',
     SIAMESE: 'Siames',

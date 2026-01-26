@@ -7,20 +7,16 @@ import {
   getCallerOwnerId,
   linkExists,
 } from './common';
-import { buildInvitePreview, parseInviteToken } from './pet-invite.utils';
+import { buildInvitePreview } from './pet-invite.utils';
+import { getInviteSecrets, parseInviteTokenWithSecrets } from './invite-secret';
 
 interface AcceptInvitePayload {
   token?: string;
 }
 
-const INVITE_SECRET = process.env.PET_SHARE_INVITE_SECRET ?? '';
 const PETTZI_DOCS_BUCKET_NAME = process.env.PETTZI_DOCS_BUCKET_NAME ?? '';
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
-  if (!INVITE_SECRET) {
-    return serverError('Invite secret is not configured');
-  }
-
   let payload: AcceptInvitePayload;
   try {
     payload = JSON.parse(event.body ?? '{}') as AcceptInvitePayload;
@@ -41,7 +37,11 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   }
 
   try {
-    const invite = parseInviteToken(token, INVITE_SECRET);
+    const { current, previous } = await getInviteSecrets();
+    if (!current && !previous) {
+      return serverError('Invite secret is not configured');
+    }
+    const invite = parseInviteTokenWithSecrets(token, [current, previous]);
     const inviteeId = invite.inviteeId.toLowerCase();
     if (inviteeId !== callerOwnerId) {
       return forbidden('Invite does not belong to this account');
