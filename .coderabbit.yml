@@ -1,39 +1,88 @@
-version: 1
-project:
-  name: "PETO – Pet Health Manager"
-  description: "Serverless SaaS for pet health and ownership management (Nx + CDK + Lambda Node 24 + DynamoDB)."
+# .coderabbit.yaml
+language: es
+tone_instructions: >
+  Sé constructivo y directo. Prioriza issues de arquitectura, seguridad y consistencia.
+  Evita nitpicks de estilo si no afectan mantenibilidad.
 
-review:
-  enabled: true
+reviews:
+  profile: assertive
+
+  # Mantén el resumen útil para PRs en este repo
+  high_level_summary: true
+  high_level_summary_instructions: >
+    Resume el PR en 5–10 bullets. Incluye:
+    - Cambios funcionales por bounded context (auth/pets/owners/events/reminders/uploads/catalogs)
+    - Cambios en infraestructura CDK/Stacks y su impacto
+    - Riesgos (breaking changes, permisos IAM, cambios en rutas/basePath)
+    - Recomendación de verificación manual (smoke checks)
+
+  # Reduce “ruido”
+  poem: true
+  in_progress_fortune: false
+
+  # Auto review en PR y en pushes
   auto_review:
     enabled: true
-    on:
-      - pull_request_opened
-      - pull_request_synchronized
-      - pull_request_reopened
-  rules:
-    - name: "Architecture & Boundaries"
-      description: "Ensure domain logic stays in domain-model, shared utils in utils-dynamo/shared-utils, and Lambdas remain thin HTTP handlers."
-    - name: "Node 24 & AWS Lambda"
-      description: "Check that all new/modified Lambda code targets Node.js 24.x, uses AWS SDK v3, and avoids heavy dependencies inside handlers."
-    - name: "DynamoDB Single Table"
-      description: "Validate PK/SK/GSI1 usage follows TABLE_DESIGN.md and key builders/mappers from @peto/domain-model."
-    - name: "HTTP Error Format"
-      description: "Ensure all API handlers use @peto/utils-dynamo/http and return the standard error response shape."
+    auto_incremental_review: true
+    ignore_title_keywords:
+      - "WIP"
+      - "DO NOT REVIEW"
+      - "DRAFT"
 
-preferences:
-  max_comments: 50
-  summarize_findings: true
-  language: "es"
-  tone: "constructive"
-
-paths:
-  include:
+  # Qué revisar (y qué ignorar)
+  path_filters:
+    # Incluir
     - "apps/**"
     - "libs/**"
     - "mintlify/**"
-  exclude:
-    - "dist/**"
-    - "cdk.out/**"
-    - "node_modules/**"
-    - "**/*.d.ts"
+    - "ARCHITECTURE.md"
+    - "README.md"
+    - "DESIGN-SYSTEM.md"
+    - "AGENTS.md"
+    # Excluir
+    - "!**/dist/**"
+    - "!**/cdk.out/**"
+    - "!**/node_modules/**"
+    - "!**/*.d.ts"
+
+  # Reglas por ruta (aquí metemos tus “rules”)
+  path_instructions:
+    - path: "libs/domain-model/**"
+      instructions: >
+        Validar que el modelado y mapeos sigan TABLE_DESIGN.md (single-table DynamoDB).
+        PK/SK/GSI1 deben construirse con builders/keys del domain-model.
+        Prohibido meter lógica HTTP/Lambda aquí. Asegura tests unitarios relevantes.
+
+    - path: "libs/utils-dynamo/**"
+      instructions: >
+        Validar estándar de respuestas HTTP y manejo de errores.
+        Todas las Lambdas deben usar helpers de http.ts (success/error) para el formato de error estándar.
+        Evitar dependencias pesadas y lógica de negocio aquí.
+
+    - path: "libs/api-*/**"
+      instructions: >
+        Lambdas deben ser handlers delgados: validar input, auth context, llamar servicios/repositorios y responder.
+        Requerido: AWS SDK v3, Node.js 24, sin clientes AWS creados por request (reusar en módulo).
+        Requerido: tests unitarios por handler (happy path + errores comunes).
+        Requerido: mantener/actualizar OpenAPI en /openapi/*.yml con rutas, request/response y errores.
+
+    - path: "libs/api-*/openapi/**"
+      instructions: >
+        Cada API debe exponer un basePath único (ej: /pets, /owners, /events, /reminders, /uploads, /catalogs, /auth).
+        Asegura que las rutas y métodos coincidan con el CDK (API Gateway HTTP API + JWT authorizer).
+        Incluir esquemas y ejemplos mínimos. Mantener consistencia de errores.
+
+    - path: "apps/cdk/**"
+      instructions: >
+        Verificar independencia por stack: cada bounded context con su propio HTTP API y JWT authorizer contra el UserPool.
+        Rutas deben ser compatibles con API mappings (custom domain).
+        Revisar IAM de mínimo privilegio, nombres consistentes, outputs necesarios, y tags comunes si aplica.
+        Evitar cambios que rompan prod (renames de recursos, reemplazos innecesarios).
+
+    - path: "mintlify/**"
+      instructions: >
+        La documentación debe reflejar el estado real del backend:
+        - Arquitectura (stacks, APIs, custom domain mappings)
+        - Contratos OpenAPI por bounded context
+        - Flujos críticos (auth, onboarding mascota, uploads + triggers)
+        Mantenerlo conciso y accionable.
