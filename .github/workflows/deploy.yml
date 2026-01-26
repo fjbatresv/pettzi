@@ -1,0 +1,195 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: "Deployment stage (e.g., dev, staging, prod)"
+        required: true
+        default: "dev"
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  STAGE: ${{ inputs.stage }}
+  AWS_REGION: us-east-1
+  API_PREFIX: api
+  API_HOSTED_ZONE_NAME: pettzi.net
+  API_HOSTED_ZONE_ID: ${{ secrets.API_HOSTED_ZONE_ID }}
+  APP_PREFIX: app
+  DSN_PREFIX: img
+  SES_FROM_EMAIL: no-reply@pettzi.net
+  KMS_ENABLED: false
+
+jobs:
+  deploy_cdk:
+    name: Deploy CDK
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v3
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+
+      - name: Configure AWS credentials (OIDC)
+        if: ${{ secrets.AWS_ACCESS_KEY_ID == '' && secrets.AWS_SECRET_ACCESS_KEY == '' }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Configure AWS credentials (static for act)
+        if: ${{ secrets.AWS_ACCESS_KEY_ID != '' && secrets.AWS_SECRET_ACCESS_KEY != '' }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Deploy CDK stacks
+        run: npx nx run cdk:deploy -- --all
+
+      - name: Invalidate API CloudFront
+        run: |
+          api_distribution_id=$(aws cloudformation list-stack-resources \
+            --stack-name "PettziApiDomainStack" \
+            --query "StackResourceSummaries[?ResourceType=='AWS::CloudFront::Distribution'].PhysicalResourceId | [0]" \
+            --output text)
+          if [ -n "$api_distribution_id" ] && [ "$api_distribution_id" != "None" ]; then
+            aws cloudfront create-invalidation \
+              --distribution-id "$api_distribution_id" \
+              --paths "/*"
+          else
+            echo "No API CloudFront distribution found for PettziApiDomainStack."
+          fi
+
+  deploy_frontend:
+    name: Deploy Frontend
+    runs-on: ubuntu-latest
+    needs: deploy_cdk
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v3
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+
+      - name: Configure AWS credentials (OIDC)
+        if: ${{ secrets.AWS_ACCESS_KEY_ID == '' && secrets.AWS_SECRET_ACCESS_KEY == '' }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Configure AWS credentials (static for act)
+        if: ${{ secrets.AWS_ACCESS_KEY_ID != '' && secrets.AWS_SECRET_ACCESS_KEY != '' }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Compute stage slug
+        run: |
+          stage_slug=$(echo "${STAGE}" | tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9-' '-')
+          echo "STAGE_SLUG=${stage_slug}" >> "$GITHUB_ENV"
+
+      - name: Build frontend
+        run: npx nx build web
+
+      - name: Sync frontend to S3
+        run: |
+          aws s3 sync "dist/web/browser" "s3://pettzi-frontend-${STAGE_SLUG}" --delete
+
+      - name: Invalidate Frontend CloudFront
+        run: |
+          frontend_distribution_id=$(aws cloudformation list-stack-resources \
+            --stack-name "PettziFrontendStack" \
+            --query "StackResourceSummaries[?ResourceType=='AWS::CloudFront::Distribution'].PhysicalResourceId | [0]" \
+            --output text)
+          if [ -n "$frontend_distribution_id" ] && [ "$frontend_distribution_id" != "None" ]; then
+            aws cloudfront create-invalidation \
+              --distribution-id "$frontend_distribution_id" \
+              --paths "/*"
+          else
+            echo "No Frontend CloudFront distribution found for PettziFrontendStack."
+          fi
+
+  deploy_email_images:
+    name: Deploy Email Images
+    runs-on: ubuntu-latest
+    needs: deploy_cdk
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v3
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+
+      - name: Configure AWS credentials (OIDC)
+        if: ${{ secrets.AWS_ACCESS_KEY_ID == '' && secrets.AWS_SECRET_ACCESS_KEY == '' }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Configure AWS credentials (static for act)
+        if: ${{ secrets.AWS_ACCESS_KEY_ID != '' && secrets.AWS_SECRET_ACCESS_KEY != '' }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Compute stage slug
+        run: |
+          stage_slug=$(echo "${STAGE}" | tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9-' '-')
+          echo "STAGE_SLUG=${stage_slug}" >> "$GITHUB_ENV"
+
+      - name: Sync email images to S3
+        run: |
+          aws s3 sync "img" "s3://pettzi-email-assets-${STAGE_SLUG}" --delete
+
+      - name: Invalidate Email Assets CloudFront
+        run: |
+          email_distribution_id=$(aws cloudformation list-stack-resources \
+            --stack-name "PettziEmailAssetsCdnStack" \
+            --query "StackResourceSummaries[?ResourceType=='AWS::CloudFront::Distribution'].PhysicalResourceId | [0]" \
+            --output text)
+          if [ -n "$email_distribution_id" ] && [ "$email_distribution_id" != "None" ]; then
+            aws cloudfront create-invalidation \
+              --distribution-id "$email_distribution_id" \
+              --paths "/*"
+          else
+            echo "No Email Assets CloudFront distribution found for PettziEmailAssetsCdnStack."
+          fi
