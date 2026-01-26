@@ -116,7 +116,7 @@ export class UploadsApiStack extends Stack {
       handlerPath('libs/api-uploads/src/handlers/generate-thumbnail.handler.ts'),
       commonEnv,
       [props.sharedLayer, props.s3Layer, props.ddbLayer],
-      ['sharp'],
+      ['sharp', 'heic-convert'],
       Duration.seconds(30),
       true
     );

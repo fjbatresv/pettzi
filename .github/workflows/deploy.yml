@@ -9,7 +9,7 @@ on:
         default: "dev"
 
 permissions:
-  contents: read
+  contents: write
   id-token: write
 
 env:
@@ -22,6 +22,11 @@ env:
   DSN_PREFIX: img
   SES_FROM_EMAIL: no-reply@pettzi.net
   KMS_ENABLED: false
+  SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+  SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+  SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+  SENTRY_RELEASE: frontend-${{ inputs.stage }}-${{ github.run_number }}
+  SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
 
 jobs:
   deploy_cdk:
@@ -31,6 +36,9 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker
         uses: docker/setup-buildx-action@v3
@@ -47,7 +55,10 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: npm ci
+
+      - name: Install lambda layers dependencies
+        run: npm run install:layers
 
       - name: Deploy CDK stacks
         run: npx nx run cdk:deploy -- --all
@@ -74,10 +85,6 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-
-      - name: Set up Docker
-        uses: docker/setup-buildx-action@v3
-
       - uses: actions/setup-node@v6
         with:
           node-version-file: ".nvmrc"
@@ -90,19 +97,61 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: npm ci
 
-      - name: Compute stage slug
+      - name: Install sentry cli
+        run: npm i @sentry/cli
+
+      - name: Set stage for buckets
         run: |
-          stage_slug=$(echo "${STAGE}" | tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9-' '-')
-          echo "STAGE_SLUG=${stage_slug}" >> "$GITHUB_ENV"
+          echo "STAGE_SLUG=${STAGE}" >> "$GITHUB_ENV"
+
+      - name: Show frontend bucket name
+        run: |
+          echo "Frontend bucket: pettzi-frontend-${STAGE_SLUG}"
+
+      - name: Configure Sentry release/DSN for frontend
+        if: ${{ env.SENTRY_DSN != '' }}
+        run: |
+          cat > apps/web/src/environments/environment.prod.ts <<EOF
+          export const environment = {
+            production: true,
+            apiBaseUrl: 'https://api.pettzi.net',
+            cognitoDomain: 'https://us-east-1xx_hce2yn2.auth.us-east-1.amazoncognito.com',
+            cognitoClientId: '1hhkaipbk6vt8i1nagm643br5l',
+            cognitoRedirectUri: 'https://app.pettzi.net',
+            sentryDsn: '${SENTRY_DSN}',
+            sentryRelease: '${SENTRY_RELEASE}',
+            sentryTracesSampleRate: 0.1,
+            sentryProfilesSampleRate: 0.05,
+          };
+          EOF
 
       - name: Build frontend
-        run: npx nx build web
+        run: npx nx build web --configuration production --source-map
+
+      - name: Create Sentry release and upload sourcemaps
+        if: ${{ env.SENTRY_AUTH_TOKEN != '' && env.SENTRY_ORG != '' && env.SENTRY_PROJECT != '' }}
+        run: |
+          release="${SENTRY_RELEASE:-beta}"
+          echo "Using Sentry release: ${release}"
+          npx @sentry/cli releases new "${release}"
+          npx @sentry/cli sourcemaps inject "dist/web/browser"
+          npx @sentry/cli sourcemaps upload "dist/web/browser" \
+            --release "${release}" \
+            --url-prefix "~/" \
+            --validate \
+            --rewrite
+          npx @sentry/cli releases finalize "${release}"
 
       - name: Sync frontend to S3
         run: |
-          aws s3 sync "dist/web/browser" "s3://pettzi-frontend-${STAGE_SLUG}" --delete
+          frontend_bucket="pettzi-frontend-${STAGE_SLUG}"
+          if ! aws s3api head-bucket --bucket "$frontend_bucket" > /dev/null 2>&1; then
+            echo "Frontend bucket ${frontend_bucket} does not exist. Skipping upload."
+            exit 0
+          fi
+          aws s3 sync "dist/web/browser" "s3://${frontend_bucket}" --delete
 
       - name: Invalidate Frontend CloudFront
         run: |
@@ -127,9 +176,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up Docker
-        uses: docker/setup-buildx-action@v3
-
       - uses: actions/setup-node@v6
         with:
           node-version-file: ".nvmrc"
@@ -141,14 +187,22 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Compute stage slug
+      - name: Set stage for buckets
         run: |
-          stage_slug=$(echo "${STAGE}" | tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9-' '-')
-          echo "STAGE_SLUG=${stage_slug}" >> "$GITHUB_ENV"
+          echo "STAGE_SLUG=${STAGE}" >> "$GITHUB_ENV"
+
+      - name: Show email assets bucket name
+        run: |
+          echo "Email assets bucket: pettzi-email-assets-${STAGE_SLUG}"
 
       - name: Sync email images to S3
         run: |
-          aws s3 sync "img" "s3://pettzi-email-assets-${STAGE_SLUG}" --delete
+          email_bucket="pettzi-email-assets-${STAGE_SLUG}"
+          if ! aws s3api head-bucket --bucket "$email_bucket" > /dev/null 2>&1; then
+            echo "Email assets bucket ${email_bucket} does not exist. Skipping upload."
+            exit 0
+          fi
+          aws s3 sync "img" "s3://${email_bucket}" --delete
 
       - name: Invalidate Email Assets CloudFront
         run: |
