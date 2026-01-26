@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, ElementRef, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatChipsModule } from '@angular/material/chips';
 import { MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -25,7 +25,7 @@ interface ShareRecordDialogData {
     CommonModule,
     FormsModule,
     MatButtonModule,
-    MatCheckboxModule,
+    MatChipsModule,
     MatDialogModule,
     MatFormFieldModule,
     MatIconModule,
@@ -60,9 +60,57 @@ export class ShareRecordDialogComponent {
   isSubmitting = false;
   copiedLink = '';
   statusMessage = '';
+  isCopying = false;
+
+  @ViewChild('shareLinkInput') shareLinkInput?: ElementRef<HTMLInputElement>;
 
   get canSubmit() {
     return !this.isSubmitting && this.selectedTypes.size > 0;
+  }
+
+  toggleType(type: EventType, selected: boolean) {
+    if (selected) {
+      this.selectedTypes.add(type);
+    } else {
+      this.selectedTypes.delete(type);
+    }
+  }
+
+  selectLink(event?: Event) {
+    if (event) {
+      event.preventDefault();
+    }
+    const input = this.shareLinkInput?.nativeElement;
+    if (!input) {
+      return;
+    }
+    input.focus();
+    input.select();
+    input.setSelectionRange(0, input.value.length);
+  }
+
+  async copyLink() {
+    if (!this.copiedLink || this.isCopying) {
+      return;
+    }
+
+    this.isCopying = true;
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(this.copiedLink);
+        this.statusMessage = this.translate.instant('shareRecord.copySuccess');
+      } else {
+        this.selectLink();
+        const copied = document.execCommand?.('copy');
+        this.statusMessage = copied
+          ? this.translate.instant('shareRecord.copySuccess')
+          : this.translate.instant('shareRecord.copyManual');
+      }
+    } catch {
+      this.statusMessage = this.translate.instant('shareRecord.copyManual');
+    } finally {
+      this.isCopying = false;
+    }
   }
 
   async createLink() {
@@ -88,13 +136,7 @@ export class ShareRecordDialogComponent {
       const origin = window.location.origin;
       const shareUrl = `${origin}/pet-record?token=${response.token}`;
       this.copiedLink = shareUrl;
-
-      if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(shareUrl);
-        this.statusMessage = this.translate.instant('shareRecord.copySuccess');
-      } else {
-        this.statusMessage = this.translate.instant('shareRecord.copyManual');
-      }
+      await this.copyLink();
     } catch {
       this.statusMessage = this.translate.instant('shareRecord.copyError');
     } finally {

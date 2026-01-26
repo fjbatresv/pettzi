@@ -36,6 +36,20 @@ export interface SharedRecordResponse {
   message?: string;
 }
 
+export interface SharedRecordSummary {
+  token: string;
+  petId: string;
+  ownerId?: string;
+  items: EventType[];
+  expiresAt: string;
+  createdAt: string;
+}
+
+export interface SharedRecordListResponse {
+  records: SharedRecordSummary[];
+  nextCursor?: string;
+}
+
 export type CreatePetRequest = Pick<
   Pet,
   | 'name'
@@ -130,6 +144,32 @@ export class PetsService {
     return this.http.get<SharedRecordResponse>(
       this.buildUrl(`/shared-records/${encodeURIComponent(token)}`),
       { params }
+    );
+  }
+
+  listSharedRecords(
+    petId: string,
+    options?: { limit?: number; cursor?: string }
+  ): Observable<SharedRecordListResponse> {
+    let params = new HttpParams();
+    if (options?.limit) {
+      params = params.set('limit', String(options.limit));
+    }
+    if (options?.cursor) {
+      params = params.set('cursor', options.cursor);
+    }
+    return this.http.get<SharedRecordListResponse>(
+      this.buildUrl(`/${petId}/shared-records`),
+      { params }
+    );
+  }
+
+  deleteSharedRecord(
+    petId: string,
+    token: string
+  ): Observable<{ message?: string; token?: string }> {
+    return this.http.delete<{ message?: string; token?: string }>(
+      this.buildUrl(`/${petId}/shared-records/${encodeURIComponent(token)}`)
     );
   }
 

@@ -92,6 +92,20 @@ export class PetsApiStack extends Stack {
       commonEnv,
       [props.depsLayer, props.s3Layer, props.ddbLayer]
     );
+    const listSharedRecordsFn = this.createFn(
+      'ListSharedRecordsHandler',
+      stage,
+      handlerPath('libs/api-pets/src/handlers/list-shared-records.handler.ts'),
+      commonEnv,
+      [props.depsLayer, props.s3Layer, props.ddbLayer]
+    );
+    const deleteSharedRecordFn = this.createFn(
+      'DeleteSharedRecordHandler',
+      stage,
+      handlerPath('libs/api-pets/src/handlers/delete-shared-record.handler.ts'),
+      commonEnv,
+      [props.depsLayer, props.s3Layer, props.ddbLayer]
+    );
     const getSharedRecordFn = this.createFn(
       'GetSharedRecordHandler',
       stage,
@@ -106,6 +120,8 @@ export class PetsApiStack extends Stack {
     props.table.grantReadWriteData(updatePetFn);
     props.table.grantReadWriteData(archivePetFn);
     props.table.grantReadWriteData(createSharedRecordFn);
+    props.table.grantReadData(listSharedRecordsFn);
+    props.table.grantReadWriteData(deleteSharedRecordFn);
     props.table.grantReadData(getSharedRecordFn);
     props.docsBucket.grantRead(getSharedRecordFn);
 
@@ -180,6 +196,22 @@ export class PetsApiStack extends Stack {
       integration: new HttpLambdaIntegration(
         'CreateSharedRecordIntegration',
         createSharedRecordFn
+      ),
+    });
+    this.httpApi.addRoutes({
+      path: '/{petId}/shared-records',
+      methods: [apigwv2.HttpMethod.GET],
+      integration: new HttpLambdaIntegration(
+        'ListSharedRecordsIntegration',
+        listSharedRecordsFn
+      ),
+    });
+    this.httpApi.addRoutes({
+      path: '/{petId}/shared-records/{token}',
+      methods: [apigwv2.HttpMethod.DELETE],
+      integration: new HttpLambdaIntegration(
+        'DeleteSharedRecordIntegration',
+        deleteSharedRecordFn
       ),
     });
     this.httpApi.addRoutes({

@@ -1,7 +1,10 @@
 .share-dialog {
-  width: min(520px, 92vw);
+  width: 100%;
+  max-width: 520px;
+  max-height: min(80dvh, 640px);
   display: grid;
   gap: 1.5rem;
+  overflow: auto;
 }
 
 .dialog-header {
@@ -26,30 +29,22 @@
   font-size: 1rem;
 }
 
-.record-options {
-  display: grid;
-  gap: 0.75rem;
-}
-
-.record-option {
+.record-chips {
   display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  padding: 0.75rem 1rem;
-  border-radius: 16px;
-  border: 1px solid rgba(127, 19, 236, 0.15);
-  background: #ffffff;
+  flex-wrap: wrap;
+  gap: 0.6rem;
 }
 
-.option-text {
-  display: grid;
-  gap: 0.2rem;
+.record-chips ::ng-deep .mat-mdc-chip-option {
+  border-radius: 999px;
+  border: 1px solid rgba(127, 19, 236, 0.25);
+  padding: 0.35rem 0.75rem;
   font-weight: 600;
 }
 
-.option-text small {
-  font-weight: 500;
-  color: rgba(27, 18, 36, 0.5);
+.record-chips ::ng-deep .mat-mdc-chip-option.mdc-evolution-chip--selected {
+  background: rgba(127, 19, 236, 0.12);
+  border-color: rgba(127, 19, 236, 0.6);
 }
 
 .options-row {
@@ -108,10 +103,25 @@ mat-form-field {
   border: 1px solid rgba(127, 19, 236, 0.2);
   padding: 0.65rem 0.85rem;
   font-family: inherit;
+  min-width: 0;
+}
+
+.copy-link {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.copy-cta.mat-mdc-stroked-button {
+  border-radius: 12px;
+  font-weight: 600;
+  border-color: rgba(127, 19, 236, 0.35);
 }
 
 @media (max-width: 540px) {
   .options-row {
     grid-template-columns: 1fr;
+  }
+  .share-dialog {
+    max-height: 86dvh;
   }
 }

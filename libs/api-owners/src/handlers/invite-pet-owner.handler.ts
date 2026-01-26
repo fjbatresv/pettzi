@@ -27,6 +27,7 @@ import {
   linkExists,
 } from './common';
 import { localizePetBreed } from './pet-invite.utils';
+import { getInviteSecrets } from './invite-secret';
 
 interface InvitePayload {
   email?: string;
@@ -41,7 +42,6 @@ const INVITE_TEMPLATE_ES = process.env.SES_SHARE_PET_INVITE_TEMPLATE_NAME_ES ?? 
 const INVITE_TEMPLATE_EN = process.env.SES_SHARE_PET_INVITE_TEMPLATE_NAME_EN ?? '';
 const INVITE_BASE_URL =
   process.env.PET_SHARE_INVITE_BASE_URL ?? 'https://app.pettzi.net/accept-invite';
-const INVITE_SECRET = process.env.PET_SHARE_INVITE_SECRET ?? '';
 
 const INVITE_EXPIRATION_DAYS = 7;
 const INVITE_EXPIRATION_SECONDS = 60 * 60 * 24 * INVITE_EXPIRATION_DAYS;
@@ -107,9 +107,6 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   if (!SES_FROM_EMAIL || (!INVITE_TEMPLATE_ES && !INVITE_TEMPLATE_EN)) {
     return serverError('SES templates are not configured');
   }
-  if (!INVITE_SECRET) {
-    return serverError('Invite secret is not configured');
-  }
 
   let payload: InvitePayload;
   try {
@@ -143,6 +140,11 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   }
 
   try {
+    const { current: inviteSecret } = await getInviteSecrets();
+    if (!inviteSecret) {
+      return serverError('Invite secret is not configured');
+    }
+
     const alreadyLinked = await linkExists(petId, inviteeId);
     if (alreadyLinked) {
       return conflict('Owner already linked to this pet');
@@ -185,7 +187,13 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
       );
     }
 
-    const token = buildInviteToken(email, petId, inviterId, inviteeId, INVITE_SECRET);
+    const token = buildInviteToken(
+      email,
+      petId,
+      inviterId,
+      inviteeId,
+      inviteSecret
+    );
     const acceptInvitationUrl = buildAcceptUrl(token);
     const template =
       locale === 'en' && INVITE_TEMPLATE_EN ? INVITE_TEMPLATE_EN : INVITE_TEMPLATE_ES;

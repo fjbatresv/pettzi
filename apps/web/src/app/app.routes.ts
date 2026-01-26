@@ -13,6 +13,7 @@ import { VaccineComponent } from './pages/vaccine/vaccine.component';
 import { WeightComponent } from './pages/weight/weight.component';
 import { PetEditComponent } from './pages/pet-edit/pet-edit.component';
 import { PetShareComponent } from './pages/pet-share/pet-share.component';
+import { PetShareRecordsComponent } from './pages/pet-share-records/pet-share-records.component';
 import { SettingsComponent } from './pages/settings/settings.component';
 import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
@@ -95,6 +96,10 @@ export const appRoutes: Route[] = [
       {
         path: 'pets/:petId/share',
         component: PetShareComponent,
+      },
+      {
+        path: 'pets/:petId/share-records',
+        component: PetShareRecordsComponent,
       },
       {
         path: 'pets/:petId/grooming/new',

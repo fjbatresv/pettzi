@@ -5,3 +5,5 @@ export { handler as updatePetHandler } from './handlers/update-pet.handler';
 export { handler as archivePetHandler } from './handlers/archive-pet.handler';
 export { handler as createSharedRecordHandler } from './handlers/create-shared-record.handler';
 export { handler as getSharedRecordHandler } from './handlers/get-shared-record.handler';
+export { handler as listSharedRecordsHandler } from './handlers/list-shared-records.handler';
+export { handler as deleteSharedRecordHandler } from './handlers/delete-shared-record.handler';

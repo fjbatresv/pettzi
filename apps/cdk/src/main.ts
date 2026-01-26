@@ -71,7 +71,6 @@ const passwordResetBaseUrl =
     : undefined);
 const petShareInviteBaseUrl =
   process.env.PET_SHARE_INVITE_BASE_URL ?? 'https://app.pettzi.net/accept-invite';
-const petShareInviteSecret = process.env.PET_SHARE_INVITE_SECRET;
 
 // Ensure SDK picks the intended profile when not provided via CLI.
 process.env.AWS_PROFILE = profile;
@@ -248,7 +247,6 @@ const ownersApi = new OwnersApiStack(app, 'PettziOwnersApiStack', {
   sharePetInviteTemplateNameEs: SesTemplatesStack.SHARE_PET_INVITE_TEMPLATE_ES,
   sharePetInviteTemplateNameEn: SesTemplatesStack.SHARE_PET_INVITE_TEMPLATE_EN,
   inviteBaseUrl: petShareInviteBaseUrl,
-  inviteTokenSecret: petShareInviteSecret,
   stage,
   appDomain: appDomainName,
   alarmTopic: core.alarmTopic,

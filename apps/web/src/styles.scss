@@ -27,6 +27,13 @@ body {
   padding: 1.5rem;
 }
 
+.share-record-dialog .mat-mdc-dialog-surface {
+  width: min(520px, 94vw);
+  max-width: 94vw;
+  max-height: 92dvh;
+  overflow: hidden;
+}
+
 .attachment-preview-dialog .mat-mdc-dialog-container {
   border-radius: 22px;
 }
