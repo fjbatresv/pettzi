@@ -99,6 +99,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install sentry cli
+        run: npm i @sentry/cli
+
       - name: Set stage for buckets
         run: |
           echo "STAGE_SLUG=${STAGE}" >> "$GITHUB_ENV"
@@ -138,14 +141,6 @@ jobs:
             --validate \
             --rewrite
           npx @sentry/cli releases finalize "${release}"
-
-      - name: Create GitHub tag and release
-        if: ${{ env.SENTRY_AUTH_TOKEN != '' && env.SENTRY_ORG != '' && env.SENTRY_PROJECT != '' }}
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ env.SENTRY_RELEASE }}
-          name: Frontend Release ${{ env.SENTRY_RELEASE }}
-          generate_release_notes: true
 
       - name: Sync frontend to S3
         run: |

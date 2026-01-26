@@ -31,8 +31,10 @@ const parsePhotoKey = (key: string) => {
   }
   const match = key.match(/^pets\/([^/]+)\/photos\/([^/]+)$/);
   if (!match) {
+    console.warn('Invalid photo key');
     return null;
   }
+  console.debug('match', match);
   return { petId: match[1], fileName: match[2] };
 };
 
@@ -46,6 +48,7 @@ export const handler = async (event: S3Event): Promise<void> => {
     const key = decodeURIComponent(record.s3.object.key.replace(/\+/g, ' '));
     const parsed = parsePhotoKey(key);
     if (!parsed) {
+      console.warn('Record key no parsed', {key, parsed});
       continue;
     }
 
@@ -57,6 +60,7 @@ export const handler = async (event: S3Event): Promise<void> => {
         })
       );
       if (!object.Body) {
+        console.warn('Object not contains a body', {key});
         continue;
       }
       const source = await streamToBuffer(object.Body);
@@ -79,7 +83,7 @@ export const handler = async (event: S3Event): Promise<void> => {
           CacheControl: 'public, max-age=31536000',
         })
       );
-
+      console.debug('Thumbnail created', {thumbKey});
       await docClient.send(
         new UpdateCommand({
           TableName: PETTZI_TABLE_NAME,
@@ -102,6 +106,8 @@ export const handler = async (event: S3Event): Promise<void> => {
           ConditionExpression: 'attribute_exists(PK)',
         })
       );
+      console.debug('DynamoDB pet record updated with thumbnail', {PK: buildPetPkKey(parsed.petId),
+        SK: buildPetSkMetadata(), thumbKey})
     } catch (error) {
       console.error('Thumbnail generation failed', { key, error });
     }
