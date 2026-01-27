@@ -1,6 +1,9 @@
 name: Deploy
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       stage:
@@ -13,7 +16,7 @@ permissions:
   id-token: write
 
 env:
-  STAGE: ${{ inputs.stage }}
+  STAGE: ${{ inputs.stage || 'dev' }}
   AWS_REGION: us-east-1
   API_PREFIX: api
   API_HOSTED_ZONE_NAME: pettzi.net
