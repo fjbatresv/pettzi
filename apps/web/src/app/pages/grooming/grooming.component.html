@@ -18,16 +18,17 @@
     </div>
 
     <div class="service-grid">
-      <button
-        type="button"
-        class="service-card"
-        *ngFor="let service of services"
-        [class.selected]="selectedServices.has(service.id)"
-        (click)="toggleService(service.id)"
-      >
-        <mat-icon>{{ service.icon }}</mat-icon>
-        <span>{{ service.labelKey | translate }}</span>
-      </button>
+      @for (service of services; track service.id) {
+        <button
+          type="button"
+          class="service-card"
+          [class.selected]="selectedServices.has(service.id)"
+          (click)="toggleService(service.id)"
+        >
+          <mat-icon>{{ service.icon }}</mat-icon>
+          <span>{{ service.labelKey | translate }}</span>
+        </button>
+      }
     </div>
 
     <div class="schedule-grid">

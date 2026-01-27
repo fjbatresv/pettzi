@@ -30,8 +30,9 @@ const ensurePendingSecret = async (
       })
     );
     return;
-  } catch (error: any) {
-    if (error?.name !== 'ResourceNotFoundException') {
+  } catch (error: unknown) {
+    const err = error as { name?: string };
+    if (err?.name !== 'ResourceNotFoundException') {
       throw error;
     }
   }

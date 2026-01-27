@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -35,7 +35,7 @@ import { DeletePetDialogComponent } from './delete-pet-dialog.component';
   templateUrl: './pet-edit.component.html',
   styleUrl: './pet-edit.component.scss',
 })
-export class PetEditComponent {
+export class PetEditComponent implements OnInit {
   private readonly pets = inject(PetsService);
   private readonly catalogs = inject(CatalogsService);
   private readonly uploads = inject(UploadsService);

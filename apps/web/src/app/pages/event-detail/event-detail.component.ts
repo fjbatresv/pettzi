@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -24,7 +24,7 @@ import { EventAttachmentPreviewDialogComponent } from './event-attachment-previe
   templateUrl: './event-detail.component.html',
   styleUrl: './event-detail.component.scss',
 })
-export class EventDetailComponent {
+export class EventDetailComponent implements OnInit {
   private readonly events = inject(EventsService);
   private readonly pets = inject(PetsService);
   private readonly dialog = inject(MatDialog);

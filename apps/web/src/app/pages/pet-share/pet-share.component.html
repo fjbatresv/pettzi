@@ -17,8 +17,11 @@
   <section class="share-card pet-card">
     <div class="pet-hero">
       <div class="pet-avatar">
-        <img *ngIf="petPhotoUrl" [src]="petPhotoUrl" [attr.alt]="petNameLabel" />
-        <span *ngIf="!petPhotoUrl">{{ petInitial }}</span>
+        @if (petPhotoUrl) {
+          <img [src]="petPhotoUrl" [attr.alt]="petNameLabel" />
+        } @else {
+          <span>{{ petInitial }}</span>
+        }
       </div>
       <div class="pet-hero-text">
         <h3>{{ 'sharePet.petCardTitle' | translate: { petName: petNameLabel } }}</h3>
@@ -42,21 +45,25 @@
           <h3>{{ 'sharePet.currentOwners' | translate }}</h3>
         </div>
 
-        <div class="owner-item" *ngIf="primaryOwner">
-          <div class="owner-avatar">
-            <img
-              *ngIf="primaryOwner.photoUrl"
-              [src]="primaryOwner.photoUrl"
-              [attr.alt]="primaryOwner.name"
-            />
-            <span *ngIf="!primaryOwner.photoUrl">{{ primaryOwner.initials }}</span>
+        @if (primaryOwner) {
+          <div class="owner-item">
+            <div class="owner-avatar">
+              @if (primaryOwner.photoUrl) {
+                <img
+                  [src]="primaryOwner.photoUrl"
+                  [attr.alt]="primaryOwner.name"
+                />
+              } @else {
+                <span>{{ primaryOwner.initials }}</span>
+              }
+            </div>
+            <div class="owner-info">
+              <h4>{{ primaryOwner.name }}</h4>
+              <p>{{ 'sharePet.primaryOwner' | translate }}</p>
+            </div>
+            <mat-icon class="owner-check">verified</mat-icon>
           </div>
-          <div class="owner-info">
-            <h4>{{ primaryOwner.name }}</h4>
-            <p>{{ 'sharePet.primaryOwner' | translate }}</p>
-          </div>
-          <mat-icon class="owner-check">verified</mat-icon>
-        </div>
+        }
       </section>
 
       <section class="share-card shared-card">
@@ -67,28 +74,32 @@
           <h3>{{ 'sharePet.sharedWith' | translate }}</h3>
         </div>
 
-        <div class="empty-state" *ngIf="!coOwners.length">
-          <mat-icon>group_add</mat-icon>
-          <p>{{ 'sharePet.noCoOwners' | translate }}</p>
-        </div>
-
-        <div class="owner-item" *ngFor="let owner of coOwners">
-          <div class="owner-avatar muted">{{ owner.initials }}</div>
-          <div class="owner-info">
-            <h4>{{ owner.name }}</h4>
-            <p>{{ owner.email || ('sharePet.coOwner' | translate) }}</p>
+        @if (!coOwners.length) {
+          <div class="empty-state">
+            <mat-icon>group_add</mat-icon>
+            <p>{{ 'sharePet.noCoOwners' | translate }}</p>
           </div>
-          <button
-            mat-icon-button
-            type="button"
-            class="owner-remove"
-            [disabled]="!owner.canRemove"
-            [attr.aria-label]="'sharePet.removeOwner' | translate"
-            (click)="removeOwner(owner.ownerId, owner.name)"
-          >
-            <mat-icon>delete</mat-icon>
-          </button>
-        </div>
+        }
+
+        @for (owner of coOwners; track owner.ownerId) {
+          <div class="owner-item">
+            <div class="owner-avatar muted">{{ owner.initials }}</div>
+            <div class="owner-info">
+              <h4>{{ owner.name }}</h4>
+              <p>{{ owner.email || ('sharePet.coOwner' | translate) }}</p>
+            </div>
+            <button
+              mat-icon-button
+              type="button"
+              class="owner-remove"
+              [disabled]="!owner.canRemove"
+              [attr.aria-label]="'sharePet.removeOwner' | translate"
+              (click)="removeOwner(owner.ownerId, owner.name)"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        }
       </section>
     </div>
 
@@ -114,8 +125,12 @@
         <span>{{ 'sharePet.inviteHint' | translate: { petName: petNameLabel } }}</span>
       </div>
 
-      <p class="invite-error" *ngIf="inviteError">{{ inviteError }}</p>
-      <p class="invite-success" *ngIf="inviteSent">{{ 'sharePet.inviteSent' | translate }}</p>
+      @if (inviteError) {
+        <p class="invite-error">{{ inviteError }}</p>
+      }
+      @if (inviteSent) {
+        <p class="invite-success">{{ 'sharePet.inviteSent' | translate }}</p>
+      }
 
       <button
         mat-raised-button

@@ -35,31 +35,33 @@
   <mat-sidenav-content class="dashboard-content">
     <header class="dashboard-header">
       <div class="header-title">
-        <button
-          class="icon-btn menu-toggle"
-          type="button"
-          [attr.aria-label]="'dashboard.menu' | translate"
-          *ngIf="isMobile"
-          (click)="sidenav.toggle()"
-        >
-          <mat-icon>menu</mat-icon>
-        </button>
-        <img
-          *ngIf="isMobile"
-          class="header-logo"
-          src="/logo.svg"
-          alt="Pettzi"
-        />
+        @if (isMobile) {
+          <button
+            class="icon-btn menu-toggle"
+            type="button"
+            [attr.aria-label]="'dashboard.menu' | translate"
+            (click)="sidenav.toggle()"
+          >
+            <mat-icon>menu</mat-icon>
+          </button>
+          <img
+            class="header-logo"
+            src="/logo.svg"
+            alt="Pettzi"
+          />
+        }
       </div>
       <div class="header-actions">
         <app-language-toggle></app-language-toggle>
         <div class="avatar">
-          <img
-            *ngIf="userPhotoUrl"
-            [src]="userPhotoUrl"
-            [alt]="userInitials"
-          />
-          <span *ngIf="!userPhotoUrl">{{ userInitials }}</span>
+          @if (userPhotoUrl) {
+            <img
+              [src]="userPhotoUrl"
+              [alt]="userInitials"
+            />
+          } @else {
+            <span>{{ userInitials }}</span>
+          }
         </div>
       </div>
     </header>

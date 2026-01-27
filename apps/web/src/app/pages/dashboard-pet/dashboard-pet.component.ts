@@ -719,11 +719,12 @@ export class DashboardPetComponent implements OnInit {
     if (!this.pet?.petId || !event?.eventId || this.deletingEventIds.has(event.eventId)) {
       return;
     }
+    const petId = this.pet.petId;
     this.deletingEventIds.add(event.eventId);
-    this.events.deletePetEvent(this.pet.petId, event.eventId).subscribe({
+    this.events.deletePetEvent(petId, event.eventId).subscribe({
       next: () => {
-        this.loadEvents(this.pet!.petId);
-        this.loadReminders(this.pet!.petId);
+        this.loadEvents(petId);
+        this.loadReminders(petId);
         this.refreshPet();
       },
       complete: () => {
@@ -746,10 +747,11 @@ export class DashboardPetComponent implements OnInit {
     if (!this.pet?.petId || !reminder?.reminderId || this.deletingReminderIds.has(reminder.reminderId)) {
       return;
     }
+    const petId = this.pet.petId;
     this.deletingReminderIds.add(reminder.reminderId);
-    this.reminders.deletePetReminder(this.pet.petId, reminder.reminderId).subscribe({
+    this.reminders.deletePetReminder(petId, reminder.reminderId).subscribe({
       next: () => {
-        this.loadReminders(this.pet!.petId);
+        this.loadReminders(petId);
       },
       complete: () => {
         this.deletingReminderIds.delete(reminder.reminderId);

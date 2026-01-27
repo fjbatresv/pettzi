@@ -4,23 +4,31 @@
       <img src="/logo.svg" alt="Pettzi" />
       <span>Pettzi</span>
     </div>
-    <div class="topbar-user" *ngIf="isAuthenticated">
-      <span class="user-name">
-        {{ 'petInvite.loggedAs' | translate: { name: userName || 'Pettzi' } }}
-      </span>
-      <div class="user-avatar" *ngIf="userInitial">{{ userInitial }}</div>
-    </div>
+    @if (isAuthenticated) {
+      <div class="topbar-user">
+        <span class="user-name">
+          {{ 'petInvite.loggedAs' | translate: { name: userName || 'Pettzi' } }}
+        </span>
+        @if (userInitial) {
+          <div class="user-avatar">{{ userInitial }}</div>
+        }
+      </div>
+    }
   </header>
 
   <main class="invite-main">
-    <section class="invite-card" *ngIf="invite && !isLoading">
+    @if (invite && !isLoading) {
+      <section class="invite-card">
       <div class="invite-visual">
         <div class="dot-field"></div>
         <div class="pet-photo">
-          <img *ngIf="invite.pet.imageUrl" [src]="invite.pet.imageUrl" [alt]="invite.pet.name" />
-          <div class="pet-placeholder" *ngIf="!invite.pet.imageUrl">
-            <span>{{ invite.pet.name.charAt(0) }}</span>
-          </div>
+          @if (invite.pet.imageUrl) {
+            <img [src]="invite.pet.imageUrl" [alt]="invite.pet.name" />
+          } @else {
+            <div class="pet-placeholder">
+              <span>{{ invite.pet.name.charAt(0) }}</span>
+            </div>
+          }
         </div>
         <div class="pet-tag">
           <span class="pill">{{ 'petInvite.petProfile' | translate }}</span>
@@ -45,8 +53,11 @@
 
         <div class="inviter-card">
           <div class="inviter-avatar">
-            <img *ngIf="invite.inviter.imageUrl" [src]="invite.inviter.imageUrl" [alt]="invite.inviter.fullName" />
-            <span *ngIf="!invite.inviter.imageUrl">{{ invite.inviter.fullName.charAt(0) }}</span>
+            @if (invite.inviter.imageUrl) {
+              <img [src]="invite.inviter.imageUrl" [alt]="invite.inviter.fullName" />
+            } @else {
+              <span>{{ invite.inviter.fullName.charAt(0) }}</span>
+            }
           </div>
           <div class="inviter-info">
             <strong>{{ invite.inviter.fullName }}</strong>
@@ -60,45 +71,60 @@
           <span class="meta-text">
             {{ invite.pet.name }} • {{ invite.pet.breed || invite.pet.species }}
           </span>
-          <span class="meta-age" *ngIf="invite.pet.age">{{ invite.pet.age }}</span>
+          @if (invite.pet.age) {
+            <span class="meta-age">{{ invite.pet.age }}</span>
+          }
         </div>
 
-        <div class="actions" *ngIf="!inviteAccepted">
-          <button type="button" class="primary" (click)="acceptInvite()" [disabled]="isAccepting">
-            {{ acceptLabel }}
-          </button>
-          <button type="button" class="ghost" (click)="declineInvite()">
-            {{ 'petInvite.decline' | translate }}
-          </button>
-        </div>
-
-        <p class="error-message" *ngIf="errorMessage && invite">
-          {{ errorMessage }}
-        </p>
-
-        <div class="accepted" *ngIf="inviteAccepted">
-          <div class="accepted-title">
-            {{ 'petInvite.acceptedTitle' | translate: { petName: invite.pet.name } }}
+        @if (!inviteAccepted) {
+          <div class="actions">
+            <button type="button" class="primary" (click)="acceptInvite()" [disabled]="isAccepting">
+              {{ acceptLabel }}
+            </button>
+            <button type="button" class="ghost" (click)="declineInvite()">
+              {{ 'petInvite.decline' | translate }}
+            </button>
           </div>
-          <a class="primary link-btn" [routerLink]="['/pets', invite.pet.petId]">
-            {{ 'petInvite.acceptedCta' | translate }}
-          </a>
-        </div>
+        }
 
-        <p class="helper" *ngIf="!inviteAccepted">
-          {{ 'petInvite.helper' | translate }}
-          <a href="#" class="link">{{ 'petInvite.learnMore' | translate }}</a>
-        </p>
+        @if (errorMessage && invite) {
+          <p class="error-message">
+            {{ errorMessage }}
+          </p>
+        }
+
+        @if (inviteAccepted) {
+          <div class="accepted">
+            <div class="accepted-title">
+              {{ 'petInvite.acceptedTitle' | translate: { petName: invite.pet.name } }}
+            </div>
+            <a class="primary link-btn" [routerLink]="['/pets', invite.pet.petId]">
+              {{ 'petInvite.acceptedCta' | translate }}
+            </a>
+          </div>
+        }
+
+        @if (!inviteAccepted) {
+          <p class="helper">
+            {{ 'petInvite.helper' | translate }}
+            <a href="#" class="link">{{ 'petInvite.learnMore' | translate }}</a>
+          </p>
+        }
       </div>
-    </section>
+      </section>
+    }
 
-    <section class="invite-state" *ngIf="isLoading">
-      <p>{{ 'petInvite.loading' | translate }}</p>
-    </section>
+    @if (isLoading) {
+      <section class="invite-state">
+        <p>{{ 'petInvite.loading' | translate }}</p>
+      </section>
+    }
 
-    <section class="invite-state error" *ngIf="!isLoading && errorMessage && !invite">
-      <p>{{ errorMessage }}</p>
-    </section>
+    @if (!isLoading && errorMessage && !invite) {
+      <section class="invite-state error">
+        <p>{{ errorMessage }}</p>
+      </section>
+    }
   </main>
 
   <footer class="invite-footer">

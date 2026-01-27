@@ -137,8 +137,8 @@ export class SettingsComponent implements OnInit {
       this.auth.clearSession();
       this.clearLocalData();
       void this.router.navigate(['/account-deleted']);
-    } catch (error: any) {
-      this.deleteError = error?.message ?? '';
+    } catch (error: unknown) {
+      this.deleteError = error instanceof Error ? error.message : '';
     } finally {
       this.isDeletingAccount = false;
     }
@@ -327,8 +327,8 @@ export class SettingsComponent implements OnInit {
         this.profilePhotoPreviewUrl = '';
         this.pendingPhotoFile = null;
       }
-    } catch (error: any) {
-      this.profileError = error?.message ?? '';
+    } catch (error: unknown) {
+      this.profileError = error instanceof Error ? error.message : '';
     } finally {
       this.isSavingProfile = false;
       this.isUploadingPhoto = false;

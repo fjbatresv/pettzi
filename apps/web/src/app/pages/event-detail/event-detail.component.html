@@ -1,4 +1,5 @@
-<div class="event-detail-page" *ngIf="!isLoading; else loading">
+@if (!isLoading) {
+  <div class="event-detail-page">
   <div class="event-detail-header">
     <button
       mat-icon-button
@@ -9,17 +10,20 @@
     >
       <mat-icon>arrow_back</mat-icon>
     </button>
-    <div class="header-text" *ngIf="event">
-      <p class="eyebrow">{{ 'eventDetail.title' | translate }}</p>
-      <h2>
-        {{ getEventTypeLabel(event.eventType) }}
-        {{ 'eventDetail.for' | translate }}
-        <span class="pet-name">{{ petName || ('dashboard.petFallback' | translate) }}</span>
-      </h2>
-    </div>
+    @if (event) {
+      <div class="header-text">
+        <p class="eyebrow">{{ 'eventDetail.title' | translate }}</p>
+        <h2>
+          {{ getEventTypeLabel(event.eventType) }}
+          {{ 'eventDetail.for' | translate }}
+          <span class="pet-name">{{ petName || ('dashboard.petFallback' | translate) }}</span>
+        </h2>
+      </div>
+    }
   </div>
 
-  <section class="event-card" *ngIf="event; else error">
+  @if (event) {
+    <section class="event-card">
     <div class="event-hero">
       <div class="event-icon">
         <mat-icon>{{ getEventIcon(event.eventType) }}</mat-icon>
@@ -30,8 +34,9 @@
       </div>
     </div>
 
-    <div class="detail-grid" [ngSwitch]="event.eventType">
-      <ng-container *ngSwitchCase="'MEDICATION'">
+    <div class="detail-grid">
+      @switch (event.eventType) {
+        @case ('MEDICATION') {
         <div class="detail-row">
           <span>{{ 'dashboard.medicationName' | translate }}</span>
           {{ getMedicationName(event) }}
@@ -52,9 +57,9 @@
           <span>{{ 'dashboard.observations' | translate }}</span>
           {{ getObservationLabel(event) }}
         </div>
-      </ng-container>
+        }
 
-      <ng-container *ngSwitchCase="'VET_VISIT'">
+        @case ('VET_VISIT') {
         <div class="detail-row">
           <span>{{ 'dashboard.vetClinic' | translate }}</span>
           {{ getVetClinic(event) }}
@@ -71,9 +76,9 @@
           <span>{{ 'dashboard.observations' | translate }}</span>
           {{ getObservationLabel(event) }}
         </div>
-      </ng-container>
+        }
 
-      <ng-container *ngSwitchCase="'VACCINE'">
+        @case ('VACCINE') {
         <div class="detail-row">
           <span>{{ 'dashboard.vaccineName' | translate }}</span>
           {{ getVaccineName(event) }}
@@ -98,9 +103,9 @@
           <span>{{ 'dashboard.observations' | translate }}</span>
           {{ getObservationLabel(event) }}
         </div>
-      </ng-container>
+        }
 
-      <ng-container *ngSwitchCase="'GROOMING'">
+        @case ('GROOMING') {
         <div class="detail-row full">
           <span>{{ 'dashboard.groomingServices' | translate }}</span>
           {{ getGroomingServices(event) }}
@@ -109,9 +114,9 @@
           <span>{{ 'dashboard.observations' | translate }}</span>
           {{ getObservationLabel(event) }}
         </div>
-      </ng-container>
+        }
 
-      <ng-container *ngSwitchCase="'WEIGHT'">
+        @case ('WEIGHT') {
         <div class="detail-row full">
           <span>{{ 'dashboard.weightNew' | translate }}</span>
           {{ getWeightLabel(event) }}
@@ -120,70 +125,76 @@
           <span>{{ 'dashboard.observations' | translate }}</span>
           {{ getObservationLabel(event) }}
         </div>
-      </ng-container>
+        }
 
-      <ng-container *ngSwitchDefault>
+        @default {
         <div class="detail-row full">
           <span>{{ 'dashboard.observations' | translate }}</span>
           {{ getObservationLabel(event) }}
         </div>
-      </ng-container>
+        }
+      }
     </div>
-  </section>
+    </section>
+  } @else {
+    <div class="event-detail-state">
+      <p>{{ errorMessage }}</p>
+    </div>
+  }
 
-  <section class="attachments-card" *ngIf="event && event.eventType !== 'GROOMING'">
-    <div class="section-title">
-      <div class="section-icon">
-        <mat-icon>attach_file</mat-icon>
-      </div>
-      <h3>{{ 'eventDetail.attachments' | translate }}</h3>
-    </div>
-    <div class="attachments-grid" *ngIf="attachments.length; else attachmentsEmpty">
-      <article class="attachment" *ngFor="let file of attachments">
-        <button
-          type="button"
-          class="attachment-preview"
-          (click)="openAttachment(file)"
-          [attr.aria-label]="file.fileName"
-        >
-          <img
-            *ngIf="file.isImage && (file.previewUrl || file.downloadUrl)"
-            [src]="file.previewUrl || file.downloadUrl"
-            [alt]="file.fileName"
-            loading="lazy"
-          />
-          <mat-icon *ngIf="!file.isImage">insert_drive_file</mat-icon>
-        </button>
-        <div class="attachment-meta">
-          <p>{{ file.fileName }}</p>
-          <span>{{ file.contentType || 'file' }}</span>
+  @if (event && event.eventType !== 'GROOMING') {
+    <section class="attachments-card">
+      <div class="section-title">
+        <div class="section-icon">
+          <mat-icon>attach_file</mat-icon>
         </div>
-        <a
-          class="attachment-download"
-          [href]="file.downloadUrl"
-          target="_blank"
-          rel="noopener"
-        >
-          {{ 'eventDetail.download' | translate }}
-        </a>
-      </article>
-    </div>
-    <ng-template #attachmentsEmpty>
-      <div class="attachments-empty-card">
-        <p>{{ 'eventDetail.noAttachments' | translate }}</p>
+        <h3>{{ 'eventDetail.attachments' | translate }}</h3>
       </div>
-    </ng-template>
-  </section>
-</div>
-
-<ng-template #loading>
+      @if (attachments.length) {
+        <div class="attachments-grid">
+          @for (file of attachments; track file.fileKey) {
+            <article class="attachment">
+              <button
+                type="button"
+                class="attachment-preview"
+                (click)="openAttachment(file)"
+                [attr.aria-label]="file.fileName"
+              >
+                @if (file.isImage && (file.previewUrl || file.downloadUrl)) {
+                  <img
+                    [src]="file.previewUrl || file.downloadUrl"
+                    [alt]="file.fileName"
+                    loading="lazy"
+                  />
+                } @else {
+                  <mat-icon>insert_drive_file</mat-icon>
+                }
+              </button>
+              <div class="attachment-meta">
+                <p>{{ file.fileName }}</p>
+                <span>{{ file.contentType || 'file' }}</span>
+              </div>
+              <a
+                class="attachment-download"
+                [href]="file.downloadUrl"
+                target="_blank"
+                rel="noopener"
+              >
+                {{ 'eventDetail.download' | translate }}
+              </a>
+            </article>
+          }
+        </div>
+      } @else {
+        <div class="attachments-empty-card">
+          <p>{{ 'eventDetail.noAttachments' | translate }}</p>
+        </div>
+      }
+    </section>
+  }
+  </div>
+} @else {
   <div class="event-detail-state">
     <p>{{ 'eventDetail.loading' | translate }}</p>
   </div>
-</ng-template>
-
-<ng-template #error>
-  <div class="event-detail-state">
-    <p>{{ errorMessage }}</p>
-  </div>
-</ng-template>
+}

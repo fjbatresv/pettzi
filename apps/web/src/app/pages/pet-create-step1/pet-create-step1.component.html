@@ -38,9 +38,11 @@
           <span class="field-label">{{ 'createPet.speciesLabel' | translate }}</span>
           <mat-form-field appearance="outline" class="select-field">
             <mat-select [(ngModel)]="selectedSpeciesCode" (ngModelChange)="onSpeciesChange($event)">
-              <mat-option *ngFor="let species of speciesOptions" [value]="species.code">
-                {{ species.label }}
-              </mat-option>
+              @for (species of speciesOptions; track species.code) {
+                <mat-option [value]="species.code">
+                  {{ species.label }}
+                </mat-option>
+              }
             </mat-select>
           </mat-form-field>
         </div>
@@ -48,17 +50,21 @@
           <span class="field-label">{{ 'createPet.breedLabel' | translate }}</span>
           <mat-form-field appearance="outline" class="select-field">
             <mat-select [(ngModel)]="selectedBreedCode" required>
-              <mat-option *ngFor="let breed of breeds" [value]="breed.code">
-                {{ breed.label }}
-              </mat-option>
+              @for (breed of breeds; track breed.code) {
+                <mat-option [value]="breed.code">
+                  {{ breed.label }}
+                </mat-option>
+              }
             </mat-select>
           </mat-form-field>
         </div>
       </div>
 
-      <p class="validation" *ngIf="showValidation && !isFormValid">
-        {{ 'createPet.validationRequired' | translate }}
-      </p>
+      @if (showValidation && !isFormValid) {
+        <p class="validation">
+          {{ 'createPet.validationRequired' | translate }}
+        </p>
+      }
 
       <button type="button" class="primary cta" (click)="continue()" >
         {{ 'createPet.continue' | translate }}
