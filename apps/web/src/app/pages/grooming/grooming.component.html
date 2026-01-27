@@ -1,15 +1,4 @@
-<section class="grooming-page">
-  <header class="grooming-header">
-    <button mat-button class="back-btn" [routerLink]="['/pets', petId]">
-      <mat-icon>arrow_back</mat-icon>
-    </button>
-    <h2>
-      {{ 'grooming.titlePrefix' | translate }}
-      <span class="pet-name">{{ petName || ('dashboard.petFallback' | translate) }}</span>
-    </h2>
-  </header>
-
-  <section class="grooming-card">
+<section class="grooming-card">
     <div class="section-title">
       <span class="section-icon">
         <mat-icon>spa</mat-icon>
@@ -98,19 +87,4 @@
       rows="4"
     ></textarea>
 
-    <div class="actions">
-      <button type="button" class="link-btn" [routerLink]="['/pets', petId]">
-        {{ 'grooming.cancel' | translate }}
-      </button>
-      <button
-        mat-raised-button
-        color="primary"
-        class="primary-cta"
-        [disabled]="!isFormValid || isSubmitting"
-        (click)="saveGrooming()"
-      >
-        {{ 'grooming.save' | translate }}
-      </button>
-    </div>
   </section>
-</section>

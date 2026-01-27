@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -12,7 +11,6 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { EventsService } from '../../core/services/events.service';
 import { PetsService } from '../../core/services/pets.service';
-import { Pet } from '@pettzi/domain-model';
 import { UploadsService } from '../../core/services/uploads.service';
 
 type UploadedAttachment = {
@@ -27,7 +25,6 @@ type UploadedAttachment = {
   imports: [
     CommonModule,
     FormsModule,
-    RouterModule,
     MatButtonModule,
     MatDatepickerModule,
     MatFormFieldModule,
@@ -39,18 +36,14 @@ type UploadedAttachment = {
   templateUrl: './vet-visit.component.html',
   styleUrl: './vet-visit.component.scss',
 })
-export class VetVisitComponent implements OnInit {
+export class VetVisitComponent {
   private readonly pets = inject(PetsService);
   private readonly events = inject(EventsService);
   private readonly uploads = inject(UploadsService);
-  private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
   private readonly translate = inject(TranslateService);
-  private readonly activePetKey = 'pettzi.activePetId';
 
-  petName = '';
-  petId = '';
-  activePet: Pet | null = null;
+  @Input() petId = '';
+  @Output() saved = new EventEmitter<void>();
 
   reason = '';
   visitDate: Date | null = null;
@@ -72,24 +65,6 @@ export class VetVisitComponent implements OnInit {
 
   get maxVisitDate() {
     return this.startOfDay(new Date());
-  }
-
-  ngOnInit() {
-    const routePetId = this.route.snapshot.paramMap.get('petId') ?? '';
-    this.pets.listPets().subscribe({
-      next: ({ pets }) => {
-        const list = pets ?? [];
-        const activeId = localStorage.getItem(this.activePetKey);
-        const targetId = routePetId || activeId || '';
-        const activePet = targetId ? list.find((pet) => pet.petId === targetId) : list[0];
-        this.activePet = activePet ?? null;
-        this.petName = activePet?.name ?? '';
-        this.petId = activePet?.petId ?? '';
-        if (this.petId) {
-          localStorage.setItem(this.activePetKey, this.petId);
-        }
-      },
-    });
   }
 
   onFilesSelected(event: Event) {
@@ -129,25 +104,24 @@ export class VetVisitComponent implements OnInit {
 
       await firstValueFrom(this.events.createPetEvent(this.petId, payload));
       this.updateLastVetVisitDate();
-      void this.router.navigate(['/pets', this.petId]);
+      this.isSubmitting = false;
+      this.saved.emit();
     } catch {
       this.isSubmitting = false;
     }
   }
 
   private updateLastVetVisitDate() {
-    if (!this.activePet || !this.visitDate) {
-      return;
-    }
-    const last = this.activePet.lastVetVisitDate
-      ? new Date(this.activePet.lastVetVisitDate as unknown as string)
-      : null;
-    if (last && last.getTime() >= this.visitDate.getTime()) {
+    if (!this.petId || !this.visitDate) {
       return;
     }
     this.pets
-      .updatePet(this.activePet.petId, { lastVetVisitDate: this.visitDate })
+      .updatePet(this.petId, { lastVetVisitDate: this.visitDate })
       .subscribe();
+  }
+
+  submit() {
+    void this.saveVisit();
   }
 
   private async uploadAttachments(): Promise<UploadedAttachment[]> {

@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -11,7 +10,6 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { EventsService } from '../../core/services/events.service';
-import { PetsService } from '../../core/services/pets.service';
 import { RemindersService } from '../../core/services/reminders.service';
 import { UploadsService } from '../../core/services/uploads.service';
 
@@ -27,7 +25,6 @@ type UploadedAttachment = {
   imports: [
     CommonModule,
     FormsModule,
-    RouterModule,
     MatButtonModule,
     MatDatepickerModule,
     MatFormFieldModule,
@@ -39,18 +36,13 @@ type UploadedAttachment = {
   templateUrl: './vaccine.component.html',
   styleUrl: './vaccine.component.scss',
 })
-export class VaccineComponent implements OnInit {
-  private readonly pets = inject(PetsService);
+export class VaccineComponent {
   private readonly events = inject(EventsService);
   private readonly reminders = inject(RemindersService);
   private readonly uploads = inject(UploadsService);
-  private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
   private readonly translate = inject(TranslateService);
-  private readonly activePetKey = 'pettzi.activePetId';
-
-  petName = '';
-  petId = '';
+  @Input() petId = '';
+  @Output() saved = new EventEmitter<void>();
 
   name = '';
   administeredDate: Date | null = null;
@@ -73,23 +65,6 @@ export class VaccineComponent implements OnInit {
       !!this.administeredDate &&
       this.batchNumber.trim().length > 0
     );
-  }
-
-  ngOnInit() {
-    const routePetId = this.route.snapshot.paramMap.get('petId') ?? '';
-    this.pets.listPets().subscribe({
-      next: ({ pets }) => {
-        const list = pets ?? [];
-        const activeId = localStorage.getItem(this.activePetKey);
-        const targetId = routePetId || activeId || '';
-        const activePet = targetId ? list.find((pet) => pet.petId === targetId) : list[0];
-        this.petName = activePet?.name ?? '';
-        this.petId = activePet?.petId ?? '';
-        if (this.petId) {
-          localStorage.setItem(this.activePetKey, this.petId);
-        }
-      },
-    });
   }
 
   onFilesSelected(event: Event) {
@@ -148,10 +123,15 @@ export class VaccineComponent implements OnInit {
         await firstValueFrom(this.reminders.createPetReminder(this.petId, reminderPayload));
       }
 
-      void this.router.navigate(['/pets', this.petId]);
+      this.isSubmitting = false;
+      this.saved.emit();
     } catch {
       this.isSubmitting = false;
     }
+  }
+
+  submit() {
+    void this.saveVaccine();
   }
 
   private async uploadAttachments(): Promise<UploadedAttachment[]> {

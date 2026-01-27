@@ -6,11 +6,6 @@ import { PetCreateStep2Component } from './pages/pet-create-step2/pet-create-ste
 import { DashboardPetComponent } from './pages/dashboard-pet/dashboard-pet.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { DashboardLayoutComponent } from './components/dashboard-layout/dashboard-layout.component';
-import { GroomingComponent } from './pages/grooming/grooming.component';
-import { VetVisitComponent } from './pages/vet-visit/vet-visit.component';
-import { MedicationComponent } from './pages/medication/medication.component';
-import { VaccineComponent } from './pages/vaccine/vaccine.component';
-import { WeightComponent } from './pages/weight/weight.component';
 import { PetEditComponent } from './pages/pet-edit/pet-edit.component';
 import { PetShareComponent } from './pages/pet-share/pet-share.component';
 import { PetShareRecordsComponent } from './pages/pet-share-records/pet-share-records.component';
@@ -23,6 +18,7 @@ import { PetInviteConfirmComponent } from './pages/pet-invite-confirm/pet-invite
 import { PetRecordComponent } from './pages/pet-record/pet-record.component';
 import { EventDetailComponent } from './pages/event-detail/event-detail.component';
 import { PetInvitesComponent } from './pages/pet-invites/pet-invites.component';
+import { EventWizardComponent } from './pages/event-wizard/event-wizard.component';
 import { authenticatedGuard } from './core/guards/authenticated.guard';
 import { unauthenticatedGuard } from './core/guards/unauthenticated.guard';
 import { resetPasswordGuard } from './core/guards/reset-password.guard';
@@ -87,6 +83,10 @@ export const appRoutes: Route[] = [
         component: EventDetailComponent,
       },
       {
+        path: 'pets/:petId/events/new',
+        component: EventWizardComponent,
+      },
+      {
         path: 'pets/:petId',
         component: DashboardPetComponent,
       },
@@ -101,26 +101,6 @@ export const appRoutes: Route[] = [
       {
         path: 'pets/:petId/share-records',
         component: PetShareRecordsComponent,
-      },
-      {
-        path: 'pets/:petId/grooming/new',
-        component: GroomingComponent,
-      },
-      {
-        path: 'pets/:petId/vet-visits/new',
-        component: VetVisitComponent,
-      },
-      {
-        path: 'pets/:petId/medicines/new',
-        component: MedicationComponent,
-      },
-      {
-        path: 'pets/:petId/weights/new',
-        component: WeightComponent,
-      },
-      {
-        path: 'pets/:petId/vaccines/new',
-        component: VaccineComponent,
       },
       {
         path: 'settings',

@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -20,7 +19,6 @@ import { PetsService } from '../../core/services/pets.service';
   imports: [
     CommonModule,
     FormsModule,
-    RouterModule,
     MatButtonModule,
     MatDatepickerModule,
     MatFormFieldModule,
@@ -36,13 +34,9 @@ import { PetsService } from '../../core/services/pets.service';
 export class WeightComponent implements OnInit {
   private readonly pets = inject(PetsService);
   private readonly events = inject(EventsService);
-  private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
   private readonly translate = inject(TranslateService);
-  private readonly activePetKey = 'pettzi.activePetId';
-
-  petName = '';
-  petId = '';
+  @Input() petId = '';
+  @Output() saved = new EventEmitter<void>();
   weightValue: number | null = null;
   weightUnit: 'kg' | 'lb' = 'kg';
   weightDate: Date | null = null;
@@ -65,20 +59,6 @@ export class WeightComponent implements OnInit {
 
   ngOnInit() {
     this.weightUnit = this.getStoredUnit();
-    const routePetId = this.route.snapshot.paramMap.get('petId') ?? '';
-    this.pets.listPets().subscribe({
-      next: ({ pets }) => {
-        const list = pets ?? [];
-        const activeId = localStorage.getItem(this.activePetKey);
-        const targetId = routePetId || activeId || '';
-        const activePet = targetId ? list.find((pet) => pet.petId === targetId) : list[0];
-        this.petName = activePet?.name ?? '';
-        this.petId = activePet?.petId ?? '';
-        if (this.petId) {
-          localStorage.setItem(this.activePetKey, this.petId);
-        }
-      },
-    });
   }
 
   async saveWeight() {
@@ -102,10 +82,15 @@ export class WeightComponent implements OnInit {
       if (weightKg !== null) {
         await firstValueFrom(this.pets.updatePet(this.petId, { weightKg }));
       }
-      void this.router.navigate(['/pets', this.petId]);
+      this.isSubmitting = false;
+      this.saved.emit();
     } catch {
       this.isSubmitting = false;
     }
+  }
+
+  submit() {
+    void this.saveWeight();
   }
 
   private startOfDay(value: Date) {

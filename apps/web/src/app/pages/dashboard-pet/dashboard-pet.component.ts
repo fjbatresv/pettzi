@@ -61,7 +61,6 @@ export class DashboardPetComponent implements OnInit {
   isLoadingMoreActivity = false;
   hasCoOwners = false;
   currentOwnerId = '';
-  showActivityMenu = false;
   showPetMenu = false;
   canManagePet = false;
   deletingEventIds = new Set<string>();
@@ -484,12 +483,11 @@ export class DashboardPetComponent implements OnInit {
     return event.notes?.trim() || this.translate.instant('dashboard.noDetails');
   }
 
-  toggleActivityMenu() {
-    this.showActivityMenu = !this.showActivityMenu;
-  }
-
-  closeActivityMenu() {
-    this.showActivityMenu = false;
+  openEventWizard() {
+    if (!this.pet?.petId) {
+      return;
+    }
+    void this.router.navigate(['/pets', this.pet.petId, 'events', 'new']);
   }
 
   togglePetMenu() {
@@ -599,27 +597,6 @@ export class DashboardPetComponent implements OnInit {
     }
   }
 
-  selectActivity(type: string) {
-    this.closeActivityMenu();
-    if (!this.pet?.petId) {
-      return;
-    }
-    if (type === 'GROOMING') {
-      void this.router.navigate(['/pets', this.pet.petId, 'grooming', 'new']);
-    }
-    if (type === 'VET_VISIT') {
-      void this.router.navigate(['/pets', this.pet.petId, 'vet-visits', 'new']);
-    }
-    if (type === 'MEDICATION') {
-      void this.router.navigate(['/pets', this.pet.petId, 'medicines', 'new']);
-    }
-    if (type === 'VACCINE') {
-      void this.router.navigate(['/pets', this.pet.petId, 'vaccines', 'new']);
-    }
-    if (type === 'WEIGHT') {
-      void this.router.navigate(['/pets', this.pet.petId, 'weights', 'new']);
-    }
-  }
 
   get displayedActivityLog() {
     return this.filteredActivityLog;

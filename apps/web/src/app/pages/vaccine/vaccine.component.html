@@ -1,15 +1,4 @@
-<section class="vaccine-page">
-  <header class="vaccine-header">
-    <button mat-button class="back-btn" [routerLink]="['/pets', petId]">
-      <mat-icon>arrow_back</mat-icon>
-    </button>
-    <h2>
-      {{ 'vaccine.titlePrefix' | translate }}
-      <span class="pet-name">{{ petName || ('dashboard.petFallback' | translate) }}</span>
-    </h2>
-  </header>
-
-  <section class="vaccine-card">
+<section class="vaccine-card">
     <div class="section-title">
       <span class="section-icon">
         <mat-icon>vaccines</mat-icon>
@@ -99,19 +88,4 @@
       </div>
     }
 
-    <div class="actions">
-      <button type="button" class="link-btn" [routerLink]="['/pets', petId]">
-        {{ 'vaccine.cancel' | translate }}
-      </button>
-      <button
-        mat-raised-button
-        color="primary"
-        class="primary-cta"
-        [disabled]="!isFormValid || isSubmitting"
-        (click)="saveVaccine()"
-      >
-        {{ 'vaccine.save' | translate }}
-      </button>
-    </div>
   </section>
-</section>
