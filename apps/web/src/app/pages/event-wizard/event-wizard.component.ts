@@ -1,0 +1,180 @@
+import { CommonModule } from '@angular/common';
+import { Component, ViewChild, inject, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { PetsService } from '../../core/services/pets.service';
+import { GroomingComponent } from '../grooming/grooming.component';
+import { VetVisitComponent } from '../vet-visit/vet-visit.component';
+import { MedicationComponent } from '../medication/medication.component';
+import { VaccineComponent } from '../vaccine/vaccine.component';
+import { WeightComponent } from '../weight/weight.component';
+
+const EVENT_TYPES = ['WEIGHT', 'VACCINE', 'MEDICATION', 'VET_VISIT', 'GROOMING'] as const;
+
+type EventType = (typeof EVENT_TYPES)[number];
+
+const EVENT_ICONS: Record<EventType, string> = {
+  WEIGHT: 'monitor_weight',
+  VACCINE: 'vaccines',
+  MEDICATION: 'medical_services',
+  VET_VISIT: 'local_hospital',
+  GROOMING: 'spa',
+};
+
+@Component({
+  selector: 'app-event-wizard',
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatIconModule,
+    TranslateModule,
+    GroomingComponent,
+    VetVisitComponent,
+    MedicationComponent,
+    VaccineComponent,
+    WeightComponent,
+  ],
+  templateUrl: './event-wizard.component.html',
+  styleUrl: './event-wizard.component.scss',
+})
+export class EventWizardComponent implements OnInit {
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly pets = inject(PetsService);
+  private readonly translate = inject(TranslateService);
+
+  petId = '';
+  petName = '';
+  step: 1 | 2 = 1;
+  searchQuery = '';
+  selectedType: EventType | null = null;
+
+  @ViewChild('groomingForm') groomingForm?: GroomingComponent;
+  @ViewChild('vetVisitForm') vetVisitForm?: VetVisitComponent;
+  @ViewChild('medicationForm') medicationForm?: MedicationComponent;
+  @ViewChild('vaccineForm') vaccineForm?: VaccineComponent;
+  @ViewChild('weightForm') weightForm?: WeightComponent;
+
+  ngOnInit() {
+    this.petId = this.route.snapshot.paramMap.get('petId') ?? '';
+    this.loadPetName();
+  }
+
+  get eventTypes(): EventType[] {
+    const query = this.searchQuery.trim().toLowerCase();
+    if (!query) {
+      return [...EVENT_TYPES];
+    }
+    return EVENT_TYPES.filter((type) =>
+      this.getTypeLabel(type).toLowerCase().includes(query)
+    );
+  }
+
+  get stepLabel() {
+    return this.translate.instant('eventWizard.stepLabel', { step: this.step, total: 2 });
+  }
+
+  onSearch(event: KeyboardEvent) {
+    const target = event.target as HTMLInputElement | null;
+    this.searchQuery = target?.value ?? '';
+  }
+
+  selectType(type: EventType) {
+    this.selectedType = type;
+  }
+
+  goNext() {
+    if (!this.selectedType) {
+      return;
+    }
+    this.step = 2;
+  }
+
+  goBack() {
+    this.searchQuery = '';
+    this.step = 1;
+  }
+
+  cancel() {
+    if (this.petId) {
+      void this.router.navigate(['/pets', this.petId]);
+      return;
+    }
+    void this.router.navigate(['/home']);
+  }
+
+  submitCurrentForm() {
+    const form = this.currentForm;
+    if (!form) {
+      return;
+    }
+    form.submit();
+  }
+
+  handleSaved() {
+    if (this.petId) {
+      void this.router.navigate(['/pets', this.petId]);
+      return;
+    }
+    void this.router.navigate(['/home']);
+  }
+
+  get canSave() {
+    const form = this.currentForm;
+    if (!form) {
+      return false;
+    }
+    return form.isFormValid && !form.isSubmitting;
+  }
+
+  getTypeLabel(type: EventType) {
+    switch (type) {
+      case 'WEIGHT':
+        return this.translate.instant('dashboard.activityWeight');
+      case 'VACCINE':
+        return this.translate.instant('dashboard.activityVaccine');
+      case 'MEDICATION':
+        return this.translate.instant('dashboard.activityMedication');
+      case 'VET_VISIT':
+        return this.translate.instant('dashboard.activityVetVisit');
+      case 'GROOMING':
+        return this.translate.instant('dashboard.activityGrooming');
+    }
+  }
+
+  getTypeIcon(type: EventType) {
+    return EVENT_ICONS[type] ?? 'pets';
+  }
+
+  private loadPetName() {
+    if (!this.petId) {
+      return;
+    }
+    this.pets.listPets().subscribe({
+      next: ({ pets }) => {
+        const match = (pets ?? []).find((pet) => pet.petId === this.petId);
+        this.petName = match?.name ?? '';
+      },
+    });
+  }
+
+  private get currentForm() {
+    switch (this.selectedType) {
+      case 'GROOMING':
+        return this.groomingForm;
+      case 'VET_VISIT':
+        return this.vetVisitForm;
+      case 'MEDICATION':
+        return this.medicationForm;
+      case 'VACCINE':
+        return this.vaccineForm;
+      case 'WEIGHT':
+        return this.weightForm;
+      default:
+        return undefined;
+    }
+  }
+}

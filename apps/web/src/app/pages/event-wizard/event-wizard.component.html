@@ -1,0 +1,123 @@
+<section class="event-wizard">
+  <header class="wizard-header">
+    <div class="wizard-title">
+      <div class="header-row">
+        <div>
+          <span class="wizard-step">{{ stepLabel }}</span>
+          <h1>{{ 'eventWizard.title' | translate }}</h1>
+        </div>
+        <button type="button" class="ghost cancel-btn" (click)="cancel()">
+          {{ 'eventWizard.cancel' | translate }}
+        </button>
+      </div>
+      <p >para <span class="pet-name">{{ petName || ('dashboard.petFallback' | translate) }}</span></p>
+    </div>
+    <div class="wizard-actions"></div>
+  </header>
+
+  <div class="wizard-body">
+    @if (step === 1) {
+      <section class="wizard-step-card">
+        <h2>{{ 'eventWizard.step1Title' | translate }}</h2>
+        <p>{{ 'eventWizard.step1Subtitle' | translate }}</p>
+        <div class="search-box">
+          <mat-icon>search</mat-icon>
+          <input
+            type="text"
+            [placeholder]="'eventWizard.searchPlaceholder' | translate"
+            [value]="searchQuery"
+            (keyup)="onSearch($event)"
+          />
+        </div>
+        <div class="type-list">
+          @for (type of eventTypes; track type) {
+            <button
+              type="button"
+              class="type-option"
+              [class.selected]="selectedType === type"
+              (click)="selectType(type)"
+            >
+              <span class="type-icon">
+                <mat-icon>{{ getTypeIcon(type) }}</mat-icon>
+              </span>
+              <span class="type-label">{{ getTypeLabel(type) }}</span>
+            </button>
+          }
+        </div>
+        <button
+          type="button"
+          class="primary"
+          [disabled]="!selectedType"
+          (click)="goNext()"
+        >
+          {{ 'eventWizard.continue' | translate }}
+        </button>
+      </section>
+    } @else {
+      <section class="wizard-step-card">
+        <div class="selected-type">
+          <span class="type-icon">
+            <mat-icon>{{ getTypeIcon(selectedType!) }}</mat-icon>
+          </span>
+          <div>
+            <h2>{{ getTypeLabel(selectedType!) }}</h2>
+            <p>{{ 'eventWizard.step2Subtitle' | translate }}</p>
+          </div>
+        </div>
+      </section>
+      <section class="wizard-form">
+        @switch (selectedType) {
+          @case ('GROOMING') {
+            <app-grooming
+              #groomingForm
+              [petId]="petId"
+              (saved)="handleSaved()"
+            ></app-grooming>
+          }
+          @case ('VET_VISIT') {
+            <app-vet-visit
+              #vetVisitForm
+              [petId]="petId"
+              (saved)="handleSaved()"
+            ></app-vet-visit>
+          }
+          @case ('MEDICATION') {
+            <app-medication
+              #medicationForm
+              [petId]="petId"
+              (saved)="handleSaved()"
+            ></app-medication>
+          }
+          @case ('VACCINE') {
+            <app-vaccine
+              #vaccineForm
+              [petId]="petId"
+              (saved)="handleSaved()"
+            ></app-vaccine>
+          }
+          @case ('WEIGHT') {
+            <app-weight
+              #weightForm
+              [petId]="petId"
+              (saved)="handleSaved()"
+            ></app-weight>
+          }
+        }
+      </section>
+      <div class="wizard-form-actions">
+        <button type="button" class="ghost back-btn" (click)="goBack()">
+          {{ 'eventWizard.back' | translate }}
+        </button>
+        <button
+          mat-raised-button
+          color="primary"
+          class="primary-cta"
+          [disabled]="!canSave"
+          (click)="submitCurrentForm()"
+        >
+          {{ 'eventWizard.save' | translate }}
+        </button>
+      </div>
+    }
+  </div>
+</section>

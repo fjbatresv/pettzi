@@ -1,15 +1,4 @@
-<section class="vet-visit-page">
-  <header class="vet-visit-header">
-    <button mat-button class="back-btn" [routerLink]="['/pets', petId]">
-      <mat-icon>arrow_back</mat-icon>
-    </button>
-    <h2>
-      {{ 'vetVisit.titlePrefix' | translate }}
-      <span class="pet-name">{{ petName || ('dashboard.petFallback' | translate) }}</span>
-    </h2>
-  </header>
-
-  <section class="vet-visit-card">
+<section class="vet-visit-card">
     <div class="section-title">
       <span class="section-icon">
         <mat-icon>medical_services</mat-icon>
@@ -88,19 +77,4 @@
       </div>
     }
 
-    <div class="actions">
-      <button type="button" class="link-btn" [routerLink]="['/pets', petId]">
-        {{ 'vetVisit.cancel' | translate }}
-      </button>
-      <button
-        mat-raised-button
-        color="primary"
-        class="primary-cta"
-        [disabled]="!isFormValid || isSubmitting"
-        (click)="saveVisit()"
-      >
-        {{ 'vetVisit.save' | translate }}
-      </button>
-    </div>
   </section>
-</section>

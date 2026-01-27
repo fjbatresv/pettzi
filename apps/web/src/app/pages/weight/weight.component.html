@@ -1,15 +1,4 @@
-<section class="weight-page">
-  <header class="weight-header">
-    <button mat-button class="back-btn" [routerLink]="['/pets', petId]">
-      <mat-icon>arrow_back</mat-icon>
-    </button>
-    <h2>
-      {{ 'weight.titlePrefix' | translate }}
-      <span class="pet-name">{{ petName || ('dashboard.petFallback' | translate) }}</span>
-    </h2>
-  </header>
-
-  <section class="weight-card">
+<section class="weight-card">
     <div class="section-title">
       <span class="section-icon">
         <mat-icon>monitor_weight</mat-icon>
@@ -58,19 +47,4 @@
       rows="4"
     ></textarea>
 
-    <div class="actions">
-      <button type="button" class="link-btn" [routerLink]="['/pets', petId]">
-        {{ 'weight.cancel' | translate }}
-      </button>
-      <button
-        mat-raised-button
-        color="primary"
-        class="primary-cta"
-        [disabled]="!isFormValid || isSubmitting"
-        (click)="saveWeight()"
-      >
-        {{ 'weight.save' | translate }}
-      </button>
-    </div>
   </section>
-</section>

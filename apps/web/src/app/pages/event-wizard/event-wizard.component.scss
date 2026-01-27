@@ -1,0 +1,290 @@
+:host {
+  display: block;
+}
+
+.event-wizard {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.wizard-header {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  background: #fbf7f3;
+  padding: 0.5rem 0 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(127, 19, 236, 0.12);
+}
+
+.wizard-title {
+  flex: 1 1 auto;
+  min-width: -webkit-fill-available;
+}
+
+.wizard-title h1 {
+  margin: 0.2rem 0 0.15rem;
+  font-size: 1.6rem;
+  color: #1b1224;
+}
+
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+}
+
+.wizard-step {
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(127, 19, 236, 0.65);
+}
+
+.pet-name {
+  margin: 0;
+  font-weight: 600;
+  color: #7f13ec;
+}
+
+.wizard-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.ghost {
+  border: 1px solid rgba(127, 19, 236, 0.2);
+  background: #ffffff;
+  color: #7f13ec;
+  border-radius: 999px;
+  padding: 0.5rem 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cancel-btn {
+  border: 1px solid rgba(127, 19, 236, 0.2);
+  background: #ffffff;
+  color: #7f13ec;
+  border-radius: 999px;
+  padding: 0.5rem 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.wizard-body {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.wizard-step-card {
+  background: #ffffff;
+  border: 1px solid rgba(127, 19, 236, 0.12);
+  border-radius: 20px;
+  padding: 1.5rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.wizard-step-card h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.wizard-step-card p {
+  margin: 0;
+  color: rgba(27, 18, 36, 0.65);
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid rgba(127, 19, 236, 0.2);
+  border-radius: 14px;
+  padding: 0.6rem 0.8rem;
+  background: #faf7ff;
+  color: #7f13ec;
+}
+
+.search-box input {
+  border: none;
+  outline: none;
+  background: transparent;
+  width: 100%;
+  font-size: 0.95rem;
+  color: #1b1224;
+}
+
+.type-list {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  align-items: stretch;
+}
+
+.type-option {
+  border: 1px solid rgba(127, 19, 236, 0.12);
+  border-radius: 16px;
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.75rem;
+  background: #ffffff;
+  color: #1b1224;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  min-height: 96px;
+  text-align: left;
+}
+
+.type-option.selected {
+  border-color: rgba(127, 19, 236, 0.6);
+  box-shadow: 0 12px 25px rgba(127, 19, 236, 0.18);
+  transform: translateY(-1px);
+}
+
+.type-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: rgba(127, 19, 236, 0.12);
+  display: grid;
+  place-items: center;
+  color: #7f13ec;
+}
+
+.type-label {
+  text-align: left;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.primary {
+  justify-self: end;
+  border: none;
+  padding: 0.7rem 1.6rem;
+  border-radius: 999px;
+  background: #7f13ec;
+  color: #ffffff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.selected-type {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.wizard-form {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid rgba(127, 19, 236, 0.12);
+  padding: 1rem 1.5rem 2rem;
+}
+
+.wizard-form ::ng-deep .grooming-header,
+.wizard-form ::ng-deep .vet-visit-header,
+.wizard-form ::ng-deep .medication-header,
+.wizard-form ::ng-deep .vaccine-header,
+.wizard-form ::ng-deep .weight-header {
+  display: none;
+}
+
+.wizard-form ::ng-deep .grooming-card,
+.wizard-form ::ng-deep .vet-visit-card,
+.wizard-form ::ng-deep .medication-card,
+.wizard-form ::ng-deep .vaccine-card,
+.wizard-form ::ng-deep .weight-card {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+
+.wizard-form ::ng-deep .grooming-page,
+.wizard-form ::ng-deep .vet-visit-page,
+.wizard-form ::ng-deep .medication-page,
+.wizard-form ::ng-deep .vaccine-page,
+.wizard-form ::ng-deep .weight-page {
+  padding: 0;
+  background: transparent;
+}
+
+.wizard-form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.wizard-form-actions .primary-cta.mat-mdc-raised-button {
+  background: #7f13ec;
+  color: #ffffff;
+  padding: 0.7rem 1.8rem;
+  border-radius: 14px;
+  font-weight: 600;
+}
+
+.wizard-form-actions .primary-cta.mat-mdc-raised-button[disabled] {
+  background: rgba(127, 19, 236, 0.35);
+  color: #ffffff;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+@media (max-width: 720px) {
+  .wizard-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-row {
+    width: 100%;
+  }
+
+  .wizard-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .wizard-step-card,
+  .wizard-form {
+    padding: 1rem;
+  }
+
+  .wizard-form-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .back-btn,
+  .cancel-btn {
+    justify-content: center;
+  }
+  .type-list {
+    grid-template-columns: 1fr;
+  }
+}

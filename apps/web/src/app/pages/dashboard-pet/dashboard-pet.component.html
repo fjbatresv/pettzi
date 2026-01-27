@@ -327,28 +327,9 @@
 
     <aside class="right-rail">
       <div class="fab-wrap">
-        <button class="fab-action" type="button" (click)="toggleActivityMenu()">
+        <button class="fab-action" type="button" (click)="openEventWizard()">
           <mat-icon class="fab-plus">add</mat-icon>
         </button>
-        @if (showActivityMenu) {
-          <div class="fab-menu">
-            <button type="button" (click)="selectActivity('WEIGHT')">
-              {{ 'dashboard.activityWeight' | translate }}
-            </button>
-            <button type="button" (click)="selectActivity('VACCINE')">
-              {{ 'dashboard.activityVaccine' | translate }}
-            </button>
-            <button type="button" (click)="selectActivity('MEDICATION')">
-              {{ 'dashboard.activityMedication' | translate }}
-            </button>
-            <button type="button" (click)="selectActivity('VET_VISIT')">
-              {{ 'dashboard.activityVetVisit' | translate }}
-            </button>
-            <button type="button" (click)="selectActivity('GROOMING')">
-              {{ 'dashboard.activityGrooming' | translate }}
-            </button>
-          </div>
-        }
       </div>
       <section class="reminders-card">
         <div class="card-header">
@@ -407,13 +388,3 @@
     </aside>
   </div>
 </section>
-
-@if (showActivityMenu) {
-  <div
-    class="fab-backdrop"
-    role="button"
-    tabindex="0"
-    (click)="closeActivityMenu()"
-    (keydown.enter)="closeActivityMenu()"
-  ></div>
-}
