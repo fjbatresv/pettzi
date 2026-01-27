@@ -53,16 +53,43 @@
       </div>
       <div class="header-actions">
         <app-language-toggle></app-language-toggle>
-        <div class="avatar">
-          @if (userPhotoUrl) {
-            <img
-              [src]="userPhotoUrl"
-              [alt]="userInitials"
-            />
-          } @else {
-            <span>{{ userInitials }}</span>
+        <button
+          type="button"
+          class="avatar-button"
+          [matMenuTriggerFor]="userMenu"
+          [attr.aria-label]="'menu.userMenu' | translate"
+        >
+          <div class="avatar">
+            @if (userPhotoUrl) {
+              <img
+                [src]="userPhotoUrl"
+                [alt]="userInitials"
+              />
+            } @else {
+              <span>{{ userInitials }}</span>
+            }
+          </div>
+          @if (pendingInvitesCount > 0) {
+            <span class="avatar-badge">{{ pendingInvitesCount }}</span>
           }
-        </div>
+        </button>
+        <mat-menu #userMenu="matMenu" class="user-menu">
+          <button mat-menu-item routerLink="/invites">
+            <mat-icon>mail</mat-icon>
+            <span>{{ 'menu.invites' | translate }}</span>
+            @if (pendingInvitesCount > 0) {
+              <span class="menu-badge">{{ pendingInvitesCount }}</span>
+            }
+          </button>
+          <button mat-menu-item routerLink="/settings">
+            <mat-icon>settings</mat-icon>
+            <span>{{ 'menu.settings' | translate }}</span>
+          </button>
+          <button mat-menu-item (click)="logout()">
+            <mat-icon>logout</mat-icon>
+            <span>{{ 'menu.logout' | translate }}</span>
+          </button>
+        </mat-menu>
       </div>
     </header>
 

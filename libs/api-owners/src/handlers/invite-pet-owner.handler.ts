@@ -21,7 +21,9 @@ import crypto from 'crypto';
 import {
   PETTZI_TABLE_NAME,
   assertOwnerOfPet,
+  createPendingInvite,
   ddb,
+  deletePendingInvite,
   ensureOwnerExists,
   getCallerOwnerId,
   linkExists,
@@ -61,7 +63,10 @@ const buildInviteToken = (
     .createHmac('sha256', secret)
     .update(payload)
     .digest('hex');
-  return Buffer.from(`${payload}:${signature}`).toString('base64url');
+  return {
+    token: Buffer.from(`${payload}:${signature}`).toString('base64url'),
+    expires,
+  };
 };
 
 const buildAcceptUrl = (token: string) => `${INVITE_BASE_URL}?token=${token}`;
@@ -187,7 +192,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
       );
     }
 
-    const token = buildInviteToken(
+    const { token, expires } = buildInviteToken(
       email,
       petId,
       inviterId,
@@ -198,22 +203,44 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     const template =
       locale === 'en' && INVITE_TEMPLATE_EN ? INVITE_TEMPLATE_EN : INVITE_TEMPLATE_ES;
 
-    await ses.send(
-      new SendTemplatedEmailCommand({
-        Source: SES_FROM_EMAIL,
-        Destination: { ToAddresses: [email] },
-        Template: template,
-        TemplateData: JSON.stringify({
-          inviterName: inviterProfile.fullName || inviterProfile.email || 'Pettzi',
-          petName: pet.name,
-          petBreed,
-          petAge,
-          petImageUrl,
-          acceptInvitationUrl,
-          expirationDays: INVITE_EXPIRATION_DAYS,
-        }),
-      })
-    );
+    let pendingSaved = false;
+    try {
+      await createPendingInvite({
+        inviteeId,
+        inviterId,
+        petId,
+        token,
+        expiresAt: expires,
+        createdAt: Date.now(),
+      });
+      pendingSaved = true;
+
+      await ses.send(
+        new SendTemplatedEmailCommand({
+          Source: SES_FROM_EMAIL,
+          Destination: { ToAddresses: [email] },
+          Template: template,
+          TemplateData: JSON.stringify({
+            inviterName: inviterProfile.fullName || inviterProfile.email || 'Pettzi',
+            petName: pet.name,
+            petBreed,
+            petAge,
+            petImageUrl,
+            acceptInvitationUrl,
+            expirationDays: INVITE_EXPIRATION_DAYS,
+          }),
+        })
+      );
+    } catch (err) {
+      if (pendingSaved) {
+        try {
+          await deletePendingInvite(inviteeId, petId, inviterId);
+        } catch (cleanupError) {
+          console.warn('Failed to cleanup pending invite after email error', cleanupError);
+        }
+      }
+      throw err;
+    }
 
     return ok({ message: 'Invitation sent' });
   } catch (error) {

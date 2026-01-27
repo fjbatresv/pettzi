@@ -87,6 +87,7 @@ export class PetInviteConfirmComponent implements OnInit {
         if (response.pet?.petId) {
           localStorage.setItem(this.activePetKey, response.pet.petId);
         }
+        this.owners.listPendingPetInvites().subscribe();
         sessionStorage.removeItem(this.inviteTokenKey);
         sessionStorage.removeItem(this.inviteAutoAcceptKey);
         if (!auto) {
@@ -107,7 +108,15 @@ export class PetInviteConfirmComponent implements OnInit {
     sessionStorage.removeItem(this.inviteTokenKey);
     sessionStorage.removeItem(this.inviteAutoAcceptKey);
     if (this.isAuthenticated) {
-      void this.router.navigate(['/home']);
+      this.owners.rejectPetInvite(this.inviteToken).subscribe({
+        next: () => {
+          this.owners.listPendingPetInvites().subscribe();
+          void this.router.navigate(['/home']);
+        },
+        error: () => {
+          void this.router.navigate(['/home']);
+        },
+      });
       return;
     }
     void this.router.navigate(['/login']);

@@ -160,20 +160,39 @@ export class OwnersApiStack extends Stack {
       commonEnv,
       [props.sharedLayer, props.s3Layer, props.ddbLayer]
     );
+    const listPendingInvitesFn = this.createFn(
+      'ListPendingPetInvitesHandler',
+      props.stage,
+      handlerPath('libs/api-owners/src/handlers/list-pending-pet-invites.handler.ts'),
+      commonEnv,
+      [props.sharedLayer, props.s3Layer, props.ddbLayer]
+    );
+    const rejectInviteFn = this.createFn(
+      'RejectPetInviteHandler',
+      props.stage,
+      handlerPath('libs/api-owners/src/handlers/reject-pet-invite.handler.ts'),
+      commonEnv,
+      [props.sharedLayer, props.ddbLayer]
+    );
 
     props.table.grantReadWriteData(getMeFn);
     props.table.grantReadWriteData(listOwnersFn);
     props.table.grantReadWriteData(addOwnerFn);
     props.table.grantReadWriteData(removeOwnerFn);
-    props.table.grantReadData(inviteOwnerFn);
+    props.table.grantReadWriteData(inviteOwnerFn);
     props.table.grantReadData(previewInviteFn);
     props.table.grantReadWriteData(acceptInviteFn);
+    props.table.grantReadData(listPendingInvitesFn);
+    props.table.grantReadWriteData(rejectInviteFn);
     props.docsBucket.grantRead(inviteOwnerFn);
     props.docsBucket.grantRead(previewInviteFn);
     props.docsBucket.grantRead(acceptInviteFn);
+    props.docsBucket.grantRead(listPendingInvitesFn);
     inviteSecret.grantRead(inviteOwnerFn);
     inviteSecret.grantRead(previewInviteFn);
     inviteSecret.grantRead(acceptInviteFn);
+    inviteSecret.grantRead(listPendingInvitesFn);
+    inviteSecret.grantRead(rejectInviteFn);
     inviteOwnerFn.addToRolePolicy(
       new iam.PolicyStatement({
         actions: ['ses:SendTemplatedEmail'],
@@ -261,6 +280,22 @@ export class OwnersApiStack extends Stack {
       integration: new HttpLambdaIntegration(
         'AcceptPetInviteIntegration',
         acceptInviteFn
+      ),
+    });
+    this.httpApi.addRoutes({
+      path: '/pet-invites/pending',
+      methods: [apigwv2.HttpMethod.GET],
+      integration: new HttpLambdaIntegration(
+        'ListPendingPetInvitesIntegration',
+        listPendingInvitesFn
+      ),
+    });
+    this.httpApi.addRoutes({
+      path: '/pet-invites/reject',
+      methods: [apigwv2.HttpMethod.POST],
+      integration: new HttpLambdaIntegration(
+        'RejectPetInviteIntegration',
+        rejectInviteFn
       ),
     });
 

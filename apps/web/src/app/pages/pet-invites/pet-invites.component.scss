@@ -1,0 +1,152 @@
+:host {
+  display: block;
+}
+
+.invites-page {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.invites-header h2 {
+  margin: 0;
+  font-size: 1.6rem;
+  color: #1b1224;
+}
+
+.invites-header p {
+  margin: 0.35rem 0 0;
+  color: rgba(27, 18, 36, 0.65);
+}
+
+.invites-state {
+  background: #ffffff;
+  border: 1px solid rgba(127, 19, 236, 0.12);
+  border-radius: 18px;
+  padding: 2rem;
+  display: grid;
+  gap: 0.75rem;
+  color: rgba(27, 18, 36, 0.75);
+}
+
+.invites-state.error {
+  border-color: rgba(231, 76, 60, 0.3);
+  color: #b23b3b;
+}
+
+.invites-state .primary {
+  justify-self: start;
+  border: none;
+  padding: 0.65rem 1.5rem;
+  border-radius: 999px;
+  background: #7f13ec;
+  color: #ffffff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.invites-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.invite-card {
+  background: #ffffff;
+  border: 1px solid rgba(127, 19, 236, 0.12);
+  border-radius: 20px;
+  padding: 1.25rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.invite-hero {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.pet-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(127, 19, 236, 0.12);
+  color: #7f13ec;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 1.2rem;
+  overflow: hidden;
+}
+
+.pet-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.invite-hero h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.invite-hero p {
+  margin: 0.15rem 0 0.2rem;
+  color: rgba(27, 18, 36, 0.65);
+  font-size: 0.9rem;
+}
+
+.inviter {
+  display: inline-flex;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #7f13ec;
+}
+
+.invite-meta {
+  color: rgba(27, 18, 36, 0.6);
+  font-size: 0.85rem;
+}
+
+.invite-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.invite-actions button {
+  border-radius: 999px;
+  padding: 0.6rem 1.4rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.invite-actions .primary {
+  background: #7f13ec;
+  color: #ffffff;
+}
+
+.invite-actions .ghost {
+  background: #ffffff;
+  border-color: rgba(127, 19, 236, 0.25);
+  color: #7f13ec;
+}
+
+.invite-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 720px) {
+  .invite-card {
+    padding: 1rem;
+  }
+
+  .invite-hero {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .invite-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

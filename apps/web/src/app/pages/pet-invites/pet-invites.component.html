@@ -1,0 +1,68 @@
+<section class="invites-page">
+  <header class="invites-header">
+    <div>
+      <h2>{{ 'invites.title' | translate }}</h2>
+      <p>{{ 'invites.subtitle' | translate }}</p>
+    </div>
+  </header>
+
+  @if (isLoading) {
+    <section class="invites-state">
+      <p>{{ 'invites.loading' | translate }}</p>
+    </section>
+  } @else if (errorMessage) {
+    <section class="invites-state error">
+      <p>{{ errorMessage }}</p>
+      <button type="button" class="primary" (click)="reload()">
+        {{ 'invites.retry' | translate }}
+      </button>
+    </section>
+  } @else if (!invites.length) {
+    <section class="invites-state">
+      <p>{{ 'invites.emptyTitle' | translate }}</p>
+      <span>{{ 'invites.emptyCopy' | translate }}</span>
+    </section>
+  } @else {
+    <section class="invites-list">
+      @for (invite of invites; track invite.token) {
+        <article class="invite-card">
+          <div class="invite-hero">
+            <div class="pet-avatar">
+              @if (invite.pet.imageUrl) {
+                <img [src]="invite.pet.imageUrl" [alt]="invite.pet.name" />
+              } @else {
+                <span>{{ invite.pet.name.charAt(0) }}</span>
+              }
+            </div>
+            <div>
+              <h3>{{ invite.pet.name }}</h3>
+              <p>{{ invite.pet.breed || invite.pet.species }} • {{ invite.pet.age }}</p>
+              <span class="inviter">{{ invite.inviter.fullName }}</span>
+            </div>
+          </div>
+          <div class="invite-meta">
+            <span>{{ 'invites.expires' | translate: { date: (invite.expiresAt | date: 'mediumDate') } }}</span>
+          </div>
+          <div class="invite-actions">
+            <button
+              type="button"
+              class="ghost"
+              [disabled]="processing[invite.token]"
+              (click)="rejectInvite(invite)"
+            >
+              {{ 'invites.reject' | translate }}
+            </button>
+            <button
+              type="button"
+              class="primary"
+              [disabled]="processing[invite.token]"
+              (click)="acceptInvite(invite)"
+            >
+              {{ 'invites.accept' | translate }}
+            </button>
+          </div>
+        </article>
+      }
+    </section>
+  }
+</section>

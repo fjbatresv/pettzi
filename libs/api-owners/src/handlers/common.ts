@@ -130,6 +130,51 @@ export const deleteLink = async (petId: PetId, ownerId: OwnerId) =>
     })
   );
 
+export const buildPendingInvitePk = (inviteeId: OwnerId) =>
+  `INVITE#${inviteeId.toLowerCase()}`;
+
+export const buildPendingInviteSk = (petId: PetId, inviterId: OwnerId) =>
+  `PET#${petId}#INVITER#${inviterId.toLowerCase()}`;
+
+export const createPendingInvite = async (invite: {
+  inviteeId: OwnerId;
+  inviterId: OwnerId;
+  petId: PetId;
+  token: string;
+  expiresAt: number;
+  createdAt: number;
+}) =>
+  ddb.send(
+    new PutCommand({
+      TableName: PETTZI_TABLE_NAME,
+      Item: {
+        PK: buildPendingInvitePk(invite.inviteeId),
+        SK: buildPendingInviteSk(invite.petId, invite.inviterId),
+        inviteeId: invite.inviteeId,
+        inviterId: invite.inviterId,
+        petId: invite.petId,
+        token: invite.token,
+        expiresAt: invite.expiresAt,
+        createdAt: invite.createdAt,
+      },
+    })
+  );
+
+export const deletePendingInvite = async (
+  inviteeId: OwnerId,
+  petId: PetId,
+  inviterId: OwnerId
+) =>
+  ddb.send(
+    new DeleteCommand({
+      TableName: PETTZI_TABLE_NAME,
+      Key: {
+        PK: buildPendingInvitePk(inviteeId),
+        SK: buildPendingInviteSk(petId, inviterId),
+      },
+    })
+  );
+
 export const parseJson = <T>(body: string | null | undefined): T => {
   if (!body) {
     throw badRequest('Request body is required');

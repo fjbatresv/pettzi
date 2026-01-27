@@ -401,6 +401,23 @@
     "acceptError": "No pudimos aceptar la invitacion. Intenta nuevamente.",
     "footer": "© 2024 Pettzi Inc. • Privacidad • Terminos • Ayuda"
   },
+  "invites": {
+    "title": "Invitaciones pendientes",
+    "subtitle": "Gestiona las invitaciones de co-propietario que tienes pendientes.",
+    "loading": "Cargando invitaciones...",
+    "retry": "Reintentar",
+    "emptyTitle": "No tienes invitaciones pendientes",
+    "emptyCopy": "Cuando alguien te invite a compartir una mascota, aparecera aqui.",
+    "accept": "Aceptar",
+    "reject": "Rechazar",
+    "expires": "Expira el {{date}}"
+  },
+  "menu": {
+    "userMenu": "Menu de usuario",
+    "invites": "Invitaciones",
+    "settings": "Configuracion",
+    "logout": "Cerrar sesion"
+  },
   "petRecord": {
     "loading": "Cargando ficha...",
     "missingToken": "No encontramos el enlace de acceso.",
