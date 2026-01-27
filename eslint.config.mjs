@@ -5,7 +5,7 @@ export default [
   ...nx.configs['flat/typescript'],
   ...nx.configs['flat/javascript'],
   {
-    ignores: ['**/dist', '**/out-tsc', '**/cdk.out'],
+    ignores: ['**/dist', '**/out-tsc', '**/cdk.out', 'apps/cdk/src/ses-templates/**/*.html'],
   },
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
@@ -38,5 +38,11 @@ export default [
     ],
     // Override or add rules here
     rules: {},
+  },
+  {
+    files: ['**/*.html'],
+    rules: {
+      '@angular-eslint/template/prefer-control-flow': 'off',
+    },
   },
 ];

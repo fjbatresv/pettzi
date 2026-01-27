@@ -75,14 +75,18 @@
       <p class="upload-hint">{{ 'vetVisit.uploadHint' | translate }}</p>
     </div>
 
-    <div class="attachment-list" *ngIf="attachments.length">
-      <div class="attachment" *ngFor="let file of attachments; let i = index">
-        <span>{{ file.name }}</span>
-        <button type="button" (click)="removeAttachment(i)">
-          <mat-icon>close</mat-icon>
-        </button>
+    @if (attachments.length) {
+      <div class="attachment-list">
+        @for (file of attachments; track file; let i = $index) {
+          <div class="attachment">
+            <span>{{ file.name }}</span>
+            <button type="button" (click)="removeAttachment(i)">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        }
       </div>
-    </div>
+    }
 
     <div class="actions">
       <button type="button" class="link-btn" [routerLink]="['/pets', petId]">

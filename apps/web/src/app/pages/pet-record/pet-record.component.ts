@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -17,7 +17,7 @@ import { Subscription } from 'rxjs';
   templateUrl: './pet-record.component.html',
   styleUrl: './pet-record.component.scss',
 })
-export class PetRecordComponent implements OnDestroy {
+export class PetRecordComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly pets = inject(PetsService);
   private readonly translate = inject(TranslateService);

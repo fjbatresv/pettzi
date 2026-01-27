@@ -87,10 +87,14 @@
         </div>
       </div>
 
-      <p class="validation" *ngIf="showValidation && !isFormValid">
-        {{ 'createPet.validationDetails' | translate }}
-      </p>
-      <p class="validation error" *ngIf="errorMessage">{{ errorMessage }}</p>
+      @if (showValidation && !isFormValid) {
+        <p class="validation">
+          {{ 'createPet.validationDetails' | translate }}
+        </p>
+      }
+      @if (errorMessage) {
+        <p class="validation error">{{ errorMessage }}</p>
+      }
 
       <div class="card-footer">
         <button type="button" class="ghost-btn" routerLink="/pets/new">

@@ -25,15 +25,18 @@
       <mat-timepicker #timePicker></mat-timepicker>
     </mat-form-field>
   </div>
-  <p class="date-time-error" *ngIf="showDateTimeError">
-    {{ dateTimeErrorKey | translate }}
-  </p>
+  @if (showDateTimeError) {
+    <p class="date-time-error">
+      {{ dateTimeErrorKey | translate }}
+    </p>
+  }
 
   <mat-checkbox [(ngModel)]="recurring">
     {{ 'dashboard.reminderRecurring' | translate }}
   </mat-checkbox>
 
-  <div class="recurring-fields" *ngIf="recurring">
+  @if (recurring) {
+    <div class="recurring-fields">
     <mat-form-field appearance="outline">
       <mat-label>{{ 'dashboard.reminderPeriodicity' | translate }}</mat-label>
       <mat-select [(ngModel)]="periodicity">
@@ -43,17 +46,21 @@
         <mat-option value="monthly">{{ 'medication.periodicityMonthly' | translate }}</mat-option>
       </mat-select>
     </mat-form-field>
-    <mat-form-field appearance="outline" *ngIf="periodicity === 'hours'">
-      <mat-label>{{ 'medication.everyHours' | translate }}</mat-label>
-      <input matInput type="number" min="1" [(ngModel)]="hoursEvery" />
-    </mat-form-field>
-    <mat-form-field appearance="outline" *ngIf="periodicity === 'daily'">
-      <mat-label>{{ 'medication.time' | translate }}</mat-label>
-      <input matInput [matTimepicker]="dailyPicker" [(ngModel)]="dailyTime" />
-      <mat-timepicker-toggle matIconSuffix [for]="dailyPicker"></mat-timepicker-toggle>
-      <mat-timepicker #dailyPicker></mat-timepicker>
-    </mat-form-field>
-    <ng-container *ngIf="periodicity === 'weekly'">
+    @if (periodicity === 'hours') {
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'medication.everyHours' | translate }}</mat-label>
+        <input matInput type="number" min="1" [(ngModel)]="hoursEvery" />
+      </mat-form-field>
+    }
+    @if (periodicity === 'daily') {
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'medication.time' | translate }}</mat-label>
+        <input matInput [matTimepicker]="dailyPicker" [(ngModel)]="dailyTime" />
+        <mat-timepicker-toggle matIconSuffix [for]="dailyPicker"></mat-timepicker-toggle>
+        <mat-timepicker #dailyPicker></mat-timepicker>
+      </mat-form-field>
+    }
+    @if (periodicity === 'weekly') {
       <mat-form-field appearance="outline">
         <mat-label>{{ 'medication.weekday' | translate }}</mat-label>
         <mat-select [(ngModel)]="weeklyDay">
@@ -72,8 +79,8 @@
         <mat-timepicker-toggle matIconSuffix [for]="weeklyPicker"></mat-timepicker-toggle>
         <mat-timepicker #weeklyPicker></mat-timepicker>
       </mat-form-field>
-    </ng-container>
-    <ng-container *ngIf="periodicity === 'monthly'">
+    }
+    @if (periodicity === 'monthly') {
       <mat-form-field appearance="outline">
         <mat-label>{{ 'medication.monthDay' | translate }}</mat-label>
         <input matInput type="number" min="1" max="31" [(ngModel)]="monthlyDay" />
@@ -84,8 +91,9 @@
         <mat-timepicker-toggle matIconSuffix [for]="monthlyPicker"></mat-timepicker-toggle>
         <mat-timepicker #monthlyPicker></mat-timepicker>
       </mat-form-field>
-    </ng-container>
-  </div>
+    }
+    </div>
+  }
 
   <mat-form-field appearance="outline">
     <mat-label>{{ 'dashboard.reminderNotes' | translate }}</mat-label>

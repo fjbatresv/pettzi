@@ -26,23 +26,25 @@
         </div>
       </div>
 
-      <ng-container *ngIf="state === 'loading'">
+      @if (state === 'loading') {
         <h1>{{ 'emailConfirm.loadingTitle' | translate }}</h1>
         <p class="subtitle">{{ 'emailConfirm.loadingSubtitle' | translate }}</p>
-      </ng-container>
+      }
 
-      <ng-container *ngIf="state === 'success'">
+      @if (state === 'success') {
         <h1 class="accent">{{ 'emailConfirm.title' | translate }}</h1>
         <p class="subtitle">{{ 'emailConfirm.subtitle' | translate }}</p>
-        <p class="subtitle" *ngIf="responseMessage">{{ responseMessage }}</p>
+        @if (responseMessage) {
+          <p class="subtitle">{{ responseMessage }}</p>
+        }
 
         <a class="primary" routerLink="/home">
           {{ 'emailConfirm.cta' | translate }}
           <mat-icon aria-hidden="true">arrow_forward</mat-icon>
         </a>
-      </ng-container>
+      }
 
-      <ng-container *ngIf="state === 'error'">
+      @if (state === 'error') {
         <h1>{{ 'emailConfirm.errorTitle' | translate }}</h1>
         <p class="subtitle">
           {{ errorMessage || ('emailConfirm.errorSubtitle' | translate) }}
@@ -50,7 +52,7 @@
         <a class="primary" routerLink="/login">
           {{ 'emailConfirm.backToLogin' | translate }}
         </a>
-      </ng-container>
+      }
 
       <p class="support">
         {{ 'emailConfirm.supportHint' | translate }}

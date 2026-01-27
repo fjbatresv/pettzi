@@ -6,8 +6,11 @@
   <div class="top-actions">
     <app-language-toggle></app-language-toggle>
     <div class="avatar">
-      <img *ngIf="avatarUrl" [src]="avatarUrl" [alt]="avatarLabel" />
-      <span *ngIf="!avatarUrl">{{ avatarLabel }}</span>
+      @if (avatarUrl) {
+        <img [src]="avatarUrl" [alt]="avatarLabel" />
+      } @else {
+        <span>{{ avatarLabel }}</span>
+      }
     </div>
   </div>
 </header>

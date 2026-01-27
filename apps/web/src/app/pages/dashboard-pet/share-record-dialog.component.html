@@ -12,13 +12,14 @@
   <section class="dialog-section">
     <h3>{{ 'shareRecord.includeRecords' | translate }}</h3>
     <mat-chip-listbox class="record-chips" multiple>
-      <mat-chip-option
-        *ngFor="let option of recordOptions"
-        [selected]="selectedTypes.has(option.type)"
-        (selectionChange)="toggleType(option.type, $event.selected)"
-      >
-        {{ option.label | translate }}
-      </mat-chip-option>
+      @for (option of recordOptions; track option.type) {
+        <mat-chip-option
+          [selected]="selectedTypes.has(option.type)"
+          (selectionChange)="toggleType(option.type, $event.selected)"
+        >
+          {{ option.label | translate }}
+        </mat-chip-option>
+      }
     </mat-chip-listbox>
   </section>
 
@@ -26,9 +27,11 @@
     <mat-form-field appearance="outline">
       <mat-label>{{ 'shareRecord.linkExpiration' | translate }}</mat-label>
       <mat-select [(ngModel)]="expiration">
-        <mat-option *ngFor="let option of expirationOptions" [value]="option.value">
-          {{ option.label | translate }}
-        </mat-option>
+        @for (option of expirationOptions; track option.value) {
+          <mat-option [value]="option.value">
+            {{ option.label | translate }}
+          </mat-option>
+        }
       </mat-select>
     </mat-form-field>
     <mat-form-field appearance="outline">
@@ -41,38 +44,43 @@
     </mat-form-field>
   </section>
 
-  <button
-    *ngIf="!copiedLink"
-    mat-raised-button
-    color="primary"
-    class="primary-cta"
-    [disabled]="!canSubmit"
-    (click)="createLink()"
-  >
-    {{ (isSubmitting ? 'shareRecord.creating' : 'shareRecord.createLink') | translate }}
-  </button>
-
-  <div class="status" *ngIf="statusMessage" [class.error]="!copiedLink">
-    <mat-icon>{{ copiedLink ? 'check_circle' : 'error' }}</mat-icon>
-    <span>{{ statusMessage }}</span>
-  </div>
-
-  <div class="copy-link" *ngIf="copiedLink">
-    <input
-      #shareLinkInput
-      type="text"
-      [value]="copiedLink"
-      readonly
-      (click)="selectLink($event)"
-    />
+  @if (!copiedLink) {
     <button
-      mat-stroked-button
-      type="button"
-      class="copy-cta"
-      [disabled]="isCopying"
-      (click)="copyLink()"
+      mat-raised-button
+      color="primary"
+      class="primary-cta"
+      [disabled]="!canSubmit"
+      (click)="createLink()"
     >
-      {{ (isCopying ? 'shareRecord.copying' : 'shareRecord.copyLink') | translate }}
+      {{ (isSubmitting ? 'shareRecord.creating' : 'shareRecord.createLink') | translate }}
     </button>
-  </div>
+  }
+
+  @if (statusMessage) {
+    <div class="status" [class.error]="!copiedLink">
+      <mat-icon>{{ copiedLink ? 'check_circle' : 'error' }}</mat-icon>
+      <span>{{ statusMessage }}</span>
+    </div>
+  }
+
+  @if (copiedLink) {
+    <div class="copy-link">
+      <input
+        #shareLinkInput
+        type="text"
+        [value]="copiedLink"
+        readonly
+        (click)="selectLink($event)"
+      />
+      <button
+        mat-stroked-button
+        type="button"
+        class="copy-cta"
+        [disabled]="isCopying"
+        (click)="copyLink()"
+      >
+        {{ (isCopying ? 'shareRecord.copying' : 'shareRecord.copyLink') | translate }}
+      </button>
+    </div>
+  }
 </div>
