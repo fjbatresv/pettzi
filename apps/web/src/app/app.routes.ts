@@ -22,6 +22,7 @@ import { AccountDeletedComponent } from './pages/account-deleted/account-deleted
 import { PetInviteConfirmComponent } from './pages/pet-invite-confirm/pet-invite-confirm.component';
 import { PetRecordComponent } from './pages/pet-record/pet-record.component';
 import { EventDetailComponent } from './pages/event-detail/event-detail.component';
+import { PetInvitesComponent } from './pages/pet-invites/pet-invites.component';
 import { authenticatedGuard } from './core/guards/authenticated.guard';
 import { unauthenticatedGuard } from './core/guards/unauthenticated.guard';
 import { resetPasswordGuard } from './core/guards/reset-password.guard';
@@ -124,6 +125,10 @@ export const appRoutes: Route[] = [
       {
         path: 'settings',
         component: SettingsComponent,
+      },
+      {
+        path: 'invites',
+        component: PetInvitesComponent,
       },
       {
         path: '',

@@ -401,6 +401,23 @@
     "acceptError": "We could not accept the invitation. Please try again.",
     "footer": "© 2024 Pettzi Inc. • Privacy • Terms • Help Center"
   },
+  "invites": {
+    "title": "Pending invitations",
+    "subtitle": "Review co-owner invitations waiting for your response.",
+    "loading": "Loading invitations...",
+    "retry": "Try again",
+    "emptyTitle": "No pending invitations",
+    "emptyCopy": "When someone invites you to share a pet, it will show up here.",
+    "accept": "Accept",
+    "reject": "Decline",
+    "expires": "Expires on {{date}}"
+  },
+  "menu": {
+    "userMenu": "User menu",
+    "invites": "Invitations",
+    "settings": "Settings",
+    "logout": "Log out"
+  },
   "petRecord": {
     "loading": "Loading record...",
     "missingToken": "We couldn't find the access link.",

@@ -6,6 +6,8 @@ import { I18nService } from '../../core/i18n/i18n.service';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../core/services/auth.service';
 import { PetsService } from '../../core/services/pets.service';
+import { OwnersService } from '../../core/services/owners.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -18,6 +20,7 @@ export class LoginComponent implements OnInit {
   private readonly i18n = inject(I18nService);
   private readonly auth = inject(AuthService);
   private readonly pets = inject(PetsService);
+  private readonly owners = inject(OwnersService);
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly resetSessionKey = 'pettzi.resetPasswordSession';
@@ -111,7 +114,7 @@ export class LoginComponent implements OnInit {
   private async redirectIfAuthenticated() {
     const accessToken = await this.auth.getAccessToken();
     if (accessToken) {
-      await this.router.navigate(['/home']);
+      await this.redirectAfterLogin();
       return;
     }
     if (!this.auth.hasRefreshToken()) {
@@ -119,7 +122,7 @@ export class LoginComponent implements OnInit {
     }
     this.auth.refreshTokens().subscribe({
       next: () => {
-        void this.router.navigate(['/home']);
+        void this.redirectAfterLogin();
       },
       error: () => {
         // stay on login
@@ -133,6 +136,16 @@ export class LoginComponent implements OnInit {
       void this.router.navigate(['/accept-invite'], { queryParams: { token: inviteToken } });
       this.isSubmitting = false;
       return;
+    }
+    try {
+      const { invites } = await firstValueFrom(this.owners.listPendingPetInvites());
+      if (invites && invites.length > 0) {
+        void this.router.navigate(['/invites']);
+        this.isSubmitting = false;
+        return;
+      }
+    } catch {
+      // fall through to pet flow
     }
     this.pets.listPets().subscribe({
       next: ({ pets }) => {

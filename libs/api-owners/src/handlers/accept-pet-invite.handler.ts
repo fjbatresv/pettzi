@@ -3,6 +3,7 @@ import { badRequest, conflict, ok, serverError, forbidden } from '@pettzi/utils-
 import { OwnerRole, PetOwner, toItemPetOwner } from '@pettzi/domain-model';
 import {
   createLink,
+  deletePendingInvite,
   ensureOwnerExists,
   getCallerOwnerId,
   linkExists,
@@ -61,6 +62,11 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     }
 
     const preview = await buildInvitePreview(invite, PETTZI_DOCS_BUCKET_NAME);
+    try {
+      await deletePendingInvite(inviteeId, invite.petId, invite.inviterId);
+    } catch (err) {
+      console.warn('Failed to delete pending invite after accept', err);
+    }
     return ok({ ...preview, status: alreadyLinked ? 'already-linked' : 'accepted' });
   } catch (error: any) {
     if (error?.statusCode === 409) {

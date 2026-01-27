@@ -153,6 +153,45 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
         '500': { $ref: '#/components/responses/ServerError' }
+  /pet-invites/pending:
+    get:
+      summary: List pending pet invites (authenticated)
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Pending invites
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PetInvitePendingList'
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+  /pet-invites/reject:
+    post:
+      summary: Reject a pet invite (authenticated)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token]
+              properties:
+                token: { type: string }
+      responses:
+        '200':
+          description: Invite rejected
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '500': { $ref: '#/components/responses/ServerError' }
   /pets/{petId}/owners/{ownerId}:
     delete:
       summary: Remove co-owner (primary only)
@@ -229,6 +268,20 @@ components:
         expiresAt:
           type: string
           format: date-time
+    PetInvitePending:
+      allOf:
+        - $ref: '#/components/schemas/PetInvitePreview'
+        - type: object
+          required: [token]
+          properties:
+            token: { type: string }
+    PetInvitePendingList:
+      type: object
+      properties:
+        invites:
+          type: array
+          items:
+            $ref: '#/components/schemas/PetInvitePending'
     PetInvitePet:
       type: object
       required: [petId, name, breed, species, age, imageUrl]
