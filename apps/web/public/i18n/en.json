@@ -412,6 +412,18 @@
     "reject": "Decline",
     "expires": "Expires on {{date}}"
   },
+  "eventWizard": {
+    "title": "New event",
+    "stepLabel": "Step {{step}} of {{total}}",
+    "step1Title": "Choose an event type",
+    "step1Subtitle": "Select what you want to add to the timeline.",
+    "step2Subtitle": "Fill in the details before saving.",
+    "searchPlaceholder": "Search event type",
+    "continue": "Continue",
+    "back": "Back",
+    "cancel": "Cancel",
+    "save": "Save"
+  },
   "menu": {
     "userMenu": "User menu",
     "invites": "Invitations",

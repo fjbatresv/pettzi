@@ -412,6 +412,18 @@
     "reject": "Rechazar",
     "expires": "Expira el {{date}}"
   },
+  "eventWizard": {
+    "title": "Nuevo evento",
+    "stepLabel": "Paso {{step}} de {{total}}",
+    "step1Title": "Selecciona el tipo de evento",
+    "step1Subtitle": "Elige el registro que quieres agregar al historial.",
+    "step2Subtitle": "Completa los detalles del evento antes de guardar.",
+    "searchPlaceholder": "Buscar tipo de evento",
+    "continue": "Continuar",
+    "back": "Regresar",
+    "cancel": "Cancelar",
+    "save": "Guardar"
+  },
   "menu": {
     "userMenu": "Menu de usuario",
     "invites": "Invitaciones",
