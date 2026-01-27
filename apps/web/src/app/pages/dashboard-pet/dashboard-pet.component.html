@@ -2,12 +2,14 @@
   <div class="pet-profile">
     <div class="pet-info">
       <div class="pet-photo">
-        <img
-          *ngIf="petPhotoUrl"
-          [src]="petPhotoUrl"
-          [attr.alt]="pet?.name || ('dashboard.petFallback' | translate)"
-        />
-        <span *ngIf="!petPhotoUrl">{{ pet?.name?.[0] || ('dashboard.petInitial' | translate) }}</span>
+        @if (petPhotoUrl) {
+          <img
+            [src]="petPhotoUrl"
+            [attr.alt]="pet?.name || ('dashboard.petFallback' | translate)"
+          />
+        } @else {
+          <span>{{ pet?.name?.[0] || ('dashboard.petInitial' | translate) }}</span>
+        }
       </div>
       <div>
         <div class="pet-name">
@@ -18,8 +20,12 @@
           {{ ageLabel || ('dashboard.ageUnknown' | translate) }}
         </p>
         <div class="pet-tags">
-          <span class="tag success" *ngIf="showHealthStatus">{{ 'dashboard.healthy' | translate }}</span>
-          <span class="tag info" *ngIf="lastVetLabel">{{ lastVetLabel }}</span>
+          @if (showHealthStatus) {
+            <span class="tag success">{{ 'dashboard.healthy' | translate }}</span>
+          }
+          @if (lastVetLabel) {
+            <span class="tag info">{{ lastVetLabel }}</span>
+          }
         </div>
       </div>
     </div>
@@ -34,19 +40,23 @@
         {{ 'dashboard.sendRecord' | translate }}
       </button>
     </div>
-    <div class="card-menu" *ngIf="canManagePet">
-      <button class="dots-btn" type="button" (click)="togglePetMenu()">
-        <mat-icon>more_vert</mat-icon>
-      </button>
-      <div class="pet-menu" *ngIf="showPetMenu">
-        <button type="button" (click)="selectPetMenu('edit')" *ngIf="canManagePet">
-          {{ 'dashboard.menuEditProfile' | translate }}
+    @if (canManagePet) {
+      <div class="card-menu">
+        <button class="dots-btn" type="button" (click)="togglePetMenu()">
+          <mat-icon>more_vert</mat-icon>
         </button>
-        <button type="button" (click)="selectPetMenu('share')" *ngIf="canManagePet">
-          {{ 'dashboard.menuSharePet' | translate }}
-        </button>
+        @if (showPetMenu) {
+          <div class="pet-menu">
+            <button type="button" (click)="selectPetMenu('edit')">
+              {{ 'dashboard.menuEditProfile' | translate }}
+            </button>
+            <button type="button" (click)="selectPetMenu('share')">
+              {{ 'dashboard.menuSharePet' | translate }}
+            </button>
+          </div>
+        }
       </div>
-    </div>
+    }
   </div>
 
   <div class="stats-grid">
@@ -76,24 +86,24 @@
           <mat-icon>favorite</mat-icon>
         </span>
       </div>
-      <ng-container *ngIf="hasHealthIndexData; else healthMissing">
+      @if (hasHealthIndexData) {
         <div class="health-score">
           <div class="bone-row">
-            <mat-icon
-              *ngFor="let bone of getHealthBones(); let i = index"
-              class="bone"
-              [class.filled]="i < healthIndex"
-            >
-              pets
-            </mat-icon>
+            @for (bone of getHealthBones(); track bone; let i = $index) {
+              <mat-icon
+                class="bone"
+                [class.filled]="i < healthIndex"
+              >
+                pets
+              </mat-icon>
+            }
           </div>
           <span class="score-value">{{ healthScoreLabel }}</span>
         </div>
         <p class="stat-note">{{ healthScoreSubtitle }}</p>
-      </ng-container>
-      <ng-template #healthMissing>
+      } @else {
         <p class="stat-note">{{ 'dashboard.healthDataMissing' | translate }}</p>
-      </ng-template>
+      }
     </div>
   </div>
 
@@ -115,196 +125,203 @@
             class="activity-filter-menu"
             panelClass="activity-filter-panel"
           >
-            <div
-              class="filter-option"
-              *ngFor="let type of activityFilterOptions"
-            >
-              <mat-checkbox
-                [checked]="selectedEventTypes.has(type)"
-                (click)="$event.stopPropagation()"
-                (change)="toggleEventTypeFilter(type)"
-              >
-                {{ getEventTypeLabel(type) }}
-              </mat-checkbox>
-            </div>
+            @for (type of activityFilterOptions; track type) {
+              <div class="filter-option">
+                <mat-checkbox
+                  [checked]="selectedEventTypes.has(type)"
+                  (click)="$event.stopPropagation()"
+                  (change)="toggleEventTypeFilter(type)"
+                >
+                  {{ getEventTypeLabel(type) }}
+                </mat-checkbox>
+              </div>
+            }
           </mat-menu>
         </div>
       </div>
 
       <div class="activity-list">
-        <article
-          class="activity-item"
-          *ngFor="let event of displayedActivityLog"
-          role="button"
-          tabindex="0"
-          (click)="openEventDetail(event)"
-          (keydown.enter)="openEventDetail(event)"
-          (keydown.space)="openEventDetail(event)"
-        >
-          <div class="activity-icon">
-            <ng-container [ngSwitch]="event.eventType">
-              <mat-icon *ngSwitchCase="'GROOMING'">content_cut</mat-icon>
-              <mat-icon *ngSwitchCase="'VET_VISIT'">local_hospital</mat-icon>
-              <mat-icon *ngSwitchCase="'MEDICATION'">medication</mat-icon>
-              <mat-icon *ngSwitchCase="'WEIGHT'">monitor_weight</mat-icon>
-              <mat-icon *ngSwitchCase="'VACCINE'">vaccines</mat-icon>
-              <mat-icon *ngSwitchDefault>event_note</mat-icon>
-            </ng-container>
-          </div>
-          <div class="activity-content">
-            <div class="activity-title">
-              <div>
-                <h4>{{ getEventTypeLabel(event.eventType) }}</h4>
-                <span class="status-pill" [ngClass]="getActivityStatus(event).className">
-                  {{ getActivityStatus(event).key | translate }}
-                </span>
-              </div>
-              <div class="activity-actions-inline">
-                <span class="activity-date">{{ formatEventDate(event.eventDate) }}</span>
-                <span class="activity-owner" *ngIf="hasCoOwners && event.ownerId">
-                  {{ 'dashboard.createdBy' | translate: { name: getOwnerLabel(event.ownerId) } }}
-                </span>
-              </div>
+        @for (event of displayedActivityLog; track event.eventId) {
+          <article
+            class="activity-item"
+            role="button"
+            tabindex="0"
+            (click)="openEventDetail(event)"
+            (keydown.enter)="openEventDetail(event)"
+            (keydown.space)="openEventDetail(event)"
+          >
+            <div class="activity-icon">
+              @switch (event.eventType) {
+                @case ('GROOMING') { <mat-icon>content_cut</mat-icon> }
+                @case ('VET_VISIT') { <mat-icon>local_hospital</mat-icon> }
+                @case ('MEDICATION') { <mat-icon>medication</mat-icon> }
+                @case ('WEIGHT') { <mat-icon>monitor_weight</mat-icon> }
+                @case ('VACCINE') { <mat-icon>vaccines</mat-icon> }
+                @default { <mat-icon>event_note</mat-icon> }
+              }
             </div>
-            <div class="activity-details" [ngSwitch]="event.eventType">
-              <div *ngSwitchCase="'MEDICATION'">
-                <div class="detail-grid">
-                  <p class="detail-row">
-                    <span>{{ 'dashboard.medicationName' | translate }}</span>
-                    {{ getMedicationName(event) }}
-                  </p>
-                  <p class="detail-row">
-                    <span>{{ 'dashboard.medicationPeriodicity' | translate }}</span>
-                    {{ getMedicationPeriodicity(event) }}
-                  </p>
-                  <p class="detail-row full">
-                    <span>{{ 'dashboard.medicationEnd' | translate }}</span>
-                    {{ getMedicationEndDate(event) }}
-                  </p>
-                  <p class="detail-row full">
-                    <span>{{ 'dashboard.observations' | translate }}</span>
-                    {{ getObservationLabel(event) }}
-                  </p>
+            <div class="activity-content">
+              <div class="activity-title">
+                <div>
+                  <h4>{{ getEventTypeLabel(event.eventType) }}</h4>
+                  <span class="status-pill" [ngClass]="getActivityStatus(event).className">
+                    {{ getActivityStatus(event).key | translate }}
+                  </span>
                 </div>
-              </div>
-              <div *ngSwitchCase="'VET_VISIT'">
-                <div class="detail-grid">
-                  <p class="detail-row">
-                    <span>{{ 'dashboard.vetClinic' | translate }}</span>
-                    {{ getVetClinic(event) }}
-                  </p>
-                  <p class="detail-row">
-                    <span>{{ 'dashboard.vetDoctor' | translate }}</span>
-                    {{ getVetName(event) }}
-                  </p>
-                  <p class="detail-row full">
-                    <span>{{ 'dashboard.vetReason' | translate }}</span>
-                    {{ getVetReason(event) }}
-                  </p>
-                  <p class="detail-row full">
-                    <span>{{ 'dashboard.observations' | translate }}</span>
-                    {{ getObservationLabel(event) }}
-                  </p>
-                </div>
-              </div>
-              <div *ngSwitchCase="'VACCINE'">
-                <div class="detail-grid">
-                  <p class="detail-row">
-                    <span>{{ 'dashboard.vaccineName' | translate }}</span>
-                    {{ getVaccineName(event) }}
-                  </p>
-                  <p class="detail-row">
-                    <span>{{ 'dashboard.vaccineBatch' | translate }}</span>
-                    {{ getVaccineBatch(event) }}
-                  </p>
-                  <p class="detail-row">
-                    <span>{{ 'dashboard.vaccineClinic' | translate }}</span>
-                    {{ getVaccineClinic(event) }}
-                  </p>
-                  <p class="detail-row">
-                    <span>{{ 'dashboard.vaccineVet' | translate }}</span>
-                    {{ getVaccineVet(event) }}
-                  </p>
-                  <p class="detail-row full">
-                    <span>{{ 'dashboard.vaccineExpiry' | translate }}</span>
-                    <span class="expiry" [class.expired]="isVaccineExpired(event)">
-                      {{
-                        isVaccineExpired(event)
-                          ? ('dashboard.expiredWithDate' | translate: { date: getVaccineExpiry(event) })
-                          : getVaccineExpiry(event)
-                      }}
+                <div class="activity-actions-inline">
+                  <span class="activity-date">{{ formatEventDate(event.eventDate) }}</span>
+                  @if (hasCoOwners && event.ownerId) {
+                    <span class="activity-owner">
+                      {{ 'dashboard.createdBy' | translate: { name: getOwnerLabel(event.ownerId) } }}
                     </span>
-                  </p>
-                  <p class="detail-row full">
-                    <span>{{ 'dashboard.observations' | translate }}</span>
-                    {{ getObservationLabel(event) }}
-                  </p>
+                  }
                 </div>
               </div>
-              <div *ngSwitchCase="'GROOMING'">
-                <div class="detail-grid">
-                  <p class="detail-row">
-                    <span>{{ 'dashboard.groomingClinic' | translate }}</span>
-                    {{ getGroomingClinic(event) }}
-                  </p>
-                  <p class="detail-row">
-                    <span>{{ 'dashboard.groomingGroomer' | translate }}</span>
-                    {{ getGroomingGroomer(event) }}
-                  </p>
-                  <p class="detail-row full">
-                    <span>{{ 'dashboard.groomingServices' | translate }}</span>
-                    {{ getGroomingServices(event) }}
-                  </p>
-                  <p class="detail-row full">
-                    <span>{{ 'dashboard.observations' | translate }}</span>
-                    {{ getObservationLabel(event) }}
-                  </p>
-                </div>
-              </div>
-              <div *ngSwitchCase="'WEIGHT'">
-                <div class="detail-grid">
-                  <p class="detail-row full">
-                    <span>{{ 'dashboard.weightChange' | translate }}</span>
-                    {{ getWeightChangeLabel(event) }}
-                  </p>
-                  <p class="detail-row full">
-                    <span>{{ 'dashboard.observations' | translate }}</span>
-                    {{ getObservationLabel(event) }}
-                  </p>
-                </div>
-              </div>
-              <div *ngSwitchDefault>
-                <div class="detail-grid">
-                  <p class="detail-row full">
-                    <span>{{ 'dashboard.observations' | translate }}</span>
-                    {{ getObservationLabel(event) }}
-                  </p>
-                </div>
+              <div class="activity-details">
+                @switch (event.eventType) {
+                  @case ('MEDICATION') {
+                    <div class="detail-grid">
+                      <p class="detail-row">
+                        <span>{{ 'dashboard.medicationName' | translate }}</span>
+                        {{ getMedicationName(event) }}
+                      </p>
+                      <p class="detail-row">
+                        <span>{{ 'dashboard.medicationPeriodicity' | translate }}</span>
+                        {{ getMedicationPeriodicity(event) }}
+                      </p>
+                      <p class="detail-row full">
+                        <span>{{ 'dashboard.medicationEnd' | translate }}</span>
+                        {{ getMedicationEndDate(event) }}
+                      </p>
+                      <p class="detail-row full">
+                        <span>{{ 'dashboard.observations' | translate }}</span>
+                        {{ getObservationLabel(event) }}
+                      </p>
+                    </div>
+                  }
+                  @case ('VET_VISIT') {
+                    <div class="detail-grid">
+                      <p class="detail-row">
+                        <span>{{ 'dashboard.vetClinic' | translate }}</span>
+                        {{ getVetClinic(event) }}
+                      </p>
+                      <p class="detail-row">
+                        <span>{{ 'dashboard.vetDoctor' | translate }}</span>
+                        {{ getVetName(event) }}
+                      </p>
+                      <p class="detail-row full">
+                        <span>{{ 'dashboard.vetReason' | translate }}</span>
+                        {{ getVetReason(event) }}
+                      </p>
+                      <p class="detail-row full">
+                        <span>{{ 'dashboard.observations' | translate }}</span>
+                        {{ getObservationLabel(event) }}
+                      </p>
+                    </div>
+                  }
+                  @case ('VACCINE') {
+                    <div class="detail-grid">
+                      <p class="detail-row">
+                        <span>{{ 'dashboard.vaccineName' | translate }}</span>
+                        {{ getVaccineName(event) }}
+                      </p>
+                      <p class="detail-row">
+                        <span>{{ 'dashboard.vaccineBatch' | translate }}</span>
+                        {{ getVaccineBatch(event) }}
+                      </p>
+                      <p class="detail-row">
+                        <span>{{ 'dashboard.vaccineClinic' | translate }}</span>
+                        {{ getVaccineClinic(event) }}
+                      </p>
+                      <p class="detail-row">
+                        <span>{{ 'dashboard.vaccineVet' | translate }}</span>
+                        {{ getVaccineVet(event) }}
+                      </p>
+                      <p class="detail-row full">
+                        <span>{{ 'dashboard.vaccineExpiry' | translate }}</span>
+                        <span class="expiry" [class.expired]="isVaccineExpired(event)">
+                          {{
+                            isVaccineExpired(event)
+                              ? ('dashboard.expiredWithDate' | translate: { date: getVaccineExpiry(event) })
+                              : getVaccineExpiry(event)
+                          }}
+                        </span>
+                      </p>
+                      <p class="detail-row full">
+                        <span>{{ 'dashboard.observations' | translate }}</span>
+                        {{ getObservationLabel(event) }}
+                      </p>
+                    </div>
+                  }
+                  @case ('GROOMING') {
+                    <div class="detail-grid">
+                      <p class="detail-row">
+                        <span>{{ 'dashboard.groomingClinic' | translate }}</span>
+                        {{ getGroomingClinic(event) }}
+                      </p>
+                      <p class="detail-row">
+                        <span>{{ 'dashboard.groomingGroomer' | translate }}</span>
+                        {{ getGroomingGroomer(event) }}
+                      </p>
+                      <p class="detail-row full">
+                        <span>{{ 'dashboard.groomingServices' | translate }}</span>
+                        {{ getGroomingServices(event) }}
+                      </p>
+                      <p class="detail-row full">
+                        <span>{{ 'dashboard.observations' | translate }}</span>
+                        {{ getObservationLabel(event) }}
+                      </p>
+                    </div>
+                  }
+                  @case ('WEIGHT') {
+                    <div class="detail-grid">
+                      <p class="detail-row full">
+                        <span>{{ 'dashboard.weightChange' | translate }}</span>
+                        {{ getWeightChangeLabel(event) }}
+                      </p>
+                      <p class="detail-row full">
+                        <span>{{ 'dashboard.observations' | translate }}</span>
+                        {{ getObservationLabel(event) }}
+                      </p>
+                    </div>
+                  }
+                  @default {
+                    <div class="detail-grid">
+                      <p class="detail-row full">
+                        <span>{{ 'dashboard.observations' | translate }}</span>
+                        {{ getObservationLabel(event) }}
+                      </p>
+                    </div>
+                  }
+                }
               </div>
             </div>
-          </div>
+            <button
+              type="button"
+              class="icon-btn activity-delete"
+              [attr.aria-label]="'dashboard.deleteEvent' | translate"
+              (click)="$event.stopPropagation(); confirmDeleteActivity(event)"
+              [disabled]="deletingEventIds.has(event.eventId)"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </article>
+        }
+        @if (!filteredActivityLog.length) {
+          <p class="empty-state">
+            {{ 'dashboard.noActivity' | translate }}
+          </p>
+        }
+        @if (canLoadMoreActivity) {
           <button
             type="button"
-            class="icon-btn activity-delete"
-            [attr.aria-label]="'dashboard.deleteEvent' | translate"
-            (click)="$event.stopPropagation(); confirmDeleteActivity(event)"
-            [disabled]="deletingEventIds.has(event.eventId)"
+            class="load-more-btn"
+            (click)="loadMoreActivity()"
+            [disabled]="isLoadingMoreActivity"
           >
-            <mat-icon>delete</mat-icon>
+            {{ (isLoadingMoreActivity ? 'dashboard.loadingMore' : 'dashboard.loadMore') | translate }}
           </button>
-        </article>
-        <p class="empty-state" *ngIf="!filteredActivityLog.length">
-          {{ 'dashboard.noActivity' | translate }}
-        </p>
-        <button
-          type="button"
-          class="load-more-btn"
-          *ngIf="canLoadMoreActivity"
-          (click)="loadMoreActivity()"
-          [disabled]="isLoadingMoreActivity"
-        >
-          {{ (isLoadingMoreActivity ? 'dashboard.loadingMore' : 'dashboard.loadMore') | translate }}
-        </button>
+        }
       </div>
     </section>
 
@@ -313,23 +330,25 @@
         <button class="fab-action" type="button" (click)="toggleActivityMenu()">
           <mat-icon class="fab-plus">add</mat-icon>
         </button>
-        <div class="fab-menu" *ngIf="showActivityMenu">
-          <button type="button" (click)="selectActivity('WEIGHT')">
-            {{ 'dashboard.activityWeight' | translate }}
-          </button>
-          <button type="button" (click)="selectActivity('VACCINE')">
-            {{ 'dashboard.activityVaccine' | translate }}
-          </button>
-          <button type="button" (click)="selectActivity('MEDICATION')">
-            {{ 'dashboard.activityMedication' | translate }}
-          </button>
-          <button type="button" (click)="selectActivity('VET_VISIT')">
-            {{ 'dashboard.activityVetVisit' | translate }}
-          </button>
-          <button type="button" (click)="selectActivity('GROOMING')">
-            {{ 'dashboard.activityGrooming' | translate }}
-          </button>
-        </div>
+        @if (showActivityMenu) {
+          <div class="fab-menu">
+            <button type="button" (click)="selectActivity('WEIGHT')">
+              {{ 'dashboard.activityWeight' | translate }}
+            </button>
+            <button type="button" (click)="selectActivity('VACCINE')">
+              {{ 'dashboard.activityVaccine' | translate }}
+            </button>
+            <button type="button" (click)="selectActivity('MEDICATION')">
+              {{ 'dashboard.activityMedication' | translate }}
+            </button>
+            <button type="button" (click)="selectActivity('VET_VISIT')">
+              {{ 'dashboard.activityVetVisit' | translate }}
+            </button>
+            <button type="button" (click)="selectActivity('GROOMING')">
+              {{ 'dashboard.activityGrooming' | translate }}
+            </button>
+          </div>
+        }
       </div>
       <section class="reminders-card">
         <div class="card-header">
@@ -351,41 +370,50 @@
             <mat-icon>add</mat-icon>
           </button>
         </div>
-        <div class="reminder" *ngFor="let reminder of remindersList">
-          <div class="reminder-body">
-            <h4>{{ reminder.message || ('dashboard.reminderFallback' | translate) }}</h4>
-            <p class="reminder-meta">
-              <mat-icon *ngIf="isReminderRecurring(reminder)">repeat</mat-icon>
-              <span>{{ formatReminderDateTime(reminder.dueDate) }}</span>
-              <span class="reminder-owner" *ngIf="hasCoOwners && reminder.ownerId">
-                {{ 'dashboard.createdBy' | translate: { name: getOwnerLabel(reminder.ownerId) } }}
-              </span>
-            </p>
+        @for (reminder of remindersList; track reminder.reminderId) {
+          <div class="reminder">
+            <div class="reminder-body">
+              <h4>{{ reminder.message || ('dashboard.reminderFallback' | translate) }}</h4>
+              <p class="reminder-meta">
+                @if (isReminderRecurring(reminder)) {
+                  <mat-icon>repeat</mat-icon>
+                }
+                <span>{{ formatReminderDateTime(reminder.dueDate) }}</span>
+                @if (hasCoOwners && reminder.ownerId) {
+                  <span class="reminder-owner">
+                    {{ 'dashboard.createdBy' | translate: { name: getOwnerLabel(reminder.ownerId) } }}
+                  </span>
+                }
+              </p>
+            </div>
+            <button
+              type="button"
+              class="icon-btn"
+              [attr.aria-label]="'dashboard.deleteReminder' | translate"
+              (click)="deleteReminder(reminder)"
+              [disabled]="deletingReminderIds.has(reminder.reminderId)"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
           </div>
-          <button
-            type="button"
-            class="icon-btn"
-            [attr.aria-label]="'dashboard.deleteReminder' | translate"
-            (click)="deleteReminder(reminder)"
-            [disabled]="deletingReminderIds.has(reminder.reminderId)"
-          >
-            <mat-icon>delete</mat-icon>
-          </button>
-        </div>
-        <p class="empty-state" *ngIf="!remindersList.length">
-          {{ 'dashboard.noReminders' | translate }}
-        </p>
+        }
+        @if (!remindersList.length) {
+          <p class="empty-state">
+            {{ 'dashboard.noReminders' | translate }}
+          </p>
+        }
       </section>
 
     </aside>
   </div>
 </section>
 
-<div
-  class="fab-backdrop"
-  *ngIf="showActivityMenu"
-  role="button"
-  tabindex="0"
-  (click)="closeActivityMenu()"
-  (keydown.enter)="closeActivityMenu()"
-></div>
+@if (showActivityMenu) {
+  <div
+    class="fab-backdrop"
+    role="button"
+    tabindex="0"
+    (click)="closeActivityMenu()"
+    (keydown.enter)="closeActivityMenu()"
+  ></div>
+}

@@ -146,8 +146,9 @@ export class PetCreateStep2Component implements OnInit {
       sessionStorage.removeItem(this.draftStorageKey);
       localStorage.setItem('pettzi.activePetId', pet.petId);
       void this.router.navigate(['/pets', pet.petId]);
-    } catch (error: any) {
-      this.errorMessage = error?.message ?? this.i18n.t('errors.network');
+    } catch (error: unknown) {
+      this.errorMessage =
+        error instanceof Error ? error.message : this.i18n.t('errors.network');
     } finally {
       this.isSubmitting = false;
     }

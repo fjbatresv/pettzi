@@ -42,10 +42,14 @@
       <p class="subtitle">{{ 'login.subtitle' | translate }}</p>
 
       <form class="login-form" [formGroup]="form" (ngSubmit)="submit()">
-        <div class="form-alert" *ngIf="errorMessage">{{ errorMessage }}</div>
-        <div class="form-info" *ngIf="challengeMessage">
-          {{ challengeMessage }}
-        </div>
+        @if (errorMessage) {
+          <div class="form-alert">{{ errorMessage }}</div>
+        }
+        @if (challengeMessage) {
+          <div class="form-info">
+            {{ challengeMessage }}
+          </div>
+        }
 
         <label class="field" [class.has-error]="hasError('email')">
           <span>{{ 'login.emailLabel' | translate }}</span>
@@ -56,9 +60,11 @@
             formControlName="email"
             [class.input-error]="hasError('email')"
           />
-          <span class="field-error" *ngIf="hasError('email')">
-            {{ 'login.emailError' | translate }}
-          </span>
+          @if (hasError('email')) {
+            <span class="field-error">
+              {{ 'login.emailError' | translate }}
+            </span>
+          }
         </label>
 
         <label class="field" [class.has-error]="hasError('password')">
@@ -75,9 +81,11 @@
           <button type="button" class="link forgot-link" routerLink="/forgot-password">
             {{ 'login.forgotPassword' | translate }}
           </button>
-          <span class="field-error" *ngIf="hasError('password')">
-            {{ 'login.passwordError' | translate }}
-          </span>
+          @if (hasError('password')) {
+            <span class="field-error">
+              {{ 'login.passwordError' | translate }}
+            </span>
+          }
         </label>
 
         <button type="submit" class="primary" [disabled]="isSubmitting">

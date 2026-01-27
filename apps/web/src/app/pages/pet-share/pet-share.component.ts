@@ -217,6 +217,7 @@ export class PetShareComponent implements OnInit {
     if (!this.pet?.petId || !ownerId) {
       return;
     }
+    const petId = this.pet.petId;
     const ref = this.dialog.open(DeleteCoOwnerDialogComponent, {
       panelClass: 'pet-dialog',
       data: {
@@ -227,9 +228,9 @@ export class PetShareComponent implements OnInit {
       if (!confirmed) {
         return;
       }
-      this.owners.removePetOwner(this.pet!.petId, ownerId).subscribe({
+      this.owners.removePetOwner(petId, ownerId).subscribe({
         next: () => {
-          this.loadOwners(this.pet!.petId);
+          this.loadOwners(petId);
         },
       });
     });

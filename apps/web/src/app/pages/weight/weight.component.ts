@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -33,7 +33,7 @@ import { PetsService } from '../../core/services/pets.service';
   templateUrl: './weight.component.html',
   styleUrl: './weight.component.scss',
 })
-export class WeightComponent {
+export class WeightComponent implements OnInit {
   private readonly pets = inject(PetsService);
   private readonly events = inject(EventsService);
   private readonly router = inject(Router);

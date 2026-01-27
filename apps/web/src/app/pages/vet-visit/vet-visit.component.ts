@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -39,7 +39,7 @@ type UploadedAttachment = {
   templateUrl: './vet-visit.component.html',
   styleUrl: './vet-visit.component.scss',
 })
-export class VetVisitComponent {
+export class VetVisitComponent implements OnInit {
   private readonly pets = inject(PetsService);
   private readonly events = inject(EventsService);
   private readonly uploads = inject(UploadsService);

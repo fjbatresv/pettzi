@@ -9,14 +9,16 @@
   <section class="pet-edit-card">
     <div class="photo-block">
       <div class="photo-shell">
-        <img
-          *ngIf="petPhotoUrl"
-          [src]="petPhotoUrl"
-          [attr.alt]="name || ('dashboard.petFallback' | translate)"
-        />
-        <span *ngIf="!petPhotoUrl">
-          {{ name[0] || ('dashboard.petInitial' | translate) }}
-        </span>
+        @if (petPhotoUrl) {
+          <img
+            [src]="petPhotoUrl"
+            [attr.alt]="name || ('dashboard.petFallback' | translate)"
+          />
+        } @else {
+          <span>
+            {{ name[0] || ('dashboard.petInitial' | translate) }}
+          </span>
+        }
       </div>
       <input
         #photoInput
@@ -53,17 +55,21 @@
       <mat-form-field appearance="outline">
         <mat-label>{{ 'petEdit.species' | translate }}</mat-label>
         <mat-select [(ngModel)]="species" (selectionChange)="onSpeciesChange($event.value)">
-          <mat-option *ngFor="let item of speciesOptions" [value]="item.code">
-            {{ item.label }}
-          </mat-option>
+          @for (item of speciesOptions; track item.code) {
+            <mat-option [value]="item.code">
+              {{ item.label }}
+            </mat-option>
+          }
         </mat-select>
       </mat-form-field>
       <mat-form-field appearance="outline">
         <mat-label>{{ 'petEdit.breed' | translate }}</mat-label>
         <mat-select [(ngModel)]="breed" [disabled]="!breeds.length">
-          <mat-option *ngFor="let item of breeds" [value]="item.code">
-            {{ item.label }}
-          </mat-option>
+          @for (item of breeds; track item.code) {
+            <mat-option [value]="item.code">
+              {{ item.label }}
+            </mat-option>
+          }
         </mat-select>
       </mat-form-field>
       <mat-form-field appearance="outline">

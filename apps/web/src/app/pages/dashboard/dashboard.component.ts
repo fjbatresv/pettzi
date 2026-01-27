@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -19,7 +19,7 @@ import { CatalogsService, BreedItem, SpeciesItem } from '../../core/services/cat
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
   private readonly pets = inject(PetsService);
   private readonly router = inject(Router);
   private readonly reminders = inject(RemindersService);
@@ -265,7 +265,8 @@ export class DashboardComponent implements OnInit {
     if (!pet.birthDate) {
       return '';
     }
-    const birth = pet.birthDate instanceof Date ? pet.birthDate : new Date(pet.birthDate as any);
+    const birth =
+      pet.birthDate instanceof Date ? pet.birthDate : new Date(pet.birthDate as string);
     if (Number.isNaN(birth.getTime())) {
       return '';
     }

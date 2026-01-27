@@ -38,55 +38,63 @@
         </mat-select>
       </mat-form-field>
 
-      <div class="field" *ngIf="periodicity === 'hours'">
-        <mat-form-field appearance="outline" class="field">
-          <mat-label>{{ 'medication.everyHours' | translate }}</mat-label>
-          <input matInput type="number" min="1" [(ngModel)]="hoursEvery" />
-        </mat-form-field>
-      </div>
+      @if (periodicity === 'hours') {
+        <div class="field">
+          <mat-form-field appearance="outline" class="field">
+            <mat-label>{{ 'medication.everyHours' | translate }}</mat-label>
+            <input matInput type="number" min="1" [(ngModel)]="hoursEvery" />
+          </mat-form-field>
+        </div>
+      }
 
-      <div class="field" *ngIf="periodicity === 'daily'">
-        <mat-form-field appearance="outline" class="field">
-          <mat-label>{{ 'medication.time' | translate }}</mat-label>
-          <input matInput type="time" [(ngModel)]="dailyTime" />
-        </mat-form-field>
-      </div>
+      @if (periodicity === 'daily') {
+        <div class="field">
+          <mat-form-field appearance="outline" class="field">
+            <mat-label>{{ 'medication.time' | translate }}</mat-label>
+            <input matInput type="time" [(ngModel)]="dailyTime" />
+          </mat-form-field>
+        </div>
+      }
 
-      <div class="field" *ngIf="periodicity === 'weekly'">
-        <mat-form-field appearance="outline" class="field">
-          <mat-label>{{ 'medication.weekday' | translate }}</mat-label>
-          <mat-select [(ngModel)]="weeklyDay">
-            <mat-option value="0">{{ 'medication.weekdaySun' | translate }}</mat-option>
-            <mat-option value="1">{{ 'medication.weekdayMon' | translate }}</mat-option>
-            <mat-option value="2">{{ 'medication.weekdayTue' | translate }}</mat-option>
-            <mat-option value="3">{{ 'medication.weekdayWed' | translate }}</mat-option>
-            <mat-option value="4">{{ 'medication.weekdayThu' | translate }}</mat-option>
-            <mat-option value="5">{{ 'medication.weekdayFri' | translate }}</mat-option>
-            <mat-option value="6">{{ 'medication.weekdaySat' | translate }}</mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
+      @if (periodicity === 'weekly') {
+        <div class="field">
+          <mat-form-field appearance="outline" class="field">
+            <mat-label>{{ 'medication.weekday' | translate }}</mat-label>
+            <mat-select [(ngModel)]="weeklyDay">
+              <mat-option value="0">{{ 'medication.weekdaySun' | translate }}</mat-option>
+              <mat-option value="1">{{ 'medication.weekdayMon' | translate }}</mat-option>
+              <mat-option value="2">{{ 'medication.weekdayTue' | translate }}</mat-option>
+              <mat-option value="3">{{ 'medication.weekdayWed' | translate }}</mat-option>
+              <mat-option value="4">{{ 'medication.weekdayThu' | translate }}</mat-option>
+              <mat-option value="5">{{ 'medication.weekdayFri' | translate }}</mat-option>
+              <mat-option value="6">{{ 'medication.weekdaySat' | translate }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
 
-      <div class="field" *ngIf="periodicity === 'weekly'">
-        <mat-form-field appearance="outline" class="field">
-          <mat-label>{{ 'medication.time' | translate }}</mat-label>
-          <input matInput type="time" [(ngModel)]="weeklyTime" />
-        </mat-form-field>
-      </div>
+        <div class="field">
+          <mat-form-field appearance="outline" class="field">
+            <mat-label>{{ 'medication.time' | translate }}</mat-label>
+            <input matInput type="time" [(ngModel)]="weeklyTime" />
+          </mat-form-field>
+        </div>
+      }
 
-      <div class="field" *ngIf="periodicity === 'monthly'">
-        <mat-form-field appearance="outline" class="field">
-          <mat-label>{{ 'medication.monthDay' | translate }}</mat-label>
-          <input matInput type="number" min="1" max="31" [(ngModel)]="monthlyDay" />
-        </mat-form-field>
-      </div>
+      @if (periodicity === 'monthly') {
+        <div class="field">
+          <mat-form-field appearance="outline" class="field">
+            <mat-label>{{ 'medication.monthDay' | translate }}</mat-label>
+            <input matInput type="number" min="1" max="31" [(ngModel)]="monthlyDay" />
+          </mat-form-field>
+        </div>
 
-      <div class="field" *ngIf="periodicity === 'monthly'">
-        <mat-form-field appearance="outline" class="field">
-          <mat-label>{{ 'medication.time' | translate }}</mat-label>
-          <input matInput type="time" [(ngModel)]="monthlyTime" />
-        </mat-form-field>
-      </div>
+        <div class="field">
+          <mat-form-field appearance="outline" class="field">
+            <mat-label>{{ 'medication.time' | translate }}</mat-label>
+            <input matInput type="time" [(ngModel)]="monthlyTime" />
+          </mat-form-field>
+        </div>
+      }
     </div>
 
     <div class="section-title">
@@ -102,27 +110,31 @@
         <span>{{ 'medication.indefinite' | translate }}</span>
       </label>
 
-      <mat-form-field appearance="outline" class="field" *ngIf="!endIndefinite">
-        <mat-label>{{ 'medication.endDate' | translate }}</mat-label>
-        <input
-          matInput
-          [matDatepicker]="endPicker"
-          [(ngModel)]="endDate"
-          [min]="maxMedicationDate"
-          readonly
-        />
-        <mat-datepicker-toggle matIconSuffix [for]="endPicker"></mat-datepicker-toggle>
-        <mat-datepicker #endPicker></mat-datepicker>
-      </mat-form-field>
+      @if (!endIndefinite) {
+        <mat-form-field appearance="outline" class="field">
+          <mat-label>{{ 'medication.endDate' | translate }}</mat-label>
+          <input
+            matInput
+            [matDatepicker]="endPicker"
+            [(ngModel)]="endDate"
+            [min]="maxMedicationDate"
+            readonly
+          />
+          <mat-datepicker-toggle matIconSuffix [for]="endPicker"></mat-datepicker-toggle>
+          <mat-datepicker #endPicker></mat-datepicker>
+        </mat-form-field>
+      }
     </div>
 
-    <div class="reminder-box" *ngIf="shouldOfferReminder">
-      <label class="toggle">
-        <input type="checkbox" [(ngModel)]="createReminder" />
-        <span>{{ 'medication.createReminder' | translate }}</span>
-      </label>
-      <p>{{ 'medication.reminderHint' | translate }}</p>
-    </div>
+    @if (shouldOfferReminder) {
+      <div class="reminder-box">
+        <label class="toggle">
+          <input type="checkbox" [(ngModel)]="createReminder" />
+          <span>{{ 'medication.createReminder' | translate }}</span>
+        </label>
+        <p>{{ 'medication.reminderHint' | translate }}</p>
+      </div>
+    }
 
     <div class="section-title">
       <span class="section-icon">
@@ -152,14 +164,18 @@
       <p class="upload-hint">{{ 'medication.uploadHint' | translate }}</p>
     </div>
 
-    <div class="attachment-list" *ngIf="attachments.length">
-      <div class="attachment" *ngFor="let file of attachments; let i = index">
-        <span>{{ file.name }}</span>
-        <button type="button" (click)="removeAttachment(i)">
-          <mat-icon>close</mat-icon>
-        </button>
+    @if (attachments.length) {
+      <div class="attachment-list">
+        @for (file of attachments; track file.name; let i = $index) {
+          <div class="attachment">
+            <span>{{ file.name }}</span>
+            <button type="button" (click)="removeAttachment(i)">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        }
       </div>
-    </div>
+    }
 
     <div class="actions">
       <button type="button" class="link-btn" [routerLink]="['/pets', petId]">
