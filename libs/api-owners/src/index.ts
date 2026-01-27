@@ -5,3 +5,5 @@ export { handler as removePetOwnerHandler } from './handlers/remove-pet-owner.ha
 export { handler as invitePetOwnerHandler } from './handlers/invite-pet-owner.handler';
 export { handler as previewPetInviteHandler } from './handlers/preview-pet-invite.handler';
 export { handler as acceptPetInviteHandler } from './handlers/accept-pet-invite.handler';
+export { handler as listPendingPetInvitesHandler } from './handlers/list-pending-pet-invites.handler';
+export { handler as rejectPetInviteHandler } from './handlers/reject-pet-invite.handler';

@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { API_BASE_URL } from '../tokens';
 
 export type OwnerRole = 'PRIMARY' | 'SECONDARY';
@@ -38,14 +38,25 @@ export interface PetInvitePreview {
   status?: 'accepted' | 'already-linked';
 }
 
+export interface PendingPetInvite extends PetInvitePreview {
+  token: string;
+}
+
 interface OwnersListResponse {
   owners: PetOwner[];
+}
+
+interface PendingInvitesResponse {
+  invites: PendingPetInvite[];
 }
 
 @Injectable({ providedIn: 'root' })
 export class OwnersService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = inject(API_BASE_URL);
+  private readonly pendingInvitesCountSubject = new BehaviorSubject<number>(0);
+
+  readonly pendingInvitesCount$ = this.pendingInvitesCountSubject.asObservable();
 
   listPetOwners(petId: string): Observable<OwnersListResponse> {
     return this.http.get<OwnersListResponse>(this.buildUrl(`/pets/${petId}/owners`));
@@ -73,6 +84,16 @@ export class OwnersService {
 
   acceptPetInvite(token: string): Observable<PetInvitePreview> {
     return this.http.post<PetInvitePreview>(this.buildUrl('/pet-invites/accept'), { token });
+  }
+
+  listPendingPetInvites(): Observable<PendingInvitesResponse> {
+    return this.http.get<PendingInvitesResponse>(this.buildUrl('/pet-invites/pending')).pipe(
+      tap(({ invites }) => this.pendingInvitesCountSubject.next(invites?.length ?? 0))
+    );
+  }
+
+  rejectPetInvite(token: string): Observable<{ message?: string }> {
+    return this.http.post<{ message?: string }>(this.buildUrl('/pet-invites/reject'), { token });
   }
 
   private buildUrl(path: string) {

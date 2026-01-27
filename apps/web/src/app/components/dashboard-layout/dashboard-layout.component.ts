@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatMenuModule } from '@angular/material/menu';
 import { TranslateModule } from '@ngx-translate/core';
 import { Pet } from '@pettzi/domain-model';
 import { LanguageToggleComponent } from '../language-toggle/language-toggle.component';
@@ -11,6 +12,8 @@ import { PetsService } from '../../core/services/pets.service';
 import { UploadsService } from '../../core/services/uploads.service';
 import { AuthService } from '../../core/services/auth.service';
 import { firstValueFrom } from 'rxjs';
+import { OwnersService } from '../../core/services/owners.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard-layout',
@@ -21,6 +24,7 @@ import { firstValueFrom } from 'rxjs';
     MatButtonModule,
     MatIconModule,
     MatSidenavModule,
+    MatMenuModule,
     TranslateModule,
     LanguageToggleComponent,
   ],
@@ -31,6 +35,8 @@ export class DashboardLayoutComponent implements OnInit {
   private readonly pets = inject(PetsService);
   private readonly uploads = inject(UploadsService);
   private readonly auth = inject(AuthService);
+  private readonly owners = inject(OwnersService);
+  private readonly router = inject(Router);
   private readonly activePetKey = 'pettzi.activePetId';
 
   activePet: Pet | null = null;
@@ -39,10 +45,19 @@ export class DashboardLayoutComponent implements OnInit {
   userPhotoUrl = '';
   activePetAge = '';
   isMobile = false;
+  pendingInvitesCount = 0;
 
   ngOnInit() {
     this.updateViewport();
     void this.loadUserProfile();
+    this.owners.pendingInvitesCount$.subscribe((count) => {
+      this.pendingInvitesCount = count;
+    });
+    this.owners.listPendingPetInvites().subscribe({
+      error: () => {
+        this.pendingInvitesCount = 0;
+      },
+    });
     this.pets.listPets().subscribe({
       next: ({ pets }) => {
         const list = pets ?? [];
@@ -70,6 +85,11 @@ export class DashboardLayoutComponent implements OnInit {
       return;
     }
     this.isMobile = window.matchMedia('(max-width: 720px)').matches;
+  }
+
+  logout() {
+    this.auth.clearSession();
+    void this.router.navigate(['/login']);
   }
 
   private loadPhoto(petId: string, fileKey: string) {
