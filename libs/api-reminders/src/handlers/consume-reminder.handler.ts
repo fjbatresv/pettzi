@@ -159,6 +159,7 @@ export const handler = async (event: SQSEvent) => {
     const message = (item.message as string | undefined) ?? '';
     const metadata = parseMetadata(item.metadata);
     const reminderName = (metadata.name as string | undefined) || message || 'Reminder';
+    const eventType = (metadata.eventType as string | undefined) || reminderName;
     const notes = (metadata.notes as string | undefined) || '';
 
     const fromAddress = process.env.REMINDERS_EMAIL_FROM;
@@ -183,6 +184,7 @@ export const handler = async (event: SQSEvent) => {
             Template: SES_REMINDER_TEMPLATE_NAME,
             TemplateData: JSON.stringify({
               reminderName,
+              eventType,
               petName,
               eventDate: dueDateIso,
               notes,
@@ -304,13 +306,16 @@ export const handler = async (event: SQSEvent) => {
             PK: buildPetReminderPk(petId),
             SK: buildPetReminderSk(reminderId),
           },
-          UpdateExpression:
-            'SET dueDate = :dueDate, GSI1SK = :gsi1, ttl = :ttl, updatedAt = :now REMOVE completedAt, lastEnqueuedKey, lastEnqueuedAt',
-          ExpressionAttributeValues: {
-            ':dueDate': nextDueDate.toISOString(),
-            ':gsi1': buildReminderGsi1Sk(nextDueDate, petId, item.eventId ?? reminderId),
-            ':ttl': Math.floor(nextDueDate.getTime() / 1000),
-            ':now': new Date().toISOString(),
+        UpdateExpression:
+          'SET dueDate = :dueDate, GSI1SK = :gsi1, #ttl = :ttl, updatedAt = :now REMOVE completedAt, lastEnqueuedKey, lastEnqueuedAt',
+        ExpressionAttributeNames: {
+          '#ttl': 'ttl',
+        },
+        ExpressionAttributeValues: {
+          ':dueDate': nextDueDate.toISOString(),
+          ':gsi1': buildReminderGsi1Sk(nextDueDate, petId, item.eventId ?? reminderId),
+          ':ttl': Math.floor(nextDueDate.getTime() / 1000),
+          ':now': new Date().toISOString(),
           },
         })
       );
