@@ -6,47 +6,59 @@
     <h3>{{ 'feeding.details' | translate }}</h3>
   </div>
 
-  <div class="form-grid">
-    <mat-form-field appearance="outline" class="field">
-      <mat-label>{{ 'feeding.date' | translate }}</mat-label>
-      <input
-        matInput
-        [matDatepicker]="feedingPicker"
-        [(ngModel)]="feedingDate"
-        [max]="maxFeedingDate"
-        readonly
-      />
-      <mat-datepicker-toggle matIconSuffix [for]="feedingPicker"></mat-datepicker-toggle>
-      <mat-datepicker #feedingPicker></mat-datepicker>
-    </mat-form-field>
+  <div class="form-stack">
+    <div class="form-row single">
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>{{ 'feeding.date' | translate }}</mat-label>
+        <input
+          matInput
+          [matDatepicker]="feedingPicker"
+          [(ngModel)]="feedingDate"
+          [max]="maxFeedingDate"
+          readonly
+        />
+        <mat-datepicker-toggle matIconSuffix [for]="feedingPicker"></mat-datepicker-toggle>
+        <mat-datepicker #feedingPicker></mat-datepicker>
+      </mat-form-field>
+    </div>
 
-    <mat-form-field appearance="outline" class="field">
-      <mat-label>{{ 'feeding.previousFood' | translate }}</mat-label>
-      <input matInput [(ngModel)]="previousFood" [placeholder]="'feeding.previousFoodHint' | translate" />
-    </mat-form-field>
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>{{ 'feeding.previousFood' | translate }}</mat-label>
+        <input
+          matInput
+          [(ngModel)]="previousFood"
+          [placeholder]="'feeding.previousFoodHint' | translate"
+        />
+      </mat-form-field>
 
-    <mat-form-field appearance="outline" class="field">
-      <mat-label>{{ 'feeding.newFood' | translate }}</mat-label>
-      <input matInput [(ngModel)]="newFood" />
-    </mat-form-field>
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>{{ 'feeding.newFood' | translate }}</mat-label>
+        <input matInput [(ngModel)]="newFood" />
+      </mat-form-field>
+    </div>
 
-    <mat-form-field appearance="outline" class="field">
-      <mat-label>{{ 'feeding.portion' | translate }}</mat-label>
-      <input matInput [(ngModel)]="portion" />
-    </mat-form-field>
+    <div class="form-row portion-row">
+      <div class="portion-group">
+        <mat-form-field appearance="outline" class="field portion-field">
+          <mat-label>{{ 'feeding.portion' | translate }}</mat-label>
+          <input matInput [(ngModel)]="portion" />
+        </mat-form-field>
 
-    <mat-form-field appearance="outline" class="field">
-      <mat-label>{{ 'feeding.unit' | translate }}</mat-label>
-      <mat-select [(ngModel)]="portionUnit">
-        <mat-option value="gr">{{ 'feeding.unitGr' | translate }}</mat-option>
-        <mat-option value="cup">{{ 'feeding.unitCup' | translate }}</mat-option>
-      </mat-select>
-    </mat-form-field>
+        <mat-form-field appearance="outline" class="field unit-field">
+          <mat-label>{{ 'feeding.unit' | translate }}</mat-label>
+          <mat-select [(ngModel)]="portionUnit">
+            <mat-option value="gr">{{ 'feeding.unitGr' | translate }}</mat-option>
+            <mat-option value="cup">{{ 'feeding.unitCup' | translate }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
 
-    <mat-form-field appearance="outline" class="field">
-      <mat-label>{{ 'feeding.mealTimes' | translate }}</mat-label>
-      <input matInput type="number" min="1" step="1" [(ngModel)]="mealTimes" />
-    </mat-form-field>
+      <mat-form-field appearance="outline" class="field meals-field">
+        <mat-label>{{ 'feeding.mealTimes' | translate }}</mat-label>
+        <input matInput type="number" min="1" step="1" [(ngModel)]="mealTimes" />
+      </mat-form-field>
+    </div>
   </div>
 
   <div class="reminder-box">
