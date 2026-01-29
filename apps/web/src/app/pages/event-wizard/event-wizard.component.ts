@@ -27,6 +27,12 @@ const EVENT_TYPES = [
 
 type EventType = (typeof EVENT_TYPES)[number];
 
+type EventTypeGroup = {
+  id: string;
+  labelKey: string;
+  types: EventType[];
+};
+
 const EVENT_ICONS: Record<EventType, string> = {
   WEIGHT: 'monitor_weight',
   VACCINE: 'vaccines',
@@ -37,6 +43,24 @@ const EVENT_ICONS: Record<EventType, string> = {
   WALK: 'directions_walk',
   FEEDING: 'restaurant',
 };
+
+const EVENT_TYPE_GROUPS: EventTypeGroup[] = [
+  {
+    id: 'health',
+    labelKey: 'eventWizard.groupHealth',
+    types: ['INCIDENT', 'VET_VISIT', 'VACCINE', 'MEDICATION', 'WEIGHT'],
+  },
+  {
+    id: 'wellness',
+    labelKey: 'eventWizard.groupWellness',
+    types: ['GROOMING', 'FEEDING'],
+  },
+  {
+    id: 'activity',
+    labelKey: 'eventWizard.groupActivity',
+    types: ['WALK'],
+  },
+];
 
 @Component({
   selector: 'app-event-wizard',
@@ -84,14 +108,14 @@ export class EventWizardComponent implements OnInit {
     this.loadPetName();
   }
 
-  get eventTypes(): EventType[] {
+  get eventTypeGroups(): EventTypeGroup[] {
     const query = this.searchQuery.trim().toLowerCase();
-    if (!query) {
-      return [...EVENT_TYPES];
-    }
-    return EVENT_TYPES.filter((type) =>
-      this.getTypeLabel(type).toLowerCase().includes(query)
-    );
+    return EVENT_TYPE_GROUPS.map((group) => {
+      const types = query
+        ? group.types.filter((type) => this.getTypeLabel(type).toLowerCase().includes(query))
+        : group.types;
+      return { ...group, types };
+    }).filter((group) => group.types.length > 0);
   }
 
   get stepLabel() {
