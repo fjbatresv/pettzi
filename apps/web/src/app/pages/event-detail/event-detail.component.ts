@@ -92,6 +92,12 @@ export class EventDetailComponent implements OnInit {
         return this.translate.instant('dashboard.eventType.weight');
       case 'VACCINE':
         return this.translate.instant('dashboard.eventType.vaccine');
+      case 'INCIDENT':
+        return this.translate.instant('dashboard.eventType.incident');
+      case 'WALK':
+        return this.translate.instant('dashboard.eventType.walk');
+      case 'FEEDING':
+        return this.translate.instant('dashboard.eventType.feeding');
       case 'OTHER':
         return this.translate.instant('dashboard.eventType.other');
       default:
@@ -111,6 +117,12 @@ export class EventDetailComponent implements OnInit {
         return 'monitor_weight';
       case 'VACCINE':
         return 'vaccines';
+      case 'INCIDENT':
+        return 'report';
+      case 'WALK':
+        return 'directions_walk';
+      case 'FEEDING':
+        return 'restaurant';
       default:
         return 'event_note';
     }
@@ -273,6 +285,71 @@ export class EventDetailComponent implements OnInit {
 
   getObservationLabel(event: PetEvent) {
     return event.notes?.trim() || this.translate.instant('dashboard.noDetails');
+  }
+
+  getIncidentName(event: PetEvent) {
+    const meta = this.getMetadata(event);
+    const name = (meta['name'] as string) || event.title || '';
+    return this.getValueOrUnknown(name);
+  }
+
+  getWalkDuration(event: PetEvent) {
+    const meta = this.getMetadata(event);
+    const minutes = Number(meta['durationMinutes']);
+    if (!Number.isFinite(minutes) || minutes <= 0) {
+      return this.translate.instant('dashboard.unknown');
+    }
+    return this.translate.instant('walks.durationValue', { minutes });
+  }
+
+  getWalkDistance(event: PetEvent) {
+    const meta = this.getMetadata(event);
+    const km = Number(meta['distanceKm']);
+    if (!Number.isFinite(km) || km <= 0) {
+      return this.translate.instant('dashboard.unknown');
+    }
+    return this.translate.instant('walks.distanceValue', { km });
+  }
+
+  getFeedingPrevious(event: PetEvent) {
+    const meta = this.getMetadata(event);
+    return this.getValueOrUnknown(meta['previousFood']);
+  }
+
+  getFeedingNew(event: PetEvent) {
+    const meta = this.getMetadata(event);
+    const food = (meta['newFood'] as string) || event.title || '';
+    return this.getValueOrUnknown(food);
+  }
+
+  getFeedingPortion(event: PetEvent) {
+    const meta = this.getMetadata(event);
+    const portion = this.formatFeedingPortion(meta);
+    return portion || this.getValueOrUnknown(meta['portion']);
+  }
+
+  getFeedingMeals(event: PetEvent) {
+    const meta = this.getMetadata(event);
+    const meals = Number(meta['mealTimes']);
+    if (!Number.isFinite(meals) || meals <= 0) {
+      return this.translate.instant('dashboard.unknown');
+    }
+    return this.translate.instant('feeding.mealTimesValue', { meals });
+  }
+
+  private formatFeedingPortion(meta: Record<string, unknown>) {
+    const amount = String(meta['portionAmount'] ?? '').trim();
+    const unit = String(meta['portionUnit'] ?? '').trim();
+    if (!amount && !unit) {
+      return '';
+    }
+    if (unit === 'gr') {
+      return `${amount} ${this.translate.instant('feeding.unitGr')}`.trim();
+    }
+    if (unit === 'cup') {
+      return `${amount} ${this.translate.instant('feeding.unitCup')}`.trim();
+    }
+    return `${amount} ${unit}`.trim();
   }
 
   openAttachment(attachment: EventAttachment) {

@@ -1,0 +1,74 @@
+<section class="walk-card">
+  <div class="section-title">
+    <span class="section-icon">
+      <mat-icon>directions_walk</mat-icon>
+    </span>
+    <h3>{{ 'walks.details' | translate }}</h3>
+  </div>
+
+  <div class="form-grid">
+    <mat-form-field appearance="outline" class="field">
+      <mat-label>{{ 'walks.date' | translate }}</mat-label>
+      <input
+        matInput
+        [matDatepicker]="walkPicker"
+        [(ngModel)]="walkDate"
+        [max]="maxWalkDate"
+        readonly
+      />
+      <mat-datepicker-toggle matIconSuffix [for]="walkPicker"></mat-datepicker-toggle>
+      <mat-datepicker #walkPicker></mat-datepicker>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="field">
+      <mat-label>{{ 'walks.duration' | translate }}</mat-label>
+      <input matInput type="number" min="1" step="1" [(ngModel)]="durationMinutes" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="field">
+      <mat-label>{{ 'walks.distance' | translate }}</mat-label>
+      <input matInput type="number" min="0.1" step="0.1" [(ngModel)]="distanceKm" />
+    </mat-form-field>
+  </div>
+
+  <div class="section-title">
+    <span class="section-icon">
+      <mat-icon>description</mat-icon>
+    </span>
+    <h3>{{ 'walks.comment' | translate }}</h3>
+  </div>
+  <textarea
+    class="notes"
+    [(ngModel)]="comment"
+    [placeholder]="'walks.commentPlaceholder' | translate"
+    rows="3"
+  ></textarea>
+
+  <div class="section-title">
+    <span class="section-icon">
+      <mat-icon>attach_file</mat-icon>
+    </span>
+    <h3>{{ 'walks.attachments' | translate }}</h3>
+  </div>
+  <div class="upload-row">
+    <label class="upload-btn">
+      <input type="file" multiple (change)="onFilesSelected($event)" />
+      <mat-icon>upload</mat-icon>
+      {{ 'walks.upload' | translate }}
+    </label>
+    <p class="upload-hint">{{ 'walks.uploadHint' | translate }}</p>
+  </div>
+
+  @if (attachments.length) {
+    <div class="attachment-list">
+      @for (file of attachments; track file.name; let i = $index) {
+        <div class="attachment">
+          <span>{{ file.name }}</span>
+          <button type="button" (click)="removeAttachment(i)">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      }
+    </div>
+  }
+</section>

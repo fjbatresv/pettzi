@@ -70,6 +70,9 @@ export class PetShareRecordsComponent implements OnInit {
     { type: EventType.VET_VISIT, label: 'dashboard.activityVetVisit' },
     { type: EventType.VACCINE, label: 'dashboard.activityVaccine' },
     { type: EventType.WEIGHT, label: 'dashboard.activityWeight' },
+    { type: EventType.INCIDENT, label: 'dashboard.activityIncident' },
+    { type: EventType.WALK, label: 'dashboard.activityWalk' },
+    { type: EventType.FEEDING, label: 'dashboard.activityFeeding' },
   ] as const;
 
   selectedTypes = new Set<EventType>(this.recordOptions.map((option) => option.type));

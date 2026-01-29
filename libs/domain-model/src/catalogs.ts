@@ -37,7 +37,12 @@ export const catalogBreeds: Record<PetSpecies, CatalogEntry<string>[]> = {
 export const catalogEventTypes: CatalogEntry<EventType>[] = [
   { code: EventType.VACCINE, label: 'Vaccine' },
   { code: EventType.VET_VISIT, label: 'Vet visit' },
+  { code: EventType.MEDICATION, label: 'Medication' },
+  { code: EventType.WEIGHT, label: 'Weight' },
   { code: EventType.GROOMING, label: 'Grooming' },
+  { code: EventType.INCIDENT, label: 'Incident' },
+  { code: EventType.WALK, label: 'Walk' },
+  { code: EventType.FEEDING, label: 'Feeding' },
   { code: EventType.OTHER, label: 'Other' },
 ];
 

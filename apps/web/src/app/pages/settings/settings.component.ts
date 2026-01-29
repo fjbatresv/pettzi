@@ -15,7 +15,7 @@ import { firstValueFrom } from 'rxjs';
 import { DeleteAccountDialogComponent } from './delete-account-dialog.component';
 import { UploadsService } from '../../core/services/uploads.service';
 
-type SettingsSection = 'profile' | 'notifications' | 'security' | 'billing';
+type SettingsSection = 'profile' | 'notifications' | 'security';
 
 @Component({
   selector: 'app-settings',

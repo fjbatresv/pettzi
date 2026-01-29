@@ -54,6 +54,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     eventId,
     eventType: payload.eventType,
     eventDate: new Date(payload.date),
+    title: payload.title,
     notes: payload.notes,
     metadata: payload.metadata,
     createdAt: now,

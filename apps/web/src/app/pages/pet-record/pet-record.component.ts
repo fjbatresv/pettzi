@@ -291,6 +291,12 @@ export class PetRecordComponent implements OnInit, OnDestroy {
         return this.translate.instant('dashboard.eventType.weight');
       case EventType.VACCINE:
         return this.translate.instant('dashboard.eventType.vaccine');
+      case EventType.INCIDENT:
+        return this.translate.instant('dashboard.eventType.incident');
+      case EventType.WALK:
+        return this.translate.instant('dashboard.eventType.walk');
+      case EventType.FEEDING:
+        return this.translate.instant('dashboard.eventType.feeding');
       case EventType.OTHER:
         return this.translate.instant('dashboard.eventType.other');
       default:
@@ -351,6 +357,39 @@ export class PetRecordComponent implements OnInit, OnDestroy {
           return notes;
         }
         break;
+      }
+      case EventType.INCIDENT: {
+        const notes = event.notes?.trim() || (meta['description'] as string) || '';
+        if (title && notes) {
+          return `${title} — ${notes}`;
+        }
+        if (notes) {
+          return notes;
+        }
+        break;
+      }
+      case EventType.WALK: {
+        const minutes = Number(meta['durationMinutes']);
+        const distance = Number(meta['distanceKm']);
+        const durationLabel = Number.isFinite(minutes)
+          ? this.translate.instant('walks.durationValue', { minutes })
+          : '';
+        const distanceLabel = Number.isFinite(distance)
+          ? this.translate.instant('walks.distanceValue', { km: distance })
+          : '';
+        const detail = [durationLabel, distanceLabel].filter((value) => value).join(' · ');
+        if (title && detail) {
+          return `${title} — ${detail}`;
+        }
+        return detail || title;
+      }
+      case EventType.FEEDING: {
+        const newFood = (meta['newFood'] as string) || event.title || '';
+        const portion = this.formatFeedingPortion(meta) || (meta['portion'] as string) || '';
+        if (newFood && portion) {
+          return `${newFood} — ${portion}`;
+        }
+        return newFood || portion || title;
       }
       default:
         break;
@@ -418,6 +457,21 @@ export class PetRecordComponent implements OnInit, OnDestroy {
       return `${this.translate.instant('petRecord.weightNew')} ${value} lb`;
     }
     return `${this.translate.instant('petRecord.weightNew')} ${weightKg} kg`;
+  }
+
+  private formatFeedingPortion(meta: Record<string, unknown>) {
+    const amount = String(meta['portionAmount'] ?? '').trim();
+    const unit = String(meta['portionUnit'] ?? '').trim();
+    if (!amount && !unit) {
+      return '';
+    }
+    if (unit === 'gr') {
+      return `${amount} ${this.translate.instant('feeding.unitGr')}`.trim();
+    }
+    if (unit === 'cup') {
+      return `${amount} ${this.translate.instant('feeding.unitCup')}`.trim();
+    }
+    return `${amount} ${unit}`.trim();
   }
 
   private getGroomingServicesLabel(meta: Record<string, unknown>) {
