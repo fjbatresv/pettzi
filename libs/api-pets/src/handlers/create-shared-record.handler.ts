@@ -37,6 +37,9 @@ const ALLOWED_ITEMS: EventType[] = [
   EventType.VET_VISIT,
   EventType.VACCINE,
   EventType.WEIGHT,
+  EventType.INCIDENT,
+  EventType.WALK,
+  EventType.FEEDING,
 ];
 
 const hashPassword = (password: string, salt: string) =>

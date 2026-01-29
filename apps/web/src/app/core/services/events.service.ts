@@ -25,7 +25,16 @@ export interface EventDetailResponse {
 }
 
 interface CreateEventRequest {
-  eventType: 'VACCINE' | 'VET_VISIT' | 'MEDICATION' | 'WEIGHT' | 'GROOMING' | 'OTHER';
+  eventType:
+    | 'VACCINE'
+    | 'VET_VISIT'
+    | 'MEDICATION'
+    | 'WEIGHT'
+    | 'GROOMING'
+    | 'INCIDENT'
+    | 'WALK'
+    | 'FEEDING'
+    | 'OTHER';
   date: string;
   title?: string;
   notes?: string;

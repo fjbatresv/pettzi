@@ -59,6 +59,51 @@
         </div>
         }
 
+        @case ('INCIDENT') {
+        <div class="detail-row full">
+          <span>{{ 'incident.name' | translate }}</span>
+          {{ getIncidentName(event) }}
+        </div>
+        <div class="detail-row full">
+          <span>{{ 'incident.description' | translate }}</span>
+          {{ getObservationLabel(event) }}
+        </div>
+        }
+
+        @case ('WALK') {
+        <div class="detail-row">
+          <span>{{ 'walks.duration' | translate }}</span>
+          {{ getWalkDuration(event) }}
+        </div>
+        <div class="detail-row">
+          <span>{{ 'walks.distance' | translate }}</span>
+          {{ getWalkDistance(event) }}
+        </div>
+        <div class="detail-row full">
+          <span>{{ 'walks.comment' | translate }}</span>
+          {{ getObservationLabel(event) }}
+        </div>
+        }
+
+        @case ('FEEDING') {
+        <div class="detail-row">
+          <span>{{ 'feeding.previousFood' | translate }}</span>
+          {{ getFeedingPrevious(event) }}
+        </div>
+        <div class="detail-row">
+          <span>{{ 'feeding.newFood' | translate }}</span>
+          {{ getFeedingNew(event) }}
+        </div>
+        <div class="detail-row">
+          <span>{{ 'feeding.portion' | translate }}</span>
+          {{ getFeedingPortion(event) }}
+        </div>
+        <div class="detail-row">
+          <span>{{ 'feeding.mealTimes' | translate }}</span>
+          {{ getFeedingMeals(event) }}
+        </div>
+        }
+
         @case ('VET_VISIT') {
         <div class="detail-row">
           <span>{{ 'dashboard.vetClinic' | translate }}</span>

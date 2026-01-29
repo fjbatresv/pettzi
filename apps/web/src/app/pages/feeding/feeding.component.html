@@ -1,0 +1,114 @@
+<section class="feeding-card">
+  <div class="section-title">
+    <span class="section-icon">
+      <mat-icon>restaurant</mat-icon>
+    </span>
+    <h3>{{ 'feeding.details' | translate }}</h3>
+  </div>
+
+  <div class="form-stack">
+    <div class="form-row single">
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>{{ 'feeding.date' | translate }}</mat-label>
+        <input
+          matInput
+          [matDatepicker]="feedingPicker"
+          [(ngModel)]="feedingDate"
+          [max]="maxFeedingDate"
+          readonly
+        />
+        <mat-datepicker-toggle matIconSuffix [for]="feedingPicker"></mat-datepicker-toggle>
+        <mat-datepicker #feedingPicker></mat-datepicker>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>{{ 'feeding.previousFood' | translate }}</mat-label>
+        <input
+          matInput
+          [(ngModel)]="previousFood"
+          [placeholder]="'feeding.previousFoodHint' | translate"
+        />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>{{ 'feeding.newFood' | translate }}</mat-label>
+        <input matInput [(ngModel)]="newFood" />
+      </mat-form-field>
+    </div>
+
+    <div class="form-row portion-row">
+      <div class="portion-group">
+        <mat-form-field appearance="outline" class="field portion-field">
+          <mat-label>{{ 'feeding.portion' | translate }}</mat-label>
+          <input matInput [(ngModel)]="portion" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="field unit-field">
+          <mat-label>{{ 'feeding.unit' | translate }}</mat-label>
+          <mat-select [(ngModel)]="portionUnit">
+            <mat-option value="gr">{{ 'feeding.unitGr' | translate }}</mat-option>
+            <mat-option value="cup">{{ 'feeding.unitCup' | translate }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <mat-form-field appearance="outline" class="field meals-field">
+        <mat-label>{{ 'feeding.mealTimes' | translate }}</mat-label>
+        <input matInput type="number" min="1" step="1" [(ngModel)]="mealTimes" />
+      </mat-form-field>
+    </div>
+  </div>
+
+  <div class="reminder-box">
+    <label class="toggle">
+      <input type="checkbox" [(ngModel)]="createReminder" />
+      <span>{{ 'feeding.createReminder' | translate }}</span>
+    </label>
+    <p>{{ 'feeding.reminderHint' | translate }}</p>
+
+    @if (createReminder) {
+      <div class="reminder-grid">
+        <mat-form-field appearance="outline" class="field">
+          <mat-label>{{ 'feeding.firstReminder' | translate }}</mat-label>
+          <input matInput type="time" [(ngModel)]="firstReminderTime" />
+        </mat-form-field>
+        <div class="interval-pill">
+          <mat-icon>schedule</mat-icon>
+          <span>
+            {{ 'feeding.reminderInterval' | translate: { hours: (24 / (mealTimes || 1)) | number:'1.0-2' } }}
+          </span>
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="section-title">
+    <span class="section-icon">
+      <mat-icon>attach_file</mat-icon>
+    </span>
+    <h3>{{ 'feeding.attachments' | translate }}</h3>
+  </div>
+  <div class="upload-row">
+    <label class="upload-btn">
+      <input type="file" multiple (change)="onFilesSelected($event)" />
+      <mat-icon>upload</mat-icon>
+      {{ 'feeding.upload' | translate }}
+    </label>
+    <p class="upload-hint">{{ 'feeding.uploadHint' | translate }}</p>
+  </div>
+
+  @if (attachments.length) {
+    <div class="attachment-list">
+      @for (file of attachments; track file.name; let i = $index) {
+        <div class="attachment">
+          <span>{{ file.name }}</span>
+          <button type="button" (click)="removeAttachment(i)">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      }
+    </div>
+  }
+</section>

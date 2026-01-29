@@ -29,19 +29,28 @@
             (keyup)="onSearch($event)"
           />
         </div>
-        <div class="type-list">
-          @for (type of eventTypes; track type) {
-            <button
-              type="button"
-              class="type-option"
-              [class.selected]="selectedType === type"
-              (click)="selectType(type)"
-            >
-              <span class="type-icon">
-                <mat-icon>{{ getTypeIcon(type) }}</mat-icon>
-              </span>
-              <span class="type-label">{{ getTypeLabel(type) }}</span>
-            </button>
+        <div class="type-groups">
+          @for (group of eventTypeGroups; track group.id) {
+            <div class="type-group">
+              <div class="group-header">
+                <span class="group-pill">{{ group.labelKey | translate }}</span>
+              </div>
+              <div class="type-list">
+                @for (type of group.types; track type) {
+                  <button
+                    type="button"
+                    class="type-option"
+                    [class.selected]="selectedType === type"
+                    (click)="selectType(type)"
+                  >
+                    <span class="type-icon">
+                      <mat-icon>{{ getTypeIcon(type) }}</mat-icon>
+                    </span>
+                    <span class="type-label">{{ getTypeLabel(type) }}</span>
+                  </button>
+                }
+              </div>
+            </div>
           }
         </div>
         <button
@@ -101,6 +110,27 @@
               [petId]="petId"
               (saved)="handleSaved()"
             ></app-weight>
+          }
+          @case ('INCIDENT') {
+            <app-incident
+              #incidentForm
+              [petId]="petId"
+              (saved)="handleSaved()"
+            ></app-incident>
+          }
+          @case ('WALK') {
+            <app-walk
+              #walkForm
+              [petId]="petId"
+              (saved)="handleSaved()"
+            ></app-walk>
+          }
+          @case ('FEEDING') {
+            <app-feeding
+              #feedingForm
+              [petId]="petId"
+              (saved)="handleSaved()"
+            ></app-feeding>
           }
         }
       </section>

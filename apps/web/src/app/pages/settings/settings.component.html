@@ -26,10 +26,6 @@
             <mat-icon>security</mat-icon>
             <span>{{ 'settings.security' | translate }}</span>
           </mat-option>
-          <mat-option value="billing">
-            <mat-icon>credit_card</mat-icon>
-            <span>{{ 'settings.billing' | translate }}</span>
-          </mat-option>
         </mat-select>
       </mat-form-field>
     </div>
@@ -60,15 +56,6 @@
       >
         <mat-icon>security</mat-icon>
         {{ 'settings.security' | translate }}
-      </button>
-      <button
-        type="button"
-        class="settings-tab"
-        [class.active]="isActive('billing')"
-        (click)="setSection('billing')"
-      >
-        <mat-icon>credit_card</mat-icon>
-        {{ 'settings.billing' | translate }}
       </button>
       <button type="button" class="settings-tab logout" (click)="logout()">
         <mat-icon>logout</mat-icon>
@@ -118,7 +105,6 @@
             <div>
               <h4>{{ userName || ('settings.defaultUser' | translate) }}</h4>
               <p>{{ 'settings.memberSince' | translate:{ date: memberSince } }}</p>
-              <span class="pill">{{ 'settings.planLabel' | translate }}</span>
             </div>
           </div>
           <div class="form-grid">
@@ -339,128 +325,6 @@
           </section>
         }
 
-        @case ('billing') {
-          <section class="settings-stack">
-        <div class="card plan-card">
-          <div class="card-header">
-            <div>
-              <h3>{{ 'settings.currentPlan' | translate }}</h3>
-              <p>{{ 'settings.currentPlanHint' | translate }}</p>
-            </div>
-            <span class="pill">{{ 'settings.activePlan' | translate }}</span>
-          </div>
-          <div class="plan-summary">
-            <div>
-              <p class="plan-tier">{{ 'settings.premiumTier' | translate }}</p>
-              <h2>$12.99 <span>/ {{ 'settings.month' | translate }}</span></h2>
-            </div>
-            <div class="plan-actions">
-              <button mat-stroked-button color="primary">
-                {{ 'settings.changePlan' | translate }}
-              </button>
-              <button mat-raised-button color="primary" class="primary-cta">
-                {{ 'settings.upgrade' | translate }}
-              </button>
-            </div>
-          </div>
-          <div class="plan-features">
-            <div>
-              <mat-icon>check_circle</mat-icon>
-              {{ 'settings.featureProfiles' | translate }}
-            </div>
-            <div>
-              <mat-icon>check_circle</mat-icon>
-              {{ 'settings.featureAnalytics' | translate }}
-            </div>
-            <div>
-              <mat-icon>check_circle</mat-icon>
-              {{ 'settings.featureSupport' | translate }}
-            </div>
-            <div>
-              <mat-icon>check_circle</mat-icon>
-              {{ 'settings.featureStorage' | translate }}
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-header">
-            <div>
-              <h3>{{ 'settings.paymentMethods' | translate }}</h3>
-              <p>{{ 'settings.paymentMethodsHint' | translate }}</p>
-            </div>
-            <button mat-button color="primary" class="link-btn">
-              <mat-icon>add</mat-icon>
-              {{ 'settings.addCard' | translate }}
-            </button>
-          </div>
-          <div class="payment-row">
-            <div class="session-icon">
-              <mat-icon>credit_card</mat-icon>
-            </div>
-            <div>
-              <h4>•••• •••• •••• 4242</h4>
-              <p>{{ 'settings.cardExpiry' | translate }}</p>
-            </div>
-            <span class="pill subtle">{{ 'settings.default' | translate }}</span>
-            <button type="button" class="icon-btn">
-              <mat-icon>edit</mat-icon>
-            </button>
-            <button type="button" class="icon-btn">
-              <mat-icon>delete</mat-icon>
-            </button>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-header">
-            <div>
-              <h3>{{ 'settings.billingHistory' | translate }}</h3>
-              <p>{{ 'settings.billingHistoryHint' | translate }}</p>
-            </div>
-          </div>
-          <div class="billing-table">
-            <div class="billing-row billing-head">
-              <span>{{ 'settings.billDate' | translate }}</span>
-              <span>{{ 'settings.billDescription' | translate }}</span>
-              <span>{{ 'settings.billAmount' | translate }}</span>
-              <span>{{ 'settings.billStatus' | translate }}</span>
-              <span>{{ 'settings.billInvoice' | translate }}</span>
-            </div>
-            <div class="billing-row">
-              <span>Oct 12, 2023</span>
-              <span>{{ 'settings.billPlan' | translate }}</span>
-              <span>$12.99</span>
-              <span class="status paid">{{ 'settings.paid' | translate }}</span>
-              <button type="button" class="link-btn">
-                <mat-icon>download</mat-icon>
-                PDF
-              </button>
-            </div>
-            <div class="billing-row">
-              <span>Sep 12, 2023</span>
-              <span>{{ 'settings.billPlan' | translate }}</span>
-              <span>$12.99</span>
-              <span class="status paid">{{ 'settings.paid' | translate }}</span>
-              <button type="button" class="link-btn">
-                <mat-icon>download</mat-icon>
-                PDF
-              </button>
-            </div>
-            <div class="billing-row">
-              <span>Aug 12, 2023</span>
-              <span>{{ 'settings.billPlan' | translate }}</span>
-              <span>$12.99</span>
-              <span class="status paid">{{ 'settings.paid' | translate }}</span>
-              <button type="button" class="link-btn">
-                <mat-icon>download</mat-icon>
-                PDF
-              </button>
-            </div>
-          </div>
-        </div>
-          </section>
-        }
       }
     </div>
   </div>
