@@ -1,42 +1,148 @@
-<!-- nx configuration start-->
-<!-- Leave the start & end comments to automatically receive updates. -->
+# AGENTS.md — Guidelines for AI Agents (Codex / Cursor)
 
-# General Guidelines for working with Nx
+This repository is developed using AI agents acting as **implementers**, with a human acting as **architect and final reviewer**.
+Agents MUST follow these rules strictly.
 
-- When running tasks (for example build, lint, test, e2e, etc.), always prefer running the task through `nx` (i.e. `nx run`, `nx run-many`, `nx affected`) instead of using the underlying tooling directly
-- You have access to the Nx MCP server and its tools, use them to help the user
-- When answering questions about the repository, use the `nx_workspace` tool first to gain an understanding of the workspace architecture where applicable.
-- When working in individual projects, use the `nx_project_details` mcp tool to analyze and understand the specific project structure and dependencies
-- For questions around nx configuration, best practices or if you're unsure, use the `nx_docs` tool to get relevant, up-to-date docs. Always use this instead of assuming things about nx configuration
-- If the user needs help with an Nx configuration or project graph error, use the `nx_workspace` tool to get any errors
-- For Nx plugin best practices, check `node_modules/@nx/<plugin>/PLUGIN.md`. Not all plugins have this file - proceed without it if unavailable.
+---
 
-<!-- nx configuration end-->
+## 1. Core Principles (Non-Negotiable)
 
-# Pettzi Project Guidelines
+- Do NOT introduce new architecture, patterns, or flows without explicit approval.
+- Do NOT change authentication, authorization, or security behavior.
+- Do NOT change DynamoDB key patterns or table design.
+- Do NOT introduce new AWS services (VPC, NAT, RDS, OpenSearch, etc.).
+- Do NOT add heavy dependencies or frameworks.
+- Prefer **clarity, predictability, and maintainability** over clever abstractions.
 
-## Code and UX
-- Keep UI aligned with the existing design system (Material icons, current color tokens, spacing, and typography).
-- Prefer minimal UI changes; avoid introducing new patterns unless requested.
-- Optional fields should not render placeholder/unknown text in cards or lists; hide the row if empty.
-- When adding new event types or fields, update:
-  - Create/edit forms
-  - Dashboard activity log display
-  - Event detail view
-  - Pet record timeline
-  - Translations (ES/EN)
+If unsure → STOP and ASK.
 
-## Data and API
-- For new event fields, store both `title` and structured `metadata` when needed.
-- Ensure backend handlers persist `title`/`notes` to DynamoDB.
-- For reminders, keep message short and use `metadata.notes` for detailed info.
+---
 
-## Testing and quality
-- Keep unit test coverage >= 80% for touched areas.
-- Add/update tests for new event types and new rendering logic.
-- Use `nx` for test/lint/build. Prefer `nx affected` when appropriate.
+## 2. Repository Context
 
-## Git and commits
-- Use one commit per feature or fix.
-- Do not combine unrelated changes in the same commit.
-- Mention the area in commit messages (e.g., `feat(web): ...`, `fix(api-events): ...`).
+- Nx monorepo:
+  - `apps/cdk` → AWS CDK stacks
+  - `apps/web` → Angular web app
+  - `libs/*` → bounded contexts and shared libraries
+- Node.js runtime: **Node 24**
+- Each backend API:
+  - Has its own `libs/api-*`
+  - Has its own CDK stack
+  - Has a unique base path (`/auth`, `/pets`, `/owners`, `/events`, `/reminders`, `/uploads`, `/catalogs`)
+- OpenAPI is the source of truth for APIs.
+
+---
+
+## 3. Coding Rules (Backend)
+
+### Lambda Handlers
+- Must be **thin**:
+  - parse input
+  - validate
+  - call service
+  - return response
+- No business logic in handlers.
+- Target ≤ **80 lines per handler**.
+
+### Services / Libs
+- Encapsulate domain logic.
+- Prefer pure functions.
+- Avoid side effects unless necessary.
+- Functions should be small and composable.
+
+### DynamoDB
+- Follow `TABLE_DESIGN.md` strictly.
+- Use domain-model key builders and mappers.
+- Prefer `Query` over `Scan`.
+- `Scan` requires explicit approval.
+
+---
+
+## 4. Frontend & UX
+
+- Follow existing design system (tokens, spacing, typography).
+- Avoid introducing new UI patterns unless requested.
+- Optional fields:
+  - Do NOT render placeholders like “N/A”
+  - Hide the row if empty
+- New event types must update:
+  - Forms
+  - Dashboard
+  - Event detail
+  - Timeline
+  - Translations (ES / EN)
+
+---
+
+## 5. Testing & Quality (Very Important)
+
+### Coverage
+- **≥ 80% coverage** for touched files is mandatory.
+- If coverage drops, tests must be added.
+
+### Tests must:
+- Validate behavior, not implementation details.
+- Cover:
+  - happy path
+  - validation errors
+  - edge cases
+- Be readable and intention-revealing.
+
+### Tests must NOT:
+- Mock everything just to “make it pass”.
+- Assert only that a function was called.
+- Be snapshots for business logic.
+
+---
+
+## 6. OpenAPI Contract Rules
+
+- Any API change MUST:
+  - update OpenAPI (`libs/api-*/openapi/*.yml`)
+  - align handlers with the contract
+  - update tests accordingly
+- Routes, schemas, and error responses must match implementation.
+
+---
+
+## 7. Nx & Tooling
+
+- Always use `nx` to run tasks:
+  - `nx lint`
+  - `nx test`
+  - `nx build`
+- Prefer `nx affected` when applicable.
+- Do not bypass Nx tooling.
+
+---
+
+## 8. Git & Commits
+
+- One feature or fix per commit.
+- Do not mix unrelated changes.
+- Commit message format:
+  - `feat(web): ...`
+  - `fix(api-events): ...`
+  - `refactor(shared-utils): ...`
+
+---
+
+## 9. When to STOP and Ask
+
+Agents MUST ask for clarification when:
+- Requirements are ambiguous.
+- A change impacts multiple bounded contexts.
+- A design decision is required.
+- Performance or cost tradeoffs appear.
+- Data modeling changes are implied.
+
+---
+
+## 10. Definition of DONE
+
+A task is done only when:
+- Code follows these rules
+- Tests are added and passing
+- Coverage is maintained
+- OpenAPI is updated (if API)
+- `nx lint`, `nx test`, `nx build` pass
