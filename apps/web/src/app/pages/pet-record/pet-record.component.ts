@@ -385,7 +385,7 @@ export class PetRecordComponent implements OnInit, OnDestroy {
       }
       case EventType.FEEDING: {
         const newFood = (meta['newFood'] as string) || event.title || '';
-        const portion = (meta['portion'] as string) || '';
+        const portion = this.formatFeedingPortion(meta) || (meta['portion'] as string) || '';
         if (newFood && portion) {
           return `${newFood} — ${portion}`;
         }
@@ -457,6 +457,21 @@ export class PetRecordComponent implements OnInit, OnDestroy {
       return `${this.translate.instant('petRecord.weightNew')} ${value} lb`;
     }
     return `${this.translate.instant('petRecord.weightNew')} ${weightKg} kg`;
+  }
+
+  private formatFeedingPortion(meta: Record<string, unknown>) {
+    const amount = String(meta['portionAmount'] ?? '').trim();
+    const unit = String(meta['portionUnit'] ?? '').trim();
+    if (!amount && !unit) {
+      return '';
+    }
+    if (unit === 'gr') {
+      return `${amount} ${this.translate.instant('feeding.unitGr')}`.trim();
+    }
+    if (unit === 'cup') {
+      return `${amount} ${this.translate.instant('feeding.unitCup')}`.trim();
+    }
+    return `${amount} ${unit}`.trim();
   }
 
   private getGroomingServicesLabel(meta: Record<string, unknown>) {

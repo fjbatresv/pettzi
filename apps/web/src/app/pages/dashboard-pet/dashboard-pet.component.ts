@@ -505,7 +505,8 @@ export class DashboardPetComponent implements OnInit {
 
   getFeedingPortion(event: PetEvent) {
     const meta = (event.metadata ?? {}) as Record<string, unknown>;
-    return this.getValueOrUnknown(meta['portion'] as string);
+    const portion = this.formatFeedingPortion(meta);
+    return portion || this.getValueOrUnknown(meta['portion'] as string);
   }
 
   getFeedingMeals(event: PetEvent) {
@@ -515,6 +516,21 @@ export class DashboardPetComponent implements OnInit {
       return this.translate.instant('dashboard.unknown');
     }
     return this.translate.instant('feeding.mealTimesValue', { meals });
+  }
+
+  private formatFeedingPortion(meta: Record<string, unknown>) {
+    const amount = String(meta['portionAmount'] ?? '').trim();
+    const unit = String(meta['portionUnit'] ?? '').trim();
+    if (!amount && !unit) {
+      return '';
+    }
+    if (unit === 'gr') {
+      return `${amount} ${this.translate.instant('feeding.unitGr')}`.trim();
+    }
+    if (unit === 'cup') {
+      return `${amount} ${this.translate.instant('feeding.unitCup')}`.trim();
+    }
+    return `${amount} ${unit}`.trim();
   }
 
   getWeightNewLabel(event: PetEvent) {

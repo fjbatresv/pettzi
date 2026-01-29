@@ -58,7 +58,6 @@ describe('FeedingComponent', () => {
     const component = fixture.componentInstance;
     component.petId = 'pet-1';
     component.feedingDate = new Date();
-    component.previousFood = 'Old Food';
     component.newFood = 'New Food';
     component.portion = '1 cup';
     component.mealTimes = 2;

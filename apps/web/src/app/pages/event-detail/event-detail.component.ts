@@ -324,7 +324,8 @@ export class EventDetailComponent implements OnInit {
 
   getFeedingPortion(event: PetEvent) {
     const meta = this.getMetadata(event);
-    return this.getValueOrUnknown(meta['portion']);
+    const portion = this.formatFeedingPortion(meta);
+    return portion || this.getValueOrUnknown(meta['portion']);
   }
 
   getFeedingMeals(event: PetEvent) {
@@ -334,6 +335,21 @@ export class EventDetailComponent implements OnInit {
       return this.translate.instant('dashboard.unknown');
     }
     return this.translate.instant('feeding.mealTimesValue', { meals });
+  }
+
+  private formatFeedingPortion(meta: Record<string, unknown>) {
+    const amount = String(meta['portionAmount'] ?? '').trim();
+    const unit = String(meta['portionUnit'] ?? '').trim();
+    if (!amount && !unit) {
+      return '';
+    }
+    if (unit === 'gr') {
+      return `${amount} ${this.translate.instant('feeding.unitGr')}`.trim();
+    }
+    if (unit === 'cup') {
+      return `${amount} ${this.translate.instant('feeding.unitCup')}`.trim();
+    }
+    return `${amount} ${unit}`.trim();
   }
 
   openAttachment(attachment: EventAttachment) {

@@ -7,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatSelectModule } from '@angular/material/select';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { EventsService } from '../../core/services/events.service';
@@ -31,6 +32,7 @@ type UploadedAttachment = {
     MatIconModule,
     MatInputModule,
     MatNativeDateModule,
+    MatSelectModule,
     TranslateModule,
   ],
   templateUrl: './feeding.component.html',
@@ -48,6 +50,7 @@ export class FeedingComponent implements OnInit {
   previousFood = '';
   newFood = '';
   portion = '';
+  portionUnit: 'gr' | 'cup' = 'gr';
   mealTimes = 2;
   attachments: File[] = [];
 
@@ -71,7 +74,7 @@ export class FeedingComponent implements OnInit {
     if (this.isAfterToday(this.feedingDate)) {
       return false;
     }
-    if (!this.previousFood.trim() || !this.newFood.trim() || !this.portion.trim()) {
+    if (!this.newFood.trim() || !this.portion.trim()) {
       return false;
     }
     if (this.mealTimes < 1) {
@@ -104,10 +107,13 @@ export class FeedingComponent implements OnInit {
     this.isSubmitting = true;
     try {
       const uploaded = await this.uploadAttachments();
+      const portionLabel = this.formatPortion();
       const metadata = {
-        previousFood: this.previousFood.trim(),
+        previousFood: this.previousFood.trim() || undefined,
         newFood: this.newFood.trim(),
-        portion: this.portion.trim(),
+        portionAmount: this.portion.trim(),
+        portionUnit: this.portionUnit,
+        portion: portionLabel,
         mealTimes: this.mealTimes,
         attachments: uploaded,
       };
@@ -130,11 +136,13 @@ export class FeedingComponent implements OnInit {
           eventId: createdEvent.eventId,
           message: this.translate.instant('feeding.reminderMessage', {
             food: this.newFood.trim(),
-            portion: this.portion.trim(),
+            portion: portionLabel,
           }),
           metadata: {
             food: this.newFood.trim(),
-            portion: this.portion.trim(),
+            portion: portionLabel,
+            portionAmount: this.portion.trim(),
+            portionUnit: this.portionUnit,
             mealTimes: this.mealTimes,
             recurring: true,
             periodicity: {
@@ -185,6 +193,14 @@ export class FeedingComponent implements OnInit {
     } finally {
       this.isLoadingPrevious = false;
     }
+  }
+
+  private formatPortion() {
+    const unitLabel = this.translate.instant(
+      this.portionUnit === 'gr' ? 'feeding.unitGr' : 'feeding.unitCup'
+    );
+    const amount = this.portion.trim();
+    return amount ? `${amount} ${unitLabel}` : unitLabel;
   }
 
   private computeMealInterval() {

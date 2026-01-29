@@ -36,6 +36,14 @@
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="field">
+      <mat-label>{{ 'feeding.unit' | translate }}</mat-label>
+      <mat-select [(ngModel)]="portionUnit">
+        <mat-option value="gr">{{ 'feeding.unitGr' | translate }}</mat-option>
+        <mat-option value="cup">{{ 'feeding.unitCup' | translate }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="field">
       <mat-label>{{ 'feeding.mealTimes' | translate }}</mat-label>
       <input matInput type="number" min="1" step="1" [(ngModel)]="mealTimes" />
     </mat-form-field>
