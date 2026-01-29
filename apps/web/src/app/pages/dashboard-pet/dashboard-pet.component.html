@@ -406,6 +406,9 @@
           <div class="reminder">
             <div class="reminder-body">
               <h4>{{ reminder.message || ('dashboard.reminderFallback' | translate) }}</h4>
+              @if (getReminderNotes(reminder)) {
+                <p class="reminder-notes">{{ getReminderNotes(reminder) }}</p>
+              }
               <p class="reminder-meta">
                 @if (isReminderRecurring(reminder)) {
                   <mat-icon>repeat</mat-icon>

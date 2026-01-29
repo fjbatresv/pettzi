@@ -598,7 +598,8 @@
     "reminderHint": "Repetiremos el recordatorio segun las comidas al dia.",
     "firstReminder": "Hora del primer recordatorio",
     "reminderInterval": "Cada {{hours}} horas",
-    "reminderMessage": "Recordatorio de comida: {{food}} · {{portion}}",
+    "reminderTitle": "Recordatorio de comida",
+    "reminderNotes": "Concentrado: {{food}} · Cantidad: {{portion}}",
     "attachments": "Adjuntos",
     "upload": "Subir archivos",
     "uploadHint": "Agrega fotos o documentos (opcional)."

@@ -875,6 +875,12 @@ export class DashboardPetComponent implements OnInit {
     return Boolean(meta['recurring'] || meta['periodicity']);
   }
 
+  getReminderNotes(reminder: PetReminder) {
+    const meta = this.getReminderMetadata(reminder);
+    const notes = typeof meta['notes'] === 'string' ? meta['notes'] : '';
+    return notes.trim();
+  }
+
   openShareRecordDialog() {
     if (!this.petId) {
       return;

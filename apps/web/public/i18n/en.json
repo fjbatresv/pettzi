@@ -598,7 +598,8 @@
     "reminderHint": "We will repeat the reminder based on meals per day.",
     "firstReminder": "First reminder time",
     "reminderInterval": "Every {{hours}} hours",
-    "reminderMessage": "Meal reminder: {{food}} · {{portion}}",
+    "reminderTitle": "Meal reminder",
+    "reminderNotes": "Food: {{food}} · Portion: {{portion}}",
     "attachments": "Attachments",
     "upload": "Upload files",
     "uploadHint": "Add photos or documents (optional)."

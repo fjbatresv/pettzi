@@ -131,19 +131,21 @@ export class FeedingComponent implements OnInit {
 
       if (this.createReminder) {
         const everyHours = this.computeMealInterval();
+        const reminderNotes = this.translate.instant('feeding.reminderNotes', {
+          food: this.newFood.trim(),
+          portion: portionLabel,
+        });
         const reminderPayload = {
           dueDate: this.computeFirstReminderDate().toISOString(),
           eventId: createdEvent.eventId,
-          message: this.translate.instant('feeding.reminderMessage', {
-            food: this.newFood.trim(),
-            portion: portionLabel,
-          }),
+          message: this.translate.instant('feeding.reminderTitle'),
           metadata: {
             food: this.newFood.trim(),
             portion: portionLabel,
             portionAmount: this.portion.trim(),
             portionUnit: this.portionUnit,
             mealTimes: this.mealTimes,
+            notes: reminderNotes,
             recurring: true,
             periodicity: {
               type: 'hours',
