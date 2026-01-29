@@ -89,6 +89,7 @@ export class IncidentComponent {
         title: this.incidentName.trim(),
         notes: this.description.trim() || undefined,
         metadata: {
+          name: this.incidentName.trim(),
           attachments: uploaded,
         },
       };
