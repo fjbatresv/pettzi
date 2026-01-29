@@ -102,6 +102,27 @@
               (saved)="handleSaved()"
             ></app-weight>
           }
+          @case ('INCIDENT') {
+            <app-incident
+              #incidentForm
+              [petId]="petId"
+              (saved)="handleSaved()"
+            ></app-incident>
+          }
+          @case ('WALK') {
+            <app-walk
+              #walkForm
+              [petId]="petId"
+              (saved)="handleSaved()"
+            ></app-walk>
+          }
+          @case ('FEEDING') {
+            <app-feeding
+              #feedingForm
+              [petId]="petId"
+              (saved)="handleSaved()"
+            ></app-feeding>
+          }
         }
       </section>
       <div class="wizard-form-actions">

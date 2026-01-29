@@ -65,13 +65,25 @@ export class DashboardPetComponent implements OnInit {
   canManagePet = false;
   deletingEventIds = new Set<string>();
   deletingReminderIds = new Set<string>();
-  selectedEventTypes = new Set<string>(['MEDICATION', 'GROOMING', 'VET_VISIT', 'VACCINE', 'WEIGHT']);
+  selectedEventTypes = new Set<string>([
+    'MEDICATION',
+    'GROOMING',
+    'VET_VISIT',
+    'VACCINE',
+    'WEIGHT',
+    'INCIDENT',
+    'WALK',
+    'FEEDING',
+  ]);
   readonly activityFilterOptions = [
     'MEDICATION',
     'GROOMING',
     'VET_VISIT',
     'VACCINE',
     'WEIGHT',
+    'INCIDENT',
+    'WALK',
+    'FEEDING',
   ];
 
   ngOnInit() {
@@ -264,6 +276,12 @@ export class DashboardPetComponent implements OnInit {
         return this.translate.instant('dashboard.eventType.weight');
       case 'VACCINE':
         return this.translate.instant('dashboard.eventType.vaccine');
+      case 'INCIDENT':
+        return this.translate.instant('dashboard.eventType.incident');
+      case 'WALK':
+        return this.translate.instant('dashboard.eventType.walk');
+      case 'FEEDING':
+        return this.translate.instant('dashboard.eventType.feeding');
       case 'OTHER':
         return this.translate.instant('dashboard.eventType.other');
       default:
@@ -448,6 +466,55 @@ export class DashboardPetComponent implements OnInit {
   getGroomingGroomer(event: PetEvent) {
     const meta = (event.metadata ?? {}) as Record<string, unknown>;
     return this.getValueOrUnknown(String(meta['groomer'] ?? ''));
+  }
+
+  getIncidentName(event: PetEvent) {
+    const meta = (event.metadata ?? {}) as Record<string, unknown>;
+    const name = (meta['name'] as string) || event.title || '';
+    return this.getValueOrUnknown(name);
+  }
+
+  getWalkDuration(event: PetEvent) {
+    const meta = (event.metadata ?? {}) as Record<string, unknown>;
+    const minutes = Number(meta['durationMinutes']);
+    if (!Number.isFinite(minutes) || minutes <= 0) {
+      return this.translate.instant('dashboard.unknown');
+    }
+    return this.translate.instant('walks.durationValue', { minutes });
+  }
+
+  getWalkDistance(event: PetEvent) {
+    const meta = (event.metadata ?? {}) as Record<string, unknown>;
+    const km = Number(meta['distanceKm']);
+    if (!Number.isFinite(km) || km <= 0) {
+      return this.translate.instant('dashboard.unknown');
+    }
+    return this.translate.instant('walks.distanceValue', { km });
+  }
+
+  getFeedingPrevious(event: PetEvent) {
+    const meta = (event.metadata ?? {}) as Record<string, unknown>;
+    return this.getValueOrUnknown(meta['previousFood'] as string);
+  }
+
+  getFeedingNew(event: PetEvent) {
+    const meta = (event.metadata ?? {}) as Record<string, unknown>;
+    const food = (meta['newFood'] as string) || event.title || '';
+    return this.getValueOrUnknown(food);
+  }
+
+  getFeedingPortion(event: PetEvent) {
+    const meta = (event.metadata ?? {}) as Record<string, unknown>;
+    return this.getValueOrUnknown(meta['portion'] as string);
+  }
+
+  getFeedingMeals(event: PetEvent) {
+    const meta = (event.metadata ?? {}) as Record<string, unknown>;
+    const meals = Number(meta['mealTimes']);
+    if (!Number.isFinite(meals) || meals <= 0) {
+      return this.translate.instant('dashboard.unknown');
+    }
+    return this.translate.instant('feeding.mealTimesValue', { meals });
   }
 
   getWeightNewLabel(event: PetEvent) {

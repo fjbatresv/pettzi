@@ -209,7 +209,10 @@
 .wizard-form ::ng-deep .vet-visit-header,
 .wizard-form ::ng-deep .medication-header,
 .wizard-form ::ng-deep .vaccine-header,
-.wizard-form ::ng-deep .weight-header {
+.wizard-form ::ng-deep .weight-header,
+.wizard-form ::ng-deep .incident-header,
+.wizard-form ::ng-deep .walk-header,
+.wizard-form ::ng-deep .feeding-header {
   display: none;
 }
 
@@ -217,7 +220,10 @@
 .wizard-form ::ng-deep .vet-visit-card,
 .wizard-form ::ng-deep .medication-card,
 .wizard-form ::ng-deep .vaccine-card,
-.wizard-form ::ng-deep .weight-card {
+.wizard-form ::ng-deep .weight-card,
+.wizard-form ::ng-deep .incident-card,
+.wizard-form ::ng-deep .walk-card,
+.wizard-form ::ng-deep .feeding-card {
   background: transparent;
   border: none;
   box-shadow: none;
@@ -228,7 +234,10 @@
 .wizard-form ::ng-deep .vet-visit-page,
 .wizard-form ::ng-deep .medication-page,
 .wizard-form ::ng-deep .vaccine-page,
-.wizard-form ::ng-deep .weight-page {
+.wizard-form ::ng-deep .weight-page,
+.wizard-form ::ng-deep .incident-page,
+.wizard-form ::ng-deep .walk-page,
+.wizard-form ::ng-deep .feeding-page {
   padding: 0;
   background: transparent;
 }

@@ -10,8 +10,20 @@ import { VetVisitComponent } from '../vet-visit/vet-visit.component';
 import { MedicationComponent } from '../medication/medication.component';
 import { VaccineComponent } from '../vaccine/vaccine.component';
 import { WeightComponent } from '../weight/weight.component';
+import { IncidentComponent } from '../incident/incident.component';
+import { WalkComponent } from '../walk/walk.component';
+import { FeedingComponent } from '../feeding/feeding.component';
 
-const EVENT_TYPES = ['WEIGHT', 'VACCINE', 'MEDICATION', 'VET_VISIT', 'GROOMING'] as const;
+const EVENT_TYPES = [
+  'WEIGHT',
+  'VACCINE',
+  'MEDICATION',
+  'VET_VISIT',
+  'GROOMING',
+  'INCIDENT',
+  'WALK',
+  'FEEDING',
+] as const;
 
 type EventType = (typeof EVENT_TYPES)[number];
 
@@ -21,6 +33,9 @@ const EVENT_ICONS: Record<EventType, string> = {
   MEDICATION: 'medical_services',
   VET_VISIT: 'local_hospital',
   GROOMING: 'spa',
+  INCIDENT: 'report',
+  WALK: 'directions_walk',
+  FEEDING: 'restaurant',
 };
 
 @Component({
@@ -36,6 +51,9 @@ const EVENT_ICONS: Record<EventType, string> = {
     MedicationComponent,
     VaccineComponent,
     WeightComponent,
+    IncidentComponent,
+    WalkComponent,
+    FeedingComponent,
   ],
   templateUrl: './event-wizard.component.html',
   styleUrl: './event-wizard.component.scss',
@@ -57,6 +75,9 @@ export class EventWizardComponent implements OnInit {
   @ViewChild('medicationForm') medicationForm?: MedicationComponent;
   @ViewChild('vaccineForm') vaccineForm?: VaccineComponent;
   @ViewChild('weightForm') weightForm?: WeightComponent;
+  @ViewChild('incidentForm') incidentForm?: IncidentComponent;
+  @ViewChild('walkForm') walkForm?: WalkComponent;
+  @ViewChild('feedingForm') feedingForm?: FeedingComponent;
 
   ngOnInit() {
     this.petId = this.route.snapshot.paramMap.get('petId') ?? '';
@@ -142,6 +163,12 @@ export class EventWizardComponent implements OnInit {
         return this.translate.instant('dashboard.activityVetVisit');
       case 'GROOMING':
         return this.translate.instant('dashboard.activityGrooming');
+      case 'INCIDENT':
+        return this.translate.instant('dashboard.activityIncident');
+      case 'WALK':
+        return this.translate.instant('dashboard.activityWalk');
+      case 'FEEDING':
+        return this.translate.instant('dashboard.activityFeeding');
     }
   }
 
@@ -173,6 +200,12 @@ export class EventWizardComponent implements OnInit {
         return this.vaccineForm;
       case 'WEIGHT':
         return this.weightForm;
+      case 'INCIDENT':
+        return this.incidentForm;
+      case 'WALK':
+        return this.walkForm;
+      case 'FEEDING':
+        return this.feedingForm;
       default:
         return undefined;
     }

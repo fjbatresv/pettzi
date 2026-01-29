@@ -12,6 +12,9 @@ export enum EventType {
   MEDICATION = 'MEDICATION',
   WEIGHT = 'WEIGHT',
   GROOMING = 'GROOMING',
+  INCIDENT = 'INCIDENT',
+  WALK = 'WALK',
+  FEEDING = 'FEEDING',
   OTHER = 'OTHER',
 }
 

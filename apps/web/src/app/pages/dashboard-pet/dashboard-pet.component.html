@@ -157,6 +157,9 @@
                 @case ('MEDICATION') { <mat-icon>medication</mat-icon> }
                 @case ('WEIGHT') { <mat-icon>monitor_weight</mat-icon> }
                 @case ('VACCINE') { <mat-icon>vaccines</mat-icon> }
+                @case ('INCIDENT') { <mat-icon>report</mat-icon> }
+                @case ('WALK') { <mat-icon>directions_walk</mat-icon> }
+                @case ('FEEDING') { <mat-icon>restaurant</mat-icon> }
                 @default { <mat-icon>event_note</mat-icon> }
               }
             </div>
@@ -282,6 +285,54 @@
                       <p class="detail-row full">
                         <span>{{ 'dashboard.observations' | translate }}</span>
                         {{ getObservationLabel(event) }}
+                      </p>
+                    </div>
+                  }
+                  @case ('INCIDENT') {
+                    <div class="detail-grid">
+                      <p class="detail-row full">
+                        <span>{{ 'incident.name' | translate }}</span>
+                        {{ getIncidentName(event) }}
+                      </p>
+                      <p class="detail-row full">
+                        <span>{{ 'incident.description' | translate }}</span>
+                        {{ getObservationLabel(event) }}
+                      </p>
+                    </div>
+                  }
+                  @case ('WALK') {
+                    <div class="detail-grid">
+                      <p class="detail-row">
+                        <span>{{ 'walks.duration' | translate }}</span>
+                        {{ getWalkDuration(event) }}
+                      </p>
+                      <p class="detail-row">
+                        <span>{{ 'walks.distance' | translate }}</span>
+                        {{ getWalkDistance(event) }}
+                      </p>
+                      <p class="detail-row full">
+                        <span>{{ 'walks.comment' | translate }}</span>
+                        {{ getObservationLabel(event) }}
+                      </p>
+                    </div>
+                  }
+                  @case ('FEEDING') {
+                    <div class="detail-grid">
+                      <p class="detail-row">
+                        <span>{{ 'feeding.previousFood' | translate }}</span>
+                        {{ getFeedingPrevious(event) }}
+                      </p>
+                      <p class="detail-row">
+                        <span>{{ 'feeding.newFood' | translate }}</span>
+                        {{ getFeedingNew(event) }}
+                      </p>
+                      <p class="detail-row">
+                        <span>{{ 'feeding.portion' | translate }}</span>
+                        {{ getFeedingPortion(event) }}
+                      </p>
+                      <p class="detail-row">
+                        <span>{{ 'feeding.mealTimes' | translate }}</span>
+                        {{ getFeedingMeals(event) }}
                       </p>
                     </div>
                   }
