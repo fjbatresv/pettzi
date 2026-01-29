@@ -294,6 +294,10 @@ export class DashboardPetComponent implements OnInit {
     return cleaned || this.translate.instant('dashboard.unknown');
   }
 
+  getOptionalValue(value?: string) {
+    return value?.trim() ?? '';
+  }
+
   getMedicationName(event: PetEvent) {
     const meta = (event.metadata ?? {}) as Record<string, unknown>;
     const name =
@@ -378,7 +382,7 @@ export class DashboardPetComponent implements OnInit {
 
   getVetName(event: PetEvent) {
     const meta = (event.metadata ?? {}) as Record<string, unknown>;
-    return this.getValueOrUnknown(String(meta['veterinarian'] ?? ''));
+    return this.getOptionalValue(String(meta['veterinarian'] ?? ''));
   }
 
   getVetReason(event: PetEvent) {
@@ -409,19 +413,19 @@ export class DashboardPetComponent implements OnInit {
 
   getVaccineClinic(event: PetEvent) {
     const meta = (event.metadata ?? {}) as Record<string, unknown>;
-    return this.getValueOrUnknown(String(meta['clinic'] ?? ''));
+    return this.getOptionalValue(String(meta['clinic'] ?? ''));
   }
 
   getVaccineVet(event: PetEvent) {
     const meta = (event.metadata ?? {}) as Record<string, unknown>;
-    return this.getValueOrUnknown(String(meta['veterinarian'] ?? ''));
+    return this.getOptionalValue(String(meta['veterinarian'] ?? ''));
   }
 
   getVaccineExpiry(event: PetEvent) {
     const meta = (event.metadata ?? {}) as Record<string, unknown>;
     const expiry = meta['expiryDate'];
     if (!expiry) {
-      return this.translate.instant('dashboard.unknown');
+      return '';
     }
     const label = this.formatEventDateWithYear(expiry as string);
     return label;
@@ -460,18 +464,18 @@ export class DashboardPetComponent implements OnInit {
 
   getGroomingClinic(event: PetEvent) {
     const meta = (event.metadata ?? {}) as Record<string, unknown>;
-    return this.getValueOrUnknown(String(meta['clinic'] ?? ''));
+    return this.getOptionalValue(String(meta['clinic'] ?? ''));
   }
 
   getGroomingGroomer(event: PetEvent) {
     const meta = (event.metadata ?? {}) as Record<string, unknown>;
-    return this.getValueOrUnknown(String(meta['groomer'] ?? ''));
+    return this.getOptionalValue(String(meta['groomer'] ?? ''));
   }
 
   getIncidentName(event: PetEvent) {
     const meta = (event.metadata ?? {}) as Record<string, unknown>;
     const name = (meta['name'] as string) || event.title || '';
-    return this.getValueOrUnknown(name);
+    return this.getOptionalValue(name);
   }
 
   getWalkDuration(event: PetEvent) {
@@ -494,7 +498,7 @@ export class DashboardPetComponent implements OnInit {
 
   getFeedingPrevious(event: PetEvent) {
     const meta = (event.metadata ?? {}) as Record<string, unknown>;
-    return this.getValueOrUnknown(meta['previousFood'] as string);
+    return this.getOptionalValue(meta['previousFood'] as string);
   }
 
   getFeedingNew(event: PetEvent) {
@@ -563,7 +567,7 @@ export class DashboardPetComponent implements OnInit {
   }
 
   getObservationLabel(event: PetEvent) {
-    return event.notes?.trim() || this.translate.instant('dashboard.noDetails');
+    return event.notes?.trim() || '';
   }
 
   openEventWizard() {

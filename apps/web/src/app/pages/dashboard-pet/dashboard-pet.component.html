@@ -196,10 +196,12 @@
                         <span>{{ 'dashboard.medicationEnd' | translate }}</span>
                         {{ getMedicationEndDate(event) }}
                       </p>
-                      <p class="detail-row full">
-                        <span>{{ 'dashboard.observations' | translate }}</span>
-                        {{ getObservationLabel(event) }}
-                      </p>
+                      @if (getObservationLabel(event)) {
+                        <p class="detail-row full">
+                          <span>{{ 'dashboard.observations' | translate }}</span>
+                          {{ getObservationLabel(event) }}
+                        </p>
+                      }
                     </div>
                   }
                   @case ('VET_VISIT') {
@@ -208,18 +210,22 @@
                         <span>{{ 'dashboard.vetClinic' | translate }}</span>
                         {{ getVetClinic(event) }}
                       </p>
-                      <p class="detail-row">
-                        <span>{{ 'dashboard.vetDoctor' | translate }}</span>
-                        {{ getVetName(event) }}
-                      </p>
+                      @if (getVetName(event)) {
+                        <p class="detail-row">
+                          <span>{{ 'dashboard.vetDoctor' | translate }}</span>
+                          {{ getVetName(event) }}
+                        </p>
+                      }
                       <p class="detail-row full">
                         <span>{{ 'dashboard.vetReason' | translate }}</span>
                         {{ getVetReason(event) }}
                       </p>
-                      <p class="detail-row full">
-                        <span>{{ 'dashboard.observations' | translate }}</span>
-                        {{ getObservationLabel(event) }}
-                      </p>
+                      @if (getObservationLabel(event)) {
+                        <p class="detail-row full">
+                          <span>{{ 'dashboard.observations' | translate }}</span>
+                          {{ getObservationLabel(event) }}
+                        </p>
+                      }
                     </div>
                   }
                   @case ('VACCINE') {
@@ -232,48 +238,62 @@
                         <span>{{ 'dashboard.vaccineBatch' | translate }}</span>
                         {{ getVaccineBatch(event) }}
                       </p>
-                      <p class="detail-row">
-                        <span>{{ 'dashboard.vaccineClinic' | translate }}</span>
-                        {{ getVaccineClinic(event) }}
-                      </p>
-                      <p class="detail-row">
-                        <span>{{ 'dashboard.vaccineVet' | translate }}</span>
-                        {{ getVaccineVet(event) }}
-                      </p>
-                      <p class="detail-row full">
-                        <span>{{ 'dashboard.vaccineExpiry' | translate }}</span>
-                        <span class="expiry" [class.expired]="isVaccineExpired(event)">
-                          {{
-                            isVaccineExpired(event)
-                              ? ('dashboard.expiredWithDate' | translate: { date: getVaccineExpiry(event) })
-                              : getVaccineExpiry(event)
-                          }}
-                        </span>
-                      </p>
-                      <p class="detail-row full">
-                        <span>{{ 'dashboard.observations' | translate }}</span>
-                        {{ getObservationLabel(event) }}
-                      </p>
+                      @if (getVaccineClinic(event)) {
+                        <p class="detail-row">
+                          <span>{{ 'dashboard.vaccineClinic' | translate }}</span>
+                          {{ getVaccineClinic(event) }}
+                        </p>
+                      }
+                      @if (getVaccineVet(event)) {
+                        <p class="detail-row">
+                          <span>{{ 'dashboard.vaccineVet' | translate }}</span>
+                          {{ getVaccineVet(event) }}
+                        </p>
+                      }
+                      @if (getVaccineExpiry(event)) {
+                        <p class="detail-row full">
+                          <span>{{ 'dashboard.vaccineExpiry' | translate }}</span>
+                          <span class="expiry" [class.expired]="isVaccineExpired(event)">
+                            {{
+                              isVaccineExpired(event)
+                                ? ('dashboard.expiredWithDate' | translate: { date: getVaccineExpiry(event) })
+                                : getVaccineExpiry(event)
+                            }}
+                          </span>
+                        </p>
+                      }
+                      @if (getObservationLabel(event)) {
+                        <p class="detail-row full">
+                          <span>{{ 'dashboard.observations' | translate }}</span>
+                          {{ getObservationLabel(event) }}
+                        </p>
+                      }
                     </div>
                   }
                   @case ('GROOMING') {
                     <div class="detail-grid">
-                      <p class="detail-row">
-                        <span>{{ 'dashboard.groomingClinic' | translate }}</span>
-                        {{ getGroomingClinic(event) }}
-                      </p>
-                      <p class="detail-row">
-                        <span>{{ 'dashboard.groomingGroomer' | translate }}</span>
-                        {{ getGroomingGroomer(event) }}
-                      </p>
+                      @if (getGroomingClinic(event)) {
+                        <p class="detail-row">
+                          <span>{{ 'dashboard.groomingClinic' | translate }}</span>
+                          {{ getGroomingClinic(event) }}
+                        </p>
+                      }
+                      @if (getGroomingGroomer(event)) {
+                        <p class="detail-row">
+                          <span>{{ 'dashboard.groomingGroomer' | translate }}</span>
+                          {{ getGroomingGroomer(event) }}
+                        </p>
+                      }
                       <p class="detail-row full">
                         <span>{{ 'dashboard.groomingServices' | translate }}</span>
                         {{ getGroomingServices(event) }}
                       </p>
-                      <p class="detail-row full">
-                        <span>{{ 'dashboard.observations' | translate }}</span>
-                        {{ getObservationLabel(event) }}
-                      </p>
+                      @if (getObservationLabel(event)) {
+                        <p class="detail-row full">
+                          <span>{{ 'dashboard.observations' | translate }}</span>
+                          {{ getObservationLabel(event) }}
+                        </p>
+                      }
                     </div>
                   }
                   @case ('WEIGHT') {
@@ -282,22 +302,28 @@
                         <span>{{ 'dashboard.weightChange' | translate }}</span>
                         {{ getWeightChangeLabel(event) }}
                       </p>
-                      <p class="detail-row full">
-                        <span>{{ 'dashboard.observations' | translate }}</span>
-                        {{ getObservationLabel(event) }}
-                      </p>
+                      @if (getObservationLabel(event)) {
+                        <p class="detail-row full">
+                          <span>{{ 'dashboard.observations' | translate }}</span>
+                          {{ getObservationLabel(event) }}
+                        </p>
+                      }
                     </div>
                   }
                   @case ('INCIDENT') {
                     <div class="detail-grid">
-                      <p class="detail-row full">
-                        <span>{{ 'incident.name' | translate }}</span>
-                        {{ getIncidentName(event) }}
-                      </p>
-                      <p class="detail-row full">
-                        <span>{{ 'incident.description' | translate }}</span>
-                        {{ getObservationLabel(event) }}
-                      </p>
+                      @if (getIncidentName(event)) {
+                        <p class="detail-row full">
+                          <span>{{ 'incident.name' | translate }}</span>
+                          {{ getIncidentName(event) }}
+                        </p>
+                      }
+                      @if (getObservationLabel(event)) {
+                        <p class="detail-row full">
+                          <span>{{ 'incident.description' | translate }}</span>
+                          {{ getObservationLabel(event) }}
+                        </p>
+                      }
                     </div>
                   }
                   @case ('WALK') {
@@ -310,18 +336,22 @@
                         <span>{{ 'walks.distance' | translate }}</span>
                         {{ getWalkDistance(event) }}
                       </p>
-                      <p class="detail-row full">
-                        <span>{{ 'walks.comment' | translate }}</span>
-                        {{ getObservationLabel(event) }}
-                      </p>
+                      @if (getObservationLabel(event)) {
+                        <p class="detail-row full">
+                          <span>{{ 'walks.comment' | translate }}</span>
+                          {{ getObservationLabel(event) }}
+                        </p>
+                      }
                     </div>
                   }
                   @case ('FEEDING') {
                     <div class="detail-grid">
-                      <p class="detail-row">
-                        <span>{{ 'feeding.previousFood' | translate }}</span>
-                        {{ getFeedingPrevious(event) }}
-                      </p>
+                      @if (getFeedingPrevious(event)) {
+                        <p class="detail-row">
+                          <span>{{ 'feeding.previousFood' | translate }}</span>
+                          {{ getFeedingPrevious(event) }}
+                        </p>
+                      }
                       <p class="detail-row">
                         <span>{{ 'feeding.newFood' | translate }}</span>
                         {{ getFeedingNew(event) }}
@@ -338,10 +368,12 @@
                   }
                   @default {
                     <div class="detail-grid">
-                      <p class="detail-row full">
-                        <span>{{ 'dashboard.observations' | translate }}</span>
-                        {{ getObservationLabel(event) }}
-                      </p>
+                      @if (getObservationLabel(event)) {
+                        <p class="detail-row full">
+                          <span>{{ 'dashboard.observations' | translate }}</span>
+                          {{ getObservationLabel(event) }}
+                        </p>
+                      }
                     </div>
                   }
                 }
