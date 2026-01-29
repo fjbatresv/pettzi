@@ -14,18 +14,15 @@ import { IncidentComponent } from '../incident/incident.component';
 import { WalkComponent } from '../walk/walk.component';
 import { FeedingComponent } from '../feeding/feeding.component';
 
-const EVENT_TYPES = [
-  'WEIGHT',
-  'VACCINE',
-  'MEDICATION',
-  'VET_VISIT',
-  'GROOMING',
-  'INCIDENT',
-  'WALK',
-  'FEEDING',
-] as const;
-
-type EventType = (typeof EVENT_TYPES)[number];
+type EventType =
+  | 'WEIGHT'
+  | 'VACCINE'
+  | 'MEDICATION'
+  | 'VET_VISIT'
+  | 'GROOMING'
+  | 'INCIDENT'
+  | 'WALK'
+  | 'FEEDING';
 
 type EventTypeGroup = {
   id: string;
