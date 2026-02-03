@@ -85,21 +85,21 @@ components:
     SpeciesItem:
       type: object
       properties:
-        id: { type: string }
-        name: { type: string }
+        code: { type: string }
+        label: { type: string }
     BreedItem:
       type: object
       properties:
-        id: { type: string }
+        code: { type: string }
+        label: { type: string }
         speciesId: { type: string }
-        name: { type: string }
     VaccineItem:
       type: object
       properties:
-        id: { type: string }
+        code: { type: string }
+        label: { type: string }
         speciesId: { type: string }
-        name: { type: string }
-        description: { type: string }
+        recommendedIntervalDays: { type: number }
     SpeciesListResponse:
       type: object
       properties:

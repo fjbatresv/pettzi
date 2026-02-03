@@ -48,15 +48,26 @@
         </div>
         <div class="field-group">
           <span class="field-label">{{ 'createPet.breedLabel' | translate }}</span>
-          <mat-form-field appearance="outline" class="select-field">
-            <mat-select [(ngModel)]="selectedBreedCode" required>
-              @for (breed of breeds; track breed.code) {
-                <mat-option [value]="breed.code">
-                  {{ breed.label }}
-                </mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
+          <input
+            type="text"
+            class="breed-input"
+            [matAutocomplete]="breedAuto"
+            [(ngModel)]="breedQuery"
+            (ngModelChange)="onBreedQueryChange($event)"
+            (blur)="onBreedBlur()"
+            [disabled]="!breeds.length"
+            required
+          />
+          <mat-autocomplete
+            #breedAuto="matAutocomplete"
+            (optionSelected)="onBreedSelected($event.option.value)"
+          >
+            @for (breed of filteredBreeds; track breed.code) {
+              <mat-option [value]="breed.label">
+                {{ breed.label }}
+              </mat-option>
+            }
+          </mat-autocomplete>
         </div>
       </div>
 

@@ -100,6 +100,13 @@
   background: rgba(127, 19, 236, 0.04);
 }
 
+.breed-input {
+  width: 100%;
+  height: 48px;
+  margin-top: -20px;
+  box-sizing: border-box;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -120,6 +127,7 @@
 :host ::ng-deep .select-field .mat-mdc-text-field-wrapper {
   background: rgba(127, 19, 236, 0.04);
   border-radius: 12px;
+  height: 48px;
 }
 
 :host ::ng-deep .select-field .mdc-notched-outline__leading,
@@ -136,11 +144,27 @@
 }
 
 :host ::ng-deep .select-field .mat-mdc-form-field-flex {
-  min-height: 34px;
+  min-height: 48px;
+  height: 48px;
+  padding: 0;
+  align-items: center;
 }
 
 :host ::ng-deep .select-field .mat-mdc-select-trigger {
   padding: 0;
+}
+
+:host ::ng-deep .select-field .mat-mdc-form-field-infix {
+  padding: 0;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+}
+
+:host ::ng-deep .select-field .mat-mdc-input-element {
+  height: 48px;
+  padding: 0;
+  width: 100%;
 }
 
 .helper {

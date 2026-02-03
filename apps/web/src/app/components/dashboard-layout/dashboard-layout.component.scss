@@ -15,8 +15,20 @@
   border-right: 1px solid rgba(127, 19, 236, 0.08);
   background: #ffffff;
   padding: 1.5rem 1.25rem;
+  box-sizing: border-box;
+}
+
+.sidenav-top {
+  display: grid;
+  gap: 1.25rem;
+}
+
+:host ::ng-deep .dashboard-sidenav .mat-drawer-inner-container {
   display: flex;
   flex-direction: column;
+  align-items: stretch;
+  justify-content: space-between;
+  min-height: 100%;
   gap: 1.25rem;
 }
 
@@ -80,12 +92,8 @@
 }
 
 .active-pet {
-  position: fixed;
-  left: 1.25rem;
-  bottom: 1.5rem;
-  width: 230px;
+  width: 100%;
   display: grid;
-  gap: 1rem;
 }
 
 .active-label {
@@ -274,7 +282,7 @@
   }
 
   .active-pet {
-    width: 240px;
+    width: 100%;
   }
 
   .dashboard-header {

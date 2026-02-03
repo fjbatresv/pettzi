@@ -46,7 +46,7 @@ describe('get-breeds.handler', () => {
     });
     expect(res.statusCode).toBe(200);
     const body = JSON.parse(res.body ?? '{}');
-    expect(body.breeds?.length).toBeGreaterThan(0);
+    expect(body.breeds?.length).toBeGreaterThanOrEqual(50);
   });
 
   it('returns badRequest on invalid species', async () => {
