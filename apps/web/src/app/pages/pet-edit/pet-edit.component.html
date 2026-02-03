@@ -64,13 +64,25 @@
       </mat-form-field>
       <mat-form-field appearance="outline">
         <mat-label>{{ 'petEdit.breed' | translate }}</mat-label>
-        <mat-select [(ngModel)]="breed" [disabled]="!breeds.length">
-          @for (item of breeds; track item.code) {
-            <mat-option [value]="item.code">
+        <input
+          matInput
+          type="text"
+          [matAutocomplete]="breedAuto"
+          [(ngModel)]="breedQuery"
+          (ngModelChange)="onBreedQueryChange($event)"
+          (blur)="onBreedBlur()"
+          [disabled]="!breeds.length"
+        />
+        <mat-autocomplete
+          #breedAuto="matAutocomplete"
+          (optionSelected)="onBreedSelected($event.option.value)"
+        >
+          @for (item of filteredBreeds; track item.code) {
+            <mat-option [value]="item.label">
               {{ item.label }}
             </mat-option>
           }
-        </mat-select>
+        </mat-autocomplete>
       </mat-form-field>
       <mat-form-field appearance="outline">
         <mat-label>{{ 'petEdit.birthDate' | translate }}</mat-label>

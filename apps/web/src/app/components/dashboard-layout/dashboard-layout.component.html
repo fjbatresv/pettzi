@@ -1,29 +1,31 @@
 <mat-sidenav-container class="dashboard-shell">
   <mat-sidenav #sidenav class="dashboard-sidenav" [mode]="isMobile ? 'over' : 'side'" [opened]="!isMobile">
-    <div class="brand">
-      <div class="brand-mark">
-        <img src="/logo.svg" alt="Pettzi" />
+    <div class="sidenav-top">
+      <div class="brand">
+        <div class="brand-mark">
+          <img src="/logo.svg" alt="Pettzi" />
+        </div>
+        <div>
+          <h2>Pettzi</h2>
+        </div>
       </div>
-      <div>
-        <h2>Pettzi</h2>
-      </div>
-    </div>
 
-    <nav class="nav">
-      <a
-        class="nav-link"
-        routerLink="/home"
-        routerLinkActive="active"
-        [routerLinkActiveOptions]="{ exact: true }"
-      >
-        <mat-icon class="nav-icon" aria-hidden="true">home</mat-icon>
-        {{ 'dashboard.navDashboard' | translate }}
-      </a>
-      <a class="nav-link" routerLink="/settings" routerLinkActive="active">
-        <mat-icon class="nav-icon" aria-hidden="true">settings</mat-icon>
-        {{ 'dashboard.navSettings' | translate }}
-      </a>
-    </nav>
+      <nav class="nav">
+        <a
+          class="nav-link"
+          routerLink="/home"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          <mat-icon class="nav-icon" aria-hidden="true">home</mat-icon>
+          {{ 'dashboard.navDashboard' | translate }}
+        </a>
+        <a class="nav-link" routerLink="/settings" routerLinkActive="active">
+          <mat-icon class="nav-icon" aria-hidden="true">settings</mat-icon>
+          {{ 'dashboard.navSettings' | translate }}
+        </a>
+      </nav>
+    </div>
 
     <div class="active-pet">
       <button mat-raised-button color="primary" class="primary-cta" routerLink="/pets/new">

@@ -3,6 +3,8 @@ import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslateModule } from '@ngx-translate/core';
 import {
@@ -17,7 +19,9 @@ import { PetCreateStateService } from '../../core/services/pet-create-state.serv
   imports: [
     CommonModule,
     FormsModule,
+    MatAutocompleteModule,
     MatFormFieldModule,
+    MatInputModule,
     MatSelectModule,
     TranslateModule,
   ],
@@ -36,8 +40,10 @@ export class PetCreateStep1Component implements OnInit {
   name = '';
   speciesOptions: SpeciesItem[] = [];
   breeds: BreedItem[] = [];
+  filteredBreeds: BreedItem[] = [];
   selectedSpeciesCode = '';
   selectedBreedCode = '';
+  breedQuery = '';
   showValidation = false;
 
   get isFormValid() {
@@ -87,6 +93,32 @@ export class PetCreateStep1Component implements OnInit {
     this.loadBreeds(value);
   }
 
+  onBreedQueryChange(value: string) {
+    this.breedQuery = value;
+    this.updateFilteredBreeds(value);
+  }
+
+  onBreedSelected(label: string) {
+    const match = this.findBreedByLabel(label);
+    this.selectedBreedCode = match?.code ?? '';
+    this.breedQuery = match?.label ?? label;
+  }
+
+  onBreedBlur() {
+    if (!this.breedQuery.trim()) {
+      this.selectedBreedCode = '';
+      return;
+    }
+    const match = this.findBreedByLabel(this.breedQuery);
+    if (match) {
+      this.selectedBreedCode = match.code;
+      this.breedQuery = match.label;
+      return;
+    }
+    this.selectedBreedCode = '';
+    this.breedQuery = '';
+  }
+
   continue() {
     if (!this.isFormValid) {
       this.showValidation = true;
@@ -132,10 +164,14 @@ export class PetCreateStep1Component implements OnInit {
           this.breeds.some((item) => item.code === preferredBreedCode)
             ? preferredBreedCode
             : this.breeds[0]?.code ?? '';
+        this.syncBreedQuery();
+        this.updateFilteredBreeds('');
       },
       error: () => {
         this.breeds = [];
         this.selectedBreedCode = '';
+        this.breedQuery = '';
+        this.filteredBreeds = [];
       },
     });
   }
@@ -196,5 +232,22 @@ export class PetCreateStep1Component implements OnInit {
     } catch {
       return null;
     }
+  }
+
+  private syncBreedQuery() {
+    const match = this.breeds.find((item) => item.code === this.selectedBreedCode);
+    this.breedQuery = match?.label ?? '';
+  }
+
+  private updateFilteredBreeds(query: string) {
+    const normalized = query.trim().toLowerCase();
+    this.filteredBreeds = normalized
+      ? this.breeds.filter((item) => item.label.toLowerCase().includes(normalized))
+      : [...this.breeds];
+  }
+
+  private findBreedByLabel(label: string) {
+    const normalized = label.trim().toLowerCase();
+    return this.breeds.find((item) => item.label.toLowerCase() === normalized);
   }
 }
