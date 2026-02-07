@@ -284,40 +284,53 @@ export class PetEditComponent implements OnInit {
   }
 
   onBreedQueryChange(value: string) {
+    const trimmed = value.trim();
     this.breedQuery = value;
+    const match = this.findBreedByLabel(trimmed);
+    this.breed = match?.code ?? trimmed;
     this.updateFilteredBreeds(value);
   }
 
   onBreedSelected(label: string) {
     const match = this.findBreedByLabel(label);
-    this.breed = match?.code ?? '';
+    this.breed = match?.code ?? label.trim();
     this.breedQuery = match?.label ?? label;
   }
 
   onBreedBlur() {
-    if (!this.breedQuery.trim()) {
+    const trimmed = this.breedQuery.trim();
+    if (!trimmed) {
       this.breed = '';
       return;
     }
-    const match = this.findBreedByLabel(this.breedQuery);
+    const match = this.findBreedByLabel(trimmed);
     if (match) {
       this.breed = match.code;
       this.breedQuery = match.label;
       return;
     }
-    this.syncBreedQuery();
+    this.breed = trimmed;
+    this.breedQuery = trimmed;
   }
 
   private loadBreeds(speciesCode: string, preferredBreedCode?: string) {
     this.catalogs.getBreeds(speciesCode).subscribe({
       next: ({ breeds }) => {
         this.breeds = breeds ?? [];
-        this.breed =
-          preferredBreedCode &&
-          this.breeds.some((item) => item.code === preferredBreedCode)
-            ? preferredBreedCode
-            : this.breeds[0]?.code ?? '';
-        this.syncBreedQuery();
+        const preferred = preferredBreedCode?.trim();
+        if (preferred) {
+          const match = this.breeds.find((item) => item.code === preferred);
+          if (match) {
+            this.breed = match.code;
+            this.breedQuery = match.label;
+          } else {
+            this.breed = preferred;
+            this.breedQuery = preferred;
+          }
+        } else {
+          this.breed = this.breeds[0]?.code ?? '';
+          this.syncBreedQuery();
+        }
         this.updateFilteredBreeds('');
       },
       error: () => {
@@ -335,7 +348,7 @@ export class PetEditComponent implements OnInit {
 
   private syncBreedQuery() {
     const match = this.breeds.find((item) => item.code === this.breed);
-    this.breedQuery = match?.label ?? '';
+    this.breedQuery = match?.label ?? this.breed;
   }
 
   private updateFilteredBreeds(query: string) {

@@ -55,7 +55,7 @@
             [(ngModel)]="breedQuery"
             (ngModelChange)="onBreedQueryChange($event)"
             (blur)="onBreedBlur()"
-            [disabled]="!breeds.length"
+            [disabled]="!selectedSpeciesCode"
             required
           />
           <mat-autocomplete

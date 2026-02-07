@@ -35,6 +35,11 @@ paths:
           required: false
           schema: { type: string }
         - in: query
+          name: includeDeprecated
+          required: false
+          schema:
+            type: boolean
+        - in: query
           name: locale
           required: false
           schema:
@@ -87,12 +92,31 @@ components:
       properties:
         code: { type: string }
         label: { type: string }
+        eventTypes:
+          type: array
+          items:
+            type: string
+        isActive: { type: boolean }
     BreedItem:
       type: object
       properties:
         code: { type: string }
         label: { type: string }
         speciesId: { type: string }
+        weightKg:
+          type: object
+          properties:
+            male:
+              type: object
+              properties:
+                min: { type: number }
+                max: { type: number }
+            female:
+              type: object
+              properties:
+                min: { type: number }
+                max: { type: number }
+        deprecated: { type: boolean }
     VaccineItem:
       type: object
       properties:

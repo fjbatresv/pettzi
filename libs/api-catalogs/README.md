@@ -16,7 +16,7 @@ Run `nx test api-catalogs` to execute the unit tests via [Jest](https://jestjs.i
 Serve read-only catalogs (species, breeds, vaccines) to clients.
 
 ## Responsibilities
-- Read in-memory catalogs from `@pettzi/domain-model/catalogs`
+- Read catalogs from DynamoDB (`CATALOG#...`)
 - Filter by species when requested
 
 ## Key deps
@@ -27,6 +27,10 @@ Serve read-only catalogs (species, breeds, vaccines) to clients.
 
 ## Deploy/usage
 - Deployed by `PettziCatalogsApiStack`
+
+## Seed catalogs
+- `PETTZI_TABLE_NAME=<table> nx run api-catalogs:seed`
+- Add `--dry-run` to preview the number of items
 
 ## Docs
 - Mintlify: `docs/catalogs-api`

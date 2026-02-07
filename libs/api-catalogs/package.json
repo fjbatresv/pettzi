@@ -23,6 +23,12 @@
         "options": {
           "jestConfig": "libs/api-catalogs/jest.config.cts"
         }
+      },
+      "seed": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "node --loader ts-node/esm libs/api-catalogs/src/seed/seed-catalogs.ts"
+        }
       }
     }
   },
