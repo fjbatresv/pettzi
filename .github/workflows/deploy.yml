@@ -203,9 +203,17 @@ jobs:
           echo "PETTZI_TABLE_NAME=pettzi-table-${STAGE_SLUG}" >> "$GITHUB_ENV"
 
       - name: Dry run catalogs seed
+        env:
+          AWS_PROFILE: ""
+          AWS_DEFAULT_PROFILE: ""
+          AWS_SDK_LOAD_CONFIG: "0"
         run: npx nx run @pettzi/api-catalogs:seed -- --dry-run
 
       - name: Run catalogs seed
+        env:
+          AWS_PROFILE: ""
+          AWS_DEFAULT_PROFILE: ""
+          AWS_SDK_LOAD_CONFIG: "0"
         run: npx nx run @pettzi/api-catalogs:seed
 
   deploy_email_images:
