@@ -13,11 +13,12 @@ Run `nx test api-catalogs` to execute the unit tests via [Jest](https://jestjs.i
 # @pettzi/api-catalogs
 
 ## Purpose
-Serve read-only catalogs (species, breeds, vaccines) to clients.
+Serve read-only catalogs (species, breeds) to clients.
 
 ## Responsibilities
 - Read catalogs from DynamoDB (`CATALOG#...`)
 - Filter by species when requested
+- Vaccines catalog endpoint is kept for compatibility but returns an empty list
 
 ## Key deps
 - `@pettzi/domain-model`, `@pettzi/utils-dynamo`

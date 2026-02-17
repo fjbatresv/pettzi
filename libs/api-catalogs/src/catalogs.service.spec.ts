@@ -7,13 +7,11 @@ import {
 import {
   listBreedItems,
   listSpeciesItems,
-  listVaccineItems,
 } from './catalogs.repository';
 
 jest.mock('./catalogs.repository', () => ({
   listSpeciesItems: jest.fn(),
   listBreedItems: jest.fn(),
-  listVaccineItems: jest.fn(),
 }));
 
 const speciesItems = [
@@ -100,30 +98,16 @@ describe('catalogs.service', () => {
     );
   });
 
-  it('filters vaccines by species', async () => {
+  it('returns empty vaccines catalog', async () => {
     (listSpeciesItems as jest.Mock).mockResolvedValueOnce(speciesItems);
-    (listVaccineItems as jest.Mock).mockResolvedValueOnce([
-      {
-        code: 'RABIES',
-        labels: { en: 'Rabies', es: 'Rabia' },
-        speciesCode: 'DOG',
-        recommendedIntervalDays: 365,
-      },
-      {
-        code: 'FVRCP',
-        labels: { en: 'FVRCP', es: 'FVRCP' },
-        speciesCode: 'CAT',
-        recommendedIntervalDays: 365,
-      },
-    ]);
     const result = await getVaccinesCatalog('en', 'DOG');
-    expect(result).toEqual([
-      {
-        code: 'RABIES',
-        label: 'Rabies',
-        speciesId: 'DOG',
-        recommendedIntervalDays: 365,
-      },
-    ]);
+    expect(result).toEqual([]);
+  });
+
+  it('throws on invalid species in vaccines', async () => {
+    (listSpeciesItems as jest.Mock).mockResolvedValueOnce(speciesItems);
+    await expect(getVaccinesCatalog('en', 'INVALID')).rejects.toBeInstanceOf(
+      InvalidSpeciesError
+    );
   });
 });

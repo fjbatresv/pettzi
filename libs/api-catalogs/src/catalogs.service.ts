@@ -7,7 +7,6 @@ import {
 import {
   listBreedItems,
   listSpeciesItems,
-  listVaccineItems,
 } from './catalogs.repository';
 
 export class InvalidSpeciesError extends Error {
@@ -82,7 +81,7 @@ export const getBreedsCatalog = async (
 };
 
 export const getVaccinesCatalog = async (
-  locale: CatalogLocale,
+  _locale: CatalogLocale,
   speciesFilter?: string
 ): Promise<CatalogVaccineResponseItem[]> => {
   if (speciesFilter) {
@@ -93,19 +92,5 @@ export const getVaccinesCatalog = async (
     }
   }
 
-  const vaccines = await listVaccineItems();
-  const filtered = speciesFilter
-    ? vaccines.filter(
-        (item) => !item.speciesCode || item.speciesCode === speciesFilter
-      )
-    : vaccines;
-
-  const mapped = filtered.map((item) => ({
-    code: item.code,
-    label: resolveLabel(item.labels, locale),
-    speciesId: item.speciesCode,
-    recommendedIntervalDays: item.recommendedIntervalDays,
-  }));
-
-  return sortByLabel(mapped, locale);
+  return [];
 };

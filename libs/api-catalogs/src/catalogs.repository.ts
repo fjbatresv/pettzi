@@ -6,12 +6,10 @@ import {
 import {
   buildCatalogBreedPk,
   buildCatalogSpeciesPk,
-  buildCatalogVaccinePk,
 } from '@pettzi/utils-dynamo/key';
 import {
   CatalogBreedItem,
   CatalogSpeciesItem,
-  CatalogVaccineItem,
 } from './catalogs.types';
 
 const docClient = DynamoDBDocumentClient.from(new DynamoDBClient({}));
@@ -43,6 +41,3 @@ export const listSpeciesItems = () =>
 
 export const listBreedItems = (speciesCode: string) =>
   queryByPk<CatalogBreedItem>(buildCatalogBreedPk(speciesCode));
-
-export const listVaccineItems = () =>
-  queryByPk<CatalogVaccineItem>(buildCatalogVaccinePk());

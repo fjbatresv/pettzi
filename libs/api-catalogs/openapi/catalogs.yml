@@ -58,6 +58,8 @@ paths:
   /vaccines:
     get:
       summary: List vaccines
+      description: Endpoint kept for compatibility. Returns an empty list.
+      deprecated: true
       security: [{ bearerAuth: [] }]
       parameters:
         - in: query

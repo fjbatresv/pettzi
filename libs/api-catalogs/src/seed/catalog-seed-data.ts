@@ -415,6 +415,91 @@ export const breedsSeed: CatalogBreedItem[] = [
     labels: { en: 'Domestic Short hair', es: 'Pelo corto domestico' },
   },
   {
+    code: 'MAINE_COON',
+    speciesCode: PetSpecies.CAT,
+    labels: { en: 'Maine Coon', es: 'Maine coon' },
+  },
+  {
+    code: 'RAGDOLL',
+    speciesCode: PetSpecies.CAT,
+    labels: { en: 'Ragdoll', es: 'Ragdoll' },
+  },
+  {
+    code: 'BENGAL',
+    speciesCode: PetSpecies.CAT,
+    labels: { en: 'Bengal', es: 'Bengali' },
+  },
+  {
+    code: 'BRITISH_SHORTHAIR',
+    speciesCode: PetSpecies.CAT,
+    labels: { en: 'British Shorthair', es: 'Britanico de pelo corto' },
+  },
+  {
+    code: 'SPHYNX',
+    speciesCode: PetSpecies.CAT,
+    labels: { en: 'Sphynx', es: 'Esfinge' },
+  },
+  {
+    code: 'ABYSSINIAN',
+    speciesCode: PetSpecies.CAT,
+    labels: { en: 'Abyssinian', es: 'Abisinio' },
+  },
+  {
+    code: 'RUSSIAN_BLUE',
+    speciesCode: PetSpecies.CAT,
+    labels: { en: 'Russian Blue', es: 'Azul ruso' },
+  },
+  {
+    code: 'SCOTTISH_FOLD',
+    speciesCode: PetSpecies.CAT,
+    labels: { en: 'Scottish Fold', es: 'Scottish fold' },
+  },
+  {
+    code: 'NORWEGIAN_FOREST',
+    speciesCode: PetSpecies.CAT,
+    labels: { en: 'Norwegian Forest', es: 'Bosque noruego' },
+  },
+  {
+    code: 'BIRMAN',
+    speciesCode: PetSpecies.CAT,
+    labels: { en: 'Birman', es: 'Birmano' },
+  },
+  {
+    code: 'AMERICAN_SHORTHAIR',
+    speciesCode: PetSpecies.CAT,
+    labels: { en: 'American Shorthair', es: 'Americano de pelo corto' },
+  },
+  {
+    code: 'SIBERIAN_CAT',
+    speciesCode: PetSpecies.CAT,
+    labels: { en: 'Siberian', es: 'Siberiano' },
+  },
+  {
+    code: 'SAVANNAH',
+    speciesCode: PetSpecies.CAT,
+    labels: { en: 'Savannah', es: 'Savannah' },
+  },
+  {
+    code: 'ORIENTAL_SHORTHAIR',
+    speciesCode: PetSpecies.CAT,
+    labels: { en: 'Oriental Shorthair', es: 'Oriental de pelo corto' },
+  },
+  {
+    code: 'DEVON_REX',
+    speciesCode: PetSpecies.CAT,
+    labels: { en: 'Devon Rex', es: 'Devon rex' },
+  },
+  {
+    code: 'CORNISH_REX',
+    speciesCode: PetSpecies.CAT,
+    labels: { en: 'Cornish Rex', es: 'Cornish rex' },
+  },
+  {
+    code: 'TURKISH_ANGORA',
+    speciesCode: PetSpecies.CAT,
+    labels: { en: 'Turkish Angora', es: 'Angora turco' },
+  },
+  {
     code: 'PARROT',
     speciesCode: PetSpecies.BIRD,
     labels: { en: 'Parrot', es: 'Loro' },
@@ -423,6 +508,196 @@ export const breedsSeed: CatalogBreedItem[] = [
     code: 'CANARY',
     speciesCode: PetSpecies.BIRD,
     labels: { en: 'Canary', es: 'Canario' },
+  },
+  {
+    code: 'COCKATIEL',
+    speciesCode: PetSpecies.BIRD,
+    labels: { en: 'Cockatiel', es: 'Cacatua ninfa' },
+  },
+  {
+    code: 'LOVEBIRD',
+    speciesCode: PetSpecies.BIRD,
+    labels: { en: 'Lovebird', es: 'Inseparable' },
+  },
+  {
+    code: 'BUDGERIGAR',
+    speciesCode: PetSpecies.BIRD,
+    labels: { en: 'Budgerigar', es: 'Periquito australiano' },
+  },
+  {
+    code: 'MACAW',
+    speciesCode: PetSpecies.BIRD,
+    labels: { en: 'Macaw', es: 'Guacamaya' },
+  },
+  {
+    code: 'COCKATOO',
+    speciesCode: PetSpecies.BIRD,
+    labels: { en: 'Cockatoo', es: 'Cacatua' },
+  },
+  {
+    code: 'FINCH',
+    speciesCode: PetSpecies.BIRD,
+    labels: { en: 'Finch', es: 'Pinzon' },
+  },
+  {
+    code: 'CONURE',
+    speciesCode: PetSpecies.BIRD,
+    labels: { en: 'Conure', es: 'Conuro' },
+  },
+  {
+    code: 'AFRICAN_GREY',
+    speciesCode: PetSpecies.BIRD,
+    labels: { en: 'African Grey', es: 'Loro gris africano' },
+  },
+  {
+    code: 'BALL_PYTHON',
+    speciesCode: PetSpecies.SNAKE,
+    labels: { en: 'Ball Python', es: 'Piton bola' },
+  },
+  {
+    code: 'CORN_SNAKE',
+    speciesCode: PetSpecies.SNAKE,
+    labels: { en: 'Corn Snake', es: 'Serpiente del maiz' },
+  },
+  {
+    code: 'KING_SNAKE',
+    speciesCode: PetSpecies.SNAKE,
+    labels: { en: 'King Snake', es: 'Serpiente rey' },
+  },
+  {
+    code: 'BOA_CONSTRICTOR',
+    speciesCode: PetSpecies.SNAKE,
+    labels: { en: 'Boa Constrictor', es: 'Boa constrictora' },
+  },
+  {
+    code: 'MILK_SNAKE',
+    speciesCode: PetSpecies.SNAKE,
+    labels: { en: 'Milk Snake', es: 'Serpiente de leche' },
+  },
+  {
+    code: 'GARTER_SNAKE',
+    speciesCode: PetSpecies.SNAKE,
+    labels: { en: 'Garter Snake', es: 'Serpiente de liga' },
+  },
+  {
+    code: 'ROSY_BOA',
+    speciesCode: PetSpecies.SNAKE,
+    labels: { en: 'Rosy Boa', es: 'Boa rosada' },
+  },
+  {
+    code: 'HOGNOSE_SNAKE',
+    speciesCode: PetSpecies.SNAKE,
+    labels: { en: 'Hognose Snake', es: 'Serpiente hocico de cerdo' },
+  },
+  {
+    code: 'RAT_SNAKE',
+    speciesCode: PetSpecies.SNAKE,
+    labels: { en: 'Rat Snake', es: 'Serpiente rata' },
+  },
+  {
+    code: 'CARPET_PYTHON',
+    speciesCode: PetSpecies.SNAKE,
+    labels: { en: 'Carpet Python', es: 'Piton alfombra' },
+  },
+  {
+    code: 'PACMAN_FROG',
+    speciesCode: PetSpecies.FROG,
+    labels: { en: 'Pacman Frog', es: 'Rana pacman' },
+  },
+  {
+    code: 'TREE_FROG',
+    speciesCode: PetSpecies.FROG,
+    labels: { en: 'Tree Frog', es: 'Rana arboricola' },
+  },
+  {
+    code: 'DART_FROG',
+    speciesCode: PetSpecies.FROG,
+    labels: { en: 'Dart Frog', es: 'Rana dardo' },
+  },
+  {
+    code: 'BULLFROG',
+    speciesCode: PetSpecies.FROG,
+    labels: { en: 'Bullfrog', es: 'Rana toro' },
+  },
+  {
+    code: 'WHITES_TREE_FROG',
+    speciesCode: PetSpecies.FROG,
+    labels: { en: "White's Tree Frog", es: 'Rana de arbol de White' },
+  },
+  {
+    code: 'LEOPARD_FROG',
+    speciesCode: PetSpecies.FROG,
+    labels: { en: 'Leopard Frog', es: 'Rana leopardo' },
+  },
+  {
+    code: 'TOMATO_FROG',
+    speciesCode: PetSpecies.FROG,
+    labels: { en: 'Tomato Frog', es: 'Rana tomate' },
+  },
+  {
+    code: 'HORNED_FROG',
+    speciesCode: PetSpecies.FROG,
+    labels: { en: 'Horned Frog', es: 'Rana cornuda' },
+  },
+  {
+    code: 'FIRE_BELLIED_TOAD',
+    speciesCode: PetSpecies.FROG,
+    labels: { en: 'Fire Bellied Toad', es: 'Sapo vientre de fuego' },
+  },
+  {
+    code: 'AFRICAN_DWARF_FROG',
+    speciesCode: PetSpecies.FROG,
+    labels: { en: 'African Dwarf Frog', es: 'Rana enana africana' },
+  },
+  {
+    code: 'RED_EARED_SLIDER',
+    speciesCode: PetSpecies.TURTLE,
+    labels: { en: 'Red Eared Slider', es: 'Tortuga de orejas rojas' },
+  },
+  {
+    code: 'PAINTED_TURTLE',
+    speciesCode: PetSpecies.TURTLE,
+    labels: { en: 'Painted Turtle', es: 'Tortuga pintada' },
+  },
+  {
+    code: 'MUSK_TURTLE',
+    speciesCode: PetSpecies.TURTLE,
+    labels: { en: 'Musk Turtle', es: 'Tortuga almizclera' },
+  },
+  {
+    code: 'MAP_TURTLE',
+    speciesCode: PetSpecies.TURTLE,
+    labels: { en: 'Map Turtle', es: 'Tortuga mapa' },
+  },
+  {
+    code: 'BOX_TURTLE',
+    speciesCode: PetSpecies.TURTLE,
+    labels: { en: 'Box Turtle', es: 'Tortuga de caja' },
+  },
+  {
+    code: 'SNAPPING_TURTLE',
+    speciesCode: PetSpecies.TURTLE,
+    labels: { en: 'Snapping Turtle', es: 'Tortuga mordedora' },
+  },
+  {
+    code: 'SULCATA_TORTOISE',
+    speciesCode: PetSpecies.TURTLE,
+    labels: { en: 'Sulcata Tortoise', es: 'Tortuga sulcata' },
+  },
+  {
+    code: 'RUSSIAN_TORTOISE',
+    speciesCode: PetSpecies.TURTLE,
+    labels: { en: 'Russian Tortoise', es: 'Tortuga rusa' },
+  },
+  {
+    code: 'GREEK_TORTOISE',
+    speciesCode: PetSpecies.TURTLE,
+    labels: { en: 'Greek Tortoise', es: 'Tortuga griega' },
+  },
+  {
+    code: 'LEOPARD_TORTOISE',
+    speciesCode: PetSpecies.TURTLE,
+    labels: { en: 'Leopard Tortoise', es: 'Tortuga leopardo' },
   },
   {
     code: 'IGUANA',
@@ -444,29 +719,5 @@ export const breedsSeed: CatalogBreedItem[] = [
 ];
 
 export const vaccinesSeed: CatalogVaccineItem[] = [
-  {
-    code: 'RABIES',
-    labels: { en: 'Rabies', es: 'Rabia' },
-    recommendedIntervalDays: 365,
-  },
-  {
-    code: 'DISTEMPER',
-    labels: { en: 'Distemper (DHPP)', es: 'Moquillo (DHPP)' },
-    recommendedIntervalDays: 365,
-  },
-  {
-    code: 'BORDETELLA',
-    labels: { en: 'Bordetella', es: 'Bordetella' },
-    recommendedIntervalDays: 180,
-  },
-  {
-    code: 'FVRCP',
-    labels: { en: 'FVRCP (cats)', es: 'FVRCP (gatos)' },
-    recommendedIntervalDays: 365,
-    speciesCode: PetSpecies.CAT,
-  },
-  {
-    code: 'OTHER',
-    labels: { en: 'Other / custom', es: 'Otra / personalizada' },
-  },
+  // Vaccines catalog intentionally disabled for now.
 ];
