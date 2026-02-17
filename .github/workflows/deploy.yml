@@ -193,6 +193,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Build catalogs dependencies
+        run: npx nx build @pettzi/api-catalogs
+
       - name: Set stage slug and table name
         run: |
           STAGE_SLUG=$(echo "${STAGE}" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9-]+/-/g')

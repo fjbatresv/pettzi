@@ -26,6 +26,9 @@
       },
       "seed": {
         "executor": "nx:run-commands",
+        "dependsOn": [
+          "^build"
+        ],
         "options": {
           "command": "ts-node --transpile-only libs/api-catalogs/src/seed/seed-catalogs.ts"
         }
