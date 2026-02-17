@@ -94,29 +94,33 @@ export class PetCreateStep1Component implements OnInit {
   }
 
   onBreedQueryChange(value: string) {
+    const trimmed = value.trim();
     this.breedQuery = value;
+    const match = this.findBreedByLabel(trimmed);
+    this.selectedBreedCode = match?.code ?? trimmed;
     this.updateFilteredBreeds(value);
   }
 
   onBreedSelected(label: string) {
     const match = this.findBreedByLabel(label);
-    this.selectedBreedCode = match?.code ?? '';
+    this.selectedBreedCode = match?.code ?? label.trim();
     this.breedQuery = match?.label ?? label;
   }
 
   onBreedBlur() {
-    if (!this.breedQuery.trim()) {
+    const trimmed = this.breedQuery.trim();
+    if (!trimmed) {
       this.selectedBreedCode = '';
       return;
     }
-    const match = this.findBreedByLabel(this.breedQuery);
+    const match = this.findBreedByLabel(trimmed);
     if (match) {
       this.selectedBreedCode = match.code;
       this.breedQuery = match.label;
       return;
     }
-    this.selectedBreedCode = '';
-    this.breedQuery = '';
+    this.selectedBreedCode = trimmed;
+    this.breedQuery = trimmed;
   }
 
   continue() {
@@ -159,12 +163,20 @@ export class PetCreateStep1Component implements OnInit {
     this.catalogs.getBreeds(speciesCode).subscribe({
       next: ({ breeds }) => {
         this.breeds = breeds ?? [];
-        this.selectedBreedCode =
-          preferredBreedCode &&
-          this.breeds.some((item) => item.code === preferredBreedCode)
-            ? preferredBreedCode
-            : this.breeds[0]?.code ?? '';
-        this.syncBreedQuery();
+        const preferred = preferredBreedCode?.trim();
+        if (preferred) {
+          const match = this.breeds.find((item) => item.code === preferred);
+          if (match) {
+            this.selectedBreedCode = match.code;
+            this.breedQuery = match.label;
+          } else {
+            this.selectedBreedCode = preferred;
+            this.breedQuery = preferred;
+          }
+        } else {
+          this.selectedBreedCode = this.breeds[0]?.code ?? '';
+          this.syncBreedQuery();
+        }
         this.updateFilteredBreeds('');
       },
       error: () => {
@@ -236,7 +248,7 @@ export class PetCreateStep1Component implements OnInit {
 
   private syncBreedQuery() {
     const match = this.breeds.find((item) => item.code === this.selectedBreedCode);
-    this.breedQuery = match?.label ?? '';
+    this.breedQuery = match?.label ?? this.selectedBreedCode;
   }
 
   private updateFilteredBreeds(query: string) {

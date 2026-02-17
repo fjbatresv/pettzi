@@ -27,6 +27,11 @@ paths:
           name: species
           required: false
           schema: { type: string }
+        - in: query
+          name: includeDeprecated
+          required: false
+          schema:
+            type: boolean
       responses:
         '200':
           description: Breeds list
@@ -40,6 +45,8 @@ paths:
   /vaccines:
     get:
       summary: List vaccines
+      description: Endpoint kept for compatibility. Returns an empty list.
+      deprecated: true
       security: [{ bearerAuth: [] }]
       parameters:
         - in: query
@@ -68,12 +75,31 @@ components:
       properties:
         code: { type: string }
         label: { type: string }
+        eventTypes:
+          type: array
+          items:
+            type: string
+        isActive: { type: boolean }
     BreedItem:
       type: object
       properties:
         code: { type: string }
         label: { type: string }
         speciesId: { type: string }
+        weightKg:
+          type: object
+          properties:
+            male:
+              type: object
+              properties:
+                min: { type: number }
+                max: { type: number }
+            female:
+              type: object
+              properties:
+                min: { type: number }
+                max: { type: number }
+        deprecated: { type: boolean }
     VaccineItem:
       type: object
       properties:

@@ -3,6 +3,9 @@ export enum PetSpecies {
   CAT = 'CAT',
   BIRD = 'BIRD',
   REPTILE = 'REPTILE',
+  SNAKE = 'SNAKE',
+  FROG = 'FROG',
+  TURTLE = 'TURTLE',
   OTHER = 'OTHER',
 }
 

@@ -1,5 +1,11 @@
 import { APIGatewayProxyEventV2 } from 'aws-lambda';
 import { handler } from './get-vaccines.handler';
+import { getVaccinesCatalog, InvalidSpeciesError } from '../catalogs.service';
+
+jest.mock('../catalogs.service', () => ({
+  getVaccinesCatalog: jest.fn(),
+  InvalidSpeciesError: class InvalidSpeciesError extends Error {},
+}));
 
 describe('get-vaccines.handler', () => {
   const baseEvent = {
@@ -33,13 +39,19 @@ describe('get-vaccines.handler', () => {
   } as APIGatewayProxyEventV2;
 
   it('returns vaccines', async () => {
+    (getVaccinesCatalog as jest.Mock).mockResolvedValueOnce([
+      { code: 'RABIES', label: 'Rabies' },
+    ]);
     const res = await (handler as any)(baseEvent);
     expect(res.statusCode).toBe(200);
     const body = JSON.parse(res.body ?? '{}');
-    expect(body.vaccines?.length).toBeGreaterThan(0);
+    expect(body.vaccines).toHaveLength(1);
   });
 
   it('filters by species', async () => {
+    (getVaccinesCatalog as jest.Mock).mockResolvedValueOnce([
+      { code: 'RABIES', label: 'Rabies' },
+    ]);
     const res = await (handler as any)({
       ...baseEvent,
       queryStringParameters: { species: 'dog' },
@@ -48,6 +60,9 @@ describe('get-vaccines.handler', () => {
   });
 
   it('returns badRequest on invalid species', async () => {
+    (getVaccinesCatalog as jest.Mock).mockRejectedValueOnce(
+      new InvalidSpeciesError()
+    );
     const res = await (handler as any)({
       ...baseEvent,
       queryStringParameters: { species: 'invalid' },

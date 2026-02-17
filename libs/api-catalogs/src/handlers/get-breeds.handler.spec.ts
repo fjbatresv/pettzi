@@ -1,5 +1,11 @@
 import { APIGatewayProxyEventV2 } from 'aws-lambda';
 import { handler } from './get-breeds.handler';
+import { getBreedsCatalog, InvalidSpeciesError } from '../catalogs.service';
+
+jest.mock('../catalogs.service', () => ({
+  getBreedsCatalog: jest.fn(),
+  InvalidSpeciesError: class InvalidSpeciesError extends Error {},
+}));
 
 describe('get-breeds.handler', () => {
   const baseEvent = {
@@ -33,23 +39,33 @@ describe('get-breeds.handler', () => {
   } as APIGatewayProxyEventV2;
 
   it('returns all breeds', async () => {
+    (getBreedsCatalog as jest.Mock).mockResolvedValueOnce([
+      { code: 'LABRADOR', label: 'Labrador', speciesId: 'DOG' },
+      { code: 'SIAMESE', label: 'Siamese', speciesId: 'CAT' },
+    ]);
     const res = await (handler as any)(baseEvent);
     expect(res.statusCode).toBe(200);
     const body = JSON.parse(res.body ?? '{}');
-    expect(body.breeds?.length).toBeGreaterThan(0);
+    expect(body.breeds).toHaveLength(2);
   });
 
   it('filters by species', async () => {
+    (getBreedsCatalog as jest.Mock).mockResolvedValueOnce([
+      { code: 'LABRADOR', label: 'Labrador', speciesId: 'DOG' },
+    ]);
     const res = await (handler as any)({
       ...baseEvent,
       queryStringParameters: { species: 'dog' },
     });
     expect(res.statusCode).toBe(200);
     const body = JSON.parse(res.body ?? '{}');
-    expect(body.breeds?.length).toBeGreaterThanOrEqual(50);
+    expect(body.breeds).toHaveLength(1);
   });
 
   it('returns badRequest on invalid species', async () => {
+    (getBreedsCatalog as jest.Mock).mockRejectedValueOnce(
+      new InvalidSpeciesError()
+    );
     const res = await (handler as any)({
       ...baseEvent,
       queryStringParameters: { species: 'invalid' },

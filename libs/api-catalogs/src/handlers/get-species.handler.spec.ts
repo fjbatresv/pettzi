@@ -1,5 +1,10 @@
 import { APIGatewayProxyEventV2 } from 'aws-lambda';
 import { handler } from './get-species.handler';
+import { getSpeciesCatalog } from '../catalogs.service';
+
+jest.mock('../catalogs.service', () => ({
+  getSpeciesCatalog: jest.fn(),
+}));
 
 describe('get-species.handler', () => {
   const baseEvent = {
@@ -33,13 +38,21 @@ describe('get-species.handler', () => {
   } as APIGatewayProxyEventV2;
 
   it('returns species', async () => {
+    (getSpeciesCatalog as jest.Mock).mockResolvedValueOnce([
+      { code: 'DOG', label: 'Dog', eventTypes: ['VACCINE'] },
+    ]);
     const res = await (handler as any)(baseEvent);
     expect(res.statusCode).toBe(200);
     const body = JSON.parse(res.body ?? '{}');
-    expect(body.species?.length).toBeGreaterThan(0);
+    expect(body.species).toEqual([
+      { code: 'DOG', label: 'Dog', eventTypes: ['VACCINE'] },
+    ]);
   });
 
   it('returns species without auth', async () => {
+    (getSpeciesCatalog as jest.Mock).mockResolvedValueOnce([
+      { code: 'CAT', label: 'Cat', eventTypes: ['VET_VISIT'] },
+    ]);
     const res = await (handler as any)({
       ...baseEvent,
       requestContext: { ...baseEvent.requestContext, authorizer: undefined },

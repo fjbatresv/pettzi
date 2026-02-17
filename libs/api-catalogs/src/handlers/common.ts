@@ -1,7 +1,6 @@
 import { APIGatewayProxyEventV2 } from 'aws-lambda';
 import { unauthorized } from '@pettzi/utils-dynamo/http';
-
-export type CatalogLocale = 'es' | 'en';
+import { CatalogLocale } from '../catalogs.types';
 
 export const getOwnerId = (event: APIGatewayProxyEventV2): string => {
   const claims = (event.requestContext as unknown as {
