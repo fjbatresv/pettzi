@@ -170,6 +170,41 @@ jobs:
             echo "No Frontend CloudFront distribution found for PettziFrontendStack."
           fi
 
+  seed_catalogs:
+    name: Seed Catalogs
+    runs-on: ubuntu-latest
+    needs: deploy_cdk
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Set stage slug and table name
+        run: |
+          STAGE_SLUG=$(echo "${STAGE}" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9-]+/-/g')
+          echo "STAGE_SLUG=${STAGE_SLUG}" >> "$GITHUB_ENV"
+          echo "PETTZI_TABLE_NAME=pettzi-table-${STAGE_SLUG}" >> "$GITHUB_ENV"
+
+      - name: Dry run catalogs seed
+        run: npx nx run @pettzi/api-catalogs:seed -- --dry-run
+
+      - name: Run catalogs seed
+        run: npx nx run @pettzi/api-catalogs:seed
+
   deploy_email_images:
     name: Deploy Email Images
     runs-on: ubuntu-latest
