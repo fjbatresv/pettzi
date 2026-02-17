@@ -323,7 +323,7 @@ components:
           type: string
         species:
           type: string
-          enum: [DOG, CAT, BIRD, REPTILE, OTHER]
+          enum: [DOG, CAT, BIRD, REPTILE, SNAKE, FROG, TURTLE, OTHER]
         breed:
           type: string
         photoKey:
@@ -364,7 +364,7 @@ components:
           type: string
         species:
           type: string
-          enum: [DOG, CAT, BIRD, REPTILE, OTHER]
+          enum: [DOG, CAT, BIRD, REPTILE, SNAKE, FROG, TURTLE, OTHER]
         breed:
           type: string
     SharedRecordSummary:
@@ -408,7 +408,7 @@ components:
           type: string
         species:
           type: string
-          enum: [DOG, CAT, BIRD, REPTILE, OTHER]
+          enum: [DOG, CAT, BIRD, REPTILE, SNAKE, FROG, TURTLE, OTHER]
         breed:
           type: string
         birthDate:

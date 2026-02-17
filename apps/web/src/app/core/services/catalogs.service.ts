@@ -7,12 +7,19 @@ import { I18nService } from '../i18n/i18n.service';
 export interface SpeciesItem {
   code: string;
   label: string;
+  eventTypes?: string[];
+  isActive?: boolean;
 }
 
 export interface BreedItem {
   code: string;
-  speciesCode: string;
+  speciesId?: string;
   label: string;
+  weightKg?: {
+    male?: { min?: number; max?: number };
+    female?: { min?: number; max?: number };
+  };
+  deprecated?: boolean;
 }
 
 interface SpeciesListResponse {

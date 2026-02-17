@@ -276,6 +276,11 @@ Example:
 - Breeds: `PK=CATALOG#BREED#<SPECIES>`, `SK=<BREED_CODE>`
 - Vaccines: `PK=CATALOG#VACCINE`, `SK=<VACCINE_CODE>`
 
+Common attributes:
+- Species: `code`, `labels` (`{en, es}`), `eventTypes`, `isActive?`
+- Breeds: `code`, `speciesCode`, `labels`, `weightKg` (`male/female` ranges), `deprecated?`
+- Vaccines: `code`, `labels`, `speciesCode?`, `recommendedIntervalDays?`
+
 ## 4) GSI1 usage summary
 
 GSI1 is shared across multiple item types. Disambiguation comes from distinct prefixes:
@@ -288,4 +293,3 @@ GSI1 is shared across multiple item types. Disambiguation comes from distinct pr
 - Event ordering relies on the ISO timestamp in `SK` (`EVENT#<isoDate>#<eventId>`).
 - Reminders are stored under the pet partition (no separate REMINDER partition).
 - Avoid storing large payloads directly in DynamoDB; keep references in `metadata`.
-

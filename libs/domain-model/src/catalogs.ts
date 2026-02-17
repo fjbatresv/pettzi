@@ -6,6 +6,9 @@ export const catalogSpecies: CatalogEntry<PetSpecies>[] = [
   { code: PetSpecies.CAT, label: 'Cat' },
   { code: PetSpecies.BIRD, label: 'Bird' },
   { code: PetSpecies.REPTILE, label: 'Reptile' },
+  { code: PetSpecies.SNAKE, label: 'Snake' },
+  { code: PetSpecies.FROG, label: 'Frog' },
+  { code: PetSpecies.TURTLE, label: 'Turtle' },
   { code: PetSpecies.OTHER, label: 'Other' },
 ];
 
@@ -91,6 +94,9 @@ export const catalogBreeds: Record<PetSpecies, CatalogEntry<string>[]> = {
     { code: 'IGUANA', label: 'Iguana' },
     { code: 'TURTLE', label: 'Turtle' },
   ],
+  [PetSpecies.SNAKE]: [],
+  [PetSpecies.FROG]: [],
+  [PetSpecies.TURTLE]: [],
   [PetSpecies.OTHER]: [{ code: 'OTHER', label: 'Other' }],
 };
 

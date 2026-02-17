@@ -4,6 +4,7 @@ import { HttpLambdaIntegration } from 'aws-cdk-lib/aws-apigatewayv2-integrations
 import { HttpUserPoolAuthorizer } from 'aws-cdk-lib/aws-apigatewayv2-authorizers';
 import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
 import * as cloudwatchActions from 'aws-cdk-lib/aws-cloudwatch-actions';
+import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction, OutputFormat } from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as logs from 'aws-cdk-lib/aws-logs';
@@ -13,9 +14,11 @@ import { Construct } from 'constructs';
 import * as path from 'path';
 
 export interface CatalogsApiStackProps extends StackProps {
+  table: dynamodb.Table;
   userPool: UserPool;
   userPoolClient: UserPoolClient;
   sharedLayer?: lambda.ILayerVersion;
+  ddbLayer?: lambda.ILayerVersion;
   stage: string;
   appDomain?: string;
   alarmTopic?: sns.ITopic;
@@ -39,6 +42,7 @@ export class CatalogsApiStack extends Stack {
 
     const commonEnv = {
       STAGE: props.stage,
+      PETTZI_TABLE_NAME: props.table.tableName,
     };
 
     const speciesFn = this.createFn(
@@ -46,21 +50,21 @@ export class CatalogsApiStack extends Stack {
       props.stage,
       handlerPath('libs/api-catalogs/src/handlers/get-species.handler.ts'),
       commonEnv,
-      [props.sharedLayer]
+      [props.sharedLayer, props.ddbLayer]
     );
     const breedsFn = this.createFn(
       'GetBreedsHandler',
       props.stage,
       handlerPath('libs/api-catalogs/src/handlers/get-breeds.handler.ts'),
       commonEnv,
-      [props.sharedLayer]
+      [props.sharedLayer, props.ddbLayer]
     );
     const vaccinesFn = this.createFn(
       'GetVaccinesHandler',
       props.stage,
       handlerPath('libs/api-catalogs/src/handlers/get-vaccines.handler.ts'),
       commonEnv,
-      [props.sharedLayer]
+      [props.sharedLayer, props.ddbLayer]
     );
 
     const authorizer = new HttpUserPoolAuthorizer(
@@ -118,6 +122,10 @@ export class CatalogsApiStack extends Stack {
       ),
       authorizer: new apigwv2.HttpNoneAuthorizer(),
     });
+
+    props.table.grantReadData(speciesFn);
+    props.table.grantReadData(breedsFn);
+    props.table.grantReadData(vaccinesFn);
 
     this.addApiGatewayAlarm('CatalogsApi5xxAlarm', this.httpApi.apiId);
 
