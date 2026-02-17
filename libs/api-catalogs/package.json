@@ -27,12 +27,14 @@
       "seed": {
         "executor": "nx:run-commands",
         "options": {
-          "command": "node --loader ts-node/esm libs/api-catalogs/src/seed/seed-catalogs.ts"
+          "command": "ts-node --transpile-only libs/api-catalogs/src/seed/seed-catalogs.ts"
         }
       }
     }
   },
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.694.0",
+    "@aws-sdk/lib-dynamodb": "^3.694.0",
     "tslib": "^2.3.0",
     "@types/aws-lambda": "^8.10.138",
     "@pettzi/domain-model": "file:../domain-model",
