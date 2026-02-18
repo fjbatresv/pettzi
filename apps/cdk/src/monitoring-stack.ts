@@ -49,7 +49,7 @@ export class MonitoringStack extends Stack {
     );
 
     if (props.alarmTopic) {
-      this.addApiRateAlarms(props.apis, props.alarmTopic);
+      this.addPathFailureAlarms(props.apis, props.alarmTopic, stage);
     }
   }
 
@@ -299,17 +299,28 @@ export class MonitoringStack extends Stack {
     ];
   }
 
-  private addApiRateAlarms(apis: Record<string, apigwv2.HttpApi>, topic: sns.ITopic) {
+  private addPathFailureAlarms(
+    apis: Record<string, apigwv2.HttpApi>,
+    topic: sns.ITopic,
+    stage: string
+  ) {
     const period = Duration.minutes(5);
-    Object.entries(apis).forEach(([key, api]) => {
+    const isProd = stage === 'prod';
+    const mainPaths = [
+      'auth',
+      'pets',
+      'owners',
+      'events',
+      'reminders',
+      'uploads',
+      'catalogs',
+    ];
+    const orderedEntries = mainPaths
+      .map((key) => (apis[key] ? ([key, apis[key]] as const) : undefined))
+      .filter((entry): entry is readonly [string, apigwv2.HttpApi] => Boolean(entry));
+
+    orderedEntries.slice(0, 10).forEach(([key, api]) => {
       const dimensionsMap = { ApiId: api.apiId, Stage: '$default' };
-      const errors4xx = new cloudwatch.Metric({
-        namespace: 'AWS/ApiGateway',
-        metricName: '4xx',
-        statistic: 'Sum',
-        period,
-        dimensionsMap,
-      });
       const errors5xx = new cloudwatch.Metric({
         namespace: 'AWS/ApiGateway',
         metricName: '5xx',
@@ -324,32 +335,18 @@ export class MonitoringStack extends Stack {
         period,
         dimensionsMap,
       });
-      const errorRate4xx = new cloudwatch.MathExpression({
-        expression: '100 * errors / IF(requests > 0, requests, 1)',
-        usingMetrics: { errors: errors4xx, requests },
-        period,
-        label: `${key} 4xx %`,
-      });
       const errorRate5xx = new cloudwatch.MathExpression({
         expression: '100 * errors / IF(requests > 0, requests, 1)',
         usingMetrics: { errors: errors5xx, requests },
         period,
         label: `${key} 5xx %`,
       });
-      const alarm4xx = new cloudwatch.Alarm(this, `${key}Api4xxRateAlarm`, {
-        metric: errorRate4xx,
-        threshold: 5,
-        evaluationPeriods: 1,
-        comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_THRESHOLD,
-        alarmDescription: `API Gateway 4xx error rate above 5% (${key})`,
-      });
-      alarm4xx.addAlarmAction(new cloudwatchActions.SnsAction(topic));
       const alarm5xx = new cloudwatch.Alarm(this, `${key}Api5xxRateAlarm`, {
         metric: errorRate5xx,
-        threshold: 0.5,
+        threshold: isProd ? 1 : 2,
         evaluationPeriods: 1,
         comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_THRESHOLD,
-        alarmDescription: `API Gateway 5xx error rate above 0.5% (${key})`,
+        alarmDescription: `API path failure rate (5xx) above ${isProd ? 1 : 2}% (${key})`,
       });
       alarm5xx.addAlarmAction(new cloudwatchActions.SnsAction(topic));
     });
