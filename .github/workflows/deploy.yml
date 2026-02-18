@@ -25,6 +25,10 @@ env:
   DSN_PREFIX: img
   SES_FROM_EMAIL: no-reply@pettzi.net
   KMS_ENABLED: false
+  MINIMAL_COST_MODE: ${{ (inputs.stage || 'dev') != 'prod' }}
+  ENABLE_INFRA_ALARMS: false
+  ENABLE_DETAILED_ALARMS: false
+  ENABLE_MONITORING_ALARMS: true
   SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
   SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
   SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
