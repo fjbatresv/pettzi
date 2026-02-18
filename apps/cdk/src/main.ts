@@ -21,11 +21,26 @@ dotenvConfig({
   path: '../../.env',
 });
 
+const parseBooleanEnv = (value?: string): boolean | undefined => {
+  if (value == null) return undefined;
+  const normalized = value.trim().toLowerCase();
+  if (['1', 'true', 'yes', 'on'].includes(normalized)) return true;
+  if (['0', 'false', 'no', 'off'].includes(normalized)) return false;
+  return undefined;
+};
+
 const stage = process.env.STAGE ?? process.env.CDK_STAGE ?? 'dev';
+const stageName = stage.toLowerCase();
 const profile = process.env.CDK_PROFILE ?? process.env.AWS_PROFILE ?? 'default';
 const account = process.env.CDK_DEFAULT_ACCOUNT;
 const region =
   process.env.CDK_DEFAULT_REGION ?? process.env.AWS_REGION ?? 'us-east-1';
+const minimalCostMode =
+  parseBooleanEnv(process.env.MINIMAL_COST_MODE) ?? stageName !== 'prod';
+const enableInfraAlarms =
+  parseBooleanEnv(process.env.ENABLE_INFRA_ALARMS) ?? !minimalCostMode;
+const enableMonitoringAlarms =
+  parseBooleanEnv(process.env.ENABLE_MONITORING_ALARMS) ?? true;
 const apiDomainName = (() => {
   const explicit = process.env.API_DOMAIN_NAME?.trim();
   if (explicit) return explicit;
@@ -58,7 +73,7 @@ const sesFromEmail = process.env.SES_FROM_EMAIL ?? 'no-reply@pettzi.app';
 const useKms =
   process.env.KMS_ENABLED != null
     ? ['true', '1', 'yes'].includes(process.env.KMS_ENABLED.trim().toLowerCase())
-    : stage === 'prod';
+    : stageName === 'prod';
 const emailVerificationBaseUrl =
   process.env.EMAIL_VERIFY_BASE_URL ??
   (apiDomainName
@@ -140,13 +155,14 @@ const core = new CoreInfraStack(app, 'PettziCoreInfraStack', {
   description: `Pettzi core infrastructure (${stage})`,
   useKms,
   appDomain: appDomainName,
+  enableOperationalAlarms: enableInfraAlarms,
 });
 
 const auth = new AuthStack(app, 'PettziAuthStack', {
   env: { account, region },
   stackName: 'PettziAuthStack',
   description: `Pettzi auth (${stage})`,
-  alarmTopic: core.alarmTopic,
+  alarmTopic: undefined,
 });
 
 const authApi = new AuthApiStack(app, 'PettziAuthApiStack', {
@@ -168,7 +184,7 @@ const authApi = new AuthApiStack(app, 'PettziAuthApiStack', {
   verificationBaseUrl: emailVerificationBaseUrl,
   passwordResetBaseUrl,
   appDomain: appDomainName,
-  alarmTopic: core.alarmTopic,
+  alarmTopic: undefined,
 });
 
 const petsApi = new PetsApiStack(app, 'PettziPetsApiStack', {
@@ -181,7 +197,7 @@ const petsApi = new PetsApiStack(app, 'PettziPetsApiStack', {
   userPool: auth.userPool,
   userPoolClient: auth.userPoolClient,
   appDomain: appDomainName,
-  alarmTopic: core.alarmTopic,
+  alarmTopic: undefined,
 });
 
 const eventsApi = new EventsApiStack(app, 'PettziEventsApiStack', {
@@ -195,7 +211,7 @@ const eventsApi = new EventsApiStack(app, 'PettziEventsApiStack', {
   userPoolClient: auth.userPoolClient,
   stage,
   appDomain: appDomainName,
-  alarmTopic: core.alarmTopic,
+  alarmTopic: undefined,
 });
 
 const remindersApi = new RemindersApiStack(app, 'PettziRemindersApiStack', {
@@ -212,7 +228,7 @@ const remindersApi = new RemindersApiStack(app, 'PettziRemindersApiStack', {
   remindersEmailFrom: process.env.REMINDERS_EMAIL_FROM ?? 'no-reply@pettzi.net',
   reminderTemplateName: SesTemplatesStack.REMINDER_TEMPLATE_ES,
   appDomain: appDomainName,
-  alarmTopic: core.alarmTopic,
+  alarmTopic: undefined,
 });
 
 const uploadsApi = new UploadsApiStack(app, 'PettziUploadsApiStack', {
@@ -228,7 +244,7 @@ const uploadsApi = new UploadsApiStack(app, 'PettziUploadsApiStack', {
   ddbLayer: layers.ddbDepsLayer,
   stage,
   appDomain: appDomainName,
-  alarmTopic: core.alarmTopic,
+  alarmTopic: undefined,
 });
 
 const ownersApi = new OwnersApiStack(app, 'PettziOwnersApiStack', {
@@ -249,7 +265,7 @@ const ownersApi = new OwnersApiStack(app, 'PettziOwnersApiStack', {
   inviteBaseUrl: petShareInviteBaseUrl,
   stage,
   appDomain: appDomainName,
-  alarmTopic: core.alarmTopic,
+  alarmTopic: undefined,
 });
 
 const catalogsApi = new CatalogsApiStack(app, 'PettziCatalogsApiStack', {
@@ -263,7 +279,7 @@ const catalogsApi = new CatalogsApiStack(app, 'PettziCatalogsApiStack', {
   ddbLayer: layers.ddbDepsLayer,
   stage,
   appDomain: appDomainName,
-  alarmTopic: core.alarmTopic,
+  alarmTopic: undefined,
 });
 
 new MonitoringStack(app, 'PettziMonitoringStack', {
@@ -271,7 +287,7 @@ new MonitoringStack(app, 'PettziMonitoringStack', {
   stackName: 'PettziMonitoringStack',
   description: `Pettzi monitoring (${stage})`,
   stage,
-  alarmTopic: core.alarmTopic,
+  alarmTopic: enableMonitoringAlarms ? core.alarmTopic : undefined,
   table: core.table,
   docsBucket: core.docsBucket,
   userPool: auth.userPool,
