@@ -7,6 +7,6 @@
     "node": ">=24"
   },
   "dependencies": {
-    "@aws-sdk/client-cognito-identity-provider": "^3.694.0"
+    "@aws-sdk/client-cognito-identity-provider": "^3.995.0"
   }
 }
