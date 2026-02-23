@@ -28,9 +28,9 @@
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.694.0",
-    "@aws-sdk/client-s3": "^3.694.0",
-    "@aws-sdk/lib-dynamodb": "^3.694.0",
-    "@aws-sdk/s3-request-presigner": "^3.694.0",
+    "@aws-sdk/client-s3": "^3.995.0",
+    "@aws-sdk/lib-dynamodb": "^3.995.0",
+    "@aws-sdk/s3-request-presigner": "^3.995.0",
     "@pettzi/domain-model": "file:../domain-model",
     "@pettzi/utils-dynamo": "file:../utils-dynamo",
     "@types/aws-lambda": "^8.10.138",

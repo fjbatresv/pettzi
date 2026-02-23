@@ -28,14 +28,14 @@
   },
   "dependencies": {
     "tslib": "^2.3.0",
-    "@aws-sdk/client-cognito-identity-provider": "^3.694.0",
+    "@aws-sdk/client-cognito-identity-provider": "^3.995.0",
     "@aws-sdk/client-dynamodb": "^3.694.0",
-    "@aws-sdk/client-s3": "^3.694.0",
-    "@aws-sdk/client-secrets-manager": "^3.694.0",
+    "@aws-sdk/client-s3": "^3.995.0",
+    "@aws-sdk/client-secrets-manager": "^3.995.0",
     "@types/aws-lambda": "^8.10.138",
     "@pettzi/domain-model": "file:../domain-model",
     "@pettzi/utils-dynamo": "file:../utils-dynamo",
-    "@aws-sdk/lib-dynamodb": "^3.694.0",
-    "@aws-sdk/client-ses": "^3.694.0"
+    "@aws-sdk/lib-dynamodb": "^3.995.0",
+    "@aws-sdk/client-ses": "^3.995.0"
   }
 }
