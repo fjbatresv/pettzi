@@ -19,6 +19,7 @@ import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as sns from 'aws-cdk-lib/aws-sns';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
+import * as ssm from 'aws-cdk-lib/aws-ssm';
 import { Construct } from 'constructs';
 import * as path from 'path';
 
@@ -30,6 +31,9 @@ export interface AuthApiStackProps extends StackProps {
   depsLayer?: lambda.ILayerVersion;
   sesLayer?: lambda.ILayerVersion;
   ddbLayer?: lambda.ILayerVersion;
+  depsLayerSsmParamName?: string;
+  sesLayerSsmParamName?: string;
+  ddbLayerSsmParamName?: string;
   sesFromEmail?: string;
   welcomeTemplateName?: string;
   welcomeTemplateNameEs?: string;
@@ -104,6 +108,22 @@ export class AuthApiStack extends Stack {
     const handlerPath = (...segments: string[]) =>
       path.resolve(__dirname, '../../../../../..', ...segments);
 
+    const depsLayer = this.resolveLayer(
+      props.depsLayer,
+      props.depsLayerSsmParamName,
+      'DepsLayer'
+    );
+    const sesLayer = this.resolveLayer(
+      props.sesLayer,
+      props.sesLayerSsmParamName,
+      'SesLayer'
+    );
+    const ddbLayer = this.resolveLayer(
+      props.ddbLayer,
+      props.ddbLayerSsmParamName,
+      'DdbLayer'
+    );
+
     this.authorizer = new HttpUserPoolAuthorizer(
       'AuthJwtAuthorizer',
       props.userPool,
@@ -118,99 +138,99 @@ export class AuthApiStack extends Stack {
       stage,
       handlerPath('libs/api-auth/src/register.handler.ts'),
       commonEnv,
-      props.depsLayer,
-      props.sesLayer,
-      props.ddbLayer
+      depsLayer,
+      sesLayer,
+      ddbLayer
     );
     const confirmEmailFn = this.createAuthFn(
       'ConfirmEmailHandler',
       stage,
       handlerPath('libs/api-auth/src/confirm-email.handler.ts'),
       commonEnv,
-      props.depsLayer,
-      props.sesLayer,
-      props.ddbLayer
+      depsLayer,
+      sesLayer,
+      ddbLayer
     );
     const loginFn = this.createAuthFn(
       'LoginHandler',
       stage,
       handlerPath('libs/api-auth/src/login.handler.ts'),
       commonEnv,
-      props.depsLayer,
-      props.sesLayer,
-      props.ddbLayer
+      depsLayer,
+      sesLayer,
+      ddbLayer
     );
     const refreshTokenFn = this.createAuthFn(
       'RefreshTokenHandler',
       stage,
       handlerPath('libs/api-auth/src/refresh-token.handler.ts'),
       commonEnv,
-      props.depsLayer,
-      props.sesLayer,
-      props.ddbLayer
+      depsLayer,
+      sesLayer,
+      ddbLayer
     );
     const forgotPasswordFn = this.createAuthFn(
       'ForgotPasswordHandler',
       stage,
       handlerPath('libs/api-auth/src/forgot-password.handler.ts'),
       commonEnv,
-      props.depsLayer,
-      props.sesLayer,
-      props.ddbLayer
+      depsLayer,
+      sesLayer,
+      ddbLayer
     );
     const completeNewPasswordFn = this.createAuthFn(
       'CompleteNewPasswordHandler',
       stage,
       handlerPath('libs/api-auth/src/complete-new-password.handler.ts'),
       commonEnv,
-      props.depsLayer,
-      props.sesLayer,
-      props.ddbLayer
+      depsLayer,
+      sesLayer,
+      ddbLayer
     );
     const getUserProfileFn = this.createAuthFn(
       'GetUserProfileHandler',
       stage,
       handlerPath('libs/api-auth/src/handlers/get-user-profile.handler.ts'),
       commonEnv,
-      props.depsLayer,
-      props.sesLayer,
-      props.ddbLayer
+      depsLayer,
+      sesLayer,
+      ddbLayer
     );
     const getUserSettingsFn = this.createAuthFn(
       'GetUserSettingsHandler',
       stage,
       handlerPath('libs/api-auth/src/handlers/get-user-settings.handler.ts'),
       commonEnv,
-      props.depsLayer,
-      props.sesLayer,
-      props.ddbLayer
+      depsLayer,
+      sesLayer,
+      ddbLayer
     );
     const updateUserProfileFn = this.createAuthFn(
       'UpdateUserProfileHandler',
       stage,
       handlerPath('libs/api-auth/src/handlers/update-user-profile.handler.ts'),
       commonEnv,
-      props.depsLayer,
-      props.sesLayer,
-      props.ddbLayer
+      depsLayer,
+      sesLayer,
+      ddbLayer
     );
     const updateUserSettingsFn = this.createAuthFn(
       'UpdateUserSettingsHandler',
       stage,
       handlerPath('libs/api-auth/src/handlers/update-user-settings.handler.ts'),
       commonEnv,
-      props.depsLayer,
-      props.sesLayer,
-      props.ddbLayer
+      depsLayer,
+      sesLayer,
+      ddbLayer
     );
     const deleteUserFn = this.createAuthFn(
       'DeleteUserHandler',
       stage,
       handlerPath('libs/api-auth/src/handlers/delete-user.handler.ts'),
       commonEnv,
-      props.depsLayer,
-      props.sesLayer,
-      props.ddbLayer
+      depsLayer,
+      sesLayer,
+      ddbLayer
     );
 
     const authFns = [
@@ -453,6 +473,17 @@ export class AuthApiStack extends Stack {
     });
     this.addLambdaAlarms(id, fn);
     return fn;
+  }
+
+  private resolveLayer(
+    direct: lambda.ILayerVersion | undefined,
+    ssmParamName: string | undefined,
+    idPrefix: string
+  ): lambda.ILayerVersion | undefined {
+    if (direct) return direct;
+    if (!ssmParamName) return undefined;
+    const arn = ssm.StringParameter.valueForStringParameter(this, ssmParamName);
+    return lambda.LayerVersion.fromLayerVersionArn(this, `${idPrefix}Imported`, arn);
   }
 
   private addLambdaAlarms(id: string, fn: lambda.Function) {

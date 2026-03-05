@@ -15,6 +15,7 @@ import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction, OutputFormat } from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as logs from 'aws-cdk-lib/aws-logs';
+import * as ssm from 'aws-cdk-lib/aws-ssm';
 import { UserPool, UserPoolClient } from 'aws-cdk-lib/aws-cognito';
 import * as sns from 'aws-cdk-lib/aws-sns';
 import * as sqs from 'aws-cdk-lib/aws-sqs';
@@ -29,6 +30,9 @@ export interface RemindersApiStackProps extends StackProps {
   sharedLayer?: lambda.ILayerVersion;
   sesLayer?: lambda.ILayerVersion;
   ddbLayer?: lambda.ILayerVersion;
+  sharedLayerSsmParamName?: string;
+  sesLayerSsmParamName?: string;
+  ddbLayerSsmParamName?: string;
   stage?: string;
   remindersEmailFrom: string;
   reminderTemplateName?: string;
@@ -65,13 +69,28 @@ export class RemindersApiStack extends Stack {
         ? { SES_REMINDER_TEMPLATE_NAME: props.reminderTemplateName }
         : {}),
     };
+    const sharedLayer = this.resolveLayer(
+      props.sharedLayer,
+      props.sharedLayerSsmParamName,
+      'SharedLayer'
+    );
+    const sesLayer = this.resolveLayer(
+      props.sesLayer,
+      props.sesLayerSsmParamName,
+      'SesLayer'
+    );
+    const ddbLayer = this.resolveLayer(
+      props.ddbLayer,
+      props.ddbLayerSsmParamName,
+      'DdbLayer'
+    );
 
     const listRemindersFn = this.createFn(
       'ListRemindersHandler',
       stage,
       handlerPath('libs/api-reminders/src/handlers/list-reminders.handler.ts'),
       commonEnv,
-      [props.sharedLayer, props.sesLayer, props.ddbLayer]
+      [sharedLayer, sesLayer, ddbLayer]
     );
     const listPetRemindersFn = this.createFn(
       'ListPetRemindersHandler',
@@ -80,7 +99,7 @@ export class RemindersApiStack extends Stack {
         'libs/api-reminders/src/handlers/list-pet-reminders.handler.ts'
       ),
       commonEnv,
-      [props.sharedLayer, props.sesLayer, props.ddbLayer]
+      [sharedLayer, sesLayer, ddbLayer]
     );
     const createReminderFn = this.createFn(
       'CreateReminderHandler',
@@ -89,7 +108,7 @@ export class RemindersApiStack extends Stack {
         'libs/api-reminders/src/handlers/create-reminder.handler.ts'
       ),
       commonEnv,
-      [props.sharedLayer, props.sesLayer, props.ddbLayer]
+      [sharedLayer, sesLayer, ddbLayer]
     );
     const deleteReminderFn = this.createFn(
       'DeleteReminderHandler',
@@ -98,7 +117,7 @@ export class RemindersApiStack extends Stack {
         'libs/api-reminders/src/handlers/delete-reminder.handler.ts'
       ),
       commonEnv,
-      [props.sharedLayer, props.sesLayer, props.ddbLayer]
+      [sharedLayer, sesLayer, ddbLayer]
     );
     const dispatchReminderFn = this.createFn(
       'DispatchReminderHandler',
@@ -107,7 +126,7 @@ export class RemindersApiStack extends Stack {
         'libs/api-reminders/src/handlers/dispatch-reminder.handler.ts'
       ),
       commonEnv,
-      [props.sharedLayer, props.sesLayer, props.ddbLayer]
+      [sharedLayer, sesLayer, ddbLayer]
     );
     const consumeReminderFn = this.createFn(
       'ConsumeReminderHandler',
@@ -116,7 +135,7 @@ export class RemindersApiStack extends Stack {
         'libs/api-reminders/src/handlers/consume-reminder.handler.ts'
       ),
       commonEnv,
-      [props.sharedLayer, props.sesLayer, props.ddbLayer]
+      [sharedLayer, sesLayer, ddbLayer]
     );
 
     props.table.grantReadWriteData(listRemindersFn);
@@ -421,5 +440,16 @@ export class RemindersApiStack extends Stack {
       alarmDescription: 'API Gateway 4xx error rate above 5%',
     });
     clientAlarm.addAlarmAction(new cloudwatchActions.SnsAction(this.alarmTopic));
+  }
+
+  private resolveLayer(
+    direct: lambda.ILayerVersion | undefined,
+    ssmParamName: string | undefined,
+    idPrefix: string
+  ): lambda.ILayerVersion | undefined {
+    if (direct) return direct;
+    if (!ssmParamName) return undefined;
+    const arn = ssm.StringParameter.valueForStringParameter(this, ssmParamName);
+    return lambda.LayerVersion.fromLayerVersionArn(this, `${idPrefix}Imported`, arn);
   }
 }

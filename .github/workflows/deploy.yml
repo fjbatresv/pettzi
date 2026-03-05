@@ -67,8 +67,87 @@ jobs:
       - name: Install lambda layers dependencies
         run: npm run install:layers
 
-      - name: Deploy CDK stacks
-        run: npx nx run cdk:deploy -- --all
+      - name: Deploy CDK stacks (safe layers migration)
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          stage_slug=$(echo "${STAGE}" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9-]+/-/g')
+
+          cognito_layer_name="pettzi-cognito-deps-${stage_slug}"
+          s3_layer_name="pettzi-s3-deps-${stage_slug}"
+          ses_layer_name="pettzi-ses-deps-${stage_slug}"
+          ddb_layer_name="pettzi-ddb-deps-${stage_slug}"
+
+          cognito_param="/pettzi/${stage_slug}/layers/cognito/arn"
+          s3_param="/pettzi/${stage_slug}/layers/s3/arn"
+          ses_param="/pettzi/${stage_slug}/layers/ses/arn"
+          ddb_param="/pettzi/${stage_slug}/layers/ddb/arn"
+
+          latest_layer_arn() {
+            local layer_name="$1"
+            aws lambda list-layer-versions \
+              --layer-name "${layer_name}" \
+              --query 'LayerVersions[0].LayerVersionArn' \
+              --output text 2>/dev/null || true
+          }
+
+          seed_param_if_available() {
+            local param_name="$1"
+            local layer_name="$2"
+            local arn
+            arn="$(latest_layer_arn "${layer_name}")"
+            if [ -n "${arn}" ] && [ "${arn}" != "None" ]; then
+              aws ssm put-parameter \
+                --name "${param_name}" \
+                --type String \
+                --value "${arn}" \
+                --overwrite >/dev/null
+              echo "Seeded ${param_name} from ${layer_name}"
+            else
+              echo "Layer ${layer_name} not found yet; skipping seed for ${param_name}"
+            fi
+          }
+
+          seed_param_if_available "${cognito_param}" "${cognito_layer_name}"
+          seed_param_if_available "${s3_param}" "${s3_layer_name}"
+          seed_param_if_available "${ses_param}" "${ses_layer_name}"
+          seed_param_if_available "${ddb_param}" "${ddb_layer_name}"
+
+          mapfile -t existing_stacks < <(cd apps/cdk && npx cdk list)
+          stack_exists() {
+            local stack="$1"
+            printf '%s\n' "${existing_stacks[@]}" | grep -Fxq "${stack}"
+          }
+
+          phase1_candidates=(
+            PettziAuthApiStack
+            PettziPetsApiStack
+            PettziEventsApiStack
+            PettziRemindersApiStack
+            PettziUploadsApiStack
+            PettziOwnersApiStack
+            PettziCatalogsApiStack
+          )
+          phase1=()
+          for stack in "${phase1_candidates[@]}"; do
+            if stack_exists "${stack}"; then
+              phase1+=("${stack}")
+            fi
+          done
+
+          if [ "${#phase1[@]}" -gt 0 ]; then
+            echo "Phase 1 deploy (consumers): ${phase1[*]}"
+            npx nx run cdk:deploy -- "${phase1[@]}"
+          fi
+
+          if stack_exists "PettziLayersStack"; then
+            echo "Phase 2 deploy (layers): PettziLayersStack"
+            npx nx run cdk:deploy -- PettziLayersStack
+          fi
+
+          echo "Phase 3 deploy (full reconciliation): --all"
+          npx nx run cdk:deploy -- --all
 
       - name: Invalidate API CloudFront
         run: |

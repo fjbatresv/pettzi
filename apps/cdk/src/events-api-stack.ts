@@ -9,6 +9,7 @@ import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction, OutputFormat } from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as logs from 'aws-cdk-lib/aws-logs';
+import * as ssm from 'aws-cdk-lib/aws-ssm';
 import { UserPool, UserPoolClient } from 'aws-cdk-lib/aws-cognito';
 import * as sns from 'aws-cdk-lib/aws-sns';
 import { Construct } from 'constructs';
@@ -20,6 +21,7 @@ export interface EventsApiStackProps extends StackProps {
   userPool: UserPool;
   userPoolClient: UserPoolClient;
   sharedLayer?: lambda.ILayerVersion;
+  sharedLayerSsmParamName?: string;
   stage?: string;
   appDomain?: string;
   alarmTopic?: sns.ITopic;
@@ -51,48 +53,53 @@ export class EventsApiStack extends Stack {
       PETTZI_DOCS_BUCKET_NAME: props.docsBucket.bucketName,
       STAGE: stage,
     };
+    const sharedLayer = this.resolveLayer(
+      props.sharedLayer,
+      props.sharedLayerSsmParamName,
+      'SharedLayer'
+    );
 
     const createEventFn = this.createFn(
       'CreatePetEventHandler',
       stage,
       handlerPath('libs/api-events/src/handlers/create-event.handler.ts'),
       commonEnv,
-      props.sharedLayer
+      sharedLayer
     );
     const listEventsFn = this.createFn(
       'ListPetEventsHandler',
       stage,
       handlerPath('libs/api-events/src/handlers/list-events.handler.ts'),
       commonEnv,
-      props.sharedLayer
+      sharedLayer
     );
     const getEventFn = this.createFn(
       'GetPetEventHandler',
       stage,
       handlerPath('libs/api-events/src/handlers/get-event.handler.ts'),
       commonEnv,
-      props.sharedLayer
+      sharedLayer
     );
     const getEventDetailFn = this.createFn(
       'GetPetEventDetailHandler',
       stage,
       handlerPath('libs/api-events/src/handlers/get-event-detail.handler.ts'),
       commonEnv,
-      props.sharedLayer
+      sharedLayer
     );
     const updateEventFn = this.createFn(
       'UpdatePetEventHandler',
       stage,
       handlerPath('libs/api-events/src/handlers/update-event.handler.ts'),
       commonEnv,
-      props.sharedLayer
+      sharedLayer
     );
     const deleteEventFn = this.createFn(
       'DeletePetEventHandler',
       stage,
       handlerPath('libs/api-events/src/handlers/delete-event.handler.ts'),
       commonEnv,
-      props.sharedLayer
+      sharedLayer
     );
 
     props.table.grantReadWriteData(createEventFn);
@@ -336,5 +343,16 @@ export class EventsApiStack extends Stack {
       alarmDescription: 'API Gateway 4xx error rate above 5%',
     });
     clientAlarm.addAlarmAction(new cloudwatchActions.SnsAction(this.alarmTopic));
+  }
+
+  private resolveLayer(
+    direct: lambda.ILayerVersion | undefined,
+    ssmParamName: string | undefined,
+    idPrefix: string
+  ): lambda.ILayerVersion | undefined {
+    if (direct) return direct;
+    if (!ssmParamName) return undefined;
+    const arn = ssm.StringParameter.valueForStringParameter(this, ssmParamName);
+    return lambda.LayerVersion.fromLayerVersionArn(this, `${idPrefix}Imported`, arn);
   }
 }

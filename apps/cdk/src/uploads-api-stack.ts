@@ -11,6 +11,7 @@ import * as targets from 'aws-cdk-lib/aws-events-targets';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction, OutputFormat } from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as logs from 'aws-cdk-lib/aws-logs';
+import * as ssm from 'aws-cdk-lib/aws-ssm';
 import { UserPool, UserPoolClient } from 'aws-cdk-lib/aws-cognito';
 import * as sns from 'aws-cdk-lib/aws-sns';
 import { Construct } from 'constructs';
@@ -24,6 +25,9 @@ export interface UploadsApiStackProps extends StackProps {
   sharedLayer?: lambda.ILayerVersion;
   s3Layer?: lambda.ILayerVersion;
   ddbLayer?: lambda.ILayerVersion;
+  sharedLayerSsmParamName?: string;
+  s3LayerSsmParamName?: string;
+  ddbLayerSsmParamName?: string;
   stage: string;
   appDomain?: string;
   alarmTopic?: sns.ITopic;
@@ -50,6 +54,21 @@ export class UploadsApiStack extends Stack {
       PETTZI_DOCS_BUCKET_NAME: props.docsBucket.bucketName,
       STAGE: props.stage,
     };
+    const sharedLayer = this.resolveLayer(
+      props.sharedLayer,
+      props.sharedLayerSsmParamName,
+      'SharedLayer'
+    );
+    const s3Layer = this.resolveLayer(
+      props.s3Layer,
+      props.s3LayerSsmParamName,
+      'S3Layer'
+    );
+    const ddbLayer = this.resolveLayer(
+      props.ddbLayer,
+      props.ddbLayerSsmParamName,
+      'DdbLayer'
+    );
 
     const photoUploadFn = this.createFn(
       'GeneratePhotoUploadUrlHandler',
@@ -58,7 +77,7 @@ export class UploadsApiStack extends Stack {
         'libs/api-uploads/src/handlers/generate-photo-upload-url.handler.ts'
       ),
       commonEnv,
-      [props.sharedLayer, props.s3Layer, props.ddbLayer]
+      [sharedLayer, s3Layer, ddbLayer]
     );
     const docUploadFn = this.createFn(
       'GenerateDocumentUploadUrlHandler',
@@ -67,7 +86,7 @@ export class UploadsApiStack extends Stack {
         'libs/api-uploads/src/handlers/generate-document-upload-url.handler.ts'
       ),
       commonEnv,
-      [props.sharedLayer, props.s3Layer, props.ddbLayer]
+      [sharedLayer, s3Layer, ddbLayer]
     );
     const profilePhotoUploadFn = this.createFn(
       'GenerateProfilePhotoUploadUrlHandler',
@@ -76,14 +95,14 @@ export class UploadsApiStack extends Stack {
         'libs/api-uploads/src/handlers/generate-profile-photo-upload-url.handler.ts'
       ),
       commonEnv,
-      [props.sharedLayer, props.s3Layer, props.ddbLayer]
+      [sharedLayer, s3Layer, ddbLayer]
     );
     const listFilesFn = this.createFn(
       'ListPetFilesHandler',
       props.stage,
       handlerPath('libs/api-uploads/src/handlers/list-pet-files.handler.ts'),
       commonEnv,
-      [props.sharedLayer, props.s3Layer, props.ddbLayer]
+      [sharedLayer, s3Layer, ddbLayer]
     );
     const downloadUrlFn = this.createFn(
       'GenerateDownloadUrlHandler',
@@ -92,7 +111,7 @@ export class UploadsApiStack extends Stack {
         'libs/api-uploads/src/handlers/generate-download-url.handler.ts'
       ),
       commonEnv,
-      [props.sharedLayer, props.s3Layer, props.ddbLayer]
+      [sharedLayer, s3Layer, ddbLayer]
     );
     const profileDownloadUrlFn = this.createFn(
       'GenerateProfileDownloadUrlHandler',
@@ -101,21 +120,21 @@ export class UploadsApiStack extends Stack {
         'libs/api-uploads/src/handlers/generate-profile-download-url.handler.ts'
       ),
       commonEnv,
-      [props.sharedLayer, props.s3Layer, props.ddbLayer]
+      [sharedLayer, s3Layer, ddbLayer]
     );
     const deleteFileFn = this.createFn(
       'DeleteFileHandler',
       props.stage,
       handlerPath('libs/api-uploads/src/handlers/delete-file.handler.ts'),
       commonEnv,
-      [props.sharedLayer, props.s3Layer, props.ddbLayer]
+      [sharedLayer, s3Layer, ddbLayer]
     );
     const thumbnailFn = this.createFn(
       'GenerateThumbnailHandler',
       props.stage,
       handlerPath('libs/api-uploads/src/handlers/generate-thumbnail.handler.ts'),
       commonEnv,
-      [props.sharedLayer, props.s3Layer, props.ddbLayer],
+      [sharedLayer, s3Layer, ddbLayer],
       ['sharp', 'heic-convert'],
       Duration.seconds(30),
       true
@@ -415,5 +434,16 @@ export class UploadsApiStack extends Stack {
       alarmDescription: 'API Gateway 4xx error rate above 5%',
     });
     clientAlarm.addAlarmAction(new cloudwatchActions.SnsAction(this.alarmTopic));
+  }
+
+  private resolveLayer(
+    direct: lambda.ILayerVersion | undefined,
+    ssmParamName: string | undefined,
+    idPrefix: string
+  ): lambda.ILayerVersion | undefined {
+    if (direct) return direct;
+    if (!ssmParamName) return undefined;
+    const arn = ssm.StringParameter.valueForStringParameter(this, ssmParamName);
+    return lambda.LayerVersion.fromLayerVersionArn(this, `${idPrefix}Imported`, arn);
   }
 }

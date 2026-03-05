@@ -1,5 +1,6 @@
 import { RemovalPolicy, Stack, StackProps, Tags } from 'aws-cdk-lib';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
+import * as ssm from 'aws-cdk-lib/aws-ssm';
 import { Construct } from 'constructs';
 import * as path from 'path';
 
@@ -8,6 +9,22 @@ export interface LayersStackProps extends StackProps {
 }
 
 export class LayersStack extends Stack {
+  public static cognitoLayerArnParam(stage: string): string {
+    return `/pettzi/${stage}/layers/cognito/arn`;
+  }
+
+  public static s3LayerArnParam(stage: string): string {
+    return `/pettzi/${stage}/layers/s3/arn`;
+  }
+
+  public static sesLayerArnParam(stage: string): string {
+    return `/pettzi/${stage}/layers/ses/arn`;
+  }
+
+  public static ddbLayerArnParam(stage: string): string {
+    return `/pettzi/${stage}/layers/ddb/arn`;
+  }
+
   public readonly cognitoDepsLayer: lambda.LayerVersion;
   public readonly s3DepsLayer: lambda.LayerVersion;
   public readonly sesDepsLayer: lambda.LayerVersion;
@@ -53,6 +70,23 @@ export class LayersStack extends Stack {
       `DDB SDK deps (${stage})`,
       `pettzi-ddb-deps-${stage}`,
     );
+
+    new ssm.StringParameter(this, 'CognitoLayerArnParameter', {
+      parameterName: LayersStack.cognitoLayerArnParam(stage),
+      stringValue: this.cognitoDepsLayer.layerVersionArn,
+    });
+    new ssm.StringParameter(this, 'S3LayerArnParameter', {
+      parameterName: LayersStack.s3LayerArnParam(stage),
+      stringValue: this.s3DepsLayer.layerVersionArn,
+    });
+    new ssm.StringParameter(this, 'SesLayerArnParameter', {
+      parameterName: LayersStack.sesLayerArnParam(stage),
+      stringValue: this.sesDepsLayer.layerVersionArn,
+    });
+    new ssm.StringParameter(this, 'DdbLayerArnParameter', {
+      parameterName: LayersStack.ddbLayerArnParam(stage),
+      stringValue: this.ddbDepsLayer.layerVersionArn,
+    });
   }
 
   private createLayer(
