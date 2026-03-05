@@ -31,7 +31,9 @@ const convertHeicToJpeg = async (source: Buffer): Promise<Buffer> => {
     format: 'JPEG',
     quality: 0.82,
   });
-  return Buffer.from(output);
+  return output instanceof ArrayBuffer
+    ? Buffer.from(new Uint8Array(output))
+    : Buffer.from(output);
 };
 
 const parsePhotoKey = (key: string) => {

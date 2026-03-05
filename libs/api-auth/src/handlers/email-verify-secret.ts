@@ -50,7 +50,7 @@ export const getEmailVerifySecret = async (): Promise<string | null> => {
 
   pending = client
     .send(new GetSecretValueCommand({ SecretId: arn }))
-    .then((resp) => {
+    .then((resp: { SecretString?: string; SecretBinary?: Uint8Array }) => {
       const value =
         resp.SecretString ??
         (resp.SecretBinary
@@ -59,7 +59,7 @@ export const getEmailVerifySecret = async (): Promise<string | null> => {
       cachedSecret = parseSecretValue(value);
       return cachedSecret;
     })
-    .catch((err) => {
+    .catch((err: unknown) => {
       console.error('Failed to load email verify secret', { err });
       cachedSecret = null;
       return cachedSecret;
