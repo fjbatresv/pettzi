@@ -92,27 +92,39 @@ jobs:
               --output text 2>/dev/null || true
           }
 
+          layer_arn_from_stack() {
+            local logical_id_fragment="$1"
+            aws cloudformation list-stack-resources \
+              --stack-name "PettziLayersStack" \
+              --query "StackResourceSummaries[?ResourceType=='AWS::Lambda::LayerVersion' && contains(LogicalResourceId, '${logical_id_fragment}')].PhysicalResourceId | [0]" \
+              --output text 2>/dev/null || true
+          }
+
           seed_param_if_available() {
             local param_name="$1"
             local layer_name="$2"
+            local logical_id_fragment="$3"
             local arn
             arn="$(latest_layer_arn "${layer_name}")"
+            if [ -z "${arn}" ] || [ "${arn}" = "None" ]; then
+              arn="$(layer_arn_from_stack "${logical_id_fragment}")"
+            fi
             if [ -n "${arn}" ] && [ "${arn}" != "None" ]; then
               aws ssm put-parameter \
                 --name "${param_name}" \
                 --type String \
                 --value "${arn}" \
                 --overwrite >/dev/null
-              echo "Seeded ${param_name} from ${layer_name}"
+              echo "Seeded ${param_name} with ${arn}"
             else
-              echo "Layer ${layer_name} not found yet; skipping seed for ${param_name}"
+              echo "Layer ${layer_name} not found in Lambda/CloudFormation; skipping seed for ${param_name}"
             fi
           }
 
-          seed_param_if_available "${cognito_param}" "${cognito_layer_name}"
-          seed_param_if_available "${s3_param}" "${s3_layer_name}"
-          seed_param_if_available "${ses_param}" "${ses_layer_name}"
-          seed_param_if_available "${ddb_param}" "${ddb_layer_name}"
+          seed_param_if_available "${cognito_param}" "${cognito_layer_name}" "CognitoDepsLayer"
+          seed_param_if_available "${s3_param}" "${s3_layer_name}" "S3DepsLayer"
+          seed_param_if_available "${ses_param}" "${ses_layer_name}" "SesDepsLayer"
+          seed_param_if_available "${ddb_param}" "${ddb_layer_name}" "DdbDepsLayer"
 
           phase1=(
             PettziAuthApiStack
