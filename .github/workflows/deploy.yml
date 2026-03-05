@@ -83,6 +83,7 @@ jobs:
           s3_param="/pettzi/${stage_slug}/layers/s3/arn"
           ses_param="/pettzi/${stage_slug}/layers/ses/arn"
           ddb_param="/pettzi/${stage_slug}/layers/ddb/arn"
+          seeded_params=()
 
           latest_layer_arn() {
             local layer_name="$1"
@@ -105,6 +106,10 @@ jobs:
             local layer_name="$2"
             local logical_id_fragment="$3"
             local arn
+            local param_exists="false"
+            if aws ssm get-parameter --name "${param_name}" >/dev/null 2>&1; then
+              param_exists="true"
+            fi
             arn="$(latest_layer_arn "${layer_name}")"
             if [ -z "${arn}" ] || [ "${arn}" = "None" ]; then
               arn="$(layer_arn_from_stack "${logical_id_fragment}")"
@@ -115,6 +120,9 @@ jobs:
                 --type String \
                 --value "${arn}" \
                 --overwrite >/dev/null
+              if [ "${param_exists}" = "false" ]; then
+                seeded_params+=("${param_name}")
+              fi
               echo "Seeded ${param_name} with ${arn}"
             else
               echo "Layer ${layer_name} not found in Lambda/CloudFormation; skipping seed for ${param_name}"
@@ -137,6 +145,13 @@ jobs:
           )
           echo "Phase 1 deploy (consumers): ${phase1[*]}"
           npx nx run cdk:deploy -- "${phase1[@]}"
+
+          if [ "${#seeded_params[@]}" -gt 0 ]; then
+            echo "Removing temporary seeded SSM params before deploying layers stack..."
+            for param_name in "${seeded_params[@]}"; do
+              aws ssm delete-parameter --name "${param_name}" >/dev/null 2>&1 || true
+            done
+          fi
 
           echo "Phase 2 deploy (layers): PettziLayersStack"
           npx nx run cdk:deploy -- PettziLayersStack
