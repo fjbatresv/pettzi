@@ -12,7 +12,6 @@ import {
   buildPetReminderPk,
   buildPetPkKey,
   buildPetSkMetadata,
-  fromItemPet,
   fromItemPetEvent,
 } from '@pettzi/domain-model';
 import { assertOwnership, docClient, getOwnerId, PETTZI_TABLE_NAME } from './common';
@@ -155,8 +154,6 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     if (!petRes.Item) {
       return notFound('Pet not found');
     }
-    const pet = fromItemPet(petRes.Item);
-
     // Delete event
     await docClient.send(
       new DeleteCommand({

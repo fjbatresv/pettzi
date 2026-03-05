@@ -34,7 +34,7 @@ if (!COGNITO_USER_POOL_ID) {
 const cognito = new CognitoIdentityProviderClient({});
 const ses = new SESClient({});
 
-const buildVerificationToken = (email: string, secret?: string) => {
+const buildVerificationToken = (email: string, secret?: string | null) => {
   if (!secret) return null;
   const expires = Date.now() + 1000 * 60 * 60 * 24; // 24h
   const payload = `${email}:${expires}`;
@@ -91,7 +91,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   console.info('Register request', createEmailLogContext(email));
 
   try {
-    const createResponse = await cognito.send(
+    await cognito.send(
       new AdminCreateUserCommand({
         UserPoolId: COGNITO_USER_POOL_ID,
         Username: email,
