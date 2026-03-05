@@ -10,6 +10,7 @@ import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction, OutputFormat } from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
+import * as ssm from 'aws-cdk-lib/aws-ssm';
 import { UserPool, UserPoolClient } from 'aws-cdk-lib/aws-cognito';
 import * as sns from 'aws-cdk-lib/aws-sns';
 import * as s3 from 'aws-cdk-lib/aws-s3';
@@ -25,6 +26,10 @@ export interface OwnersApiStackProps extends StackProps {
   s3Layer?: lambda.ILayerVersion;
   sesLayer?: lambda.ILayerVersion;
   ddbLayer?: lambda.ILayerVersion;
+  sharedLayerSsmParamName?: string;
+  s3LayerSsmParamName?: string;
+  sesLayerSsmParamName?: string;
+  ddbLayerSsmParamName?: string;
   stage: string;
   sesFromEmail?: string;
   sharePetInviteTemplateNameEs?: string;
@@ -110,69 +115,89 @@ export class OwnersApiStack extends Stack {
         : {}),
       ...(props.inviteBaseUrl ? { PET_SHARE_INVITE_BASE_URL: props.inviteBaseUrl } : {}),
     };
+    const sharedLayer = this.resolveLayer(
+      props.sharedLayer,
+      props.sharedLayerSsmParamName,
+      'SharedLayer'
+    );
+    const s3Layer = this.resolveLayer(
+      props.s3Layer,
+      props.s3LayerSsmParamName,
+      'S3Layer'
+    );
+    const sesLayer = this.resolveLayer(
+      props.sesLayer,
+      props.sesLayerSsmParamName,
+      'SesLayer'
+    );
+    const ddbLayer = this.resolveLayer(
+      props.ddbLayer,
+      props.ddbLayerSsmParamName,
+      'DdbLayer'
+    );
 
     const getMeFn = this.createFn(
       'GetCurrentOwnerHandler',
       props.stage,
       handlerPath('libs/api-owners/src/handlers/get-current-owner.handler.ts'),
       commonEnv,
-      [props.sharedLayer, props.ddbLayer]
+      [sharedLayer, ddbLayer]
     );
     const listOwnersFn = this.createFn(
       'ListPetOwnersHandler',
       props.stage,
       handlerPath('libs/api-owners/src/handlers/list-pet-owners.handler.ts'),
       commonEnv,
-      [props.sharedLayer, props.ddbLayer]
+      [sharedLayer, ddbLayer]
     );
     const addOwnerFn = this.createFn(
       'AddPetOwnerHandler',
       props.stage,
       handlerPath('libs/api-owners/src/handlers/add-pet-owner.handler.ts'),
       commonEnv,
-      [props.sharedLayer, props.ddbLayer]
+      [sharedLayer, ddbLayer]
     );
     const removeOwnerFn = this.createFn(
       'RemovePetOwnerHandler',
       props.stage,
       handlerPath('libs/api-owners/src/handlers/remove-pet-owner.handler.ts'),
       commonEnv,
-      [props.sharedLayer, props.ddbLayer]
+      [sharedLayer, ddbLayer]
     );
     const inviteOwnerFn = this.createFn(
       'InvitePetOwnerHandler',
       props.stage,
       handlerPath('libs/api-owners/src/handlers/invite-pet-owner.handler.ts'),
       commonEnv,
-      [props.sharedLayer, props.s3Layer, props.sesLayer, props.ddbLayer]
+      [sharedLayer, s3Layer, sesLayer, ddbLayer]
     );
     const previewInviteFn = this.createFn(
       'PreviewPetInviteHandler',
       props.stage,
       handlerPath('libs/api-owners/src/handlers/preview-pet-invite.handler.ts'),
       commonEnv,
-      [props.sharedLayer, props.s3Layer, props.ddbLayer]
+      [sharedLayer, s3Layer, ddbLayer]
     );
     const acceptInviteFn = this.createFn(
       'AcceptPetInviteHandler',
       props.stage,
       handlerPath('libs/api-owners/src/handlers/accept-pet-invite.handler.ts'),
       commonEnv,
-      [props.sharedLayer, props.s3Layer, props.ddbLayer]
+      [sharedLayer, s3Layer, ddbLayer]
     );
     const listPendingInvitesFn = this.createFn(
       'ListPendingPetInvitesHandler',
       props.stage,
       handlerPath('libs/api-owners/src/handlers/list-pending-pet-invites.handler.ts'),
       commonEnv,
-      [props.sharedLayer, props.s3Layer, props.ddbLayer]
+      [sharedLayer, s3Layer, ddbLayer]
     );
     const rejectInviteFn = this.createFn(
       'RejectPetInviteHandler',
       props.stage,
       handlerPath('libs/api-owners/src/handlers/reject-pet-invite.handler.ts'),
       commonEnv,
-      [props.sharedLayer, props.ddbLayer]
+      [sharedLayer, ddbLayer]
     );
 
     props.table.grantReadWriteData(getMeFn);
@@ -467,5 +492,16 @@ export class OwnersApiStack extends Stack {
       alarmDescription: 'API Gateway 4xx error rate above 5%',
     });
     clientAlarm.addAlarmAction(new cloudwatchActions.SnsAction(this.alarmTopic));
+  }
+
+  private resolveLayer(
+    direct: lambda.ILayerVersion | undefined,
+    ssmParamName: string | undefined,
+    idPrefix: string
+  ): lambda.ILayerVersion | undefined {
+    if (direct) return direct;
+    if (!ssmParamName) return undefined;
+    const arn = ssm.StringParameter.valueForStringParameter(this, ssmParamName);
+    return lambda.LayerVersion.fromLayerVersionArn(this, `${idPrefix}Imported`, arn);
   }
 }

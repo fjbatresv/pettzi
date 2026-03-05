@@ -8,6 +8,7 @@ import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction, OutputFormat } from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as logs from 'aws-cdk-lib/aws-logs';
+import * as ssm from 'aws-cdk-lib/aws-ssm';
 import { UserPool, UserPoolClient } from 'aws-cdk-lib/aws-cognito';
 import * as sns from 'aws-cdk-lib/aws-sns';
 import { Construct } from 'constructs';
@@ -19,6 +20,8 @@ export interface CatalogsApiStackProps extends StackProps {
   userPoolClient: UserPoolClient;
   sharedLayer?: lambda.ILayerVersion;
   ddbLayer?: lambda.ILayerVersion;
+  sharedLayerSsmParamName?: string;
+  ddbLayerSsmParamName?: string;
   stage: string;
   appDomain?: string;
   alarmTopic?: sns.ITopic;
@@ -44,27 +47,37 @@ export class CatalogsApiStack extends Stack {
       STAGE: props.stage,
       PETTZI_TABLE_NAME: props.table.tableName,
     };
+    const sharedLayer = this.resolveLayer(
+      props.sharedLayer,
+      props.sharedLayerSsmParamName,
+      'SharedLayer'
+    );
+    const ddbLayer = this.resolveLayer(
+      props.ddbLayer,
+      props.ddbLayerSsmParamName,
+      'DdbLayer'
+    );
 
     const speciesFn = this.createFn(
       'GetSpeciesHandler',
       props.stage,
       handlerPath('libs/api-catalogs/src/handlers/get-species.handler.ts'),
       commonEnv,
-      [props.sharedLayer, props.ddbLayer]
+      [sharedLayer, ddbLayer]
     );
     const breedsFn = this.createFn(
       'GetBreedsHandler',
       props.stage,
       handlerPath('libs/api-catalogs/src/handlers/get-breeds.handler.ts'),
       commonEnv,
-      [props.sharedLayer, props.ddbLayer]
+      [sharedLayer, ddbLayer]
     );
     const vaccinesFn = this.createFn(
       'GetVaccinesHandler',
       props.stage,
       handlerPath('libs/api-catalogs/src/handlers/get-vaccines.handler.ts'),
       commonEnv,
-      [props.sharedLayer, props.ddbLayer]
+      [sharedLayer, ddbLayer]
     );
 
     const authorizer = new HttpUserPoolAuthorizer(
@@ -286,5 +299,16 @@ export class CatalogsApiStack extends Stack {
       alarmDescription: 'API Gateway 4xx error rate above 5%',
     });
     clientAlarm.addAlarmAction(new cloudwatchActions.SnsAction(this.alarmTopic));
+  }
+
+  private resolveLayer(
+    direct: lambda.ILayerVersion | undefined,
+    ssmParamName: string | undefined,
+    idPrefix: string
+  ): lambda.ILayerVersion | undefined {
+    if (direct) return direct;
+    if (!ssmParamName) return undefined;
+    const arn = ssm.StringParameter.valueForStringParameter(this, ssmParamName);
+    return lambda.LayerVersion.fromLayerVersionArn(this, `${idPrefix}Imported`, arn);
   }
 }

@@ -141,14 +141,14 @@ if (dsnPrefix && apiHostedZoneName) {
   }
 }
 
-const layers = new LayersStack(app, 'PettziLayersStack', {
+new LayersStack(app, 'PettziLayersStack', {
   env: { account, region },
   stackName: 'PettziLayersStack',
   description: `Pettzi shared layers (${stage})`,
   stage,
 });
 
-const core = new CoreInfraStack(app, 'PettziCoreInfraStack', {
+  const core = new CoreInfraStack(app, 'PettziCoreInfraStack', {
   env: { account, region },
   stage,
   stackName: `PettziCoreInfraStack`,
@@ -165,7 +165,7 @@ const auth = new AuthStack(app, 'PettziAuthStack', {
   alarmTopic: undefined,
 });
 
-const authApi = new AuthApiStack(app, 'PettziAuthApiStack', {
+  const authApi = new AuthApiStack(app, 'PettziAuthApiStack', {
   env: { account, region },
   stackName: 'PettziAuthApiStack',
   description: `Pettzi auth API (${stage})`,
@@ -173,9 +173,9 @@ const authApi = new AuthApiStack(app, 'PettziAuthApiStack', {
   userPoolClient: auth.userPoolClient,
   table: core.table,
   docsBucket: core.docsBucket,
-  depsLayer: layers.cognitoDepsLayer,
-  sesLayer: layers.sesDepsLayer,
-  ddbLayer: layers.ddbDepsLayer,
+    depsLayerSsmParamName: LayersStack.cognitoLayerArnParam(stageName),
+    sesLayerSsmParamName: LayersStack.sesLayerArnParam(stageName),
+    ddbLayerSsmParamName: LayersStack.ddbLayerArnParam(stageName),
   sesFromEmail,
   welcomeTemplateNameEs: SesTemplatesStack.WELCOME_TEMPLATE_ES,
   welcomeTemplateNameEn: SesTemplatesStack.WELCOME_TEMPLATE_EN,
@@ -187,26 +187,28 @@ const authApi = new AuthApiStack(app, 'PettziAuthApiStack', {
   alarmTopic: undefined,
 });
 
-const petsApi = new PetsApiStack(app, 'PettziPetsApiStack', {
+  const petsApi = new PetsApiStack(app, 'PettziPetsApiStack', {
   env: { account, region },
   stackName: 'PettziPetsApiStack',
   description: `Pettzi pets API (${stage})`,
   table: core.table,
   docsBucket: core.docsBucket,
-  depsLayer: layers.cognitoDepsLayer,
+    depsLayerSsmParamName: LayersStack.cognitoLayerArnParam(stageName),
   userPool: auth.userPool,
   userPoolClient: auth.userPoolClient,
-  appDomain: appDomainName,
+    s3LayerSsmParamName: LayersStack.s3LayerArnParam(stageName),
+    ddbLayerSsmParamName: LayersStack.ddbLayerArnParam(stageName),
+    appDomain: appDomainName,
   alarmTopic: undefined,
 });
 
-const eventsApi = new EventsApiStack(app, 'PettziEventsApiStack', {
+  const eventsApi = new EventsApiStack(app, 'PettziEventsApiStack', {
   env: { account, region },
   stackName: 'PettziEventsApiStack',
   description: `Pettzi events API (${stage})`,
   table: core.table,
   docsBucket: core.docsBucket,
-  sharedLayer: layers.cognitoDepsLayer,
+    sharedLayerSsmParamName: LayersStack.cognitoLayerArnParam(stageName),
   userPool: auth.userPool,
   userPoolClient: auth.userPoolClient,
   stage,
@@ -214,14 +216,14 @@ const eventsApi = new EventsApiStack(app, 'PettziEventsApiStack', {
   alarmTopic: undefined,
 });
 
-const remindersApi = new RemindersApiStack(app, 'PettziRemindersApiStack', {
+  const remindersApi = new RemindersApiStack(app, 'PettziRemindersApiStack', {
   env: { account, region },
   stackName: 'PettziRemindersApiStack',
   description: `Pettzi reminders API (${stage})`,
   table: core.table,
-  sharedLayer: layers.cognitoDepsLayer,
-  sesLayer: layers.sesDepsLayer,
-  ddbLayer: layers.ddbDepsLayer,
+    sharedLayerSsmParamName: LayersStack.cognitoLayerArnParam(stageName),
+    sesLayerSsmParamName: LayersStack.sesLayerArnParam(stageName),
+    ddbLayerSsmParamName: LayersStack.ddbLayerArnParam(stageName),
   userPool: auth.userPool,
   userPoolClient: auth.userPoolClient,
   stage,
@@ -231,7 +233,7 @@ const remindersApi = new RemindersApiStack(app, 'PettziRemindersApiStack', {
   alarmTopic: undefined,
 });
 
-const uploadsApi = new UploadsApiStack(app, 'PettziUploadsApiStack', {
+  const uploadsApi = new UploadsApiStack(app, 'PettziUploadsApiStack', {
   env: { account, region },
   stackName: 'PettziUploadsApiStack',
   description: `Pettzi uploads API (${stage})`,
@@ -239,15 +241,15 @@ const uploadsApi = new UploadsApiStack(app, 'PettziUploadsApiStack', {
   docsBucket: core.docsBucket,
   userPool: auth.userPool,
   userPoolClient: auth.userPoolClient,
-  sharedLayer: layers.cognitoDepsLayer,
-  s3Layer: layers.s3DepsLayer,
-  ddbLayer: layers.ddbDepsLayer,
+    sharedLayerSsmParamName: LayersStack.cognitoLayerArnParam(stageName),
+    s3LayerSsmParamName: LayersStack.s3LayerArnParam(stageName),
+    ddbLayerSsmParamName: LayersStack.ddbLayerArnParam(stageName),
   stage,
   appDomain: appDomainName,
   alarmTopic: undefined,
 });
 
-const ownersApi = new OwnersApiStack(app, 'PettziOwnersApiStack', {
+  const ownersApi = new OwnersApiStack(app, 'PettziOwnersApiStack', {
   env: { account, region },
   stackName: 'PettziOwnersApiStack',
   description: `Pettzi owners API (${stage})`,
@@ -255,10 +257,10 @@ const ownersApi = new OwnersApiStack(app, 'PettziOwnersApiStack', {
   docsBucket: core.docsBucket,
   userPool: auth.userPool,
   userPoolClient: auth.userPoolClient,
-  sharedLayer: layers.cognitoDepsLayer,
-  s3Layer: layers.s3DepsLayer,
-  sesLayer: layers.sesDepsLayer,
-  ddbLayer: layers.ddbDepsLayer,
+    sharedLayerSsmParamName: LayersStack.cognitoLayerArnParam(stageName),
+    s3LayerSsmParamName: LayersStack.s3LayerArnParam(stageName),
+    sesLayerSsmParamName: LayersStack.sesLayerArnParam(stageName),
+    ddbLayerSsmParamName: LayersStack.ddbLayerArnParam(stageName),
   sesFromEmail,
   sharePetInviteTemplateNameEs: SesTemplatesStack.SHARE_PET_INVITE_TEMPLATE_ES,
   sharePetInviteTemplateNameEn: SesTemplatesStack.SHARE_PET_INVITE_TEMPLATE_EN,
@@ -268,15 +270,15 @@ const ownersApi = new OwnersApiStack(app, 'PettziOwnersApiStack', {
   alarmTopic: undefined,
 });
 
-const catalogsApi = new CatalogsApiStack(app, 'PettziCatalogsApiStack', {
+  const catalogsApi = new CatalogsApiStack(app, 'PettziCatalogsApiStack', {
   env: { account, region },
   stackName: 'PettziCatalogsApiStack',
   description: `Pettzi catalogs API (${stage})`,
   table: core.table,
   userPool: auth.userPool,
   userPoolClient: auth.userPoolClient,
-  sharedLayer: layers.cognitoDepsLayer,
-  ddbLayer: layers.ddbDepsLayer,
+    sharedLayerSsmParamName: LayersStack.cognitoLayerArnParam(stageName),
+    ddbLayerSsmParamName: LayersStack.ddbLayerArnParam(stageName),
   stage,
   appDomain: appDomainName,
   alarmTopic: undefined,

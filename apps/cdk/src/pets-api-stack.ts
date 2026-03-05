@@ -9,6 +9,7 @@ import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction, OutputFormat } from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as logs from 'aws-cdk-lib/aws-logs';
+import * as ssm from 'aws-cdk-lib/aws-ssm';
 import { UserPool, UserPoolClient } from 'aws-cdk-lib/aws-cognito';
 import * as sns from 'aws-cdk-lib/aws-sns';
 import { Construct } from 'constructs';
@@ -22,6 +23,9 @@ export interface PetsApiStackProps extends StackProps {
   userPoolClient: UserPoolClient;
   s3Layer?: lambda.ILayerVersion;
   ddbLayer?: lambda.ILayerVersion;
+  depsLayerSsmParamName?: string;
+  s3LayerSsmParamName?: string;
+  ddbLayerSsmParamName?: string;
   appDomain?: string;
   alarmTopic?: sns.ITopic;
 }
@@ -50,68 +54,84 @@ export class PetsApiStack extends Stack {
       STAGE: stage,
     };
 
+    const depsLayer = this.resolveLayer(
+      props.depsLayer,
+      props.depsLayerSsmParamName,
+      'DepsLayer'
+    );
+    const s3Layer = this.resolveLayer(
+      props.s3Layer,
+      props.s3LayerSsmParamName,
+      'S3Layer'
+    );
+    const ddbLayer = this.resolveLayer(
+      props.ddbLayer,
+      props.ddbLayerSsmParamName,
+      'DdbLayer'
+    );
+
     const createPetFn = this.createFn(
       'CreatePetHandler',
       stage,
       handlerPath('libs/api-pets/src/handlers/create-pet.handler.ts'),
       commonEnv,
-      [props.depsLayer, props.s3Layer, props.ddbLayer]
+      [depsLayer, s3Layer, ddbLayer]
     );
     const listPetsFn = this.createFn(
       'ListPetsHandler',
       stage,
       handlerPath('libs/api-pets/src/handlers/list-pets.handler.ts'),
       commonEnv,
-      [props.depsLayer, props.s3Layer, props.ddbLayer]
+      [depsLayer, s3Layer, ddbLayer]
     );
     const getPetFn = this.createFn(
       'GetPetHandler',
       stage,
       handlerPath('libs/api-pets/src/handlers/get-pet.handler.ts'),
       commonEnv,
-      [props.depsLayer, props.s3Layer, props.ddbLayer]
+      [depsLayer, s3Layer, ddbLayer]
     );
     const updatePetFn = this.createFn(
       'UpdatePetHandler',
       stage,
       handlerPath('libs/api-pets/src/handlers/update-pet.handler.ts'),
       commonEnv,
-      [props.depsLayer, props.s3Layer, props.ddbLayer]
+      [depsLayer, s3Layer, ddbLayer]
     );
     const archivePetFn = this.createFn(
       'ArchivePetHandler',
       stage,
       handlerPath('libs/api-pets/src/handlers/archive-pet.handler.ts'),
       commonEnv,
-      [props.depsLayer, props.s3Layer, props.ddbLayer]
+      [depsLayer, s3Layer, ddbLayer]
     );
     const createSharedRecordFn = this.createFn(
       'CreateSharedRecordHandler',
       stage,
       handlerPath('libs/api-pets/src/handlers/create-shared-record.handler.ts'),
       commonEnv,
-      [props.depsLayer, props.s3Layer, props.ddbLayer]
+      [depsLayer, s3Layer, ddbLayer]
     );
     const listSharedRecordsFn = this.createFn(
       'ListSharedRecordsHandler',
       stage,
       handlerPath('libs/api-pets/src/handlers/list-shared-records.handler.ts'),
       commonEnv,
-      [props.depsLayer, props.s3Layer, props.ddbLayer]
+      [depsLayer, s3Layer, ddbLayer]
     );
     const deleteSharedRecordFn = this.createFn(
       'DeleteSharedRecordHandler',
       stage,
       handlerPath('libs/api-pets/src/handlers/delete-shared-record.handler.ts'),
       commonEnv,
-      [props.depsLayer, props.s3Layer, props.ddbLayer]
+      [depsLayer, s3Layer, ddbLayer]
     );
     const getSharedRecordFn = this.createFn(
       'GetSharedRecordHandler',
       stage,
       handlerPath('libs/api-pets/src/handlers/get-shared-record.handler.ts'),
       commonEnv,
-      [props.depsLayer, props.s3Layer, props.ddbLayer]
+      [depsLayer, s3Layer, ddbLayer]
     );
 
     props.table.grantReadWriteData(createPetFn);
@@ -277,6 +297,17 @@ export class PetsApiStack extends Stack {
     });
     this.addLambdaAlarms(id, fn);
     return fn;
+  }
+
+  private resolveLayer(
+    direct: lambda.ILayerVersion | undefined,
+    ssmParamName: string | undefined,
+    idPrefix: string
+  ): lambda.ILayerVersion | undefined {
+    if (direct) return direct;
+    if (!ssmParamName) return undefined;
+    const arn = ssm.StringParameter.valueForStringParameter(this, ssmParamName);
+    return lambda.LayerVersion.fromLayerVersionArn(this, `${idPrefix}Imported`, arn);
   }
 
   private addLambdaAlarms(id: string, fn: lambda.Function) {
