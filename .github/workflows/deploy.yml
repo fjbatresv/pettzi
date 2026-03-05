@@ -114,13 +114,7 @@ jobs:
           seed_param_if_available "${ses_param}" "${ses_layer_name}"
           seed_param_if_available "${ddb_param}" "${ddb_layer_name}"
 
-          mapfile -t existing_stacks < <(cd apps/cdk && npx cdk list)
-          stack_exists() {
-            local stack="$1"
-            printf '%s\n' "${existing_stacks[@]}" | grep -Fxq "${stack}"
-          }
-
-          phase1_candidates=(
+          phase1=(
             PettziAuthApiStack
             PettziPetsApiStack
             PettziEventsApiStack
@@ -129,22 +123,11 @@ jobs:
             PettziOwnersApiStack
             PettziCatalogsApiStack
           )
-          phase1=()
-          for stack in "${phase1_candidates[@]}"; do
-            if stack_exists "${stack}"; then
-              phase1+=("${stack}")
-            fi
-          done
+          echo "Phase 1 deploy (consumers): ${phase1[*]}"
+          npx nx run cdk:deploy -- "${phase1[@]}"
 
-          if [ "${#phase1[@]}" -gt 0 ]; then
-            echo "Phase 1 deploy (consumers): ${phase1[*]}"
-            npx nx run cdk:deploy -- "${phase1[@]}"
-          fi
-
-          if stack_exists "PettziLayersStack"; then
-            echo "Phase 2 deploy (layers): PettziLayersStack"
-            npx nx run cdk:deploy -- PettziLayersStack
-          fi
+          echo "Phase 2 deploy (layers): PettziLayersStack"
+          npx nx run cdk:deploy -- PettziLayersStack
 
           echo "Phase 3 deploy (full reconciliation): --all"
           npx nx run cdk:deploy -- --all
