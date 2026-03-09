@@ -20,7 +20,7 @@ jobs:
         uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       # Cache node_modules
       - uses: actions/setup-node@v6
