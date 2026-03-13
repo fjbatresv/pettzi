@@ -138,12 +138,6 @@ jobs:
           echo "Phase 1 deploy (consumers): ${phase1[*]}"
           npx nx run cdk:deploy -- "${phase1[@]}"
 
-          echo "Removing layer SSM params before deploying layers stack (to allow CFN ownership)..."
-          aws ssm delete-parameter --name "${cognito_param}" >/dev/null 2>&1 || true
-          aws ssm delete-parameter --name "${s3_param}" >/dev/null 2>&1 || true
-          aws ssm delete-parameter --name "${ses_param}" >/dev/null 2>&1 || true
-          aws ssm delete-parameter --name "${ddb_param}" >/dev/null 2>&1 || true
-
           echo "Phase 2 deploy (layers): PettziLayersStack"
           npx nx run cdk:deploy -- PettziLayersStack
 
