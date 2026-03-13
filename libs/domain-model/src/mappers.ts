@@ -11,6 +11,10 @@ import {
   buildPetPkKey,
   buildPetReminderPk,
   buildPetReminderSk,
+  buildPetRoutineOccurrencePk,
+  buildPetRoutineOccurrenceSk,
+  buildPetRoutinePk,
+  buildPetRoutineSk,
   buildReminderGsi1Pk,
   buildReminderGsi1Sk,
   buildSharedRecordPk,
@@ -27,6 +31,8 @@ import {
   PetEvent,
   PetOwner,
   PetReminder,
+  RoutineDefinition,
+  RoutineOccurrence,
   SharedRecord,
   UserAccount,
 } from './types';
@@ -68,6 +74,16 @@ type DynamoItem = {
   dueDate?: any;
   message?: any;
   completedAt?: any;
+  routineId?: any;
+  routineType?: any;
+  ownerUserId?: any;
+  status?: any;
+  timezone?: any;
+  schedule?: any;
+  occurrenceId?: any;
+  scheduledFor?: any;
+  skippedAt?: any;
+  completedByUserId?: any;
   token?: any;
   items?: any;
   expiresAt?: any;
@@ -309,6 +325,103 @@ export const fromItemPetReminder = (item: DynamoItem): PetReminder => ({
   metadata: item.metadata,
   createdAt: new Date(item.createdAt),
   completedAt: parseDate(item.completedAt),
+});
+
+export const toItemRoutineDefinition = (
+  routine: RoutineDefinition
+): DynamoItem => {
+  requireField(routine.petId, 'petId');
+  requireField(routine.routineId, 'routineId');
+  requireField(routine.ownerUserId, 'ownerUserId');
+  requireField(routine.title, 'title');
+  requireField(routine.type, 'type');
+  requireField(routine.status, 'status');
+  requireField(routine.timezone, 'timezone');
+  requireField(routine.schedule, 'schedule');
+  requireField(routine.createdAt, 'createdAt');
+  requireField(routine.updatedAt, 'updatedAt');
+
+  return {
+    PK: buildPetRoutinePk(routine.petId),
+    SK: buildPetRoutineSk(routine.routineId),
+    type: 'RoutineDefinition',
+    routineType: routine.type,
+    petId: routine.petId,
+    routineId: routine.routineId,
+    ownerUserId: routine.ownerUserId,
+    title: routine.title,
+    notes: routine.notes,
+    status: routine.status,
+    timezone: routine.timezone,
+    schedule: routine.schedule,
+    createdAt: toIso(routine.createdAt),
+    updatedAt: toIso(routine.updatedAt),
+  };
+};
+
+export const fromItemRoutineDefinition = (
+  item: DynamoItem
+): RoutineDefinition => ({
+  routineId: item.routineId,
+  petId: item.petId,
+  ownerUserId: item.ownerUserId,
+  title: item.title,
+  type: item.routineType,
+  notes: item.notes,
+  status: item.status,
+  timezone: item.timezone,
+  schedule: item.schedule,
+  createdAt: new Date(item.createdAt),
+  updatedAt: new Date(item.updatedAt ?? item.createdAt),
+});
+
+export const toItemRoutineOccurrence = (
+  occurrence: RoutineOccurrence
+): DynamoItem => {
+  requireField(occurrence.petId, 'petId');
+  requireField(occurrence.routineId, 'routineId');
+  requireField(occurrence.occurrenceId, 'occurrenceId');
+  requireField(occurrence.scheduledFor, 'scheduledFor');
+  requireField(occurrence.status, 'status');
+  requireField(occurrence.createdAt, 'createdAt');
+  requireField(occurrence.updatedAt, 'updatedAt');
+
+  return {
+    PK: buildPetRoutineOccurrencePk(occurrence.petId),
+    SK: buildPetRoutineOccurrenceSk(
+      occurrence.scheduledFor,
+      occurrence.routineId,
+      occurrence.occurrenceId
+    ),
+    type: 'RoutineOccurrence',
+    petId: occurrence.petId,
+    routineId: occurrence.routineId,
+    occurrenceId: occurrence.occurrenceId,
+    scheduledFor: toIso(occurrence.scheduledFor),
+    status: occurrence.status,
+    completedAt: toIso(occurrence.completedAt),
+    skippedAt: toIso(occurrence.skippedAt),
+    notes: occurrence.notes,
+    completedByUserId: occurrence.completedByUserId,
+    createdAt: toIso(occurrence.createdAt),
+    updatedAt: toIso(occurrence.updatedAt),
+  };
+};
+
+export const fromItemRoutineOccurrence = (
+  item: DynamoItem
+): RoutineOccurrence => ({
+  occurrenceId: item.occurrenceId,
+  routineId: item.routineId,
+  petId: item.petId,
+  scheduledFor: new Date(item.scheduledFor),
+  status: item.status,
+  completedAt: parseDate(item.completedAt),
+  skippedAt: parseDate(item.skippedAt),
+  notes: item.notes,
+  completedByUserId: item.completedByUserId,
+  createdAt: new Date(item.createdAt),
+  updatedAt: new Date(item.updatedAt ?? item.createdAt),
 });
 
 export const toItemSharedRecord = (record: SharedRecord): DynamoItem => {

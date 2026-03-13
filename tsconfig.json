@@ -40,7 +40,7 @@
       "path": "./apps/cdk"
     },
     {
-      "path": "./apps/web"
+      "path": "./libs/api-routines"
     }
   ]
 }

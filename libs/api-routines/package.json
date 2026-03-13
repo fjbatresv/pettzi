@@ -1,0 +1,37 @@
+{
+  "name": "@pettzi/api-routines",
+  "version": "0.0.1",
+  "private": true,
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "nx": {
+    "targets": {
+      "test": {
+        "executor": "@nx/jest:jest",
+        "outputs": [
+          "{projectRoot}/test-output/jest/coverage"
+        ],
+        "options": {
+          "jestConfig": "libs/api-routines/jest.config.cts"
+        }
+      }
+    }
+  },
+  "dependencies": {
+    "tslib": "^2.3.0",
+    "@aws-sdk/client-dynamodb": "^3.1000.0",
+    "@aws-sdk/lib-dynamodb": "^3.1000.0",
+    "@types/aws-lambda": "^8.10.161",
+    "@pettzi/utils-dynamo": "file:../utils-dynamo",
+    "@pettzi/domain-model": "file:../domain-model"
+  }
+}

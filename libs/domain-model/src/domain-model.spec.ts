@@ -6,7 +6,16 @@ import {
   fromItemUserAccount,
   toItemPetReminder,
   fromItemPetReminder,
+  toItemRoutineDefinition,
+  fromItemRoutineDefinition,
+  toItemRoutineOccurrence,
+  fromItemRoutineOccurrence,
 } from './mappers';
+import {
+  RoutineOccurrenceStatus,
+  RoutineStatus,
+  RoutineType,
+} from './enums';
 import { Pet, PetReminder, UserAccount } from './types';
 
 describe('domain-model mappers', () => {
@@ -82,5 +91,54 @@ describe('domain-model mappers', () => {
         createdAt: new Date(),
       } as unknown as any),
     ).toThrow();
+  });
+
+  it('round-trips a routine definition item', () => {
+    const routine = {
+      routineId: 'rt-1',
+      petId: 'pet-1',
+      ownerUserId: 'owner-1',
+      title: 'Morning walk',
+      type: RoutineType.WALKING,
+      status: RoutineStatus.ACTIVE,
+      timezone: 'America/Guatemala',
+      schedule: { frequency: 'DAILY', times: ['07:00'] } as const,
+      createdAt: new Date('2026-01-01T00:00:00.000Z'),
+      updatedAt: new Date('2026-01-01T00:00:00.000Z'),
+    };
+
+    const item = toItemRoutineDefinition(routine);
+    expect(item.SK).toBe('ROUTINE#rt-1');
+
+    const back = fromItemRoutineDefinition(item);
+    expect(back).toMatchObject({
+      routineId: routine.routineId,
+      petId: routine.petId,
+      type: routine.type,
+      status: routine.status,
+    });
+  });
+
+  it('round-trips a routine occurrence item', () => {
+    const occurrence = {
+      occurrenceId: 'occ-1',
+      routineId: 'rt-1',
+      petId: 'pet-1',
+      scheduledFor: new Date('2026-01-02T07:00:00.000Z'),
+      status: RoutineOccurrenceStatus.PENDING,
+      createdAt: new Date('2026-01-01T00:00:00.000Z'),
+      updatedAt: new Date('2026-01-01T00:00:00.000Z'),
+    };
+
+    const item = toItemRoutineOccurrence(occurrence);
+    expect(item.SK).toContain('ROUTINE_OCC#2026-01-02T07:00:00.000Z#rt-1#occ-1');
+
+    const back = fromItemRoutineOccurrence(item);
+    expect(back).toMatchObject({
+      occurrenceId: occurrence.occurrenceId,
+      routineId: occurrence.routineId,
+      petId: occurrence.petId,
+      status: occurrence.status,
+    });
   });
 });

@@ -32,6 +32,8 @@ Sort key prefixes:
 - `OWNER#<ownerId>`
 - `EVENT#<isoDate>#<eventId>`
 - `REMINDER#<reminderId>`
+- `ROUTINE#<routineId>`
+- `ROUTINE_OCC#<isoDate>#<routineId>#<occurrenceId>`
 - `PET#<petId>#INVITER#<inviterIdLower>`
 - `PET#<petId>` (for shared record item)
 - `SHARED_RECORD#<isoDate>#<token>` (GSI1 sort key)

@@ -1,4 +1,11 @@
-import { EventType, OwnerRole, PetSpecies } from './enums';
+import {
+  EventType,
+  OwnerRole,
+  PetSpecies,
+  RoutineOccurrenceStatus,
+  RoutineStatus,
+  RoutineType,
+} from './enums';
 
 // Strongly typed ids (aliases for readability).
 export type UserId = string;
@@ -6,7 +13,30 @@ export type OwnerId = string;
 export type PetId = string;
 export type EventId = string;
 export type ReminderId = string;
+export type RoutineId = string;
+export type RoutineOccurrenceId = string;
 export type SharedRecordToken = string;
+
+export type RoutineSchedule =
+  | {
+      frequency: 'HOURLY_INTERVAL';
+      intervalHours: number;
+      anchorTime: string;
+    }
+  | {
+      frequency: 'DAILY';
+      times: string[];
+    }
+  | {
+      frequency: 'WEEKLY';
+      daysOfWeek: number[];
+      times: string[];
+    }
+  | {
+      frequency: 'MONTHLY';
+      daysOfMonth: number[];
+      times: string[];
+    };
 
 export interface UserAccount {
   userId: UserId;
@@ -84,6 +114,34 @@ export interface PetReminder {
   recurring?: boolean;
   createdAt: Date;
   completedAt?: Date;
+}
+
+export interface RoutineDefinition {
+  routineId: RoutineId;
+  petId: PetId;
+  ownerUserId: UserId;
+  title: string;
+  type: RoutineType;
+  notes?: string;
+  status: RoutineStatus;
+  timezone: string;
+  schedule: RoutineSchedule;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface RoutineOccurrence {
+  occurrenceId: RoutineOccurrenceId;
+  routineId: RoutineId;
+  petId: PetId;
+  scheduledFor: Date;
+  status: RoutineOccurrenceStatus;
+  completedAt?: Date;
+  skippedAt?: Date;
+  notes?: string;
+  completedByUserId?: UserId;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface SharedRecord {

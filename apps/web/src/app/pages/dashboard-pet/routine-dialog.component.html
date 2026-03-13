@@ -1,0 +1,110 @@
+<div class="dialog-header">
+  <h3>
+    {{
+      (isEditMode ? 'dashboard.editRoutine' : 'dashboard.addRoutine') | translate
+    }}
+  </h3>
+  <button type="button" class="close-btn" (click)="close()">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<div class="dialog-body">
+  <mat-form-field appearance="outline">
+    <mat-label>{{ 'dashboard.routineTitle' | translate }}</mat-label>
+    <input matInput [(ngModel)]="title" />
+  </mat-form-field>
+
+  <div class="dialog-grid">
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'dashboard.routineType' | translate }}</mat-label>
+      <mat-select [(ngModel)]="type">
+        @for (item of routineTypes; track item) {
+          <mat-option [value]="item">
+            {{ ('dashboard.routineTypeLabel.' + item.toLowerCase()) | translate }}
+          </mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'dashboard.routineTimezone' | translate }}</mat-label>
+      <input matInput [(ngModel)]="timezone" />
+    </mat-form-field>
+  </div>
+
+  <div class="dialog-grid">
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'dashboard.routineFrequency' | translate }}</mat-label>
+      <mat-select [(ngModel)]="frequency">
+        <mat-option value="HOURLY_INTERVAL">{{ 'dashboard.routineFrequencyHourly' | translate }}</mat-option>
+        <mat-option value="DAILY">{{ 'dashboard.routineFrequencyDaily' | translate }}</mat-option>
+        <mat-option value="WEEKLY">{{ 'dashboard.routineFrequencyWeekly' | translate }}</mat-option>
+        <mat-option value="MONTHLY">{{ 'dashboard.routineFrequencyMonthly' | translate }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+    @if (isEditMode) {
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'dashboard.routineStatus' | translate }}</mat-label>
+        <mat-select [(ngModel)]="status">
+          @for (item of routineStatuses; track item) {
+            <mat-option [value]="item">
+              {{ ('dashboard.routineStatusLabel.' + item.toLowerCase()) | translate }}
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    }
+  </div>
+
+  @if (frequency === 'HOURLY_INTERVAL') {
+    <div class="dialog-grid">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'dashboard.routineIntervalHours' | translate }}</mat-label>
+        <input matInput type="number" min="1" [(ngModel)]="intervalHours" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'dashboard.routineAnchorTime' | translate }}</mat-label>
+        <input matInput [(ngModel)]="anchorTime" placeholder="08:00" />
+      </mat-form-field>
+    </div>
+  } @else {
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'dashboard.routineTimes' | translate }}</mat-label>
+      <input matInput [(ngModel)]="timesText" placeholder="07:00, 18:00" />
+    </mat-form-field>
+  }
+
+  @if (frequency === 'WEEKLY') {
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'dashboard.routineWeekdays' | translate }}</mat-label>
+      <input matInput [(ngModel)]="daysOfWeekText" placeholder="1, 3, 5" />
+    </mat-form-field>
+  }
+
+  @if (frequency === 'MONTHLY') {
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'dashboard.routineMonthDays' | translate }}</mat-label>
+      <input matInput [(ngModel)]="daysOfMonthText" placeholder="1, 15, 30" />
+    </mat-form-field>
+  }
+
+  <mat-form-field appearance="outline">
+    <mat-label>{{ 'dashboard.routineNotes' | translate }}</mat-label>
+    <textarea matInput rows="3" [(ngModel)]="notes"></textarea>
+  </mat-form-field>
+</div>
+
+<div class="dialog-actions">
+  <button type="button" class="link-btn" (click)="close()">
+    {{ 'dashboard.cancelRoutine' | translate }}
+  </button>
+  <button
+    mat-raised-button
+    color="primary"
+    class="primary-cta"
+    [disabled]="!isFormValid"
+    (click)="save()"
+  >
+    {{ 'dashboard.saveRoutine' | translate }}
+  </button>
+</div>

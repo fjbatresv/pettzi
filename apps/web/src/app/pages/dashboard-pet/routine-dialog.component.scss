@@ -1,0 +1,66 @@
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0 0 0.5rem;
+}
+
+.dialog-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.close-btn {
+  border: none;
+  background: transparent;
+  color: #7f13ec;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.dialog-body {
+  display: grid;
+  gap: 1rem;
+}
+
+.dialog-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.dialog-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.link-btn {
+  border: none;
+  background: transparent;
+  font-weight: 600;
+  color: rgba(27, 18, 36, 0.6);
+  cursor: pointer;
+}
+
+.primary-cta.mat-mdc-raised-button {
+  background: #7f13ec;
+  color: #ffffff;
+  padding: 0.6rem 1.5rem;
+  border-radius: 14px;
+  font-weight: 600;
+}
+
+:host ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .dialog-grid {
+    grid-template-columns: 1fr;
+  }
+}

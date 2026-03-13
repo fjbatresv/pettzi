@@ -6,14 +6,26 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatTabsModule } from '@angular/material/tabs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Pet, PetEvent, PetReminder } from '@pettzi/domain-model';
+import {
+  Pet,
+  PetEvent,
+  PetReminder,
+  RoutineDefinition,
+  RoutineStatus,
+} from '@pettzi/domain-model';
 import { PetsService } from '../../core/services/pets.service';
 import { UploadsService } from '../../core/services/uploads.service';
 import { EventsService } from '../../core/services/events.service';
 import { RemindersService } from '../../core/services/reminders.service';
+import {
+  RoutineOccurrenceExpanded,
+  RoutinesService,
+} from '../../core/services/routines.service';
 import { BreedItem, CatalogsService, SpeciesItem } from '../../core/services/catalogs.service';
 import { ReminderDialogComponent, ReminderDialogResult } from './reminder-dialog.component';
+import { RoutineDialogComponent, RoutineDialogResult } from './routine-dialog.component';
 import { DeleteActivityDialogComponent } from './delete-activity-dialog.component';
 import { OwnersService, PetOwner } from '../../core/services/owners.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -28,6 +40,7 @@ import { AuthService } from '../../core/services/auth.service';
     MatDialogModule,
     MatIconModule,
     MatMenuModule,
+    MatTabsModule,
     TranslateModule,
   ],
   templateUrl: './dashboard-pet.component.html',
@@ -40,6 +53,7 @@ export class DashboardPetComponent implements OnInit {
   private readonly uploads = inject(UploadsService);
   private readonly events = inject(EventsService);
   private readonly reminders = inject(RemindersService);
+  private readonly routines = inject(RoutinesService);
   private readonly catalogs = inject(CatalogsService);
   private readonly translate = inject(TranslateService);
   private readonly dialog = inject(MatDialog);
@@ -55,6 +69,9 @@ export class DashboardPetComponent implements OnInit {
   breedOptions: BreedItem[] = [];
   activityLog: PetEvent[] = [];
   remindersList: PetReminder[] = [];
+  routinesList: RoutineDefinition[] = [];
+  routineUpcomingList: RoutineOccurrenceExpanded[] = [];
+  routineHistoryList: RoutineOccurrenceExpanded[] = [];
   ownersList: PetOwner[] = [];
   eventsCursor = '';
   hasMoreEvents = false;
@@ -65,6 +82,8 @@ export class DashboardPetComponent implements OnInit {
   canManagePet = false;
   deletingEventIds = new Set<string>();
   deletingReminderIds = new Set<string>();
+  deletingRoutineIds = new Set<string>();
+  updatingOccurrenceIds = new Set<string>();
   selectedEventTypes = new Set<string>([
     'MEDICATION',
     'GROOMING',
@@ -119,6 +138,7 @@ export class DashboardPetComponent implements OnInit {
         if (this.pet?.petId) {
           this.loadEvents(this.pet.petId);
           this.loadReminders(this.pet.petId);
+          this.loadRoutines(this.pet.petId);
           this.loadOwners(this.pet.petId);
         }
         if (this.pet?.species) {
@@ -767,6 +787,49 @@ export class DashboardPetComponent implements OnInit {
       });
   }
 
+  openRoutineDialog(routine?: RoutineDefinition) {
+    const petId = this.pet?.petId;
+    if (!petId) {
+      return;
+    }
+    this.dialog
+      .open<RoutineDialogComponent, { routine?: RoutineDefinition | null; timezone?: string }, RoutineDialogResult>(
+        RoutineDialogComponent,
+        {
+          panelClass: 'pet-dialog',
+          data: {
+            routine: routine ?? null,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Guatemala',
+          },
+        }
+      )
+      .afterClosed()
+      .subscribe((result) => {
+        if (!result) {
+          return;
+        }
+
+        const request = {
+          title: result.title,
+          type: result.type,
+          notes: result.notes,
+          timezone: result.timezone,
+          schedule: result.schedule,
+          ...(routine ? { status: result.status } : {}),
+        };
+
+        const operation = routine?.routineId
+          ? this.routines.updatePetRoutine(petId, routine.routineId, request)
+          : this.routines.createPetRoutine(petId, request);
+
+        operation.subscribe({
+          next: () => {
+            this.loadRoutines(petId);
+          },
+        });
+      });
+  }
+
   confirmDeleteActivity(event: PetEvent) {
     const ref = this.dialog.open(DeleteActivityDialogComponent, {
       panelClass: 'pet-dialog',
@@ -826,6 +889,56 @@ export class DashboardPetComponent implements OnInit {
     });
   }
 
+  deleteRoutine(routine: RoutineDefinition) {
+    if (!this.pet?.petId || !routine?.routineId || this.deletingRoutineIds.has(routine.routineId)) {
+      return;
+    }
+    const petId = this.pet.petId;
+    this.deletingRoutineIds.add(routine.routineId);
+    this.routines.deletePetRoutine(petId, routine.routineId).subscribe({
+      next: () => {
+        this.loadRoutines(petId);
+      },
+      complete: () => {
+        this.deletingRoutineIds.delete(routine.routineId);
+      },
+      error: () => {
+        this.deletingRoutineIds.delete(routine.routineId);
+      },
+    });
+  }
+
+  toggleRoutinePause(routine: RoutineDefinition) {
+    if (!this.pet?.petId || !routine?.routineId || this.deletingRoutineIds.has(routine.routineId)) {
+      return;
+    }
+    const petId = this.pet.petId;
+    this.deletingRoutineIds.add(routine.routineId);
+    const nextStatus =
+      routine.status === RoutineStatus.PAUSED
+        ? RoutineStatus.ACTIVE
+        : RoutineStatus.PAUSED;
+    this.routines.updatePetRoutine(petId, routine.routineId, { status: nextStatus }).subscribe({
+      next: () => {
+        this.loadRoutines(petId);
+      },
+      complete: () => {
+        this.deletingRoutineIds.delete(routine.routineId);
+      },
+      error: () => {
+        this.deletingRoutineIds.delete(routine.routineId);
+      },
+    });
+  }
+
+  completeRoutineOccurrence(occurrence: RoutineOccurrenceExpanded) {
+    this.updateRoutineOccurrence(occurrence, 'complete');
+  }
+
+  skipRoutineOccurrence(occurrence: RoutineOccurrenceExpanded) {
+    this.updateRoutineOccurrence(occurrence, 'skip');
+  }
+
   formatEventDate(value?: Date | string) {
     if (!value) {
       return '';
@@ -867,6 +980,59 @@ export class DashboardPetComponent implements OnInit {
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
+    });
+  }
+
+  formatOccurrenceDateTime(value?: Date | string) {
+    return this.formatReminderDateTime(value);
+  }
+
+  getRoutineTypeLabel(type?: string) {
+    if (!type) {
+      return '';
+    }
+    return this.translate.instant(`dashboard.routineTypeLabel.${type.toLowerCase()}`);
+  }
+
+  getRoutineStatusLabel(status?: string) {
+    if (!status) {
+      return '';
+    }
+    return this.translate.instant(`dashboard.routineStatusLabel.${status.toLowerCase()}`);
+  }
+
+  getOccurrenceStatusLabel(status?: string) {
+    if (!status) {
+      return '';
+    }
+    return this.translate.instant(`dashboard.occurrenceStatus.${status.toLowerCase()}`);
+  }
+
+  formatRoutineSchedule(routine: RoutineDefinition) {
+    const schedule = routine.schedule;
+    if (schedule.frequency === 'HOURLY_INTERVAL') {
+      return this.translate.instant('dashboard.routineSummaryHourly', {
+        hours: schedule.intervalHours,
+        time: schedule.anchorTime,
+      });
+    }
+    if (schedule.frequency === 'DAILY') {
+      return this.translate.instant('dashboard.routineSummaryDaily', {
+        times: schedule.times.join(', '),
+      });
+    }
+    if (schedule.frequency === 'WEEKLY') {
+      const days = schedule.daysOfWeek
+        .map((day) => this.getWeekdayLabel(day))
+        .join(', ');
+      return this.translate.instant('dashboard.routineSummaryWeekly', {
+        days,
+        times: schedule.times.join(', '),
+      });
+    }
+    return this.translate.instant('dashboard.routineSummaryMonthly', {
+      days: schedule.daysOfMonth.join(', '),
+      times: schedule.times.join(', '),
     });
   }
 
@@ -929,6 +1095,34 @@ export class DashboardPetComponent implements OnInit {
           const aDate = new Date(a.dueDate as unknown as string).getTime();
           const bDate = new Date(b.dueDate as unknown as string).getTime();
           return aDate - bDate;
+        });
+      },
+    });
+  }
+
+  private loadRoutines(petId: string) {
+    this.routines.listPetRoutines(petId).subscribe({
+      next: ({ routines }) => {
+        this.routinesList = [...(routines ?? [])].sort((a, b) =>
+          a.title.localeCompare(b.title)
+        );
+      },
+    });
+    this.routines.listUpcoming(petId).subscribe({
+      next: ({ occurrences }) => {
+        this.routineUpcomingList = [...(occurrences ?? [])].sort((a, b) => {
+          const aDate = new Date(a.scheduledFor as unknown as string).getTime();
+          const bDate = new Date(b.scheduledFor as unknown as string).getTime();
+          return aDate - bDate;
+        });
+      },
+    });
+    this.routines.listHistory(petId).subscribe({
+      next: ({ occurrences }) => {
+        this.routineHistoryList = [...(occurrences ?? [])].sort((a, b) => {
+          const aDate = new Date(a.scheduledFor as unknown as string).getTime();
+          const bDate = new Date(b.scheduledFor as unknown as string).getTime();
+          return bDate - aDate;
         });
       },
     });
@@ -1027,6 +1221,33 @@ export class DashboardPetComponent implements OnInit {
       }
     }
     return meta as Record<string, unknown>;
+  }
+
+  private updateRoutineOccurrence(
+    occurrence: RoutineOccurrenceExpanded,
+    action: 'complete' | 'skip'
+  ) {
+    if (!this.pet?.petId || !occurrence?.occurrenceId || this.updatingOccurrenceIds.has(occurrence.occurrenceId)) {
+      return;
+    }
+    const petId = this.pet.petId;
+    this.updatingOccurrenceIds.add(occurrence.occurrenceId);
+    const request =
+      action === 'complete'
+        ? this.routines.completeOccurrence(petId, occurrence.occurrenceId)
+        : this.routines.skipOccurrence(petId, occurrence.occurrenceId);
+
+    request.subscribe({
+      next: () => {
+        this.loadRoutines(petId);
+      },
+      complete: () => {
+        this.updatingOccurrenceIds.delete(occurrence.occurrenceId);
+      },
+      error: () => {
+        this.updatingOccurrenceIds.delete(occurrence.occurrenceId);
+      },
+    });
   }
 
 }

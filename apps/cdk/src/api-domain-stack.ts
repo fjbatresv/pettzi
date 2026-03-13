@@ -25,6 +25,7 @@ export interface ApiDomainStackProps extends StackProps {
   ownersApi: apigwv2.HttpApi;
   eventsApi: apigwv2.HttpApi;
   remindersApi: apigwv2.HttpApi;
+  routinesApi: apigwv2.HttpApi;
   uploadsApi: apigwv2.HttpApi;
   catalogsApi: apigwv2.HttpApi;
 }
@@ -80,6 +81,11 @@ export class ApiDomainStack extends Stack {
         id: 'RemindersApiMapping',
         api: props.remindersApi,
         basePath: 'reminders',
+      },
+      {
+        id: 'RoutinesApiMapping',
+        api: props.routinesApi,
+        basePath: 'routines',
       },
       { id: 'UploadsApiMapping', api: props.uploadsApi, basePath: 'uploads' },
       {

@@ -21,6 +21,28 @@ export enum EventType {
   OTHER = 'OTHER',
 }
 
+export enum RoutineType {
+  FEEDING = 'FEEDING',
+  WALKING = 'WALKING',
+  MEDICATION = 'MEDICATION',
+  HYGIENE = 'HYGIENE',
+  TRAINING = 'TRAINING',
+  CUSTOM = 'CUSTOM',
+}
+
+export enum RoutineStatus {
+  ACTIVE = 'ACTIVE',
+  PAUSED = 'PAUSED',
+  ARCHIVED = 'ARCHIVED',
+}
+
+export enum RoutineOccurrenceStatus {
+  PENDING = 'PENDING',
+  COMPLETED = 'COMPLETED',
+  SKIPPED = 'SKIPPED',
+  MISSED = 'MISSED',
+}
+
 export enum OwnerRole {
   PRIMARY = 'PRIMARY',
   SECONDARY = 'SECONDARY',

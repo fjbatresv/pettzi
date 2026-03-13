@@ -13,6 +13,8 @@ Keys use helpers from `@pettzi/utils-dynamo/key`.
 | PetOwner link   | `PET#<petId>`            | `OWNER#<ownerId>`                  | —                                            |
 | PetEvent        | `PET#<petId>`            | `EVENT#<isoDate>#<eventId>`        | —                                            |
 | PetReminder     | `PET#<petId>`            | `REMINDER#<reminderId>`            | `REMINDER#VACCINATION` / `<due>#PET#<id>#…`  |
+| RoutineDefinition | `PET#<petId>`          | `ROUTINE#<routineId>`              | —                                            |
+| RoutineOccurrence | `PET#<petId>`          | `ROUTINE_OCC#<isoDate>#<routineId>#<occurrenceId>` | —                             |
 | Catalog species | `CATALOG#SPECIES`        | `<SPECIES_CODE>`                   | —                                            |
 | Catalog breeds  | `CATALOG#BREED#<SPECIES>`| `<BREED_CODE>`                     | —                                            |
 | Catalog vaccines| `CATALOG#VACCINE`        | `<VACCINE_CODE>`                   | —                                            |
@@ -85,6 +87,41 @@ Keys use helpers from `@pettzi/utils-dynamo/key`.
   "eventId": "evt789",
   "dueDate": "2025-02-10T00:00:00.000Z",
   "createdAt": "2025-01-20T00:00:00.000Z"
+}
+```
+
+### RoutineDefinition
+```json
+{
+  "PK": "PET#pet123",
+  "SK": "ROUTINE#rt001",
+  "type": "RoutineDefinition",
+  "routineType": "WALKING",
+  "petId": "pet123",
+  "routineId": "rt001",
+  "ownerUserId": "owner@example.com",
+  "title": "Morning walk",
+  "status": "ACTIVE",
+  "timezone": "America/Guatemala",
+  "schedule": { "frequency": "DAILY", "times": ["07:00"] },
+  "createdAt": "2026-01-01T00:00:00.000Z",
+  "updatedAt": "2026-01-01T00:00:00.000Z"
+}
+```
+
+### RoutineOccurrence
+```json
+{
+  "PK": "PET#pet123",
+  "SK": "ROUTINE_OCC#2026-01-02T07:00:00.000Z#rt001#occ001",
+  "type": "RoutineOccurrence",
+  "petId": "pet123",
+  "routineId": "rt001",
+  "occurrenceId": "occ001",
+  "scheduledFor": "2026-01-02T07:00:00.000Z",
+  "status": "PENDING",
+  "createdAt": "2026-01-01T00:00:00.000Z",
+  "updatedAt": "2026-01-01T00:00:00.000Z"
 }
 ```
 

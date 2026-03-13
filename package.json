@@ -68,6 +68,7 @@
     "libs/api-catalogs",
     "libs/api-uploads",
     "libs/api-reminders",
+    "libs/api-routines",
     "libs/domain-model",
     "libs/shared-utils",
     "libs/infra-constructs",

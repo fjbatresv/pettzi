@@ -8,6 +8,7 @@ import { AuthApiStack } from './auth-api-stack';
 import { PetsApiStack } from './pets-api-stack';
 import { EventsApiStack } from './events-api-stack';
 import { RemindersApiStack } from './reminders-api-stack';
+import { RoutinesApiStack } from './routines-api-stack';
 import { UploadsApiStack } from './uploads-api-stack';
 import { OwnersApiStack } from './owners-api-stack';
 import { CatalogsApiStack } from './catalogs-api-stack';
@@ -233,6 +234,19 @@ const auth = new AuthStack(app, 'PettziAuthStack', {
   alarmTopic: undefined,
 });
 
+  const routinesApi = new RoutinesApiStack(app, 'PettziRoutinesApiStack', {
+  env: { account, region },
+  stackName: 'PettziRoutinesApiStack',
+  description: `Pettzi routines API (${stage})`,
+  table: core.table,
+    sharedLayerSsmParamName: LayersStack.cognitoLayerArnParam(stageName),
+  userPool: auth.userPool,
+  userPoolClient: auth.userPoolClient,
+  stage,
+  appDomain: appDomainName,
+  alarmTopic: undefined,
+});
+
   const uploadsApi = new UploadsApiStack(app, 'PettziUploadsApiStack', {
   env: { account, region },
   stackName: 'PettziUploadsApiStack',
@@ -300,6 +314,7 @@ new MonitoringStack(app, 'PettziMonitoringStack', {
     owners: ownersApi.httpApi,
     events: eventsApi.httpApi,
     reminders: remindersApi.httpApi,
+    routines: routinesApi.httpApi,
     uploads: uploadsApi.httpApi,
     catalogs: catalogsApi.httpApi,
   },
@@ -355,6 +370,7 @@ if (apiDomainName && apiHostedZoneName) {
     ownersApi: ownersApi.httpApi,
     eventsApi: eventsApi.httpApi,
     remindersApi: remindersApi.httpApi,
+    routinesApi: routinesApi.httpApi,
     uploadsApi: uploadsApi.httpApi,
     catalogsApi: catalogsApi.httpApi,
   });
