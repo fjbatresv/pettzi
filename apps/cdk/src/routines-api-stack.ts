@@ -57,47 +57,45 @@ export class RoutinesApiStack extends Stack {
     );
 
     const handlers = {
-      create: this.createFn(
-        'CreateRoutineHandler',
-        stage,
-        handlerPath('libs/api-routines/src/handlers/create-routine.handler.ts'),
-        commonEnv,
-        sharedLayer
-      ),
-      list: this.createFn(
-        'ListRoutinesHandler',
-        stage,
-        handlerPath('libs/api-routines/src/handlers/list-routines.handler.ts'),
-        commonEnv,
-        sharedLayer
-      ),
       get: this.createFn(
-        'GetRoutineHandler',
+        'GetPetRoutineHandler',
         stage,
-        handlerPath('libs/api-routines/src/handlers/get-routine.handler.ts'),
+        handlerPath('libs/api-routines/src/handlers/get-pet-routine.handler.ts'),
         commonEnv,
         sharedLayer
       ),
-      update: this.createFn(
-        'UpdateRoutineHandler',
+      upsert: this.createFn(
+        'UpsertPetRoutineHandler',
         stage,
-        handlerPath('libs/api-routines/src/handlers/update-routine.handler.ts'),
+        handlerPath('libs/api-routines/src/handlers/upsert-pet-routine.handler.ts'),
         commonEnv,
         sharedLayer
       ),
-      remove: this.createFn(
-        'DeleteRoutineHandler',
+      createActivity: this.createFn(
+        'CreateRoutineActivityHandler',
         stage,
-        handlerPath('libs/api-routines/src/handlers/delete-routine.handler.ts'),
+        handlerPath('libs/api-routines/src/handlers/create-routine-activity.handler.ts'),
         commonEnv,
         sharedLayer
       ),
-      upcoming: this.createFn(
-        'ListUpcomingRoutineOccurrencesHandler',
+      updateActivity: this.createFn(
+        'UpdateRoutineActivityHandler',
         stage,
-        handlerPath(
-          'libs/api-routines/src/handlers/list-upcoming-routines.handler.ts'
-        ),
+        handlerPath('libs/api-routines/src/handlers/update-routine-activity.handler.ts'),
+        commonEnv,
+        sharedLayer
+      ),
+      removeActivity: this.createFn(
+        'DeleteRoutineActivityHandler',
+        stage,
+        handlerPath('libs/api-routines/src/handlers/delete-routine-activity.handler.ts'),
+        commonEnv,
+        sharedLayer
+      ),
+      today: this.createFn(
+        'ListRoutineTodayHandler',
+        stage,
+        handlerPath('libs/api-routines/src/handlers/list-routine-today.handler.ts'),
         commonEnv,
         sharedLayer
       ),
@@ -106,15 +104,6 @@ export class RoutinesApiStack extends Stack {
         stage,
         handlerPath(
           'libs/api-routines/src/handlers/list-routine-history.handler.ts'
-        ),
-        commonEnv,
-        sharedLayer
-      ),
-      occurrences: this.createFn(
-        'ListRoutineOccurrencesHandler',
-        stage,
-        handlerPath(
-          'libs/api-routines/src/handlers/list-routine-occurrences.handler.ts'
         ),
         commonEnv,
         sharedLayer
@@ -173,52 +162,47 @@ export class RoutinesApiStack extends Stack {
     });
 
     this.httpApi.addRoutes({
-      path: '/pets/{petId}/routines',
+      path: '/pets/{petId}/routine',
+      methods: [apigwv2.HttpMethod.GET],
+      integration: new HttpLambdaIntegration('GetPetRoutineIntegration', handlers.get),
+    });
+    this.httpApi.addRoutes({
+      path: '/pets/{petId}/routine',
+      methods: [apigwv2.HttpMethod.PUT],
+      integration: new HttpLambdaIntegration('UpsertPetRoutineIntegration', handlers.upsert),
+    });
+    this.httpApi.addRoutes({
+      path: '/pets/{petId}/routine/activities',
       methods: [apigwv2.HttpMethod.POST],
-      integration: new HttpLambdaIntegration('CreateRoutineIntegration', handlers.create),
+      integration: new HttpLambdaIntegration('CreateRoutineActivityIntegration', handlers.createActivity),
     });
     this.httpApi.addRoutes({
-      path: '/pets/{petId}/routines',
-      methods: [apigwv2.HttpMethod.GET],
-      integration: new HttpLambdaIntegration('ListRoutinesIntegration', handlers.list),
-    });
-    this.httpApi.addRoutes({
-      path: '/pets/{petId}/routines/{routineId}',
-      methods: [apigwv2.HttpMethod.GET],
-      integration: new HttpLambdaIntegration('GetRoutineIntegration', handlers.get),
-    });
-    this.httpApi.addRoutes({
-      path: '/pets/{petId}/routines/{routineId}',
+      path: '/pets/{petId}/routine/activities/{activityId}',
       methods: [apigwv2.HttpMethod.PATCH],
-      integration: new HttpLambdaIntegration('UpdateRoutineIntegration', handlers.update),
+      integration: new HttpLambdaIntegration('UpdateRoutineActivityIntegration', handlers.updateActivity),
     });
     this.httpApi.addRoutes({
-      path: '/pets/{petId}/routines/{routineId}',
+      path: '/pets/{petId}/routine/activities/{activityId}',
       methods: [apigwv2.HttpMethod.DELETE],
-      integration: new HttpLambdaIntegration('DeleteRoutineIntegration', handlers.remove),
+      integration: new HttpLambdaIntegration('DeleteRoutineActivityIntegration', handlers.removeActivity),
     });
     this.httpApi.addRoutes({
-      path: '/pets/{petId}/routines/upcoming',
+      path: '/pets/{petId}/routine/today',
       methods: [apigwv2.HttpMethod.GET],
-      integration: new HttpLambdaIntegration('ListUpcomingRoutinesIntegration', handlers.upcoming),
+      integration: new HttpLambdaIntegration('ListRoutineTodayIntegration', handlers.today),
     });
     this.httpApi.addRoutes({
-      path: '/pets/{petId}/routines/history',
+      path: '/pets/{petId}/routine/history',
       methods: [apigwv2.HttpMethod.GET],
       integration: new HttpLambdaIntegration('ListRoutineHistoryIntegration', handlers.history),
     });
     this.httpApi.addRoutes({
-      path: '/pets/{petId}/routines/{routineId}/occurrences',
-      methods: [apigwv2.HttpMethod.GET],
-      integration: new HttpLambdaIntegration('ListRoutineOccurrencesIntegration', handlers.occurrences),
-    });
-    this.httpApi.addRoutes({
-      path: '/pets/{petId}/routines/occurrences/{occurrenceId}/complete',
+      path: '/pets/{petId}/routine/occurrences/{occurrenceId}/complete',
       methods: [apigwv2.HttpMethod.POST],
       integration: new HttpLambdaIntegration('CompleteRoutineOccurrenceIntegration', handlers.complete),
     });
     this.httpApi.addRoutes({
-      path: '/pets/{petId}/routines/occurrences/{occurrenceId}/skip',
+      path: '/pets/{petId}/routine/occurrences/{occurrenceId}/skip',
       methods: [apigwv2.HttpMethod.POST],
       integration: new HttpLambdaIntegration('SkipRoutineOccurrenceIntegration', handlers.skip),
     });

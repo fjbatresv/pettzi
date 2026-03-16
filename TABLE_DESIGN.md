@@ -33,7 +33,8 @@ Sort key prefixes:
 - `EVENT#<isoDate>#<eventId>`
 - `REMINDER#<reminderId>`
 - `ROUTINE#<routineId>`
-- `ROUTINE_OCC#<isoDate>#<routineId>#<occurrenceId>`
+- `ROUTINE_ACTIVITY#<activityId>`
+- `ROUTINE_OCC#<isoDate>#<activityId>#<occurrenceId>`
 - `PET#<petId>#INVITER#<inviterIdLower>`
 - `PET#<petId>` (for shared record item)
 - `SHARED_RECORD#<isoDate>#<token>` (GSI1 sort key)

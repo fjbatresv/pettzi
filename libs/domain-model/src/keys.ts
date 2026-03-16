@@ -13,6 +13,7 @@ import {
   OwnerId,
   PetId,
   ReminderId,
+  RoutineActivityId,
   RoutineId,
   RoutineOccurrenceId,
   SharedRecordToken,
@@ -54,13 +55,16 @@ export const buildPetReminderSk = (reminderId: ReminderId): string =>
 export const buildPetRoutinePk = (petId: PetId): string => buildPetPk(petId);
 export const buildPetRoutineSk = (routineId: RoutineId): string =>
   `ROUTINE#${routineId}`;
+export const buildPetRoutineActivityPk = (petId: PetId): string => buildPetPk(petId);
+export const buildPetRoutineActivitySk = (activityId: RoutineActivityId): string =>
+  `ROUTINE_ACTIVITY#${activityId}`;
 export const buildPetRoutineOccurrencePk = (petId: PetId): string =>
   buildPetPk(petId);
 export const buildPetRoutineOccurrenceSk = (
   scheduledFor: string | Date,
-  routineId: RoutineId,
+  activityId: RoutineActivityId,
   occurrenceId: RoutineOccurrenceId,
-): string => `ROUTINE_OCC#${toIso(scheduledFor)}#${routineId}#${occurrenceId}`;
+): string => `ROUTINE_OCC#${toIso(scheduledFor)}#${activityId}#${occurrenceId}`;
 
 export const buildReminderGsi1Pk = (): string =>
   buildReminderVaccinationGsiPk();

@@ -1,286 +1,163 @@
-# OpenSpec: Pet Routines Feature
+# Pet Routines
 
--   **Project:** Pettzi
--   **Feature:** Pet Routines
--   **Status:** Draft
--   **Owner:** Javier Batres
--   **Audience:** Architecture, Backend, Frontend, AI agents
-    (Codex/Cursor)
+## Concept
 
-------------------------------------------------------------------------
+Each pet has a single routine container. That routine is made of many activities that the owner normally does through the day.
 
-## 1. Summary
+Examples:
 
-This document defines the **Pet Routines** feature for Pettzi.
+- Feed at `09:00` and `21:00` every day
+- Walk at `08:00` every day
+- Play at `13:00` every day
+- Go to the park at `10:00` every Sunday
 
-The goal is to support **recurrent day-to-day pet care activities** that
-are not best represented as one-time reminders or event-based alerts.
+This feature is not meant to send a push reminder every time an activity is due. The main experience is:
 
-Examples: - Feeding - Walking - Daily medication - Grooming habits -
-Hydration - Training sessions
+1. Show the pet routine ordered by time of day in the web dashboard.
+2. Let the owner mark activities as completed or skipped.
+3. Support a daily review flow later without coupling routine completions to events or reminders.
 
-This feature is different from **Reminders**.
+## Scope
 
-### Distinction
+- One routine container per pet
+- Multiple routine activities per pet
+- Daily, weekly and monthly schedules
+- Short materialized occurrence window for today/history UI
+- No automatic `events` creation
+- No per-occurrence notifications
 
--   **Reminders** are for specific time-based notifications or scheduled
-    future actions.
--   **Routines** are for repeated habits, checklists, and recurring care
-    activities that may happen multiple times per day or per week.
+## Domain Model
 
-------------------------------------------------------------------------
+### PetRoutine
 
-## 2. Problem Statement
+Single container for a pet:
 
-The current product supports reminders and pet events, but not recurring
-care habits.
+- `routineId`
+- `petId`
+- `ownerUserId`
+- `timezone`
+- `status`
+- `createdAt`
+- `updatedAt`
 
-Users need a way to define and track routines such as: - Walk Luna every
-day at 7:00 AM and 6:00 PM - Feed Cooper every day at 8:00 AM and 8:00
-PM - Give medication every 12 hours - Brush Milo every Sunday
+### RoutineActivity
 
-Without routines, users are forced to misuse reminders or events for
-ongoing recurring activities.
+An item inside the pet routine:
 
-------------------------------------------------------------------------
-
-## 3. Goals
-
-### Primary goals
-
--   Allow users to create recurring routines for a pet.
--   Allow users to mark each occurrence as completed or skipped.
--   Show routines in the dashboard and pet detail views.
--   Support flexible recurrence patterns.
--   Keep reminders and routines conceptually separate.
-
-### Secondary goals
-
--   Allow future analytics such as adherence/streaks/completion rates.
--   Allow future caregiver/co-owner collaboration on routines.
-
-------------------------------------------------------------------------
-
-## 4. Non-Goals
-
-This feature does NOT include: - Complex calendar exceptions - Full
-RRULE syntax - Multi-step workflows inside a routine - IoT
-integrations - Public sharing of routines - Billing/tier restrictions
-
-------------------------------------------------------------------------
-
-## 5. Conceptual Model
-
-### Reminder vs Routine
-
-**Reminder** - Vaccines - Vet appointments - Buy food - Grooming
-appointment
-
-**Routine** - Feeding - Walking - Daily medication - Weekly brushing
-
-------------------------------------------------------------------------
-
-## 6. User Stories
-
-### Create routine
-
-As a pet owner, I want to define a routine for my pet so I can
-consistently track regular care activities.
-
-### View routine list
-
-As a pet owner, I want to see all routines for a pet so I know what
-needs to be done.
-
-### Complete occurrence
-
-As a pet owner, I want to mark a routine occurrence as completed so I
-can track care history.
-
-### Skip occurrence
-
-As a pet owner, I want to skip an occurrence when needed so the system
-reflects reality.
-
-### Edit routine
-
-As a pet owner, I want to update schedule, title, notes, and recurrence.
-
-### Pause routine
-
-As a pet owner, I want to pause a routine without deleting it.
-
-------------------------------------------------------------------------
-
-## 7. Functional Requirements
-
-### Routine definition fields
-
--   routineId
--   petId
--   ownerUserId
--   title
--   type
--   notes (optional)
--   status (ACTIVE, PAUSED, ARCHIVED)
--   timezone
--   schedule definition
--   createdAt
--   updatedAt
-
-### Routine types
-
--   FEEDING
--   WALKING
--   MEDICATION
--   HYGIENE
--   TRAINING
--   CUSTOM
-
-### Occurrence fields
-
--   occurrenceId
--   routineId
--   petId
--   scheduledFor
--   status (PENDING, COMPLETED, SKIPPED, MISSED)
--   completedAt
--   skippedAt
--   notes
--   completedByUserId
-
-------------------------------------------------------------------------
-
-## 8. UX Behavior
-
-### Create routine flow
-
-User chooses: - title - type - notes - recurrence - time(s)
-
-Example: - Feed every day at 8:00 AM and 8:00 PM - Walk weekdays at 6:00
-PM - Medication every 12 hours
-
-### Completion flow
-
-User marks occurrence as completed.
-
-### Skip flow
-
-User marks occurrence as skipped.
-
-### Pause flow
-
-Paused routines stop generating occurrences.
-
-------------------------------------------------------------------------
-
-## 9. Data Model
-
-### RoutineDefinition
-
-``` json
-{
-  "routineId": "rt_123",
-  "petId": "pet_123",
-  "ownerUserId": "user_123",
-  "title": "Morning walk",
-  "type": "WALKING",
-  "notes": "15 minutes minimum",
-  "status": "ACTIVE",
-  "timezone": "America/Guatemala",
-  "schedule": {
-    "frequency": "DAILY",
-    "times": ["07:00"]
-  },
-  "createdAt": "2026-01-28T00:00:00.000Z",
-  "updatedAt": "2026-01-28T00:00:00.000Z"
-}
-```
+- `activityId`
+- `routineId`
+- `petId`
+- `ownerUserId`
+- `title`
+- `type`
+- `notes?`
+- `status`
+- `schedule`
+- `createdAt`
+- `updatedAt`
 
 ### RoutineOccurrence
 
-``` json
+Materialized execution state for an activity at a concrete date/time:
+
+- `occurrenceId`
+- `routineId`
+- `activityId`
+- `petId`
+- `scheduledFor`
+- `status`
+- `completedAt?`
+- `skippedAt?`
+- `notes?`
+- `completedByUserId?`
+- `createdAt`
+- `updatedAt`
+
+## Scheduling Rules
+
+### Daily
+
+```json
 {
-  "occurrenceId": "ro_123",
-  "routineId": "rt_123",
-  "petId": "pet_123",
-  "scheduledFor": "2026-01-29T07:00:00.000Z",
-  "status": "PENDING",
-  "completedAt": null,
-  "skippedAt": null,
-  "completedByUserId": null,
-  "notes": null
+  "frequency": "DAILY",
+  "times": ["08:00", "21:00"]
 }
 ```
 
-------------------------------------------------------------------------
+### Weekly
 
-## 10. API Proposal
+```json
+{
+  "frequency": "WEEKLY",
+  "daysOfWeek": [0],
+  "times": ["10:00"]
+}
+```
 
-Base path: `/routines`
+`daysOfWeek` uses `0-6` for `Sunday-Saturday`.
 
--   POST /routines
--   GET /routines
--   GET /routines/{routineId}
--   PUT /routines/{routineId}
--   DELETE /routines/{routineId}
+### Monthly
 
-Occurrences:
+```json
+{
+  "frequency": "MONTHLY",
+  "daysOfMonth": [1, 15],
+  "times": ["09:00"]
+}
+```
 
--   GET /routines/{routineId}/occurrences
--   POST /routines/occurrences/{occurrenceId}/complete
--   POST /routines/occurrences/{occurrenceId}/skip
+## Persistence
 
-Pet queries:
+Single-table DynamoDB stays unchanged at the table level. The feature uses pet-scoped items:
 
--   GET /pets/{petId}/routines/upcoming
+- routine container: `PK=PET#<petId>`, `SK=ROUTINE#<routineId>`
+- routine activity: `PK=PET#<petId>`, `SK=ROUTINE_ACTIVITY#<activityId>`
+- routine occurrence: `PK=PET#<petId>`, `SK=ROUTINE_OCC#<scheduledFor>#<activityId>#<occurrenceId>`
 
-------------------------------------------------------------------------
+No scans are allowed. All reads are `Query` by pet partition key.
 
-## 11. Architecture Notes
+## Occurrence Strategy
 
-### Bounded Context
+- Materialize only a short window
+- Suggested window: last `14` days + next `30` days
+- `COMPLETED`, `SKIPPED` and `MISSED` occurrences remain available for short history
+- Regeneration happens:
+  - when reading `today`
+  - when reading `history`
+  - after creating, updating or deleting an activity
+  - after updating routine timezone/status
 
-This feature should be implemented as a **new bounded context**:
+## Business Rules
 
--   `api-routines`
--   `routines-api-stack`
+- A pet may have zero or one routine container
+- Creating the first activity creates the routine container if needed
+- `ACTIVE` routine + `ACTIVE` activity generate occurrences
+- `PAUSED` routine or activity stops generating new pending occurrences
+- `ARCHIVED` routine blocks activity mutations and occurrence actions
+- Completing or skipping an occurrence does not create a pet event
+- Past pending occurrences become `MISSED` when the window is synced
 
-Reasons: - Routines differ conceptually from reminders - They have
-different lifecycle rules - They will evolve independently
+## API Surface
 
-------------------------------------------------------------------------
+- `GET /pets/{petId}/routine`
+- `PUT /pets/{petId}/routine`
+- `POST /pets/{petId}/routine/activities`
+- `PATCH /pets/{petId}/routine/activities/{activityId}`
+- `DELETE /pets/{petId}/routine/activities/{activityId}`
+- `GET /pets/{petId}/routine/today`
+- `GET /pets/{petId}/routine/history`
+- `POST /pets/{petId}/routine/occurrences/{occurrenceId}/complete`
+- `POST /pets/{petId}/routine/occurrences/{occurrenceId}/skip`
 
-## 12. Recommended MVP Scope
+OpenAPI remains the source of truth in [`/Users/javierbatres/Documents/pettzi/libs/api-routines/openapi/routines.yml`](/Users/javierbatres/Documents/pettzi/libs/api-routines/openapi/routines.yml).
 
-### In scope
+## UX Expectations
 
--   Create/edit/delete routines
--   Hourly interval recurrence
--   Daily/weekly/monthly recurrence
--   Multiple times per day
--   Occurrence completion
--   Dashboard display
--   Pet detail routine list
-
-### Out of scope
-
--   Advanced recurrence rules
--   Analytics
--   Notifications generated by routines
--   Public sharing
-
-------------------------------------------------------------------------
-
-## 13. Notes for AI Agents
-
-Agents implementing this feature must:
-
--   Keep handlers thin
--   Maintain OpenAPI contracts
--   Add unit tests for:
-    -   recurrence logic
-    -   completion behavior
-    -   skip behavior
-    -   filtering
--   Avoid mixing routines with reminders
+- The dashboard keeps the current timeline tab
+- The routines tab shows:
+  - routine activities ordered by scheduled time for today
+  - actions to complete and skip
+  - activity editor for create/update
+  - short history
+- Optional fields should be hidden when empty
+- Reminders remain separate from routines

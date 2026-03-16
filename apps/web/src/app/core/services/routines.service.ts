@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import {
-  RoutineDefinition,
+  PetRoutine,
+  RoutineActivity,
   RoutineOccurrence,
   RoutineStatus,
   RoutineType,
@@ -10,67 +11,84 @@ import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../tokens';
 
 export interface RoutineOccurrenceExpanded extends RoutineOccurrence {
-  routine: RoutineDefinition;
+  activity: RoutineActivity;
+  routine: PetRoutine;
 }
 
-export interface CreateRoutineRequest {
+export interface RoutineDetailResponse {
+  routine: PetRoutine | null;
+  activities: RoutineActivity[];
+}
+
+export interface UpsertRoutineRequest {
+  timezone: string;
+  status?: RoutineStatus;
+}
+
+export interface CreateRoutineActivityRequest {
   title: string;
   type: RoutineType;
   notes?: string;
-  timezone: string;
-  schedule: RoutineDefinition['schedule'];
+  status?: RoutineStatus.ACTIVE | RoutineStatus.PAUSED;
+  routineTimezone?: string;
+  schedule: RoutineActivity['schedule'];
 }
 
-export interface UpdateRoutineRequest extends Partial<CreateRoutineRequest> {
-  status?: RoutineStatus;
-}
+export type UpdateRoutineActivityRequest = Partial<
+  Omit<CreateRoutineActivityRequest, 'routineTimezone'>
+>;
 
 @Injectable({ providedIn: 'root' })
 export class RoutinesService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = inject(API_BASE_URL);
 
-  listPetRoutines(petId: string): Observable<{ routines: RoutineDefinition[] }> {
-    return this.http.get<{ routines: RoutineDefinition[] }>(
-      this.buildUrl(`/pets/${petId}/routines`)
-    );
+  getPetRoutine(petId: string): Observable<RoutineDetailResponse> {
+    return this.http.get<RoutineDetailResponse>(this.buildUrl(`/pets/${petId}/routine`));
   }
 
-  createPetRoutine(
+  upsertPetRoutine(
     petId: string,
-    payload: CreateRoutineRequest
-  ): Observable<RoutineDefinition> {
-    return this.http.post<RoutineDefinition>(
-      this.buildUrl(`/pets/${petId}/routines`),
+    payload: UpsertRoutineRequest
+  ): Observable<PetRoutine> {
+    return this.http.put<PetRoutine>(this.buildUrl(`/pets/${petId}/routine`), payload);
+  }
+
+  createRoutineActivity(
+    petId: string,
+    payload: CreateRoutineActivityRequest
+  ): Observable<RoutineActivity> {
+    return this.http.post<RoutineActivity>(
+      this.buildUrl(`/pets/${petId}/routine/activities`),
       payload
     );
   }
 
-  updatePetRoutine(
+  updateRoutineActivity(
     petId: string,
-    routineId: string,
-    payload: UpdateRoutineRequest
-  ): Observable<RoutineDefinition> {
-    return this.http.patch<RoutineDefinition>(
-      this.buildUrl(`/pets/${petId}/routines/${routineId}`),
+    activityId: string,
+    payload: UpdateRoutineActivityRequest
+  ): Observable<RoutineActivity> {
+    return this.http.patch<RoutineActivity>(
+      this.buildUrl(`/pets/${petId}/routine/activities/${activityId}`),
       payload
     );
   }
 
-  deletePetRoutine(
+  deleteRoutineActivity(
     petId: string,
-    routineId: string
+    activityId: string
   ): Observable<{ message?: string }> {
     return this.http.delete<{ message?: string }>(
-      this.buildUrl(`/pets/${petId}/routines/${routineId}`)
+      this.buildUrl(`/pets/${petId}/routine/activities/${activityId}`)
     );
   }
 
-  listUpcoming(
+  listToday(
     petId: string
   ): Observable<{ occurrences: RoutineOccurrenceExpanded[] }> {
     return this.http.get<{ occurrences: RoutineOccurrenceExpanded[] }>(
-      this.buildUrl(`/pets/${petId}/routines/upcoming`)
+      this.buildUrl(`/pets/${petId}/routine/today`)
     );
   }
 
@@ -78,7 +96,7 @@ export class RoutinesService {
     petId: string
   ): Observable<{ occurrences: RoutineOccurrenceExpanded[] }> {
     return this.http.get<{ occurrences: RoutineOccurrenceExpanded[] }>(
-      this.buildUrl(`/pets/${petId}/routines/history`)
+      this.buildUrl(`/pets/${petId}/routine/history`)
     );
   }
 
@@ -88,7 +106,7 @@ export class RoutinesService {
     notes?: string
   ): Observable<RoutineOccurrence> {
     return this.http.post<RoutineOccurrence>(
-      this.buildUrl(`/pets/${petId}/routines/occurrences/${occurrenceId}/complete`),
+      this.buildUrl(`/pets/${petId}/routine/occurrences/${occurrenceId}/complete`),
       notes ? { notes } : {}
     );
   }
@@ -99,7 +117,7 @@ export class RoutinesService {
     notes?: string
   ): Observable<RoutineOccurrence> {
     return this.http.post<RoutineOccurrence>(
-      this.buildUrl(`/pets/${petId}/routines/occurrences/${occurrenceId}/skip`),
+      this.buildUrl(`/pets/${petId}/routine/occurrences/${occurrenceId}/skip`),
       notes ? { notes } : {}
     );
   }

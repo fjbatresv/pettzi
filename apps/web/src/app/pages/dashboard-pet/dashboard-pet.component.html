@@ -421,116 +421,125 @@
                   {{ 'dashboard.routinesTitle' | translate }}
                 </h3>
                 <span class="badge">
-                  {{ 'dashboard.pendingCount' | translate: { count: routineUpcomingList.length } }}
+                  {{ 'dashboard.pendingCount' | translate: { count: routineTodayList.length } }}
                 </span>
               </div>
-              <button
-                type="button"
-                class="reminder-add-btn"
-                [attr.aria-label]="'dashboard.addRoutine' | translate"
-                (click)="openRoutineDialog()"
-              >
-                <mat-icon>add</mat-icon>
-              </button>
+              <div class="routine-actions">
+                @if (routine) {
+                  <button
+                    type="button"
+                    class="chip-action chip-muted"
+                    (click)="toggleRoutinePause()"
+                  >
+                    {{
+                      (routine.status === 'PAUSED'
+                        ? 'dashboard.resumeRoutine'
+                        : 'dashboard.pauseRoutine') | translate
+                    }}
+                  </button>
+                }
+                <button
+                  type="button"
+                  class="reminder-add-btn"
+                  [attr.aria-label]="'dashboard.addRoutineActivity' | translate"
+                  (click)="openRoutineDialog()"
+                >
+                  <mat-icon>add</mat-icon>
+                </button>
+              </div>
             </div>
 
             <section class="routine-section">
               <div class="routine-section-head">
-                <h4>{{ 'dashboard.routineUpcoming' | translate }}</h4>
+                <h4>{{ 'dashboard.routineToday' | translate }}</h4>
               </div>
-              @for (occurrence of routineUpcomingList; track occurrence.occurrenceId) {
+              @for (occurrence of routineTodayList; track occurrence.occurrenceId) {
                 <article class="routine-occurrence">
                   <div class="routine-content">
                     <div class="routine-title-row">
-                      <h4>{{ occurrence.routine.title }}</h4>
-                      <span class="status-pill status-progress">
+                      <h4>{{ occurrence.activity.title }}</h4>
+                      <span
+                        class="status-pill"
+                        [class.status-progress]="occurrence.status === 'PENDING'"
+                        [class.status-complete]="occurrence.status === 'COMPLETED'"
+                      >
                         {{ getOccurrenceStatusLabel(occurrence.status) }}
                       </span>
                     </div>
                     <p class="routine-meta">
-                      <span>{{ getRoutineTypeLabel(occurrence.routine.type) }}</span>
+                      <span>{{ getRoutineTypeLabel(occurrence.activity.type) }}</span>
                       <span>{{ formatOccurrenceDateTime(occurrence.scheduledFor) }}</span>
                     </p>
-                    @if (occurrence.routine.notes) {
-                      <p class="routine-notes">{{ occurrence.routine.notes }}</p>
+                    @if (occurrence.activity.notes) {
+                      <p class="routine-notes">{{ occurrence.activity.notes }}</p>
                     }
                   </div>
-                  <div class="routine-actions">
-                    <button
-                      type="button"
-                      class="chip-action"
-                      (click)="completeRoutineOccurrence(occurrence)"
-                      [disabled]="updatingOccurrenceIds.has(occurrence.occurrenceId)"
-                    >
-                      {{ 'dashboard.completeRoutine' | translate }}
-                    </button>
-                    <button
-                      type="button"
-                      class="chip-action chip-muted"
-                      (click)="skipRoutineOccurrence(occurrence)"
-                      [disabled]="updatingOccurrenceIds.has(occurrence.occurrenceId)"
-                    >
-                      {{ 'dashboard.skipRoutine' | translate }}
-                    </button>
-                  </div>
+                  @if (occurrence.status === 'PENDING') {
+                    <div class="routine-actions">
+                      <button
+                        type="button"
+                        class="chip-action"
+                        (click)="completeRoutineOccurrence(occurrence)"
+                        [disabled]="updatingOccurrenceIds.has(occurrence.occurrenceId)"
+                      >
+                        {{ 'dashboard.completeRoutine' | translate }}
+                      </button>
+                      <button
+                        type="button"
+                        class="chip-action chip-muted"
+                        (click)="skipRoutineOccurrence(occurrence)"
+                        [disabled]="updatingOccurrenceIds.has(occurrence.occurrenceId)"
+                      >
+                        {{ 'dashboard.skipRoutine' | translate }}
+                      </button>
+                    </div>
+                  }
                 </article>
               }
-              @if (!routineUpcomingList.length) {
-                <p class="empty-state">{{ 'dashboard.noRoutineUpcoming' | translate }}</p>
+              @if (!routineTodayList.length) {
+                <p class="empty-state">{{ 'dashboard.noRoutineToday' | translate }}</p>
               }
             </section>
 
             <section class="routine-section">
               <div class="routine-section-head">
-                <h4>{{ 'dashboard.routinesListTitle' | translate }}</h4>
+                <h4>{{ 'dashboard.routineActivitiesTitle' | translate }}</h4>
               </div>
-              @for (routine of routinesList; track routine.routineId) {
+              @for (activity of routineActivities; track activity.activityId) {
                 <article class="routine-occurrence">
                   <div class="routine-content">
                     <div class="routine-title-row">
-                      <h4>{{ routine.title }}</h4>
-                      <span class="status-pill" [class.status-complete]="routine.status === 'ACTIVE'">
-                        {{ getRoutineStatusLabel(routine.status) }}
+                      <h4>{{ activity.title }}</h4>
+                      <span class="status-pill" [class.status-complete]="activity.status === 'ACTIVE'">
+                        {{ getRoutineStatusLabel(activity.status) }}
                       </span>
                     </div>
                     <p class="routine-meta">
-                      <span>{{ getRoutineTypeLabel(routine.type) }}</span>
-                      <span>{{ formatRoutineSchedule(routine) }}</span>
+                      <span>{{ getRoutineTypeLabel(activity.type) }}</span>
+                      <span>{{ formatRoutineSchedule(activity) }}</span>
                     </p>
-                    @if (routine.notes) {
-                      <p class="routine-notes">{{ routine.notes }}</p>
+                    @if (activity.notes) {
+                      <p class="routine-notes">{{ activity.notes }}</p>
                     }
                   </div>
                   <div class="routine-actions">
-                    <button type="button" class="chip-action" (click)="openRoutineDialog(routine)">
-                      {{ 'dashboard.editRoutine' | translate }}
-                    </button>
-                    <button
-                      type="button"
-                      class="chip-action chip-muted"
-                      (click)="toggleRoutinePause(routine)"
-                      [disabled]="deletingRoutineIds.has(routine.routineId)"
-                    >
-                      {{
-                        (routine.status === 'PAUSED'
-                          ? 'dashboard.resumeRoutine'
-                          : 'dashboard.pauseRoutine') | translate
-                      }}
+                    <button type="button" class="chip-action" (click)="openRoutineDialog(activity)">
+                      {{ 'dashboard.editRoutineActivity' | translate }}
                     </button>
                     <button
                       type="button"
                       class="icon-btn"
                       [attr.aria-label]="'dashboard.deleteRoutine' | translate"
-                      (click)="deleteRoutine(routine)"
-                      [disabled]="deletingRoutineIds.has(routine.routineId)"
+                      (click)="deleteRoutineActivity(activity)"
+                      [disabled]="deletingRoutineIds.has(activity.activityId)"
                     >
                       <mat-icon>delete</mat-icon>
                     </button>
                   </div>
                 </article>
               }
-              @if (!routinesList.length) {
-                <p class="empty-state">{{ 'dashboard.noRoutines' | translate }}</p>
+              @if (!routineActivities.length) {
+                <p class="empty-state">{{ 'dashboard.noRoutineActivities' | translate }}</p>
               }
             </section>
 
@@ -542,13 +551,13 @@
                 <article class="routine-occurrence">
                   <div class="routine-content">
                     <div class="routine-title-row">
-                      <h4>{{ occurrence.routine.title }}</h4>
+                      <h4>{{ occurrence.activity.title }}</h4>
                       <span class="status-pill">
                         {{ getOccurrenceStatusLabel(occurrence.status) }}
                       </span>
                     </div>
                     <p class="routine-meta">
-                      <span>{{ getRoutineTypeLabel(occurrence.routine.type) }}</span>
+                      <span>{{ getRoutineTypeLabel(occurrence.activity.type) }}</span>
                       <span>{{ formatOccurrenceDateTime(occurrence.scheduledFor) }}</span>
                     </p>
                   </div>

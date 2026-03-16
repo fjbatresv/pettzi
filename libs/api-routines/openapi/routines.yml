@@ -1,106 +1,99 @@
 openapi: 3.0.3
 info:
   title: PETTZI Routines API
-  version: "1.0.0"
+  version: "2.0.0"
 security:
   - bearerAuth: []
 paths:
-  /pets/{petId}/routines:
-    post:
-      summary: Create routine for a pet
+  /pets/{petId}/routine:
+    get:
+      summary: Get the routine container and activities for a pet
       security: [{ bearerAuth: [] }]
       parameters:
-        - in: path
-          name: petId
-          required: true
-          schema: { type: string }
+        - $ref: '#/components/parameters/PetId'
+      responses:
+        '200':
+          description: Routine detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoutineDetailResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    put:
+      summary: Create or update the routine container for a pet
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/PetId'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateRoutineRequest'
+              $ref: '#/components/schemas/UpsertRoutineRequest'
+      responses:
+        '200':
+          description: Updated routine
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PetRoutine'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+  /pets/{petId}/routine/activities:
+    post:
+      summary: Create an activity inside the pet routine
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/PetId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRoutineActivityRequest'
       responses:
         '201':
-          description: Created
+          description: Created activity
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RoutineDefinition'
+                $ref: '#/components/schemas/RoutineActivity'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '500': { $ref: '#/components/responses/ServerError' }
-    get:
-      summary: List visible routines for a pet
-      security: [{ bearerAuth: [] }]
-      parameters:
-        - in: path
-          name: petId
-          required: true
-          schema: { type: string }
-      responses:
-        '200':
-          description: Routines
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [routines]
-                properties:
-                  routines:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/RoutineDefinition'
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '500': { $ref: '#/components/responses/ServerError' }
-  /pets/{petId}/routines/{routineId}:
-    get:
-      summary: Get a routine
-      security: [{ bearerAuth: [] }]
-      parameters:
-        - $ref: '#/components/parameters/PetId'
-        - $ref: '#/components/parameters/RoutineId'
-      responses:
-        '200':
-          description: Routine
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RoutineDefinition'
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '500': { $ref: '#/components/responses/ServerError' }
+  /pets/{petId}/routine/activities/{activityId}:
     patch:
-      summary: Update a routine
+      summary: Update a routine activity
       security: [{ bearerAuth: [] }]
       parameters:
         - $ref: '#/components/parameters/PetId'
-        - $ref: '#/components/parameters/RoutineId'
+        - $ref: '#/components/parameters/ActivityId'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateRoutineRequest'
+              $ref: '#/components/schemas/UpdateRoutineActivityRequest'
       responses:
         '200':
-          description: Updated
+          description: Updated activity
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RoutineDefinition'
+                $ref: '#/components/schemas/RoutineActivity'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
         '500': { $ref: '#/components/responses/ServerError' }
     delete:
-      summary: Delete a routine and its occurrences
+      summary: Delete a routine activity and its materialized occurrences
       security: [{ bearerAuth: [] }]
       parameters:
         - $ref: '#/components/parameters/PetId'
-        - $ref: '#/components/parameters/RoutineId'
+        - $ref: '#/components/parameters/ActivityId'
       responses:
         '200':
           description: Deleted
@@ -114,15 +107,15 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
         '500': { $ref: '#/components/responses/ServerError' }
-  /pets/{petId}/routines/upcoming:
+  /pets/{petId}/routine/today:
     get:
-      summary: List upcoming routine occurrences for a pet
+      summary: List routine occurrences for today ordered by time
       security: [{ bearerAuth: [] }]
       parameters:
         - $ref: '#/components/parameters/PetId'
       responses:
         '200':
-          description: Upcoming occurrences
+          description: Today routine
           content:
             application/json:
               schema:
@@ -136,15 +129,15 @@ paths:
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '500': { $ref: '#/components/responses/ServerError' }
-  /pets/{petId}/routines/history:
+  /pets/{petId}/routine/history:
     get:
-      summary: List recent routine history for a pet
+      summary: List recent completed, skipped and missed occurrences
       security: [{ bearerAuth: [] }]
       parameters:
         - $ref: '#/components/parameters/PetId'
       responses:
         '200':
-          description: History occurrences
+          description: Routine history
           content:
             application/json:
               schema:
@@ -158,33 +151,9 @@ paths:
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '500': { $ref: '#/components/responses/ServerError' }
-  /pets/{petId}/routines/{routineId}/occurrences:
-    get:
-      summary: List recent occurrences for a routine
-      security: [{ bearerAuth: [] }]
-      parameters:
-        - $ref: '#/components/parameters/PetId'
-        - $ref: '#/components/parameters/RoutineId'
-      responses:
-        '200':
-          description: Routine occurrences
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [occurrences]
-                properties:
-                  occurrences:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/RoutineOccurrence'
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '500': { $ref: '#/components/responses/ServerError' }
-  /pets/{petId}/routines/occurrences/{occurrenceId}/complete:
+  /pets/{petId}/routine/occurrences/{occurrenceId}/complete:
     post:
-      summary: Mark occurrence as completed
+      summary: Mark an occurrence as completed
       security: [{ bearerAuth: [] }]
       parameters:
         - $ref: '#/components/parameters/PetId'
@@ -206,9 +175,9 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
         '500': { $ref: '#/components/responses/ServerError' }
-  /pets/{petId}/routines/occurrences/{occurrenceId}/skip:
+  /pets/{petId}/routine/occurrences/{occurrenceId}/skip:
     post:
-      summary: Mark occurrence as skipped
+      summary: Mark an occurrence as skipped
       security: [{ bearerAuth: [] }]
       parameters:
         - $ref: '#/components/parameters/PetId'
@@ -237,9 +206,9 @@ components:
       name: petId
       required: true
       schema: { type: string }
-    RoutineId:
+    ActivityId:
       in: path
-      name: routineId
+      name: activityId
       required: true
       schema: { type: string }
     OccurrenceId:
@@ -253,10 +222,24 @@ components:
       scheme: bearer
       bearerFormat: JWT
   schemas:
-    RoutineDefinition:
+    PetRoutine:
       type: object
-      required: [routineId, petId, ownerUserId, title, type, status, timezone, schedule, createdAt, updatedAt]
+      required: [routineId, petId, ownerUserId, timezone, status, createdAt, updatedAt]
       properties:
+        routineId: { type: string }
+        petId: { type: string }
+        ownerUserId: { type: string }
+        timezone: { type: string }
+        status:
+          type: string
+          enum: [ACTIVE, PAUSED, ARCHIVED]
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    RoutineActivity:
+      type: object
+      required: [activityId, routineId, petId, ownerUserId, title, type, status, schedule, createdAt, updatedAt]
+      properties:
+        activityId: { type: string }
         routineId: { type: string }
         petId: { type: string }
         ownerUserId: { type: string }
@@ -268,10 +251,8 @@ components:
         status:
           type: string
           enum: [ACTIVE, PAUSED, ARCHIVED]
-        timezone: { type: string }
         schedule:
           oneOf:
-            - $ref: '#/components/schemas/HourlyIntervalSchedule'
             - $ref: '#/components/schemas/DailySchedule'
             - $ref: '#/components/schemas/WeeklySchedule'
             - $ref: '#/components/schemas/MonthlySchedule'
@@ -279,10 +260,11 @@ components:
         updatedAt: { type: string, format: date-time }
     RoutineOccurrence:
       type: object
-      required: [occurrenceId, routineId, petId, scheduledFor, status, createdAt, updatedAt]
+      required: [occurrenceId, routineId, activityId, petId, scheduledFor, status, createdAt, updatedAt]
       properties:
         occurrenceId: { type: string }
         routineId: { type: string }
+        activityId: { type: string }
         petId: { type: string }
         scheduledFor: { type: string, format: date-time }
         status:
@@ -298,26 +280,49 @@ components:
       allOf:
         - $ref: '#/components/schemas/RoutineOccurrence'
         - type: object
+          required: [activity]
           properties:
-            routine:
-              $ref: '#/components/schemas/RoutineDefinition'
-    CreateRoutineRequest:
+            activity:
+              $ref: '#/components/schemas/RoutineActivity'
+    RoutineDetailResponse:
       type: object
-      required: [title, type, timezone, schedule]
+      required: [activities]
+      properties:
+        routine:
+          allOf:
+            - $ref: '#/components/schemas/PetRoutine'
+          nullable: true
+        activities:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoutineActivity'
+    UpsertRoutineRequest:
+      type: object
+      required: [timezone]
+      properties:
+        timezone: { type: string }
+        status:
+          type: string
+          enum: [ACTIVE, PAUSED, ARCHIVED]
+    CreateRoutineActivityRequest:
+      type: object
+      required: [title, type, schedule]
       properties:
         title: { type: string }
         type:
           type: string
           enum: [FEEDING, WALKING, MEDICATION, HYGIENE, TRAINING, CUSTOM]
         notes: { type: string }
-        timezone: { type: string }
+        status:
+          type: string
+          enum: [ACTIVE, PAUSED]
+        routineTimezone: { type: string }
         schedule:
           oneOf:
-            - $ref: '#/components/schemas/HourlyIntervalSchedule'
             - $ref: '#/components/schemas/DailySchedule'
             - $ref: '#/components/schemas/WeeklySchedule'
             - $ref: '#/components/schemas/MonthlySchedule'
-    UpdateRoutineRequest:
+    UpdateRoutineActivityRequest:
       type: object
       properties:
         title: { type: string }
@@ -325,29 +330,14 @@ components:
           type: string
           enum: [FEEDING, WALKING, MEDICATION, HYGIENE, TRAINING, CUSTOM]
         notes: { type: string }
-        timezone: { type: string }
         status:
           type: string
           enum: [ACTIVE, PAUSED, ARCHIVED]
         schedule:
           oneOf:
-            - $ref: '#/components/schemas/HourlyIntervalSchedule'
             - $ref: '#/components/schemas/DailySchedule'
             - $ref: '#/components/schemas/WeeklySchedule'
             - $ref: '#/components/schemas/MonthlySchedule'
-    HourlyIntervalSchedule:
-      type: object
-      required: [frequency, intervalHours, anchorTime]
-      properties:
-        frequency:
-          type: string
-          enum: [HOURLY_INTERVAL]
-        intervalHours:
-          type: integer
-          minimum: 1
-        anchorTime:
-          type: string
-          pattern: '^\d{2}:\d{2}$'
     DailySchedule:
       type: object
       required: [frequency, times]

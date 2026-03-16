@@ -12,7 +12,8 @@ import {
   Pet,
   PetEvent,
   PetReminder,
-  RoutineDefinition,
+  PetRoutine,
+  RoutineActivity,
   RoutineStatus,
 } from '@pettzi/domain-model';
 import { PetsService } from '../../core/services/pets.service';
@@ -69,8 +70,9 @@ export class DashboardPetComponent implements OnInit {
   breedOptions: BreedItem[] = [];
   activityLog: PetEvent[] = [];
   remindersList: PetReminder[] = [];
-  routinesList: RoutineDefinition[] = [];
-  routineUpcomingList: RoutineOccurrenceExpanded[] = [];
+  routine: PetRoutine | null = null;
+  routineActivities: RoutineActivity[] = [];
+  routineTodayList: RoutineOccurrenceExpanded[] = [];
   routineHistoryList: RoutineOccurrenceExpanded[] = [];
   ownersList: PetOwner[] = [];
   eventsCursor = '';
@@ -787,19 +789,22 @@ export class DashboardPetComponent implements OnInit {
       });
   }
 
-  openRoutineDialog(routine?: RoutineDefinition) {
+  openRoutineDialog(activity?: RoutineActivity) {
     const petId = this.pet?.petId;
     if (!petId) {
       return;
     }
     this.dialog
-      .open<RoutineDialogComponent, { routine?: RoutineDefinition | null; timezone?: string }, RoutineDialogResult>(
+      .open<RoutineDialogComponent, { activity?: RoutineActivity | null; timezone?: string }, RoutineDialogResult>(
         RoutineDialogComponent,
         {
           panelClass: 'pet-dialog',
           data: {
-            routine: routine ?? null,
-            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Guatemala',
+            activity: activity ?? null,
+            timezone:
+              this.routine?.timezone ||
+              Intl.DateTimeFormat().resolvedOptions().timeZone ||
+              'America/Guatemala',
           },
         }
       )
@@ -813,14 +818,18 @@ export class DashboardPetComponent implements OnInit {
           title: result.title,
           type: result.type,
           notes: result.notes,
-          timezone: result.timezone,
+          status: result.status,
+          routineTimezone:
+            this.routine?.timezone ||
+            result.routineTimezone ||
+            Intl.DateTimeFormat().resolvedOptions().timeZone ||
+            'America/Guatemala',
           schedule: result.schedule,
-          ...(routine ? { status: result.status } : {}),
         };
 
-        const operation = routine?.routineId
-          ? this.routines.updatePetRoutine(petId, routine.routineId, request)
-          : this.routines.createPetRoutine(petId, request);
+        const operation = activity?.activityId
+          ? this.routines.updateRoutineActivity(petId, activity.activityId, request)
+          : this.routines.createRoutineActivity(petId, request);
 
         operation.subscribe({
           next: () => {
@@ -889,44 +898,41 @@ export class DashboardPetComponent implements OnInit {
     });
   }
 
-  deleteRoutine(routine: RoutineDefinition) {
-    if (!this.pet?.petId || !routine?.routineId || this.deletingRoutineIds.has(routine.routineId)) {
+  deleteRoutineActivity(activity: RoutineActivity) {
+    if (!this.pet?.petId || !activity?.activityId || this.deletingRoutineIds.has(activity.activityId)) {
       return;
     }
     const petId = this.pet.petId;
-    this.deletingRoutineIds.add(routine.routineId);
-    this.routines.deletePetRoutine(petId, routine.routineId).subscribe({
+    this.deletingRoutineIds.add(activity.activityId);
+    this.routines.deleteRoutineActivity(petId, activity.activityId).subscribe({
       next: () => {
         this.loadRoutines(petId);
       },
       complete: () => {
-        this.deletingRoutineIds.delete(routine.routineId);
+        this.deletingRoutineIds.delete(activity.activityId);
       },
       error: () => {
-        this.deletingRoutineIds.delete(routine.routineId);
+        this.deletingRoutineIds.delete(activity.activityId);
       },
     });
   }
 
-  toggleRoutinePause(routine: RoutineDefinition) {
-    if (!this.pet?.petId || !routine?.routineId || this.deletingRoutineIds.has(routine.routineId)) {
+  toggleRoutinePause() {
+    if (!this.pet?.petId) {
       return;
     }
     const petId = this.pet.petId;
-    this.deletingRoutineIds.add(routine.routineId);
+    const timezone =
+      this.routine?.timezone ||
+      Intl.DateTimeFormat().resolvedOptions().timeZone ||
+      'America/Guatemala';
     const nextStatus =
-      routine.status === RoutineStatus.PAUSED
+      this.routine?.status === RoutineStatus.PAUSED
         ? RoutineStatus.ACTIVE
         : RoutineStatus.PAUSED;
-    this.routines.updatePetRoutine(petId, routine.routineId, { status: nextStatus }).subscribe({
+    this.routines.upsertPetRoutine(petId, { timezone, status: nextStatus }).subscribe({
       next: () => {
         this.loadRoutines(petId);
-      },
-      complete: () => {
-        this.deletingRoutineIds.delete(routine.routineId);
-      },
-      error: () => {
-        this.deletingRoutineIds.delete(routine.routineId);
       },
     });
   }
@@ -1008,14 +1014,8 @@ export class DashboardPetComponent implements OnInit {
     return this.translate.instant(`dashboard.occurrenceStatus.${status.toLowerCase()}`);
   }
 
-  formatRoutineSchedule(routine: RoutineDefinition) {
-    const schedule = routine.schedule;
-    if (schedule.frequency === 'HOURLY_INTERVAL') {
-      return this.translate.instant('dashboard.routineSummaryHourly', {
-        hours: schedule.intervalHours,
-        time: schedule.anchorTime,
-      });
-    }
+  formatRoutineSchedule(activity: RoutineActivity) {
+    const schedule = activity.schedule;
     if (schedule.frequency === 'DAILY') {
       return this.translate.instant('dashboard.routineSummaryDaily', {
         times: schedule.times.join(', '),
@@ -1101,16 +1101,17 @@ export class DashboardPetComponent implements OnInit {
   }
 
   private loadRoutines(petId: string) {
-    this.routines.listPetRoutines(petId).subscribe({
-      next: ({ routines }) => {
-        this.routinesList = [...(routines ?? [])].sort((a, b) =>
-          a.title.localeCompare(b.title)
+    this.routines.getPetRoutine(petId).subscribe({
+      next: ({ routine, activities }) => {
+        this.routine = routine ?? null;
+        this.routineActivities = [...(activities ?? [])].sort((a, b) =>
+          this.getActivitySortKey(a).localeCompare(this.getActivitySortKey(b))
         );
       },
     });
-    this.routines.listUpcoming(petId).subscribe({
+    this.routines.listToday(petId).subscribe({
       next: ({ occurrences }) => {
-        this.routineUpcomingList = [...(occurrences ?? [])].sort((a, b) => {
+        this.routineTodayList = [...(occurrences ?? [])].sort((a, b) => {
           const aDate = new Date(a.scheduledFor as unknown as string).getTime();
           const bDate = new Date(b.scheduledFor as unknown as string).getTime();
           return aDate - bDate;
@@ -1248,6 +1249,18 @@ export class DashboardPetComponent implements OnInit {
         this.updatingOccurrenceIds.delete(occurrence.occurrenceId);
       },
     });
+  }
+
+  private getActivitySortKey(activity: RoutineActivity) {
+    const schedule = activity.schedule;
+    const times = [...schedule.times].sort((left, right) => left.localeCompare(right));
+    const prefix =
+      schedule.frequency === 'WEEKLY'
+        ? `${schedule.daysOfWeek[0] ?? 0}`
+        : schedule.frequency === 'MONTHLY'
+          ? `${schedule.daysOfMonth[0] ?? 0}`.padStart(2, '0')
+          : '00';
+    return `${prefix}-${times[0] ?? '99:99'}-${activity.title.toLowerCase()}`;
   }
 
 }

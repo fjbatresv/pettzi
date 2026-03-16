@@ -14,15 +14,11 @@ export type PetId = string;
 export type EventId = string;
 export type ReminderId = string;
 export type RoutineId = string;
+export type RoutineActivityId = string;
 export type RoutineOccurrenceId = string;
 export type SharedRecordToken = string;
 
 export type RoutineSchedule =
-  | {
-      frequency: 'HOURLY_INTERVAL';
-      intervalHours: number;
-      anchorTime: string;
-    }
   | {
       frequency: 'DAILY';
       times: string[];
@@ -116,7 +112,18 @@ export interface PetReminder {
   completedAt?: Date;
 }
 
-export interface RoutineDefinition {
+export interface PetRoutine {
+  routineId: RoutineId;
+  petId: PetId;
+  ownerUserId: UserId;
+  status: RoutineStatus;
+  timezone: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface RoutineActivity {
+  activityId: RoutineActivityId;
   routineId: RoutineId;
   petId: PetId;
   ownerUserId: UserId;
@@ -124,7 +131,6 @@ export interface RoutineDefinition {
   type: RoutineType;
   notes?: string;
   status: RoutineStatus;
-  timezone: string;
   schedule: RoutineSchedule;
   createdAt: Date;
   updatedAt: Date;
@@ -133,6 +139,7 @@ export interface RoutineDefinition {
 export interface RoutineOccurrence {
   occurrenceId: RoutineOccurrenceId;
   routineId: RoutineId;
+  activityId: RoutineActivityId;
   petId: PetId;
   scheduledFor: Date;
   status: RoutineOccurrenceStatus;
@@ -143,6 +150,8 @@ export interface RoutineOccurrence {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export type RoutineDefinition = RoutineActivity;
 
 export interface SharedRecord {
   token: SharedRecordToken;

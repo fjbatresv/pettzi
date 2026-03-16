@@ -8,21 +8,19 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import {
-  RoutineDefinition,
+  RoutineActivity,
   RoutineStatus,
   RoutineType,
 } from '@pettzi/domain-model';
 import { TranslateModule } from '@ngx-translate/core';
-import { CreateRoutineRequest } from '../../core/services/routines.service';
+import { CreateRoutineActivityRequest } from '../../core/services/routines.service';
 
 export interface RoutineDialogData {
-  routine?: RoutineDefinition | null;
+  activity?: RoutineActivity | null;
   timezone?: string;
 }
 
-export interface RoutineDialogResult extends CreateRoutineRequest {
-  status?: RoutineStatus;
-}
+export type RoutineDialogResult = CreateRoutineActivityRequest;
 
 @Component({
   selector: 'app-routine-dialog',
@@ -44,41 +42,35 @@ export class RoutineDialogComponent {
   private readonly dialogRef = inject(MatDialogRef<RoutineDialogComponent>);
   private readonly data = inject<RoutineDialogData>(MAT_DIALOG_DATA, { optional: true }) ?? {};
 
-  private readonly routine = this.data.routine ?? null;
+  private readonly activity = this.data.activity ?? null;
 
-  title = this.routine?.title ?? '';
-  type = this.routine?.type ?? RoutineType.CUSTOM;
-  notes = this.routine?.notes ?? '';
-  timezone = this.routine?.timezone ?? this.data.timezone ?? 'America/Guatemala';
-  status = this.routine?.status ?? RoutineStatus.ACTIVE;
-  frequency = this.routine?.schedule.frequency ?? 'DAILY';
+  title = this.activity?.title ?? '';
+  type = this.activity?.type ?? RoutineType.CUSTOM;
+  notes = this.activity?.notes ?? '';
+  routineTimezone = this.data.timezone ?? 'America/Guatemala';
+  status: RoutineStatus.ACTIVE | RoutineStatus.PAUSED =
+    this.activity?.status === RoutineStatus.PAUSED
+      ? RoutineStatus.PAUSED
+      : RoutineStatus.ACTIVE;
+  frequency = this.activity?.schedule.frequency ?? 'DAILY';
   timesText = this.getTimesText();
-  daysOfWeekText = this.routine?.schedule.frequency === 'WEEKLY'
-    ? this.routine.schedule.daysOfWeek.join(', ')
+  daysOfWeekText = this.activity?.schedule.frequency === 'WEEKLY'
+    ? this.activity.schedule.daysOfWeek.join(', ')
     : '';
-  daysOfMonthText = this.routine?.schedule.frequency === 'MONTHLY'
-    ? this.routine.schedule.daysOfMonth.join(', ')
+  daysOfMonthText = this.activity?.schedule.frequency === 'MONTHLY'
+    ? this.activity.schedule.daysOfMonth.join(', ')
     : '';
-  intervalHours = this.routine?.schedule.frequency === 'HOURLY_INTERVAL'
-    ? this.routine.schedule.intervalHours
-    : 12;
-  anchorTime = this.routine?.schedule.frequency === 'HOURLY_INTERVAL'
-    ? this.routine.schedule.anchorTime
-    : '08:00';
 
   readonly routineTypes = Object.values(RoutineType);
-  readonly routineStatuses = Object.values(RoutineStatus);
+  readonly routineStatuses = [RoutineStatus.ACTIVE, RoutineStatus.PAUSED];
 
   get isEditMode() {
-    return Boolean(this.routine);
+    return Boolean(this.activity);
   }
 
   get isFormValid() {
-    if (!this.title.trim() || !this.timezone.trim()) {
+    if (!this.title.trim()) {
       return false;
-    }
-    if (this.frequency === 'HOURLY_INTERVAL') {
-      return this.intervalHours >= 1 && this.isValidTime(this.anchorTime);
     }
     const times = this.parseTextList(this.timesText);
     if (!times.length || !times.every((time) => this.isValidTime(time))) {
@@ -107,21 +99,14 @@ export class RoutineDialogComponent {
       title: this.title.trim(),
       type: this.type,
       notes: this.notes.trim() || undefined,
-      timezone: this.timezone.trim(),
       status: this.status,
+      routineTimezone: this.routineTimezone,
       schedule: this.buildSchedule(),
     };
     this.dialogRef.close(result);
   }
 
-  private buildSchedule(): RoutineDefinition['schedule'] {
-    if (this.frequency === 'HOURLY_INTERVAL') {
-      return {
-        frequency: 'HOURLY_INTERVAL',
-        intervalHours: this.intervalHours,
-        anchorTime: this.anchorTime.trim(),
-      };
-    }
+  private buildSchedule(): RoutineActivity['schedule'] {
     const times = this.parseTextList(this.timesText);
     if (this.frequency === 'WEEKLY') {
       return {
@@ -161,12 +146,9 @@ export class RoutineDialogComponent {
   }
 
   private getTimesText() {
-    if (!this.routine) {
+    if (!this.activity) {
       return '';
     }
-    if (this.routine.schedule.frequency === 'HOURLY_INTERVAL') {
-      return '';
-    }
-    return this.routine.schedule.times.join(', ');
+    return this.activity.schedule.times.join(', ');
   }
 }

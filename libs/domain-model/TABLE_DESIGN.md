@@ -13,8 +13,9 @@ Keys use helpers from `@pettzi/utils-dynamo/key`.
 | PetOwner link   | `PET#<petId>`            | `OWNER#<ownerId>`                  | —                                            |
 | PetEvent        | `PET#<petId>`            | `EVENT#<isoDate>#<eventId>`        | —                                            |
 | PetReminder     | `PET#<petId>`            | `REMINDER#<reminderId>`            | `REMINDER#VACCINATION` / `<due>#PET#<id>#…`  |
-| RoutineDefinition | `PET#<petId>`          | `ROUTINE#<routineId>`              | —                                            |
-| RoutineOccurrence | `PET#<petId>`          | `ROUTINE_OCC#<isoDate>#<routineId>#<occurrenceId>` | —                             |
+| PetRoutine       | `PET#<petId>`          | `ROUTINE#<routineId>`              | —                                            |
+| RoutineActivity  | `PET#<petId>`          | `ROUTINE_ACTIVITY#<activityId>`    | —                                            |
+| RoutineOccurrence | `PET#<petId>`         | `ROUTINE_OCC#<isoDate>#<activityId>#<occurrenceId>` | —                            |
 | Catalog species | `CATALOG#SPECIES`        | `<SPECIES_CODE>`                   | —                                            |
 | Catalog breeds  | `CATALOG#BREED#<SPECIES>`| `<BREED_CODE>`                     | —                                            |
 | Catalog vaccines| `CATALOG#VACCINE`        | `<VACCINE_CODE>`                   | —                                            |
@@ -90,19 +91,35 @@ Keys use helpers from `@pettzi/utils-dynamo/key`.
 }
 ```
 
-### RoutineDefinition
+### PetRoutine
 ```json
 {
   "PK": "PET#pet123",
-  "SK": "ROUTINE#rt001",
-  "type": "RoutineDefinition",
-  "routineType": "WALKING",
+  "SK": "ROUTINE#pet123",
+  "type": "PetRoutine",
   "petId": "pet123",
-  "routineId": "rt001",
+  "routineId": "pet123",
   "ownerUserId": "owner@example.com",
-  "title": "Morning walk",
   "status": "ACTIVE",
   "timezone": "America/Guatemala",
+  "createdAt": "2026-01-01T00:00:00.000Z",
+  "updatedAt": "2026-01-01T00:00:00.000Z"
+}
+```
+
+### RoutineActivity
+```json
+{
+  "PK": "PET#pet123",
+  "SK": "ROUTINE_ACTIVITY#act001",
+  "type": "RoutineActivity",
+  "petId": "pet123",
+  "routineId": "pet123",
+  "activityId": "act001",
+  "ownerUserId": "owner@example.com",
+  "title": "Morning walk",
+  "routineType": "WALKING",
+  "status": "ACTIVE",
   "schedule": { "frequency": "DAILY", "times": ["07:00"] },
   "createdAt": "2026-01-01T00:00:00.000Z",
   "updatedAt": "2026-01-01T00:00:00.000Z"
@@ -113,10 +130,11 @@ Keys use helpers from `@pettzi/utils-dynamo/key`.
 ```json
 {
   "PK": "PET#pet123",
-  "SK": "ROUTINE_OCC#2026-01-02T07:00:00.000Z#rt001#occ001",
+  "SK": "ROUTINE_OCC#2026-01-02T07:00:00.000Z#act001#occ001",
   "type": "RoutineOccurrence",
   "petId": "pet123",
-  "routineId": "rt001",
+  "routineId": "pet123",
+  "activityId": "act001",
   "occurrenceId": "occ001",
   "scheduledFor": "2026-01-02T07:00:00.000Z",
   "status": "PENDING",

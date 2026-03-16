@@ -13,6 +13,8 @@ import {
   buildPetReminderSk,
   buildPetRoutineOccurrencePk,
   buildPetRoutineOccurrenceSk,
+  buildPetRoutineActivityPk,
+  buildPetRoutineActivitySk,
   buildPetRoutinePk,
   buildPetRoutineSk,
   buildReminderGsi1Pk,
@@ -31,7 +33,8 @@ import {
   PetEvent,
   PetOwner,
   PetReminder,
-  RoutineDefinition,
+  PetRoutine,
+  RoutineActivity,
   RoutineOccurrence,
   SharedRecord,
   UserAccount,
@@ -75,6 +78,7 @@ type DynamoItem = {
   message?: any;
   completedAt?: any;
   routineId?: any;
+  activityId?: any;
   routineType?: any;
   ownerUserId?: any;
   status?: any;
@@ -327,41 +331,77 @@ export const fromItemPetReminder = (item: DynamoItem): PetReminder => ({
   completedAt: parseDate(item.completedAt),
 });
 
-export const toItemRoutineDefinition = (
-  routine: RoutineDefinition
+export const toItemPetRoutine = (
+  routine: PetRoutine
 ): DynamoItem => {
   requireField(routine.petId, 'petId');
   requireField(routine.routineId, 'routineId');
   requireField(routine.ownerUserId, 'ownerUserId');
-  requireField(routine.title, 'title');
-  requireField(routine.type, 'type');
   requireField(routine.status, 'status');
   requireField(routine.timezone, 'timezone');
-  requireField(routine.schedule, 'schedule');
   requireField(routine.createdAt, 'createdAt');
   requireField(routine.updatedAt, 'updatedAt');
 
   return {
     PK: buildPetRoutinePk(routine.petId),
     SK: buildPetRoutineSk(routine.routineId),
-    type: 'RoutineDefinition',
-    routineType: routine.type,
+    type: 'PetRoutine',
     petId: routine.petId,
     routineId: routine.routineId,
     ownerUserId: routine.ownerUserId,
-    title: routine.title,
-    notes: routine.notes,
     status: routine.status,
     timezone: routine.timezone,
-    schedule: routine.schedule,
     createdAt: toIso(routine.createdAt),
     updatedAt: toIso(routine.updatedAt),
   };
 };
 
-export const fromItemRoutineDefinition = (
+export const fromItemPetRoutine = (item: DynamoItem): PetRoutine => ({
+  routineId: item.routineId,
+  petId: item.petId,
+  ownerUserId: item.ownerUserId,
+  status: item.status,
+  timezone: item.timezone,
+  createdAt: new Date(item.createdAt),
+  updatedAt: new Date(item.updatedAt ?? item.createdAt),
+});
+
+export const toItemRoutineActivity = (
+  activity: RoutineActivity
+): DynamoItem => {
+  requireField(activity.petId, 'petId');
+  requireField(activity.routineId, 'routineId');
+  requireField(activity.activityId, 'activityId');
+  requireField(activity.ownerUserId, 'ownerUserId');
+  requireField(activity.title, 'title');
+  requireField(activity.type, 'type');
+  requireField(activity.status, 'status');
+  requireField(activity.schedule, 'schedule');
+  requireField(activity.createdAt, 'createdAt');
+  requireField(activity.updatedAt, 'updatedAt');
+
+  return {
+    PK: buildPetRoutineActivityPk(activity.petId),
+    SK: buildPetRoutineActivitySk(activity.activityId),
+    type: 'RoutineActivity',
+    petId: activity.petId,
+    routineId: activity.routineId,
+    activityId: activity.activityId,
+    ownerUserId: activity.ownerUserId,
+    title: activity.title,
+    routineType: activity.type,
+    notes: activity.notes,
+    status: activity.status,
+    schedule: activity.schedule,
+    createdAt: toIso(activity.createdAt),
+    updatedAt: toIso(activity.updatedAt),
+  };
+};
+
+export const fromItemRoutineActivity = (
   item: DynamoItem
-): RoutineDefinition => ({
+): RoutineActivity => ({
+  activityId: item.activityId,
   routineId: item.routineId,
   petId: item.petId,
   ownerUserId: item.ownerUserId,
@@ -369,7 +409,6 @@ export const fromItemRoutineDefinition = (
   type: item.routineType,
   notes: item.notes,
   status: item.status,
-  timezone: item.timezone,
   schedule: item.schedule,
   createdAt: new Date(item.createdAt),
   updatedAt: new Date(item.updatedAt ?? item.createdAt),
@@ -380,6 +419,7 @@ export const toItemRoutineOccurrence = (
 ): DynamoItem => {
   requireField(occurrence.petId, 'petId');
   requireField(occurrence.routineId, 'routineId');
+  requireField(occurrence.activityId, 'activityId');
   requireField(occurrence.occurrenceId, 'occurrenceId');
   requireField(occurrence.scheduledFor, 'scheduledFor');
   requireField(occurrence.status, 'status');
@@ -390,12 +430,13 @@ export const toItemRoutineOccurrence = (
     PK: buildPetRoutineOccurrencePk(occurrence.petId),
     SK: buildPetRoutineOccurrenceSk(
       occurrence.scheduledFor,
-      occurrence.routineId,
+      occurrence.activityId,
       occurrence.occurrenceId
     ),
     type: 'RoutineOccurrence',
     petId: occurrence.petId,
     routineId: occurrence.routineId,
+    activityId: occurrence.activityId,
     occurrenceId: occurrence.occurrenceId,
     scheduledFor: toIso(occurrence.scheduledFor),
     status: occurrence.status,
@@ -413,6 +454,7 @@ export const fromItemRoutineOccurrence = (
 ): RoutineOccurrence => ({
   occurrenceId: item.occurrenceId,
   routineId: item.routineId,
+  activityId: item.activityId,
   petId: item.petId,
   scheduledFor: new Date(item.scheduledFor),
   status: item.status,
@@ -423,6 +465,9 @@ export const fromItemRoutineOccurrence = (
   createdAt: new Date(item.createdAt),
   updatedAt: new Date(item.updatedAt ?? item.createdAt),
 });
+
+export const toItemRoutineDefinition = toItemRoutineActivity;
+export const fromItemRoutineDefinition = fromItemRoutineActivity;
 
 export const toItemSharedRecord = (record: SharedRecord): DynamoItem => {
   requireField(record.token, 'token');

@@ -19,17 +19,26 @@ import { RoutinesService } from '../../core/services/routines.service';
 
 describe('DashboardPetComponent', () => {
   const routinesService = {
-    listPetRoutines: jest.fn(() =>
+    getPetRoutine: jest.fn(() =>
       of({
-        routines: [
+        routine: {
+          routineId: 'pet-1',
+          petId: 'pet-1',
+          ownerUserId: 'owner-1',
+          status: RoutineStatus.ACTIVE,
+          timezone: 'America/Guatemala',
+          createdAt: new Date('2026-01-01T00:00:00.000Z'),
+          updatedAt: new Date('2026-01-01T00:00:00.000Z'),
+        },
+        activities: [
           {
-            routineId: 'rt-1',
+            activityId: 'act-1',
+            routineId: 'pet-1',
             petId: 'pet-1',
             ownerUserId: 'owner-1',
             title: 'Morning walk',
             type: RoutineType.WALKING,
             status: RoutineStatus.ACTIVE,
-            timezone: 'America/Guatemala',
             schedule: { frequency: 'DAILY', times: ['07:00'] },
             createdAt: new Date('2026-01-01T00:00:00.000Z'),
             updatedAt: new Date('2026-01-01T00:00:00.000Z'),
@@ -37,25 +46,35 @@ describe('DashboardPetComponent', () => {
         ],
       })
     ),
-    listUpcoming: jest.fn(() =>
+    listToday: jest.fn(() =>
       of({
         occurrences: [
           {
             occurrenceId: 'occ-1',
-            routineId: 'rt-1',
+            routineId: 'pet-1',
+            activityId: 'act-1',
             petId: 'pet-1',
             scheduledFor: new Date('2026-01-02T07:00:00.000Z'),
             status: 'PENDING',
             createdAt: new Date('2026-01-01T00:00:00.000Z'),
             updatedAt: new Date('2026-01-01T00:00:00.000Z'),
             routine: {
-              routineId: 'rt-1',
+              routineId: 'pet-1',
+              petId: 'pet-1',
+              ownerUserId: 'owner-1',
+              status: RoutineStatus.ACTIVE,
+              timezone: 'America/Guatemala',
+              createdAt: new Date('2026-01-01T00:00:00.000Z'),
+              updatedAt: new Date('2026-01-01T00:00:00.000Z'),
+            },
+            activity: {
+              activityId: 'act-1',
+              routineId: 'pet-1',
               petId: 'pet-1',
               ownerUserId: 'owner-1',
               title: 'Morning walk',
               type: RoutineType.WALKING,
               status: RoutineStatus.ACTIVE,
-              timezone: 'America/Guatemala',
               schedule: { frequency: 'DAILY', times: ['07:00'] },
               createdAt: new Date('2026-01-01T00:00:00.000Z'),
               updatedAt: new Date('2026-01-01T00:00:00.000Z'),
@@ -65,9 +84,10 @@ describe('DashboardPetComponent', () => {
       })
     ),
     listHistory: jest.fn(() => of({ occurrences: [] })),
-    createPetRoutine: jest.fn(() => of({})),
-    updatePetRoutine: jest.fn(() => of({})),
-    deletePetRoutine: jest.fn(() => of({})),
+    createRoutineActivity: jest.fn(() => of({})),
+    updateRoutineActivity: jest.fn(() => of({})),
+    deleteRoutineActivity: jest.fn(() => of({})),
+    upsertPetRoutine: jest.fn(() => of({})),
     completeOccurrence: jest.fn(() => of({})),
     skipOccurrence: jest.fn(() => of({})),
   };
@@ -104,7 +124,7 @@ describe('DashboardPetComponent', () => {
         { provide: RemindersService, useValue: { listPetReminders: jest.fn(() => of({ reminders: [] })) } },
         { provide: CatalogsService, useValue: { getSpecies: jest.fn(() => of({ species: [] })), getBreeds: jest.fn(() => of({ breeds: [] })) } },
         { provide: OwnersService, useValue: { listPetOwners: jest.fn(() => of({ owners: [] })) } },
-        { provide: AuthService, useValue: { currentUser: jest.fn(() => ({ email: 'owner-1' })) } },
+        { provide: AuthService, useValue: { currentUser: jest.fn(() => ({ email: 'owner-1' })), getIdToken: jest.fn(async () => '') } },
         { provide: MatDialog, useValue: { open: jest.fn() } },
         { provide: Router, useValue: { navigate: jest.fn() } },
         { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => 'pet-1' } } } },
@@ -113,13 +133,13 @@ describe('DashboardPetComponent', () => {
     }).compileComponents();
   });
 
-  it('loads routines for the active pet', async () => {
+  it('loads the routine detail for the active pet', async () => {
     const fixture = TestBed.createComponent(DashboardPetComponent);
     fixture.detectChanges();
     await fixture.whenStable();
 
-    expect(routinesService.listPetRoutines).toHaveBeenCalledWith('pet-1');
-    expect(fixture.componentInstance.routinesList[0]?.title).toBe('Morning walk');
+    expect(routinesService.getPetRoutine).toHaveBeenCalledWith('pet-1');
+    expect(fixture.componentInstance.routineActivities[0]?.title).toBe('Morning walk');
   });
 
   it('completes a routine occurrence', async () => {
@@ -128,7 +148,7 @@ describe('DashboardPetComponent', () => {
     await fixture.whenStable();
 
     fixture.componentInstance.completeRoutineOccurrence(
-      fixture.componentInstance.routineUpcomingList[0]
+      fixture.componentInstance.routineTodayList[0]
     );
 
     expect(routinesService.completeOccurrence).toHaveBeenCalledWith('pet-1', 'occ-1');

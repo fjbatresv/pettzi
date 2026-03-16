@@ -95,7 +95,8 @@ describe('domain-model mappers', () => {
 
   it('round-trips a routine definition item', () => {
     const routine = {
-      routineId: 'rt-1',
+      activityId: 'act-1',
+      routineId: 'pet-1',
       petId: 'pet-1',
       ownerUserId: 'owner-1',
       title: 'Morning walk',
@@ -108,11 +109,11 @@ describe('domain-model mappers', () => {
     };
 
     const item = toItemRoutineDefinition(routine);
-    expect(item.SK).toBe('ROUTINE#rt-1');
+    expect(item.SK).toBe('ROUTINE_ACTIVITY#act-1');
 
     const back = fromItemRoutineDefinition(item);
     expect(back).toMatchObject({
-      routineId: routine.routineId,
+      activityId: routine.activityId,
       petId: routine.petId,
       type: routine.type,
       status: routine.status,
@@ -122,7 +123,8 @@ describe('domain-model mappers', () => {
   it('round-trips a routine occurrence item', () => {
     const occurrence = {
       occurrenceId: 'occ-1',
-      routineId: 'rt-1',
+      routineId: 'pet-1',
+      activityId: 'act-1',
       petId: 'pet-1',
       scheduledFor: new Date('2026-01-02T07:00:00.000Z'),
       status: RoutineOccurrenceStatus.PENDING,
@@ -131,12 +133,13 @@ describe('domain-model mappers', () => {
     };
 
     const item = toItemRoutineOccurrence(occurrence);
-    expect(item.SK).toContain('ROUTINE_OCC#2026-01-02T07:00:00.000Z#rt-1#occ-1');
+    expect(item.SK).toContain('ROUTINE_OCC#2026-01-02T07:00:00.000Z#act-1#occ-1');
 
     const back = fromItemRoutineOccurrence(item);
     expect(back).toMatchObject({
       occurrenceId: occurrence.occurrenceId,
       routineId: occurrence.routineId,
+      activityId: occurrence.activityId,
       petId: occurrence.petId,
       status: occurrence.status,
     });

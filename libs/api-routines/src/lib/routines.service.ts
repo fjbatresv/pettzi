@@ -5,18 +5,23 @@ import {
 } from '@aws-sdk/lib-dynamodb';
 import { badRequest, notFound } from '@pettzi/utils-dynamo/http';
 import {
+  buildPetRoutineActivityPk,
+  buildPetRoutineActivitySk,
   buildPetRoutineOccurrencePk,
-  buildPetRoutineSk,
   buildPetRoutinePk,
-  fromItemRoutineDefinition,
+  buildPetRoutineSk,
+  fromItemPetRoutine,
+  fromItemRoutineActivity,
   fromItemRoutineOccurrence,
-  RoutineDefinition,
+  PetRoutine,
+  RoutineActivity,
   RoutineOccurrence,
   RoutineOccurrenceStatus,
   RoutineSchedule,
   RoutineStatus,
   RoutineType,
-  toItemRoutineDefinition,
+  toItemPetRoutine,
+  toItemRoutineActivity,
   toItemRoutineOccurrence,
 } from '@pettzi/domain-model';
 import { docClient, PETTZI_TABLE_NAME } from '../handlers/common';
@@ -26,22 +31,33 @@ const FUTURE_WINDOW_DAYS = 30;
 const TIME_PATTERN = /^\d{2}:\d{2}$/;
 
 export interface RoutineOccurrenceExpanded extends RoutineOccurrence {
-  routine: RoutineDefinition;
+  activity: RoutineActivity;
+  routine: PetRoutine;
 }
 
-export interface CreateRoutineInput {
+export interface RoutineDetail {
+  routine: PetRoutine | null;
+  activities: RoutineActivity[];
+}
+
+export interface UpsertRoutineInput {
+  timezone: string;
+  status?: RoutineStatus;
+}
+
+export interface CreateRoutineActivityInput {
   title: string;
   type: RoutineType;
   notes?: string;
-  timezone: string;
+  status?: RoutineStatus.ACTIVE | RoutineStatus.PAUSED;
+  routineTimezone?: string;
   schedule: RoutineSchedule;
 }
 
-export interface UpdateRoutineInput {
+export interface UpdateRoutineActivityInput {
   title?: string;
   type?: RoutineType;
   notes?: string;
-  timezone?: string;
   status?: RoutineStatus;
   schedule?: RoutineSchedule;
 }
@@ -84,18 +100,14 @@ export const validateSchedule = (schedule: RoutineSchedule): RoutineSchedule => 
   }
 
   switch (schedule.frequency) {
-    case 'HOURLY_INTERVAL': {
-      parseTime(schedule.anchorTime);
-      if (!Number.isInteger(schedule.intervalHours) || schedule.intervalHours < 1 || schedule.intervalHours > 24) {
-        throw badRequest('intervalHours must be an integer between 1 and 24');
-      }
-      return schedule;
-    }
     case 'DAILY': {
       if (!schedule.times?.length) {
         throw badRequest('times is required');
       }
-      return { ...schedule, times: uniqueSortedTimes(schedule.times.map((time) => parseTime(time) && time)) };
+      return {
+        ...schedule,
+        times: uniqueSortedTimes(schedule.times.map((time) => parseTime(time) && time)),
+      };
     }
     case 'WEEKLY': {
       if (!schedule.daysOfWeek?.length) {
@@ -136,30 +148,48 @@ export const validateSchedule = (schedule: RoutineSchedule): RoutineSchedule => 
   }
 };
 
-export const validateCreateRoutine = (input: CreateRoutineInput): CreateRoutineInput => {
+export const validateUpsertRoutine = (input: UpsertRoutineInput): UpsertRoutineInput => {
+  if (!input.timezone?.trim()) {
+    throw badRequest('timezone is required');
+  }
+  if (!isValidTimeZone(input.timezone.trim())) {
+    throw badRequest('timezone is invalid');
+  }
+  return {
+    timezone: input.timezone.trim(),
+    status: input.status ?? RoutineStatus.ACTIVE,
+  };
+};
+
+export const validateCreateRoutineActivity = (
+  input: CreateRoutineActivityInput
+): CreateRoutineActivityInput => {
   if (!input.title?.trim()) {
     throw badRequest('title is required');
   }
   if (!input.type) {
     throw badRequest('type is required');
   }
-  if (!input.timezone?.trim()) {
-    throw badRequest('timezone is required');
+  if (input.routineTimezone !== undefined) {
+    if (!input.routineTimezone.trim() || !isValidTimeZone(input.routineTimezone.trim())) {
+      throw badRequest('routineTimezone is invalid');
+    }
   }
-  if (!isValidTimeZone(input.timezone)) {
-    throw badRequest('timezone is invalid');
-  }
+
   return {
     title: input.title.trim(),
     type: input.type,
     notes: input.notes?.trim() || undefined,
-    timezone: input.timezone.trim(),
+    status: input.status ?? RoutineStatus.ACTIVE,
+    routineTimezone: input.routineTimezone?.trim() || undefined,
     schedule: validateSchedule(input.schedule),
   };
 };
 
-export const validateUpdateRoutine = (input: UpdateRoutineInput): UpdateRoutineInput => {
-  const next: UpdateRoutineInput = { ...input };
+export const validateUpdateRoutineActivity = (
+  input: UpdateRoutineActivityInput
+): UpdateRoutineActivityInput => {
+  const next: UpdateRoutineActivityInput = { ...input };
   if (next.title !== undefined) {
     if (!next.title.trim()) {
       throw badRequest('title cannot be empty');
@@ -168,12 +198,6 @@ export const validateUpdateRoutine = (input: UpdateRoutineInput): UpdateRoutineI
   }
   if (next.notes !== undefined) {
     next.notes = next.notes.trim() || undefined;
-  }
-  if (next.timezone !== undefined) {
-    if (!next.timezone.trim() || !isValidTimeZone(next.timezone)) {
-      throw badRequest('timezone is invalid');
-    }
-    next.timezone = next.timezone.trim();
   }
   if (next.schedule) {
     next.schedule = validateSchedule(next.schedule);
@@ -238,18 +262,29 @@ const addDaysUtc = (date: Date, days: number) => {
 
 const addMonthsLocal = (date: Date, months: number, timeZone: string) => {
   const parts = formatInTimeZone(date, timeZone);
-  const utc = new Date(Date.UTC(parts.year, parts.month - 1 + months, 1, 12, 0, 0));
-  return utc;
+  return new Date(Date.UTC(parts.year, parts.month - 1 + months, 1, 12, 0, 0));
 };
 
-const getOccurrenceId = (routineId: string, scheduledFor: Date) =>
-  `${routineId}:${scheduledFor.toISOString()}`;
+const isSameLocalDate = (left: Date, right: Date, timeZone: string) => {
+  const a = formatInTimeZone(left, timeZone);
+  const b = formatInTimeZone(right, timeZone);
+  return a.year === b.year && a.month === b.month && a.day === b.day;
+};
 
-export const generateOccurrencesForRoutine = (
-  routine: RoutineDefinition,
+const getOccurrenceId = (activityId: string, scheduledFor: Date) =>
+  `${activityId}:${scheduledFor.toISOString()}`;
+
+const assertRoutineMutable = (routine: PetRoutine | null) => {
+  if (routine?.status === RoutineStatus.ARCHIVED) {
+    throw badRequest('Archived routines cannot be modified');
+  }
+};
+
+export const generateOccurrencesForActivity = (
+  routine: PetRoutine,
+  activity: RoutineActivity,
   windowStart: Date,
-  windowEnd: Date,
-  anchorDate = routine.createdAt
+  windowEnd: Date
 ): RoutineOccurrence[] => {
   const occurrences: RoutineOccurrence[] = [];
   const now = new Date();
@@ -258,9 +293,10 @@ export const generateOccurrencesForRoutine = (
       return;
     }
     occurrences.push({
-      occurrenceId: getOccurrenceId(routine.routineId, scheduledFor),
+      occurrenceId: getOccurrenceId(activity.activityId, scheduledFor),
       routineId: routine.routineId,
-      petId: routine.petId,
+      activityId: activity.activityId,
+      petId: activity.petId,
       scheduledFor,
       status:
         scheduledFor.getTime() < now.getTime()
@@ -271,35 +307,11 @@ export const generateOccurrencesForRoutine = (
     });
   };
 
-  switch (routine.schedule.frequency) {
-    case 'HOURLY_INTERVAL': {
-      const { hours, minutes } = parseTime(routine.schedule.anchorTime);
-      const anchorParts = formatInTimeZone(anchorDate, routine.timezone);
-      let current = zonedDateTimeToUtc(
-        anchorParts.year,
-        anchorParts.month,
-        anchorParts.day,
-        hours,
-        minutes,
-        routine.timezone
-      );
-      while (current < windowStart) {
-        current = new Date(
-          current.getTime() + routine.schedule.intervalHours * 60 * 60 * 1000
-        );
-      }
-      while (current <= windowEnd) {
-        createOccurrence(current);
-        current = new Date(
-          current.getTime() + routine.schedule.intervalHours * 60 * 60 * 1000
-        );
-      }
-      break;
-    }
+  switch (activity.schedule.frequency) {
     case 'DAILY': {
       for (let cursor = windowStart; cursor <= windowEnd; cursor = addDaysUtc(cursor, 1)) {
         const parts = formatInTimeZone(cursor, routine.timezone);
-        for (const time of routine.schedule.times) {
+        for (const time of activity.schedule.times) {
           const { hours, minutes } = parseTime(time);
           createOccurrence(
             zonedDateTimeToUtc(
@@ -318,13 +330,11 @@ export const generateOccurrencesForRoutine = (
     case 'WEEKLY': {
       for (let cursor = windowStart; cursor <= windowEnd; cursor = addDaysUtc(cursor, 1)) {
         const parts = formatInTimeZone(cursor, routine.timezone);
-        const weekday = new Date(
-          Date.UTC(parts.year, parts.month - 1, parts.day)
-        ).getUTCDay();
-        if (!routine.schedule.daysOfWeek.includes(weekday)) {
+        const weekday = new Date(Date.UTC(parts.year, parts.month - 1, parts.day)).getUTCDay();
+        if (!activity.schedule.daysOfWeek.includes(weekday)) {
           continue;
         }
-        for (const time of routine.schedule.times) {
+        for (const time of activity.schedule.times) {
           const { hours, minutes } = parseTime(time);
           createOccurrence(
             zonedDateTimeToUtc(
@@ -341,16 +351,18 @@ export const generateOccurrencesForRoutine = (
       break;
     }
     case 'MONTHLY': {
-      for (let cursor = addMonthsLocal(windowStart, -1, routine.timezone);
+      for (
+        let cursor = addMonthsLocal(windowStart, -1, routine.timezone);
         cursor <= addMonthsLocal(windowEnd, 1, routine.timezone);
-        cursor = addMonthsLocal(cursor, 1, routine.timezone)) {
+        cursor = addMonthsLocal(cursor, 1, routine.timezone)
+      ) {
         const parts = formatInTimeZone(cursor, routine.timezone);
-        for (const day of routine.schedule.daysOfMonth) {
+        for (const day of activity.schedule.daysOfMonth) {
           const monthLastDay = new Date(Date.UTC(parts.year, parts.month, 0)).getUTCDate();
           if (day > monthLastDay) {
             continue;
           }
-          for (const time of routine.schedule.times) {
+          for (const time of activity.schedule.times) {
             const { hours, minutes } = parseTime(time);
             createOccurrence(
               zonedDateTimeToUtc(
@@ -374,46 +386,61 @@ export const generateOccurrencesForRoutine = (
   );
 };
 
-export const listRoutinesForPet = async (petId: string) => {
-  const result = await docClient.send(
-    new QueryCommand({
-      TableName: PETTZI_TABLE_NAME,
-      KeyConditionExpression: 'PK = :pk AND begins_with(SK, :sk)',
-      ExpressionAttributeValues: {
-        ':pk': buildPetRoutinePk(petId),
-        ':sk': 'ROUTINE#',
-      },
-    })
-  );
-
-  return (result.Items ?? [])
-    .map(fromItemRoutineDefinition)
-    .filter((routine) => routine.status !== RoutineStatus.ARCHIVED)
-    .sort((left, right) => left.title.localeCompare(right.title));
-};
-
-export const getRoutineOrThrow = async (petId: string, routineId: string) => {
+export const getPetRoutine = async (petId: string): Promise<PetRoutine | null> => {
   const result = await docClient.send(
     new QueryCommand({
       TableName: PETTZI_TABLE_NAME,
       KeyConditionExpression: 'PK = :pk AND SK = :sk',
       ExpressionAttributeValues: {
         ':pk': buildPetRoutinePk(petId),
-        ':sk': buildPetRoutineSk(routineId),
+        ':sk': buildPetRoutineSk(petId),
+      },
+    })
+  );
+
+  return result.Items?.[0] ? fromItemPetRoutine(result.Items[0]) : null;
+};
+
+export const listRoutineActivities = async (petId: string) => {
+  const result = await docClient.send(
+    new QueryCommand({
+      TableName: PETTZI_TABLE_NAME,
+      KeyConditionExpression: 'PK = :pk AND begins_with(SK, :sk)',
+      ExpressionAttributeValues: {
+        ':pk': buildPetRoutineActivityPk(petId),
+        ':sk': 'ROUTINE_ACTIVITY#',
+      },
+    })
+  );
+
+  return (result.Items ?? [])
+    .map(fromItemRoutineActivity)
+    .filter((activity) => activity.status !== RoutineStatus.ARCHIVED)
+    .sort((left, right) => left.title.localeCompare(right.title));
+};
+
+export const getRoutineActivityOrThrow = async (petId: string, activityId: string) => {
+  const result = await docClient.send(
+    new QueryCommand({
+      TableName: PETTZI_TABLE_NAME,
+      KeyConditionExpression: 'PK = :pk AND SK = :sk',
+      ExpressionAttributeValues: {
+        ':pk': buildPetRoutineActivityPk(petId),
+        ':sk': buildPetRoutineActivitySk(activityId),
       },
     })
   );
 
   const item = result.Items?.[0];
   if (!item) {
-    throw notFound('Routine not found');
+    throw notFound('Routine activity not found');
   }
 
-  const routine = fromItemRoutineDefinition(item);
-  if (routine.status === RoutineStatus.ARCHIVED) {
-    throw notFound('Routine not found');
+  const activity = fromItemRoutineActivity(item);
+  if (activity.status === RoutineStatus.ARCHIVED) {
+    throw notFound('Routine activity not found');
   }
-  return routine;
+  return activity;
 };
 
 const listOccurrencesByPet = async (petId: string) => {
@@ -439,8 +466,63 @@ const putOccurrence = async (occurrence: RoutineOccurrence) =>
     })
   );
 
+export const ensurePetRoutine = async (
+  petId: string,
+  ownerUserId: string,
+  timezone: string
+) => {
+  const existing = await getPetRoutine(petId);
+  if (existing) {
+    return existing;
+  }
+
+  const now = new Date();
+  const routine: PetRoutine = {
+    routineId: petId,
+    petId,
+    ownerUserId,
+    timezone,
+    status: RoutineStatus.ACTIVE,
+    createdAt: now,
+    updatedAt: now,
+  };
+  await docClient.send(
+    new PutCommand({
+      TableName: PETTZI_TABLE_NAME,
+      Item: toItemPetRoutine(routine),
+    })
+  );
+  return routine;
+};
+
+export const savePetRoutine = async (routine: PetRoutine) => {
+  await docClient.send(
+    new PutCommand({
+      TableName: PETTZI_TABLE_NAME,
+      Item: toItemPetRoutine(routine),
+    })
+  );
+  return routine;
+};
+
+export const saveRoutineActivity = async (activity: RoutineActivity) => {
+  await docClient.send(
+    new PutCommand({
+      TableName: PETTZI_TABLE_NAME,
+      Item: toItemRoutineActivity(activity),
+    })
+  );
+  return activity;
+};
+
+export const getRoutineDetail = async (petId: string): Promise<RoutineDetail> => ({
+  routine: await getPetRoutine(petId),
+  activities: await listRoutineActivities(petId),
+});
+
 export const syncPetRoutineOccurrences = async (petId: string) => {
-  const routines = await listRoutinesForPet(petId);
+  const routine = await getPetRoutine(petId);
+  const activities = await listRoutineActivities(petId);
   const occurrences = await listOccurrencesByPet(petId);
   const occurrenceMap = new Map(
     occurrences.map((occurrence) => [occurrence.occurrenceId, occurrence])
@@ -449,29 +531,27 @@ export const syncPetRoutineOccurrences = async (petId: string) => {
   const now = new Date();
   const { start, end } = getWindow(now);
 
-  for (const routine of routines) {
-    const generated =
-      routine.status === RoutineStatus.ACTIVE
-        ? generateOccurrencesForRoutine(routine, start, end)
-        : [];
-
-    for (const occurrence of generated) {
-      expectedIds.add(occurrence.occurrenceId);
-      const existing = occurrenceMap.get(occurrence.occurrenceId);
-      if (existing) {
-        if (
-          existing.status === RoutineOccurrenceStatus.PENDING &&
-          existing.scheduledFor.getTime() < now.getTime()
-        ) {
-          await putOccurrence({
-            ...existing,
-            status: RoutineOccurrenceStatus.MISSED,
-            updatedAt: now,
-          });
+  if (routine && routine.status === RoutineStatus.ACTIVE) {
+    for (const activity of activities.filter((item) => item.status === RoutineStatus.ACTIVE)) {
+      const generated = generateOccurrencesForActivity(routine, activity, start, end);
+      for (const occurrence of generated) {
+        expectedIds.add(occurrence.occurrenceId);
+        const existing = occurrenceMap.get(occurrence.occurrenceId);
+        if (existing) {
+          if (
+            existing.status === RoutineOccurrenceStatus.PENDING &&
+            existing.scheduledFor.getTime() < now.getTime()
+          ) {
+            await putOccurrence({
+              ...existing,
+              status: RoutineOccurrenceStatus.MISSED,
+              updatedAt: now,
+            });
+          }
+          continue;
         }
-        continue;
+        await putOccurrence(occurrence);
       }
-      await putOccurrence(occurrence);
     }
   }
 
@@ -480,7 +560,15 @@ export const syncPetRoutineOccurrences = async (petId: string) => {
     const outsideWindow =
       occurrence.scheduledFor.getTime() < start.getTime() ||
       occurrence.scheduledFor.getTime() > end.getTime();
-    if (!expectedIds.has(occurrence.occurrenceId) && (outsideWindow || isFuture)) {
+    const shouldDeletePending =
+      occurrence.status === RoutineOccurrenceStatus.PENDING &&
+      (!expectedIds.has(occurrence.occurrenceId) || outsideWindow || isFuture);
+    const shouldDeleteOutsideWindow =
+      !expectedIds.has(occurrence.occurrenceId) &&
+      outsideWindow &&
+      occurrence.status !== RoutineOccurrenceStatus.PENDING;
+
+    if (shouldDeletePending || shouldDeleteOutsideWindow) {
       await docClient.send(
         new DeleteCommand({
           TableName: PETTZI_TABLE_NAME,
@@ -493,69 +581,157 @@ export const syncPetRoutineOccurrences = async (petId: string) => {
     }
   }
 
-  return { routines: await listRoutinesForPet(petId), occurrences: await listOccurrencesByPet(petId) };
+  return {
+    routine: await getPetRoutine(petId),
+    activities: await listRoutineActivities(petId),
+    occurrences: await listOccurrencesByPet(petId),
+  };
 };
 
-export const listUpcomingForPet = async (
+export const listTodayForPet = async (
   petId: string
 ): Promise<RoutineOccurrenceExpanded[]> => {
   const synced = await syncPetRoutineOccurrences(petId);
-  const routineMap = new Map(
-    synced.routines.map((routine) => [routine.routineId, routine])
+  if (!synced.routine) {
+    return [];
+  }
+
+  const activityMap = new Map(
+    synced.activities.map((activity) => [activity.activityId, activity])
   );
+  const now = new Date();
+
   return synced.occurrences
-    .filter((occurrence) => occurrence.status === RoutineOccurrenceStatus.PENDING)
-    .filter((occurrence) => occurrence.scheduledFor.getTime() >= Date.now())
-    .sort((left, right) => left.scheduledFor.getTime() - right.scheduledFor.getTime())
+    .filter((occurrence) => isSameLocalDate(occurrence.scheduledFor, now, synced.routine!.timezone))
     .map((occurrence) => ({
       ...occurrence,
-      routine: routineMap.get(occurrence.routineId)!,
+      activity: activityMap.get(occurrence.activityId)!,
+      routine: synced.routine!,
     }))
-    .filter((occurrence) => Boolean(occurrence.routine));
+    .filter((occurrence) => Boolean(occurrence.activity))
+    .sort((left, right) => left.scheduledFor.getTime() - right.scheduledFor.getTime());
 };
 
 export const listHistoryForPet = async (
   petId: string
 ): Promise<RoutineOccurrenceExpanded[]> => {
   const synced = await syncPetRoutineOccurrences(petId);
-  const routineMap = new Map(
-    synced.routines.map((routine) => [routine.routineId, routine])
+  if (!synced.routine) {
+    return [];
+  }
+
+  const activityMap = new Map(
+    synced.activities.map((activity) => [activity.activityId, activity])
   );
+
   return synced.occurrences
     .filter((occurrence) => occurrence.status !== RoutineOccurrenceStatus.PENDING)
-    .sort((left, right) => right.scheduledFor.getTime() - left.scheduledFor.getTime())
     .map((occurrence) => ({
       ...occurrence,
-      routine: routineMap.get(occurrence.routineId)!,
+      activity: activityMap.get(occurrence.activityId)!,
+      routine: synced.routine!,
     }))
-    .filter((occurrence) => Boolean(occurrence.routine));
+    .filter((occurrence) => Boolean(occurrence.activity))
+    .sort((left, right) => right.scheduledFor.getTime() - left.scheduledFor.getTime());
 };
 
-export const listOccurrencesForRoutine = async (
+export const upsertPetRoutine = async (
   petId: string,
-  routineId: string
+  ownerUserId: string,
+  input: UpsertRoutineInput
 ) => {
-  await getRoutineOrThrow(petId, routineId);
-  const synced = await syncPetRoutineOccurrences(petId);
-  return synced.occurrences
-    .filter((occurrence) => occurrence.routineId === routineId)
-    .sort((left, right) => left.scheduledFor.getTime() - right.scheduledFor.getTime());
-};
+  const payload = validateUpsertRoutine(input);
+  const existing = await getPetRoutine(petId);
+  const now = new Date();
+  const routine: PetRoutine = existing
+    ? {
+        ...existing,
+        timezone: payload.timezone,
+        status: payload.status ?? existing.status,
+        updatedAt: now,
+      }
+    : {
+        routineId: petId,
+        petId,
+        ownerUserId,
+        timezone: payload.timezone,
+        status: payload.status ?? RoutineStatus.ACTIVE,
+        createdAt: now,
+        updatedAt: now,
+      };
 
-export const saveRoutine = async (routine: RoutineDefinition) => {
-  await docClient.send(
-    new PutCommand({
-      TableName: PETTZI_TABLE_NAME,
-      Item: toItemRoutineDefinition(routine),
-    })
-  );
+  await savePetRoutine(routine);
+  await syncPetRoutineOccurrences(petId);
   return routine;
 };
 
-export const deleteRoutineAndOccurrences = async (petId: string, routineId: string) => {
+export const createRoutineActivity = async (
+  petId: string,
+  ownerUserId: string,
+  input: CreateRoutineActivityInput
+) => {
+  const payload = validateCreateRoutineActivity(input);
+  const routine = await ensurePetRoutine(
+    petId,
+    ownerUserId,
+    payload.routineTimezone ?? 'UTC'
+  );
+  assertRoutineMutable(routine);
+
+  const now = new Date();
+  const activity: RoutineActivity = {
+    activityId: crypto.randomUUID(),
+    routineId: routine.routineId,
+    petId,
+    ownerUserId,
+    title: payload.title,
+    type: payload.type,
+    notes: payload.notes,
+    status: payload.status ?? RoutineStatus.ACTIVE,
+    schedule: payload.schedule,
+    createdAt: now,
+    updatedAt: now,
+  };
+  await saveRoutineActivity(activity);
+  await syncPetRoutineOccurrences(petId);
+  return activity;
+};
+
+export const updateRoutineActivity = async (
+  petId: string,
+  activityId: string,
+  input: UpdateRoutineActivityInput
+) => {
+  const payload = validateUpdateRoutineActivity(input);
+  const routine = await getPetRoutine(petId);
+  assertRoutineMutable(routine);
+  const current = await getRoutineActivityOrThrow(petId, activityId);
+
+  const updated: RoutineActivity = {
+    ...current,
+    title: payload.title ?? current.title,
+    type: payload.type ?? current.type,
+    notes: payload.notes !== undefined ? payload.notes : current.notes,
+    status: payload.status ?? current.status,
+    schedule: payload.schedule ?? current.schedule,
+    updatedAt: new Date(),
+  };
+
+  await saveRoutineActivity(updated);
+  await syncPetRoutineOccurrences(petId);
+  return updated;
+};
+
+export const deleteRoutineActivityAndOccurrences = async (
+  petId: string,
+  activityId: string
+) => {
+  const routine = await getPetRoutine(petId);
+  assertRoutineMutable(routine);
+  const activity = await getRoutineActivityOrThrow(petId, activityId);
   const synced = await syncPetRoutineOccurrences(petId);
   const occurrenceDeletes = synced.occurrences
-    .filter((occurrence) => occurrence.routineId === routineId)
+    .filter((occurrence) => occurrence.activityId === activity.activityId)
     .map((occurrence) =>
       docClient.send(
         new DeleteCommand({
@@ -573,11 +749,12 @@ export const deleteRoutineAndOccurrences = async (petId: string, routineId: stri
     new DeleteCommand({
       TableName: PETTZI_TABLE_NAME,
       Key: {
-        PK: buildPetRoutinePk(petId),
-        SK: buildPetRoutineSk(routineId),
+        PK: buildPetRoutineActivityPk(petId),
+        SK: buildPetRoutineActivitySk(activityId),
       },
     })
   );
+  await syncPetRoutineOccurrences(petId);
 };
 
 export const updateOccurrenceStatus = async (
@@ -588,15 +765,16 @@ export const updateOccurrenceStatus = async (
   notes?: string
 ) => {
   const synced = await syncPetRoutineOccurrences(petId);
-  const occurrence = synced.occurrences.find(
-    (item) => item.occurrenceId === occurrenceId
-  );
+  const occurrence = synced.occurrences.find((item) => item.occurrenceId === occurrenceId);
   if (!occurrence) {
     throw notFound('Occurrence not found');
   }
 
-  const routine = synced.routines.find((item) => item.routineId === occurrence.routineId);
-  if (!routine || routine.status === RoutineStatus.ARCHIVED) {
+  if (!synced.routine || synced.routine.status === RoutineStatus.ARCHIVED) {
+    throw notFound('Occurrence not found');
+  }
+  const activity = synced.activities.find((item) => item.activityId === occurrence.activityId);
+  if (!activity || activity.status === RoutineStatus.ARCHIVED) {
     throw notFound('Occurrence not found');
   }
   if (occurrence.status !== RoutineOccurrenceStatus.PENDING) {
@@ -609,8 +787,7 @@ export const updateOccurrenceStatus = async (
     status,
     completedAt:
       status === RoutineOccurrenceStatus.COMPLETED ? now : occurrence.completedAt,
-    skippedAt:
-      status === RoutineOccurrenceStatus.SKIPPED ? now : occurrence.skippedAt,
+    skippedAt: status === RoutineOccurrenceStatus.SKIPPED ? now : occurrence.skippedAt,
     notes: notes?.trim() || occurrence.notes,
     completedByUserId,
     updatedAt: now,

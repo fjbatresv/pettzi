@@ -4,30 +4,49 @@ import {
   RoutineType,
 } from '@pettzi/domain-model';
 import {
-  generateOccurrencesForRoutine,
+  generateOccurrencesForActivity,
   getWindow,
-  validateCreateRoutine,
+  validateCreateRoutineActivity,
+  validateUpsertRoutine,
 } from './routines.service';
 
 describe('routines.service', () => {
   const routine = {
-    routineId: 'rt-1',
+    routineId: 'pet-1',
     petId: 'pet-1',
     ownerUserId: 'owner-1',
-    title: 'Morning walk',
-    type: RoutineType.WALKING,
     status: RoutineStatus.ACTIVE,
     timezone: 'America/Guatemala',
     createdAt: new Date('2026-01-01T00:00:00.000Z'),
     updatedAt: new Date('2026-01-01T00:00:00.000Z'),
   };
 
-  it('validates create payload', () => {
+  const activity = {
+    activityId: 'act-1',
+    routineId: 'pet-1',
+    petId: 'pet-1',
+    ownerUserId: 'owner-1',
+    title: 'Morning walk',
+    type: RoutineType.WALKING,
+    status: RoutineStatus.ACTIVE,
+    createdAt: new Date('2026-01-01T00:00:00.000Z'),
+    updatedAt: new Date('2026-01-01T00:00:00.000Z'),
+  };
+
+  it('validates routine upsert payload', () => {
     expect(() =>
-      validateCreateRoutine({
+      validateUpsertRoutine({
+        timezone: 'America/Guatemala',
+        status: RoutineStatus.ACTIVE,
+      })
+    ).not.toThrow();
+  });
+
+  it('validates create activity payload', () => {
+    expect(() =>
+      validateCreateRoutineActivity({
         title: ' Morning walk ',
         type: RoutineType.WALKING,
-        timezone: 'America/Guatemala',
         schedule: { frequency: 'DAILY', times: ['07:00', '07:00'] },
       })
     ).not.toThrow();
@@ -36,9 +55,10 @@ describe('routines.service', () => {
   it('generates daily occurrences in window order', () => {
     const now = new Date('2026-01-10T00:00:00.000Z');
     const { start, end } = getWindow(now);
-    const occurrences = generateOccurrencesForRoutine(
+    const occurrences = generateOccurrencesForActivity(
+      routine,
       {
-        ...routine,
+        ...activity,
         schedule: { frequency: 'DAILY', times: ['07:00', '18:00'] },
       },
       start,
@@ -52,10 +72,11 @@ describe('routines.service', () => {
   });
 
   it('generates weekly occurrences only for selected weekdays', () => {
-    const occurrences = generateOccurrencesForRoutine(
+    const occurrences = generateOccurrencesForActivity(
+      routine,
       {
-        ...routine,
-        schedule: { frequency: 'WEEKLY', daysOfWeek: [1], times: ['08:00'] },
+        ...activity,
+        schedule: { frequency: 'WEEKLY', daysOfWeek: [0], times: ['10:00'] },
       },
       new Date('2026-01-01T00:00:00.000Z'),
       new Date('2026-01-31T23:59:59.000Z')
@@ -65,37 +86,32 @@ describe('routines.service', () => {
   });
 
   it('marks generated past occurrences as missed', () => {
-    const occurrences = generateOccurrencesForRoutine(
+    const occurrences = generateOccurrencesForActivity(
+      routine,
       {
-        ...routine,
+        ...activity,
         schedule: { frequency: 'DAILY', times: ['00:00'] },
       },
       new Date('2025-01-01T00:00:00.000Z'),
       new Date('2025-01-03T00:00:00.000Z')
     );
 
-    expect(occurrences.every((item) => item.status === RoutineOccurrenceStatus.MISSED)).toBe(true);
+    expect(
+      occurrences.every((item) => item.status === RoutineOccurrenceStatus.MISSED)
+    ).toBe(true);
   });
 
-  it('supports hourly interval and monthly schedules', () => {
-    const hourly = generateOccurrencesForRoutine(
+  it('supports monthly schedules', () => {
+    const monthly = generateOccurrencesForActivity(
+      routine,
       {
-        ...routine,
-        schedule: { frequency: 'HOURLY_INTERVAL', intervalHours: 12, anchorTime: '08:00' },
-      },
-      new Date('2026-01-01T00:00:00.000Z'),
-      new Date('2026-01-03T23:59:59.000Z')
-    );
-    const monthly = generateOccurrencesForRoutine(
-      {
-        ...routine,
+        ...activity,
         schedule: { frequency: 'MONTHLY', daysOfMonth: [1, 15], times: ['09:00'] },
       },
       new Date('2026-01-01T00:00:00.000Z'),
       new Date('2026-02-28T23:59:59.000Z')
     );
 
-    expect(hourly.length).toBeGreaterThan(3);
     expect(monthly.length).toBe(4);
   });
 });
