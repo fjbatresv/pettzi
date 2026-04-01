@@ -4,6 +4,8 @@ title: Local Development
 
 # Local Development
 
+> Public repo note: local development typically targets a self-hosted or previously deployed AWS environment. No managed shared dev environment is assumed.
+
 ## Install
 ```bash
 npm install
@@ -14,8 +16,8 @@ npm install
 - `npx nx build <project>` – type-check/build.
 - `npx nx run-many --target=test --all` – run all tests.
 
-## Working against dev environment
-- Use deployed dev stage; set `.env` with `AWS_PROFILE`, `AWS_REGION`, `STAGE`, `API_DOMAIN_NAME`.
+## Working against an environment
+- Use a self-hosted or previously deployed stage; set `.env` with `AWS_PROFILE`, `AWS_REGION`, `STAGE`, `API_DOMAIN_NAME`.
 - APIs live under the custom domain + basePath (`/auth`, `/pets`, etc.).
 - Frontend (Angular) can point to those URLs; pass Cognito JWT in `Authorization` header.
 

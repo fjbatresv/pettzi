@@ -4,7 +4,7 @@ info:
   version: "1.0.0"
   description: Endpoints for listing and processing pet reminders.
 servers:
-  - url: https://api.pettzi.example.com
+  - url: https://api.example.com
 paths:
   /:
     get:

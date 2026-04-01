@@ -1,328 +1,153 @@
-# PETTZI – Monorepo (Nx + AWS CDK + Serverless Lambdas)
+# PETTZI
 
-PETTZI es un gestor de mascotas con enfoque en salud, vacunas, visitas veterinarias, grooming, co-propiedad, documentos y recordatorios automáticos.
+[![Status](https://img.shields.io/badge/status-public_reference-4c1?style=flat-square)](./README.md)
+[![Portfolio](https://img.shields.io/badge/purpose-portfolio-6f42c1?style=flat-square)](./README.md)
+[![Node.js](https://img.shields.io/badge/node-24-339933?style=flat-square&logo=node.js&logoColor=white)](./README.md)
+[![Angular](https://img.shields.io/badge/angular-21-DD0031?style=flat-square&logo=angular&logoColor=white)](./README.md)
+[![Nx](https://img.shields.io/badge/nx-monorepo-143055?style=flat-square&logo=nx&logoColor=white)](./README.md)
+[![AWS](https://img.shields.io/badge/aws-serverless-FF9900?style=flat-square&logo=amazonaws&logoColor=white)](./README.md)
+[![License](https://img.shields.io/badge/license-all_rights_reserved-lightgrey?style=flat-square)](./LICENSE.md)
 
----
+PETTZI es un monorepo full-stack para gestión de mascotas construido con `Nx`, `Angular`, `AWS CDK` y `AWS Lambda`.
 
-## Descripción general
+Originalmente fue concebido como un producto SaaS para salud, recordatorios, documentos y co-propiedad de mascotas. Hoy se publica como **referencia técnica y proyecto de portafolio**.
 
-PETTZI permite a los usuarios administrar toda la información relacionada con sus mascotas:
+## Estado del proyecto
 
-- Perfil de mascota (datos generales, especie, raza, notas, foto)
-- Manejo de múltiples dueños (PRIMARY y SECONDARY)
-- Eventos de salud:
-  - Vacunas
-  - Visitas veterinarias
-  - Grooming / baños
-- Carga y almacenamiento de documentos (S3)
-- Recordatorios automáticos de vacunas mediante EventBridge
-- Catálogos (especies, razas, vacunas)
-- Autenticación con Amazon Cognito
-- Base de datos en DynamoDB usando Single-Table Design
+- El producto no continúa como servicio comercial.
+- La decisión se tomó después de concluir que la propuesta no era viable comercialmente.
+- El repositorio se conserva para mostrar decisiones de arquitectura, organización del monorepo y diseño backend/frontend.
+- El workflow automático de despliegue en GitHub Actions fue desactivado intencionalmente.
+- La infraestructura y los docs de despliegue se mantienen como referencia para estudio o self-hosting.
 
-El proyecto está diseñado como un SaaS serverless, modular, escalable y de bajo costo.
+## Qué demuestra este repositorio
 
----
+- Arquitectura serverless modular sobre AWS.
+- Monorepo `Nx` con separación por bounded contexts.
+- APIs backend desacopladas por dominio (`auth`, `pets`, `owners`, `events`, `reminders`, `uploads`, `catalogs`).
+- Lambdas delgadas con lógica movida a servicios y librerías reutilizables.
+- Uso de `DynamoDB` con single-table design orientado por access patterns.
+- Frontend `Angular` conectado a una arquitectura backend basada en contratos OpenAPI.
 
-## Tecnologías principales
+## Stack principal
 
-### Backend / Infraestructura
-- AWS CDK (TypeScript)
-- AWS Lambda (Node.js 20)
-- API Gateway HTTP API
-- DynamoDB (Single Table)
-- S3 (archivos y documentos)
-- SES (envío de correos)
-- Cognito (autenticación)
-- EventBridge (tareas programadas)
+### Backend e infraestructura
+- `AWS CDK v2`
+- `AWS Lambda` sobre `Node.js 24`
+- `API Gateway HTTP API`
+- `DynamoDB`
+- `S3`
+- `SES`
+- `Cognito`
+- `EventBridge`
 
-### Frontend
-- Angular 21 (SPA)
-- Nx como gestor del monorepo
+### Frontend y tooling
+- `Angular 21`
+- `Nx`
+- `TypeScript`
+- `Jest`
+- `ESLint`
+- `Prettier`
+- `GitHub Actions` para CI
 
-### Herramientas internas
-- Nx Monorepo
-- TypeScript
-- Eslint + Prettier
-- Jest para pruebas unitarias
-- GitHub Actions o AWS CodeBuild para CI/CD
+## Arquitectura en una mirada
 
----
+- `apps/web`: aplicación Angular.
+- `apps/cdk`: definición de stacks de infraestructura.
+- `libs/api-*`: bounded contexts y handlers por API.
+- `libs/domain-model`: modelos, claves y mapeos del dominio.
+- `libs/utils-dynamo`, `libs/shared-utils`, `libs/infra-constructs`: utilidades y componentes reutilizables.
 
-## Arquitectura general (resumen)
+### Bounded contexts
+- `Auth`: autenticación y perfil de usuario.
+- `Pets`: CRUD de mascotas.
+- `Owners`: relación de dueños y co-dueños.
+- `Events`: timeline y eventos de salud.
+- `Reminders`: recordatorios programados.
+- `Uploads`: documentos y fotos vía URLs firmadas.
+- `Catalogs`: catálogos de apoyo.
 
-La arquitectura está compuesta por:
+## Estructura del monorepo
 
-- Monorepo Nx separando frontend, infraestructura y backend.
-- Librerías modulares (auth, pets, owners, events, catalogs, uploads, reminders).
-- CDK dividido en stacks independientes.
-- DynamoDB como single-table, diseñando claves para patrones de acceso reales.
-- Lambdas pequeñas, enfocadas en una responsabilidad.
-- API Gateway con JWT Authorizer basado en Cognito.
-- S3 para documentos y fotos.
-- EventBridge para recordatorios automáticos.
-
----
-
-## Estructura de carpetas
-
-### Root
-
-```bash
+```text
 pettzi/
 ├── apps/
+│   ├── cdk/
+│   └── web/
 ├── libs/
-├── tools/
-├── nx.json
-├── package.json
-├── tsconfig.base.json
-└── ARCHITECTURE.md
-
+│   ├── api-auth/
+│   ├── api-catalogs/
+│   ├── api-events/
+│   ├── api-owners/
+│   ├── api-pets/
+│   ├── api-reminders/
+│   ├── api-uploads/
+│   ├── domain-model/
+│   ├── infra-constructs/
+│   ├── shared-utils/
+│   └── utils-dynamo/
+├── mintlify/
+├── ARCHITECTURE.md
+├── DESIGN-SYSTEM.md
+└── TABLE_DESIGN.md
 ```
 
----
+## Cómo explorarlo localmente
 
-## APPS
+### Requisitos
+- `Node.js 24`
+- `npm`
+- AWS solo si quieres levantar o self-hostear la infraestructura
 
-### Frontend
+### Comandos útiles
 
 ```bash
-apps/web/
-├── src/
-└── project.json
+npm install
+npx nx graph
+npx nx run-many -t lint test
 ```
 
-### Infraestructura (CDK)
+### Documentación local
 
 ```bash
-apps/cdk/
-├── src/
-│   ├── main.ts
-│   ├── core-infra-stack.ts
-│   ├── auth-stack.ts
-│   ├── auth-api-stack.ts
-│   ├── pets-api-stack.ts
-│   ├── owners-api-stack.ts
-│   ├── events-api-stack.ts
-│   ├── catalogs-api-stack.ts
-│   ├── uploads-api-stack.ts
-│   ├── reminders-api-stack.ts
-│   ├── api-domain-stack.ts
-│   ├── app-registry-associations-stack.ts
-│   └── ses-templates-stack.ts
-├── cdk.json
-└── package.json
+cd mintlify
+npx mintlify dev
 ```
 
----
+### Variables de entorno
 
-## LIBS (Backend por módulo)
+- Usa `.env.example` como referencia.
+- No se incluyen secretos reales ni configuración operativa activa en el árbol actual.
 
-### Autenticación
+## Infraestructura y despliegue
 
-```bash
-libs/api-auth/
-```
+- La arquitectura de despliegue original sigue documentada en el repositorio.
+- El despliegue automático desde GitHub Actions está desactivado.
+- Si quieres reutilizar esta base para self-hosting, revisa primero variables, dominios, secretos y supuestos de AWS.
 
-### Pets
+## Documentación clave
 
-```bash
-libs/api-pets/
-```
+- `ARCHITECTURE.md` — arquitectura general y decisiones técnicas.
+- `TABLE_DESIGN.md` — diseño de DynamoDB y patrones de acceso.
+- `DESIGN-SYSTEM.md` — lineamientos visuales del frontend.
+- `apps/cdk/README.md` — guía de infraestructura CDK.
+- `mintlify/docs/overview.mdx` — overview navegable.
+- `mintlify/docs/quickstart.mdx` — primeros pasos.
 
-### Owners
+## Calidad y contribución
 
-```bash
-libs/api-owners/
-```
+- `CONTRIBUTING.md` — guía de contribución.
+- `SECURITY.md` — reporte responsable de vulnerabilidades.
+- `CODE_OF_CONDUCT.md` — expectativas de convivencia.
+- `LICENSE.md` — estado actual de licencia.
 
-### Events (vacunas, visitas, grooming, timeline)
+## Por qué este repo sigue público
 
-```bash
-libs/api-events/
-```
+Aunque PETTZI no avanzó como producto comercial, el código sigue siendo valioso como muestra de:
 
-### Catálogos
+- diseño de backend por dominios
+- organización de un monorepo `Nx`
+- integración entre frontend, infraestructura y APIs
+- decisiones pragmáticas para un producto serverless real
 
-```bash
-libs/api-catalogs/
-```
-
-### Uploads (S3)
-
-```bash
-libs/api-uploads/
-```
-
-### Reminders (EventBridge)
-
-```bash
-libs/api-reminders/
-```
-
-## LIBS (Dominio y utilidades)
-
-### Modelos del dominio
-
-```bash
-libs/domain-model/
-```
-
-### Utilidades DynamoDB
-
-```bash
-libs/utils-dynamo/
-```
-
-### Constructos CDK reutilizables
-
-```bash
-libs/infra-constructs/
-```
-
-### Utilidades generales
-
-```bash
-libs/shared-utils/
-```
-
----
-
-## Herramientas NX
-
-```bash
-tools/
-├── scripts/
-│   ├── deploy.ts
-│   ├── build-all.ts
-│   └── clean.ts
-└── generators/
-├── lambda/
-└── stack/
-```
-
----
-
-## Principios de desarrollo
-
-### 1. Serverless First
-- Lambdas pequeñas y enfocadas.
-- Infraestructura como código usando CDK.
-- Alta escalabilidad y disponibilidad sin gestionar servidores.
-
-### 2. Single-Table DynamoDB
-- Estructura centrada en patrones de acceso.
-- Uso de PK/SK y GSIs según consultas.
-- Evitar múltiples tablas para reducir costos y aumentar performance.
-
-### 3. Modularidad con Nx
-- Cada módulo tiene su propio bounded context.
-- Código compartido en libs reutilizables.
-- Builds incrementales y rápidos.
-
-### 4. Seguridad desde el diseño
-- Cognito para autenticación
-- API Gateway Authorizer
-- Validación estricta de inputs
-
-### 5. Desarrollo incremental
-- Cada feature es un stack independiente.
-- Facilita mantenimiento y despliegues aislados.
-
-### 6. Performance
-- Node.js 20 limpio
-- Minimizar dependencias
-- Cargar solo lo necesario para cada Lambda
-
----
-
-## Testing
-
-### Pruebas Unitarias
-- Se usa Jest.
-- Cada Lambda debe incluir tests básicos.
-- Utilidades compartidas deben tener cobertura mínima.
-
-### QA Manual
-Basado en acceptance criteria del backlog:
-
-- Autenticación
-- Pets
-- Owners
-- Events
-- Uploads
-- Reminders
-- Catálogos
-
----
-
-## CI/CD
-
-Recomendado:
-
-- GitHub Actions con:
-  - Lint
-  - Test
-  - Build
-  - CDK Synth
-
-### Deploy manual
-
-```bash
-npx nx run cdk:deploy
-```
-
----
-
-## Convenciones de código
-
-- TypeScript estricto
-- camelCase para variables
-- PascalCase para constructos y clases
-- Validaciones tempranas
-- Handlers sin lógica pesada (usar libs)
-- Una responsabilidad por archivo
-- Prettier obligatorio
-
----
-
-## Guía para contribuir
-
-1. Crear una rama: ```feat/***```
-2. Escribir o actualizar tests si aplica.
-3. Formatear código: ```npx nx format```
-4. Crear Pull Request.
-5. Hacer merge solo cuando todo pase correctamente.
-
----
-
-## Siguientes pasos
-
-El archivo ```ARCHITECTURE.md``` incluirá:
-
-- Diagramas C4 (niveles 1 a 3)
-- Diagrama detallado del backend
-- Esquema de DynamoDB Single Table
-- Flujos de autenticación
-- Flujos de co-dueños y permisos
-- Flujos de recordatorios
-- Diagrama CDK por stack
-
-## Documentation
-- Mintlify docs (local): `cd mintlify && npx mintlify dev`
-- Pages live under `mintlify/docs/*.mdx` with OpenAPI specs in `libs/api-*/openapi/*.yml`.
-
-## Current backend stacks
-- PettziApplicationStack (AppRegistry app/metadata)
-- PettziAppRegistryAssociationsStack (associates stacks to AppRegistry)
-- CoreInfraStack (DynamoDB PettziTable, docs bucket)
-- AuthStack (Cognito user pool + client)
-- LayersStack (SDK layers: cognito, s3, ses, ddb)
-- Auth/Pets/Owners/Events/Reminders/Uploads/Catalogs API stacks (one HttpApi per bounded context)
-- SesTemplatesStack (welcome/reset/reminder templates)
-- ApiDomainStack (custom domain + basePath mappings per API)
-
-## Runtime / tooling
-- Node.js 24.x (required)
-- Nx for build/test/deploy (`npx nx <target> <project>`)
-- CDK v2 for infra (`npx nx run cdk:deploy -- <StackName>`)
+Si quieres revisar algo en particular, empieza por `ARCHITECTURE.md`, `TABLE_DESIGN.md` y `apps/cdk/src/main.ts`.

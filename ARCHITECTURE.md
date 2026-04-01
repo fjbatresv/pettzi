@@ -411,10 +411,10 @@ Los stacks de CDK se organizan de forma modular:
 	•	Las lambdas deben usar helpers comunes ubicados en libs/utils-dynamo (para claves, respuestas HTTP, etc).
 	•	Los modelos del dominio se definen en libs/domain-model y se reutilizan en distintas lambdas.
 	•	El frontend se comunica únicamente con API Gateway; no accede directo a servicios de AWS.
-	•	La evolución futura puede incluir:
+	•	Como referencia histórica, la arquitectura contemplaba posibles extensiones como:
 	•	•	Roles adicionales (veterinarios, grooming shops).
-	•	•	Planes de suscripción.
 	•	•	Multi-tenant por organización.
+	•	Estas líneas representan ideas de evolución exploradas durante el diseño original y no un roadmap activo del proyecto.
 ## Custom domain strategy
 - One HttpApi per bounded context; basePath mapping applied via ApiDomainStack.
 - Base paths: /auth, /pets, /owners, /events, /reminders, /uploads, /catalogs.

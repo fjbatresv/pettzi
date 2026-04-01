@@ -14,8 +14,8 @@
         
         %% --- Networking & Entry ---
         subgraph Networking["Networking & Entry"]
-            Route53["Amazon Route 53\nZona pettzi.app"]
-            ApiDomain["API Gateway Custom Domain\napi.pettzi.app\n(ApiDomainStack)"]
+            Route53["Amazon Route 53\nHosted Zone example.com"]
+            ApiDomain["API Gateway Custom Domain\napi.example.com\n(ApiDomainStack)"]
             ApiMappings["API Mappings\n/auth, /pets, /owners, /events, /reminders, /uploads, /catalogs"]
         end
 

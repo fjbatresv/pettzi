@@ -43,7 +43,7 @@ const SES_FROM_EMAIL = process.env.SES_FROM_EMAIL ?? '';
 const INVITE_TEMPLATE_ES = process.env.SES_SHARE_PET_INVITE_TEMPLATE_NAME_ES ?? '';
 const INVITE_TEMPLATE_EN = process.env.SES_SHARE_PET_INVITE_TEMPLATE_NAME_EN ?? '';
 const INVITE_BASE_URL =
-  process.env.PET_SHARE_INVITE_BASE_URL ?? 'https://app.pettzi.net/accept-invite';
+  process.env.PET_SHARE_INVITE_BASE_URL ?? 'https://app.example.com/accept-invite';
 
 const INVITE_EXPIRATION_DAYS = 7;
 const INVITE_EXPIRATION_SECONDS = 60 * 60 * 24 * INVITE_EXPIRATION_DAYS;

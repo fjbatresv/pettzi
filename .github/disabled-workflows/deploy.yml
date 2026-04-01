@@ -19,11 +19,11 @@ env:
   STAGE: ${{ inputs.stage || 'dev' }}
   AWS_REGION: us-east-1
   API_PREFIX: api
-  API_HOSTED_ZONE_NAME: pettzi.net
+  API_HOSTED_ZONE_NAME: example.com
   API_HOSTED_ZONE_ID: ${{ secrets.API_HOSTED_ZONE_ID }}
   APP_PREFIX: app
   DSN_PREFIX: img
-  SES_FROM_EMAIL: no-reply@pettzi.net
+  SES_FROM_EMAIL: no-reply@example.com
   KMS_ENABLED: false
   MINIMAL_COST_MODE: ${{ (inputs.stage || 'dev') != 'prod' }}
   ENABLE_INFRA_ALARMS: false
@@ -197,10 +197,10 @@ jobs:
           cat > apps/web/src/environments/environment.prod.ts <<EOF
           export const environment = {
             production: true,
-            apiBaseUrl: 'https://api.pettzi.net',
-            cognitoDomain: 'https://us-east-1xx_hce2yn2.auth.us-east-1.amazoncognito.com',
-            cognitoClientId: '1hhkaipbk6vt8i1nagm643br5l',
-            cognitoRedirectUri: 'https://app.pettzi.net',
+            apiBaseUrl: 'https://api.example.com',
+            cognitoDomain: 'https://your-user-pool-domain.auth.us-east-1.amazoncognito.com',
+            cognitoClientId: 'your-cognito-client-id',
+            cognitoRedirectUri: 'https://app.example.com',
             sentryDsn: '${SENTRY_DSN}',
             sentryRelease: '${SENTRY_RELEASE}',
             sentryTracesSampleRate: 0.1,

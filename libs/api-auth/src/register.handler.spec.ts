@@ -103,7 +103,7 @@ describe('register.handler', () => {
         },
       });
 
-    process.env.SES_FROM_EMAIL = 'no-reply@pettzi.app';
+    process.env.SES_FROM_EMAIL = 'no-reply@example.com';
     process.env.SES_WELCOME_TEMPLATE_NAME_ES = 'template-es';
     process.env.SES_WELCOME_TEMPLATE_NAME_EN = 'template-en';
     process.env.EMAIL_VERIFY_SECRET = 'secret';
@@ -239,7 +239,7 @@ describe('register.handler', () => {
         },
       });
 
-    process.env.SES_FROM_EMAIL = 'no-reply@pettzi.app';
+    process.env.SES_FROM_EMAIL = 'no-reply@example.com';
     process.env.SES_WELCOME_TEMPLATE_NAME_ES = 'template-es';
     process.env.SES_WELCOME_TEMPLATE_NAME_EN = 'template-en';
     process.env.EMAIL_VERIFY_SECRET = 'secret';

@@ -1,9 +1,9 @@
 export const environment = {
   production: true,
-  apiBaseUrl: 'https://api.pettzi.net',
-  cognitoDomain: 'https://us-east-1xx_hce2yn2.auth.us-east-1.amazoncognito.com',
-  cognitoClientId: '1hhkaipbk6vt8i1nagm643br5l',
-  cognitoRedirectUri: 'https://app.pettzi.net',
+  apiBaseUrl: 'https://api.example.com',
+  cognitoDomain: 'https://your-user-pool-domain.auth.us-east-1.amazoncognito.com',
+  cognitoClientId: 'your-cognito-client-id',
+  cognitoRedirectUri: 'https://app.example.com',
   sentryDsn: '',
   sentryRelease: '',
   sentryTracesSampleRate: 0.1,

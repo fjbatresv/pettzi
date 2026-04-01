@@ -70,7 +70,7 @@ const appDomainName = (() => {
     : `${prefix}.${zone}`;
 })();
 const dsnPrefix = process.env.DSN_PREFIX?.trim();
-const sesFromEmail = process.env.SES_FROM_EMAIL ?? 'no-reply@pettzi.app';
+const sesFromEmail = process.env.SES_FROM_EMAIL ?? 'no-reply@example.com';
 const useKms =
   process.env.KMS_ENABLED != null
     ? ['true', '1', 'yes'].includes(process.env.KMS_ENABLED.trim().toLowerCase())
@@ -78,7 +78,7 @@ const useKms =
 const emailVerificationBaseUrl =
   process.env.EMAIL_VERIFY_BASE_URL ??
   (apiDomainName
-    ? `https://app.pettzi.net/email-confirm`
+    ? `https://app.example.com/email-confirm`
     : undefined);
 const passwordResetBaseUrl =
   process.env.PASSWORD_RESET_BASE_URL ??
@@ -86,7 +86,7 @@ const passwordResetBaseUrl =
     ? `https://${apiDomainName}/${AUTH_API_BASE_PATH}/reset-password`
     : undefined);
 const petShareInviteBaseUrl =
-  process.env.PET_SHARE_INVITE_BASE_URL ?? 'https://app.pettzi.net/accept-invite';
+  process.env.PET_SHARE_INVITE_BASE_URL ?? 'https://app.example.com/accept-invite';
 
 // Ensure SDK picks the intended profile when not provided via CLI.
 process.env.AWS_PROFILE = profile;
@@ -228,7 +228,7 @@ const auth = new AuthStack(app, 'PettziAuthStack', {
   userPool: auth.userPool,
   userPoolClient: auth.userPoolClient,
   stage,
-  remindersEmailFrom: process.env.REMINDERS_EMAIL_FROM ?? 'no-reply@pettzi.net',
+  remindersEmailFrom: process.env.REMINDERS_EMAIL_FROM ?? 'no-reply@example.com',
   reminderTemplateName: SesTemplatesStack.REMINDER_TEMPLATE_ES,
   appDomain: appDomainName,
   alarmTopic: undefined,

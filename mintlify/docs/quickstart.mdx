@@ -4,11 +4,13 @@ title: Quickstart
 
 # Quickstart
 
+> Public repo note: you can explore the codebase locally without deploying anything. AWS deployment steps are optional and apply only if you want to self-host the original architecture.
+
 ## Prerequisites
 - Node.js 24.x (required by Lambdas and Nx builds).
 - Nx CLI (`npx nx --version`).
-- AWS account with credentials configured; CDK bootstrapped in the target account/region.
-- `.env` at repo root with `STAGE`, `AWS_PROFILE`, `AWS_REGION`, `API_DOMAIN_NAME`, `API_HOSTED_ZONE_NAME`, `SES_FROM_EMAIL`, `REMINDERS_EMAIL_FROM` as needed.
+- AWS account with credentials configured; CDK bootstrapped in the target account/region (only if self-hosting).
+- `.env` at repo root with `STAGE`, `AWS_PROFILE`, `AWS_REGION`, `API_DOMAIN_NAME`, `API_HOSTED_ZONE_NAME`, `SES_FROM_EMAIL`, `REMINDERS_EMAIL_FROM` as needed (only if self-hosting).
 
 ## Install
 ```bash
@@ -21,7 +23,12 @@ npm install
 - `npx nx build <project>` – type-check/build library.
 - `npx nx run cdk:deploy -- <StackName>` – deploy a specific CDK stack.
 
-## Deploy order (dev/stage)
+## Explore without AWS
+- `npm install`
+- `npx nx graph`
+- `npx nx run-many -t lint test`
+
+## Deploy order (optional, for self-hosting)
 1. `PettziApplicationStack` (AppRegistry app + attributes)
 2. `PettziLayersStack` (shared SDK layers)
 3. `PettziCoreInfraStack` (DynamoDB, S3)
@@ -32,5 +39,5 @@ npm install
 8. `PettziAppRegistryAssociationsStack` (associates all stacks to AppRegistry)
 
 ## Local tips
-- Work against a deployed dev environment; endpoints will live under the custom domain base paths (e.g. `/auth`, `/pets`, etc.).
+- Work against a self-hosted environment; endpoints will live under the custom domain base paths (e.g. `/auth`, `/pets`, etc.).
 - Use `npx nx run-many --target=test --all` before PRs.

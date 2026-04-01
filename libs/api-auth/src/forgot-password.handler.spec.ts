@@ -30,7 +30,7 @@ describe('forgot-password.handler', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     process.env.COGNITO_USER_POOL_ID = 'pool-id';
-    process.env.SES_FROM_EMAIL = 'no-reply@pettzi.app';
+    process.env.SES_FROM_EMAIL = 'no-reply@example.com';
     process.env.SES_RESET_TEMPLATE_NAME = 'template';
   });
 

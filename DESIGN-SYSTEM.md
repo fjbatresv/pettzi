@@ -1,7 +1,7 @@
 # 🐾 Pettzi Design System
 
 **Version:** 1.0  
-**Status:** Active  
+**Status:** Public reference  
 **Scope:** Web Application (Angular, Responsive)
 
 ---
@@ -10,7 +10,7 @@
 
 The **Pettzi Design System** defines the visual language, design tokens, and foundational UI components used across the Pettzi platform.
 
-It ensures a consistent, accessible, and scalable user experience for a modern SaaS focused on pet care management.
+It ensures a consistent, accessible, and scalable user experience for a pet care management product and remains as a public reference for the original interface direction.
 
 This system is designed for:
 - A responsive web application (mobile-first)
@@ -278,7 +278,7 @@ Key icons:
   - CSS variables
   - Tailwind configuration
   - SCSS maps
-- Build an internal UI library:
+- Build a shared UI library:
   - `<pettzi-button>`
   - `<pettzi-card>`
   - `<pettzi-chip>`

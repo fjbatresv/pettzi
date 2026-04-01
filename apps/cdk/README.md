@@ -4,6 +4,8 @@
 ## Purpose
 CDK app that defines all backend stacks for PETTZI (infra + APIs + domain + SES templates).
 
+> Public repo note: these stacks are preserved as infrastructure reference for the original product architecture. Automated GitHub publishing is intentionally disabled.
+
 ## Responsibilities
 - Core infra (DynamoDB table, S3 docs bucket)
 - Cognito user pool/client
@@ -21,6 +23,7 @@ CDK app that defines all backend stacks for PETTZI (infra + APIs + domain + SES 
 
 ## Deploy
 - `npx nx run cdk:deploy -- <StackName ...>`
+- Use only for manual or self-hosted deployments after reviewing AWS credentials, domains, and environment assumptions.
 
 ## Docs
 - See Mintlify: `docs/stacks-overview`, `docs/custom-domain`, `docs/ses-templates`.

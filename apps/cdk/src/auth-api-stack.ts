@@ -295,7 +295,7 @@ export class AuthApiStack extends Stack {
     props.table.grantReadWriteData(deleteUserFn);
     props.docsBucket.grantReadWrite(deleteUserFn);
 
-    const corsOrigins = new Set(['http://localhost:4200', 'https://app.pettzi.net']);
+    const corsOrigins = new Set(['http://localhost:4200', 'https://app.example.com']);
     if (props.appDomain) {
       corsOrigins.add(
         props.appDomain.startsWith('http')

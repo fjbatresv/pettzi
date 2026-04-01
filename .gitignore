@@ -8,6 +8,14 @@ out-tsc
 # dependencies
 node_modules
 
+# local environment
+.env
+.env.*
+!.env.example
+
+# generated infra artifacts
+apps/cdk/cdk.out
+
 # IDEs and editors
 /.idea
 .project
