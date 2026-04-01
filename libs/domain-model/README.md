@@ -27,5 +27,5 @@ Central domain types, key builders, mappers, and catalogs for the single-table d
 - `npx nx test domain-model`
 
 ## Docs
-- Mintlify: `docs/data-model`
+- Docs: `docs/reference/content/data-model.mdx`
 - Table design: `TABLE_DESIGN.md`

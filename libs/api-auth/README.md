@@ -44,5 +44,5 @@ Auth Lambdas for register/login/forgot/confirm backed by Cognito.
 
 ## Docs
 
-- Mintlify: `docs/auth-api`
+- Docs: `docs/reference/content/auth-api.mdx`
 - OpenAPI: `libs/api-auth/openapi/auth.yml`

@@ -30,5 +30,5 @@ Expose reminder listings and process due reminders via scheduler.
 - Deployed by `PettziRemindersApiStack`
 
 ## Docs
-- Mintlify: `docs/reminders-api`
+- Docs: `docs/reference/content/reminders-api.mdx`
 - OpenAPI: `libs/api-reminders/openapi/reminders.yml`

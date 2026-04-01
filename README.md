@@ -86,7 +86,7 @@ pettzi/
 │   ├── infra-constructs/
 │   ├── shared-utils/
 │   └── utils-dynamo/
-├── mintlify/
+├── docs/
 ├── ARCHITECTURE.md
 ├── DESIGN-SYSTEM.md
 └── TABLE_DESIGN.md
@@ -109,10 +109,8 @@ npx nx run-many -t lint test
 
 ### Documentación local
 
-```bash
-cd mintlify
-npx mintlify dev
-```
+- Start with `docs/README.md`
+- Browse reference pages under `docs/reference/content/`
 
 ### Variables de entorno
 
@@ -131,8 +129,8 @@ npx mintlify dev
 - `TABLE_DESIGN.md` — diseño de DynamoDB y patrones de acceso.
 - `DESIGN-SYSTEM.md` — lineamientos visuales del frontend.
 - `apps/cdk/README.md` — guía de infraestructura CDK.
-- `mintlify/docs/overview.mdx` — overview navegable.
-- `mintlify/docs/quickstart.mdx` — primeros pasos.
+- `docs/reference/content/overview.mdx` — overview navegable.
+- `docs/reference/content/quickstart.mdx` — primeros pasos.
 
 ## Calidad y contribución
 

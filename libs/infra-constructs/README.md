@@ -25,4 +25,4 @@ Shared infrastructure helpers/constructs for CDK (if/when needed by stacks).
 - `npx nx test infra-constructs`
 
 ## Docs
-- Mintlify: `docs/stacks-overview`
+- Docs: `docs/reference/content/stacks-overview.mdx`

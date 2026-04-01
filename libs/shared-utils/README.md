@@ -25,4 +25,4 @@ General-purpose helpers shared across Lambdas (non-Dynamo specific).
 - `npx nx test shared-utils`
 
 ## Docs
-- Mintlify: referenced indirectly in API pages
+- Docs: referenced indirectly from files under `docs/reference/content/`

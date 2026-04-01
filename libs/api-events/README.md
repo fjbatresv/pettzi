@@ -30,5 +30,5 @@ Manage pet events (vaccines, vet visits, grooming) and optional reminders.
 - Deployed by `PettziEventsApiStack`
 
 ## Docs
-- Mintlify: `docs/events-api`
+- Docs: `docs/reference/content/events-api.mdx`
 - OpenAPI: `libs/api-events/openapi/events.yml`

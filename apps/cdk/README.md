@@ -26,7 +26,7 @@ CDK app that defines all backend stacks for PETTZI (infra + APIs + domain + SES 
 - Use only for manual or self-hosted deployments after reviewing AWS credentials, domains, and environment assumptions.
 
 ## Docs
-- See Mintlify: `docs/stacks-overview`, `docs/custom-domain`, `docs/ses-templates`.
+- Docs: `docs/reference/content/stacks-overview.mdx`, `docs/reference/content/custom-domain.mdx`, `docs/reference/content/ses-templates.mdx`.
 
 ## AppRegistry
 - `PettziApplicationStack` crea la aplicación y el atributo de AppRegistry.

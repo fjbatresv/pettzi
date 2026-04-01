@@ -30,5 +30,5 @@ CRUD and lifecycle for pets, tied to owner links.
 - Deployed by `PettziPetsApiStack`
 
 ## Docs
-- Mintlify: `docs/pets-api`
+- Docs: `docs/reference/content/pets-api.mdx`
 - OpenAPI: `libs/api-pets/openapi/pets.yml`

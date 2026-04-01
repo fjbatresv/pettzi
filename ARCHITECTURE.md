@@ -433,7 +433,7 @@ Los stacks de CDK se organizan de forma modular:
 - SesTemplatesStack: SES templates.
 - ApiDomainStack: custom domain + API mappings + Route53 alias.
 
-For deeper docs see Mintlify under `mintlify/docs`.
+For deeper docs see `docs/reference/content/`.
 
 ## AppRegistry
 - `PettziApplicationStack` define la aplicación y atributos en Service Catalog AppRegistry.

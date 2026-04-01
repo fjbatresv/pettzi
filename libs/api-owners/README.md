@@ -29,5 +29,5 @@ Manage owner profile and co-ownership (PRIMARY/SECONDARY) links to pets.
 - Deployed by `PettziOwnersApiStack`
 
 ## Docs
-- Mintlify: `docs/owners-api`
+- Docs: `docs/reference/content/owners-api.mdx`
 - OpenAPI: `libs/api-owners/openapi/owners.yml`

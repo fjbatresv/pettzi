@@ -26,4 +26,4 @@ Shared HTTP response helpers and Dynamo key utilities for Lambdas.
 - `npx nx test utils-dynamo`
 
 ## Docs
-- Mintlify: see usage in API docs; responses follow shared error shape
+- Docs: see `docs/reference/content/` for API usage and shared error-shape references

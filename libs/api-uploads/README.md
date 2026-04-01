@@ -29,5 +29,5 @@ Provide presigned URLs for pet photos/documents and list/download/delete files.
 - Deployed by `PettziUploadsApiStack`
 
 ## Docs
-- Mintlify: `docs/uploads-api`
+- Docs: `docs/reference/content/uploads-api.mdx`
 - OpenAPI: `libs/api-uploads/openapi/uploads.yml`

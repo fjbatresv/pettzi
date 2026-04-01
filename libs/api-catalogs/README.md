@@ -34,5 +34,5 @@ Serve read-only catalogs (species, breeds) to clients.
 - Add `--dry-run` to preview the number of items
 
 ## Docs
-- Mintlify: `docs/catalogs-api`
+- Docs: `docs/reference/content/catalogs-api.mdx`
 - OpenAPI: `libs/api-catalogs/openapi/catalogs.yml`

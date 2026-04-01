@@ -34,7 +34,7 @@ reviews:
     # Incluir
     - "apps/**"
     - "libs/**"
-    - "mintlify/**"
+    - "docs/reference/**"
     - "ARCHITECTURE.md"
     - "README.md"
     - "DESIGN-SYSTEM.md"
@@ -79,7 +79,7 @@ reviews:
         Revisar IAM de mínimo privilegio, nombres consistentes, outputs necesarios, y tags comunes si aplica.
         Evitar cambios que rompan prod (renames de recursos, reemplazos innecesarios).
 
-    - path: "mintlify/**"
+    - path: "docs/reference/**"
       instructions: >
         La documentación debe reflejar el estado real del backend:
         - Arquitectura (stacks, APIs, custom domain mappings)
