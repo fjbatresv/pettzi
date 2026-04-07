@@ -40,7 +40,7 @@
     "@types/node": "25.3.3",
     "@typescript-eslint/utils": "^8.56.1",
     "angular-eslint": "^21.2.0",
-    "aws-cdk-lib": "2.246.0",
+    "aws-cdk-lib": "2.248.0",
     "constructs": "10.6.0",
     "esbuild": "^0.27.3",
     "eslint": "^9.8.0",
