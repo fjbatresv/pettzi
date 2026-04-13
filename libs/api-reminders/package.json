@@ -28,11 +28,11 @@
   },
   "dependencies": {
     "tslib": "^2.3.0",
-    "@aws-sdk/client-dynamodb": "^3.1000.0",
-    "@aws-sdk/lib-dynamodb": "^3.1000.0",
-    "@aws-sdk/client-ses": "^3.1000.0",
-    "@aws-sdk/client-scheduler": "^3.1000.0",
-    "@aws-sdk/client-sqs": "^3.1000.0",
+    "@aws-sdk/client-dynamodb": "^3.1029.0",
+    "@aws-sdk/lib-dynamodb": "^3.1029.0",
+    "@aws-sdk/client-ses": "^3.1029.0",
+    "@aws-sdk/client-scheduler": "^3.1029.0",
+    "@aws-sdk/client-sqs": "^3.1029.0",
     "@types/aws-lambda": "^8.10.161",
     "@pettzi/utils-dynamo": "file:../utils-dynamo",
     "@pettzi/domain-model": "file:../domain-model"
