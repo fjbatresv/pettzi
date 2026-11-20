@@ -15,15 +15,6 @@
   },
   "nx": {
     "targets": {
-      "test": {
-        "executor": "@nx/jest:jest",
-        "outputs": [
-          "{projectRoot}/test-output/jest/coverage"
-        ],
-        "options": {
-          "jestConfig": "libs/api-catalogs/jest.config.cts"
-        }
-      },
       "seed": {
         "executor": "nx:run-commands",
         "dependsOn": [
@@ -33,7 +24,8 @@
           "command": "ts-node --transpile-only libs/api-catalogs/src/seed/seed-catalogs.ts"
         }
       }
-    }
+    },
+    "// targets": "to see all targets run: nx show project @pettzi/api-catalogs --web"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.1000.0",
