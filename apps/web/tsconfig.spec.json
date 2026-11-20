@@ -6,7 +6,8 @@
     "target": "es2016",
     "types": ["jest", "node"],
     "moduleResolution": "node10",
-    "ignoreDeprecations": "6.0"
+    "ignoreDeprecations": "6.0",
+    "rootDir": "."
   },
   "files": ["src/test-setup.ts"],
   "include": [
