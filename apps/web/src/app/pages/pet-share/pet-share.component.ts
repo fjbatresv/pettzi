@@ -158,9 +158,9 @@ export class PetShareComponent implements OnInit {
     const today = new Date();
     let years = today.getFullYear() - birth.getFullYear();
     let months = today.getMonth() - birth.getMonth();
-    const days = today.getDate() - birth.getDate();
+    const profileDayDelta = today.getDate() - birth.getDate();
 
-    if (days < 0) {
+    if (profileDayDelta < 0) {
       months -= 1;
     }
 

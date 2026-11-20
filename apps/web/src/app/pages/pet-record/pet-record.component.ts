@@ -165,9 +165,9 @@ export class PetRecordComponent implements OnInit, OnDestroy {
     const today = new Date();
     let years = today.getFullYear() - birth.getFullYear();
     let months = today.getMonth() - birth.getMonth();
-    const days = today.getDate() - birth.getDate();
+    const recordDayDelta = today.getDate() - birth.getDate();
 
-    if (days < 0) {
+    if (recordDayDelta < 0) {
       months -= 1;
     }
 

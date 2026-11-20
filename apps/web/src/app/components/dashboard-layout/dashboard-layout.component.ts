@@ -190,9 +190,9 @@ export class DashboardLayoutComponent implements OnInit {
     const today = new Date();
     let years = today.getFullYear() - birth.getFullYear();
     let months = today.getMonth() - birth.getMonth();
-    const days = today.getDate() - birth.getDate();
+    const layoutDayDelta = today.getDate() - birth.getDate();
 
-    if (days < 0) {
+    if (layoutDayDelta < 0) {
       months -= 1;
     }
 

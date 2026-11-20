@@ -189,9 +189,9 @@ export class DashboardPetComponent implements OnInit {
     const today = new Date();
     let years = today.getFullYear() - birth.getFullYear();
     let months = today.getMonth() - birth.getMonth();
-    const days = today.getDate() - birth.getDate();
+    const petDayDelta = today.getDate() - birth.getDate();
 
-    if (days < 0) {
+    if (petDayDelta < 0) {
       months -= 1;
     }
 

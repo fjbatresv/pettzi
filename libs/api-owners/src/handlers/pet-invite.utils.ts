@@ -108,9 +108,9 @@ const formatAge = (birthDate?: Date, locale: 'es' | 'en' = 'es') => {
   const today = new Date();
   let years = today.getFullYear() - birthDate.getFullYear();
   let months = today.getMonth() - birthDate.getMonth();
-  const days = today.getDate() - birthDate.getDate();
+  const ageDayDelta = today.getDate() - birthDate.getDate();
 
-  if (days < 0) {
+  if (ageDayDelta < 0) {
     months -= 1;
   }
   if (months < 0) {
