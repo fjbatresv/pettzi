@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -14,6 +14,7 @@ type Stage = 'form' | 'sent';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink, MatIconModule, TranslateModule],
   templateUrl: './forgot-password.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './forgot-password.component.scss',
 })
 export class ForgotPasswordComponent {

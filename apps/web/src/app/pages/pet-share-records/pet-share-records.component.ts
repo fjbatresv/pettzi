@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -41,6 +41,7 @@ interface RecordView extends SharedRecordSummary {
     TranslateModule,
   ],
   templateUrl: './pet-share-records.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './pet-share-records.component.scss',
 })
 export class PetShareRecordsComponent implements OnInit {

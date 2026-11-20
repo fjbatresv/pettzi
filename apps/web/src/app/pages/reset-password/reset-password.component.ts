@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -14,6 +14,7 @@ type PasswordStrength = 'weak' | 'medium' | 'strong';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink, TranslateModule],
   templateUrl: './reset-password.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './reset-password.component.scss',
 })
 export class ResetPasswordComponent {

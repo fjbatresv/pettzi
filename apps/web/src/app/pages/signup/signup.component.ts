@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import {
   FormBuilder,
   ReactiveFormsModule,
@@ -15,6 +15,7 @@ import { TranslateModule } from '@ngx-translate/core';
   imports: [CommonModule, RouterLink, ReactiveFormsModule, TranslateModule],
   standalone: true,
   templateUrl: './signup.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './signup.component.scss',
 })
 export class SignupComponent {

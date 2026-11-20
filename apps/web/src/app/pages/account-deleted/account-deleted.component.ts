@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
@@ -10,6 +10,7 @@ import { I18nService, Locale } from '../../core/i18n/i18n.service';
   standalone: true,
   imports: [CommonModule, RouterLink, MatIconModule, TranslateModule],
   templateUrl: './account-deleted.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './account-deleted.component.scss',
 })
 export class AccountDeletedComponent {

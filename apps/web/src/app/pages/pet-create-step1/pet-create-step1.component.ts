@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -27,6 +27,7 @@ import { PetCreateStateService } from '../../core/services/pet-create-state.serv
   ],
   standalone: true,
   templateUrl: './pet-create-step1.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './pet-create-step1.component.scss',
 })
 export class PetCreateStep1Component implements OnInit {

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -15,6 +15,7 @@ import { Subscription } from 'rxjs';
   standalone: true,
   imports: [CommonModule, FormsModule, TranslateModule, MatIconModule, LanguageToggleComponent],
   templateUrl: './pet-record.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './pet-record.component.scss',
 })
 export class PetRecordComponent implements OnInit, OnDestroy {

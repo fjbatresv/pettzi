@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -14,6 +14,7 @@ interface AttachmentPreviewData {
   standalone: true,
   imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule],
   templateUrl: './event-attachment-preview-dialog.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './event-attachment-preview-dialog.component.scss',
 })
 export class EventAttachmentPreviewDialogComponent {

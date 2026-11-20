@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -35,6 +35,7 @@ import { DeletePetDialogComponent } from './delete-pet-dialog.component';
     TranslateModule,
   ],
   templateUrl: './pet-edit.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './pet-edit.component.scss',
 })
 export class PetEditComponent implements OnInit {

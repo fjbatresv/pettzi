@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -42,6 +42,7 @@ interface OwnerView {
     TranslateModule,
   ],
   templateUrl: './pet-share.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './pet-share.component.scss',
 })
 export class PetShareComponent implements OnInit {

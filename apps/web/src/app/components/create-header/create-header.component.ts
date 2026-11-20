@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { Component, Input, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { LanguageToggleComponent } from '../language-toggle/language-toggle.component';
 import { AuthService } from '../../core/services/auth.service';
@@ -11,6 +11,7 @@ import { firstValueFrom } from 'rxjs';
   standalone: true,
   imports: [CommonModule, TranslateModule, LanguageToggleComponent],
   templateUrl: './create-header.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './create-header.component.scss',
 })
 export class CreateHeaderComponent implements OnInit {

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -32,6 +32,7 @@ type WeightUnit = 'lb' | 'kg';
   ],
   standalone: true,
   templateUrl: './pet-create-step2.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './pet-create-step2.component.scss',
 })
 export class PetCreateStep2Component implements OnInit {
