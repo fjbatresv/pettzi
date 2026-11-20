@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -39,7 +39,6 @@ export type ReminderDialogResult = {
     TranslateModule,
   ],
   templateUrl: './reminder-dialog.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './reminder-dialog.component.scss',
 })
 export class ReminderDialogComponent {

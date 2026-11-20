@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { I18nService } from '../../core/i18n/i18n.service';
@@ -14,7 +14,6 @@ import { firstValueFrom } from 'rxjs';
   imports: [CommonModule, RouterLink, ReactiveFormsModule, TranslateModule],
   standalone: true,
   templateUrl: './login.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './login.component.scss',
 })
 export class LoginComponent implements OnInit {
@@ -67,7 +66,7 @@ export class LoginComponent implements OnInit {
 
     this.isSubmitting = true;
     this.auth.login(email, password).subscribe({
-      next: async (response) => {
+      next: (response) => {
         if ('challenge' in response) {
           sessionStorage.setItem(
             this.resetSessionKey,
@@ -77,8 +76,12 @@ export class LoginComponent implements OnInit {
           return;
         }
         this.challengeMessage = '';
-        await this.persistTokens(response);
-        this.redirectAfterLogin();
+        void this.persistTokens(response)
+          .then(() => this.redirectAfterLogin())
+          .catch(() => {
+            this.errorMessage = this.i18n.t('errors.loginDefault');
+            this.isSubmitting = false;
+          });
       },
       error: (err: Error) => {
         this.errorMessage = err.message;
@@ -177,10 +180,15 @@ export class LoginComponent implements OnInit {
       return false;
     }
     this.isSubmitting = true;
-    void this.persistTokens(tokens, { hasRefreshToken: false }).then(() => {
-      window.history.replaceState({}, document.title, window.location.pathname);
-      this.redirectAfterLogin();
-    });
+    void this.persistTokens(tokens, { hasRefreshToken: false })
+      .then(() => {
+        window.history.replaceState({}, document.title, window.location.pathname);
+        return this.redirectAfterLogin();
+      })
+      .catch(() => {
+        this.errorMessage = this.i18n.t('errors.loginDefault');
+        this.isSubmitting = false;
+      });
     return true;
   }
 }

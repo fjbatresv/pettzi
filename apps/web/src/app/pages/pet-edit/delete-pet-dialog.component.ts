@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -27,7 +27,6 @@ interface DeletePetDialogData {
     TranslateModule,
   ],
   templateUrl: './delete-pet-dialog.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './delete-pet-dialog.component.scss',
 })
 export class DeletePetDialogComponent {

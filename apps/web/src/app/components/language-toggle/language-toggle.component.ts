@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Input, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { I18nService } from '../../core/i18n/i18n.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -9,7 +9,6 @@ import { AuthService } from '../../core/services/auth.service';
   standalone: true,
   imports: [CommonModule, TranslateModule],
   templateUrl: './language-toggle.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './language-toggle.component.scss',
 })
 export class LanguageToggleComponent {

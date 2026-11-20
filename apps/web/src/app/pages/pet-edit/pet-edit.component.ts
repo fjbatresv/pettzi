@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -35,7 +35,6 @@ import { DeletePetDialogComponent } from './delete-pet-dialog.component';
     TranslateModule,
   ],
   templateUrl: './pet-edit.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './pet-edit.component.scss',
 })
 export class PetEditComponent implements OnInit {
@@ -136,7 +135,9 @@ export class PetEditComponent implements OnInit {
         this.observations = parsed.observations;
         const photoKey = this.pet.photoThumbnailKey ?? this.pet.photoKey;
         if (photoKey) {
-          this.loadPhoto(this.pet.petId, photoKey);
+          void this.loadPhoto(this.pet.petId, photoKey).catch(() => {
+            this.petPhotoUrl = '';
+          });
         }
         if (this.species) {
           this.loadBreeds(this.species, this.breed);
@@ -181,7 +182,7 @@ export class PetEditComponent implements OnInit {
     }
   }
 
-  async saveProfile() {
+  saveProfile() {
     if (!this.isFormValid) {
       return;
     }

@@ -48,7 +48,7 @@ const INVITE_BASE_URL =
 const INVITE_EXPIRATION_DAYS = 7;
 const INVITE_EXPIRATION_SECONDS = 60 * 60 * 24 * INVITE_EXPIRATION_DAYS;
 
-const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+const isValidEmail = (value: string) => /^[^@\s]+@[^@\s.]+(?:\.[^@\s.]+)+$/.test(value);
 
 const buildInviteToken = (
   email: string,

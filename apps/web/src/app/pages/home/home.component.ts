@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { API_BASE_URL } from '../../core/tokens';
 
 @Component({
@@ -7,7 +7,6 @@ import { API_BASE_URL } from '../../core/tokens';
   imports: [CommonModule],
   standalone: true,
   templateUrl: './home.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './home.component.scss',
 })
 export class HomeComponent {

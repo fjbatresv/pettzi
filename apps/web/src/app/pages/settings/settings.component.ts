@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -33,7 +33,6 @@ type SettingsSection = 'profile' | 'notifications' | 'security';
     TranslateModule,
   ],
   templateUrl: './settings.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './settings.component.scss',
 })
 export class SettingsComponent implements OnInit {
@@ -272,7 +271,7 @@ export class SettingsComponent implements OnInit {
     }
   }
 
-  async onProfilePhotoSelected(event: Event) {
+  onProfilePhotoSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file || this.isUploadingPhoto) {

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, HostListener, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -45,7 +45,6 @@ import { AuthService } from '../../core/services/auth.service';
     TranslateModule,
   ],
   templateUrl: './dashboard-pet.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './dashboard-pet.component.scss',
 })
 export class DashboardPetComponent implements OnInit {
@@ -142,7 +141,11 @@ export class DashboardPetComponent implements OnInit {
           this.loadEvents(this.pet.petId);
           this.loadReminders(this.pet.petId);
           this.loadRoutines(this.pet.petId);
-          this.loadOwners(this.pet.petId);
+          void this.loadOwners(this.pet.petId).catch(() => {
+            this.canManagePet = false;
+            this.hasCoOwners = false;
+            this.ownersList = [];
+          });
         }
         if (this.pet?.species) {
           this.loadBreeds(this.pet.species);

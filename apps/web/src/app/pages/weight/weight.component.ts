@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -29,7 +29,6 @@ import { PetsService } from '../../core/services/pets.service';
     TranslateModule,
   ],
   templateUrl: './weight.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './weight.component.scss',
 })
 export class WeightComponent implements OnInit {

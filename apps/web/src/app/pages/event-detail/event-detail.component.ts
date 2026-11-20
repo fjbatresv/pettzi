@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -22,7 +22,6 @@ import { EventAttachmentPreviewDialogComponent } from './event-attachment-previe
     TranslateModule,
   ],
   templateUrl: './event-detail.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './event-detail.component.scss',
 })
 export class EventDetailComponent implements OnInit {

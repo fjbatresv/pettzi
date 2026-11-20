@@ -25,7 +25,7 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: npm ci --legacy-peer-deps --ignore-scripts
 
       - name: Snyk test (all projects)
         uses: snyk/actions/node@11b673cfb4b0dc0d860a1323caa199d54950dcce # master

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ViewChild, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ViewChild, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -77,7 +77,6 @@ const EVENT_TYPE_GROUPS: EventTypeGroup[] = [
     FeedingComponent,
   ],
   templateUrl: './event-wizard.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './event-wizard.component.scss',
 })
 export class EventWizardComponent implements OnInit {

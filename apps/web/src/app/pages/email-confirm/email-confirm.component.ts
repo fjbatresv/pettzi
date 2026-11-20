@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
@@ -14,7 +14,6 @@ type ConfirmState = 'loading' | 'success' | 'error';
   standalone: true,
   imports: [CommonModule, RouterLink, MatIconModule, TranslateModule, LanguageToggleComponent],
   templateUrl: './email-confirm.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './email-confirm.component.scss',
 })
 export class EmailConfirmComponent implements OnInit {

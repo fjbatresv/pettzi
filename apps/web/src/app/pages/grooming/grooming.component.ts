@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -33,7 +33,6 @@ type GroomingService = {
     TranslateModule,
   ],
   templateUrl: './grooming.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './grooming.component.scss',
 })
 export class GroomingComponent {

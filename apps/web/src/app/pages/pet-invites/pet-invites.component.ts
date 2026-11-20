@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { OwnersService, PendingPetInvite } from '../../core/services/owners.service';
 
@@ -8,7 +8,6 @@ import { OwnersService, PendingPetInvite } from '../../core/services/owners.serv
   standalone: true,
   imports: [CommonModule, TranslateModule],
   templateUrl: './pet-invites.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './pet-invites.component.scss',
 })
 export class PetInvitesComponent implements OnInit {

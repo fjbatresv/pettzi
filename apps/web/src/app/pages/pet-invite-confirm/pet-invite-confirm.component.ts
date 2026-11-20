@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
@@ -12,7 +12,6 @@ import { OwnersService, PetInvitePreview } from '../../core/services/owners.serv
   standalone: true,
   imports: [CommonModule, RouterLink, TranslateModule],
   templateUrl: './pet-invite-confirm.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './pet-invite-confirm.component.scss',
 })
 export class PetInviteConfirmComponent implements OnInit {

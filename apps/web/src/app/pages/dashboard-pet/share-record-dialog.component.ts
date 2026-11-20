@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, ViewChild, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ElementRef, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
@@ -34,7 +34,6 @@ interface ShareRecordDialogData {
     TranslateModule,
   ],
   templateUrl: './share-record-dialog.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './share-record-dialog.component.scss',
 })
 export class ShareRecordDialogComponent {

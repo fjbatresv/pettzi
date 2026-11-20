@@ -131,7 +131,7 @@ const formatAge = (birthDate?: Date, locale: 'es' | 'en' = 'es') => {
   return `${months} ${months === 1 ? 'mes' : 'meses'}`;
 };
 
-const signPhoto = async (
+const signPhoto = (
   bucket: string,
   key: string,
   expiresAt: number
