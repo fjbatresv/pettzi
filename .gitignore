@@ -54,3 +54,5 @@ Thumbs.db
 test-output
 
 .angular
+
+.nx/migrate-runs
