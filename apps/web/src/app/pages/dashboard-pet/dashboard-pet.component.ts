@@ -141,7 +141,11 @@ export class DashboardPetComponent implements OnInit {
           this.loadEvents(this.pet.petId);
           this.loadReminders(this.pet.petId);
           this.loadRoutines(this.pet.petId);
-          this.loadOwners(this.pet.petId);
+          void this.loadOwners(this.pet.petId).catch(() => {
+            this.canManagePet = false;
+            this.hasCoOwners = false;
+            this.ownersList = [];
+          });
         }
         if (this.pet?.species) {
           this.loadBreeds(this.pet.species);
@@ -185,11 +189,9 @@ export class DashboardPetComponent implements OnInit {
     const today = new Date();
     let years = today.getFullYear() - birth.getFullYear();
     let months = today.getMonth() - birth.getMonth();
-    let days = today.getDate() - birth.getDate();
+    const petDayDelta = today.getDate() - birth.getDate();
 
-    if (days < 0) {
-      const daysInPrevMonth = new Date(today.getFullYear(), today.getMonth(), 0).getDate();
-      days += daysInPrevMonth;
+    if (petDayDelta < 0) {
       months -= 1;
     }
 

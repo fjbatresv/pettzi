@@ -6,7 +6,7 @@ import {
   provideBrowserGlobalErrorListeners,
   provideZoneChangeDetection,
 } from '@angular/core';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideHttpClient, withInterceptors, withXhr } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
 import { provideNativeDateAdapter } from '@angular/material/core';
@@ -28,7 +28,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideHttpClient(withInterceptors([loadingInterceptor, authInterceptor])),
+    provideHttpClient(withXhr(), withInterceptors([loadingInterceptor, authInterceptor])),
     { provide: API_BASE_URL, useValue: environment.apiBaseUrl },
     ...(environment.sentryDsn
       ? [{ provide: ErrorHandler, useClass: SentryErrorHandler }]

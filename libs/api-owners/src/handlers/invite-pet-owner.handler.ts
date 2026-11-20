@@ -48,7 +48,7 @@ const INVITE_BASE_URL =
 const INVITE_EXPIRATION_DAYS = 7;
 const INVITE_EXPIRATION_SECONDS = 60 * 60 * 24 * INVITE_EXPIRATION_DAYS;
 
-const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+const isValidEmail = (value: string) => /^[^@\s]+@[^@\s.]+(?:\.[^@\s.]+)+$/.test(value);
 
 const buildInviteToken = (
   email: string,
@@ -76,11 +76,9 @@ const formatAge = (birthDate?: Date, locale: 'es' | 'en' = 'es') => {
   const today = new Date();
   let years = today.getFullYear() - birthDate.getFullYear();
   let months = today.getMonth() - birthDate.getMonth();
-  let days = today.getDate() - birthDate.getDate();
+  const inviteDayDelta = today.getDate() - birthDate.getDate();
 
-  if (days < 0) {
-    const daysInPrevMonth = new Date(today.getFullYear(), today.getMonth(), 0).getDate();
-    days += daysInPrevMonth;
+  if (inviteDayDelta < 0) {
     months -= 1;
   }
   if (months < 0) {

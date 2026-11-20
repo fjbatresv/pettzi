@@ -38,6 +38,12 @@
       "options": {
         "targetName": "lint"
       }
+    },
+    {
+      "plugin": "@nx/jest/plugin",
+      "options": {
+        "targetName": "test"
+      }
     }
   ],
   "nxCloudId": "6940b6cb58542e58f4760b69",
@@ -68,5 +74,8 @@
       "style": "scss",
       "unitTestRunner": "jest"
     }
+  },
+  "affected": {
+    "legacy": true
   }
 }

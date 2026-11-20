@@ -14,7 +14,7 @@
 
     <section class="card">
       <div class="card-header">
-        <h2>{{ 'createPet.cardTitle' | translate: { petName: draft?.name } }}</h2>
+        <h2>{{ 'createPet.cardTitle' | translate: { petName: $safeNavigationMigration(draft?.name) } }}</h2>
         <p>{{ 'createPet.cardSubtitle' | translate }}</p>
       </div>
 
@@ -48,7 +48,7 @@
         </div>
         <div class="form-row">
           <div class="input-group">
-            <input type="number" class="weight-input" placeholder="0.00" [(ngModel)]="weightValue" />
+            <input id="pet-weight" type="number" class="weight-input" aria-label="{{ 'createPet.weightTitle' | translate }}" placeholder="0.00" [(ngModel)]="weightValue" />
           </div>
           <div class="segmented">
             <button

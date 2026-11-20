@@ -35,11 +35,12 @@
       </mat-select>
     </mat-form-field>
     <mat-form-field appearance="outline">
-      <mat-label>{{ 'shareRecord.password' | translate }}</mat-label>
+      <mat-label>{{ 'shareRecord.accessCode' | translate }}</mat-label>
       <input
+        id="share-access-code"
         matInput
         [(ngModel)]="password"
-        [placeholder]="'shareRecord.passwordPlaceholder' | translate"
+        [placeholder]="'shareRecord.accessCodePlaceholder' | translate"
       />
     </mat-form-field>
   </section>
@@ -65,7 +66,9 @@
 
   @if (copiedLink) {
     <div class="copy-link">
+      <label class="cdk-visually-hidden" for="copied-share-link">{{ 'shareRecord.copyLink' | translate }}</label>
       <input
+        id="copied-share-link"
         #shareLinkInput
         type="text"
         [value]="copiedLink"

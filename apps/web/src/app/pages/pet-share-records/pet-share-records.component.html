@@ -85,7 +85,9 @@
           </div>
 
           <div class="link-actions">
+            <label class="cdk-visually-hidden" for="share-link-url">{{ 'shareRecord.copyLink' | translate }}</label>
             <input
+              id="share-link-url"
               #linkInput
               type="text"
               [value]="record.shareUrl"
@@ -178,11 +180,11 @@
           </mat-select>
         </mat-form-field>
         <mat-form-field appearance="outline">
-          <mat-label>{{ 'shareRecord.password' | translate }}</mat-label>
+          <mat-label>{{ 'shareRecord.accessCode' | translate }}</mat-label>
           <input
             matInput
             [(ngModel)]="password"
-            [placeholder]="'shareRecord.passwordPlaceholder' | translate"
+            [placeholder]="'shareRecord.accessCodePlaceholder' | translate"
           />
         </mat-form-field>
       </div>

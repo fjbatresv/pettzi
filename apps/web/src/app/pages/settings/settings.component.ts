@@ -271,7 +271,7 @@ export class SettingsComponent implements OnInit {
     }
   }
 
-  async onProfilePhotoSelected(event: Event) {
+  onProfilePhotoSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file || this.isUploadingPhoto) {

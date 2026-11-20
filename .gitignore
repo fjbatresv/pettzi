@@ -54,3 +54,7 @@ Thumbs.db
 test-output
 
 .angular
+
+.nx/migrate-runs
+.nx/polygraph
+.nx/self-healing

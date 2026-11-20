@@ -135,7 +135,9 @@ export class PetEditComponent implements OnInit {
         this.observations = parsed.observations;
         const photoKey = this.pet.photoThumbnailKey ?? this.pet.photoKey;
         if (photoKey) {
-          this.loadPhoto(this.pet.petId, photoKey);
+          void this.loadPhoto(this.pet.petId, photoKey).catch(() => {
+            this.petPhotoUrl = '';
+          });
         }
         if (this.species) {
           this.loadBreeds(this.species, this.breed);
@@ -180,7 +182,7 @@ export class PetEditComponent implements OnInit {
     }
   }
 
-  async saveProfile() {
+  saveProfile() {
     if (!this.isFormValid) {
       return;
     }

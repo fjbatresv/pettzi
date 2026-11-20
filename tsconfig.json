@@ -42,5 +42,8 @@
     {
       "path": "./libs/api-routines"
     }
-  ]
+  ],
+  "compilerOptions": {
+    "ignoreDeprecations": "6.0"
+  }
 }

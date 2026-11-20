@@ -158,11 +158,9 @@ export class PetShareComponent implements OnInit {
     const today = new Date();
     let years = today.getFullYear() - birth.getFullYear();
     let months = today.getMonth() - birth.getMonth();
-    let days = today.getDate() - birth.getDate();
+    const profileDayDelta = today.getDate() - birth.getDate();
 
-    if (days < 0) {
-      const daysInPrevMonth = new Date(today.getFullYear(), today.getMonth(), 0).getDate();
-      days += daysInPrevMonth;
+    if (profileDayDelta < 0) {
       months -= 1;
     }
 
@@ -411,6 +409,6 @@ export class PetShareComponent implements OnInit {
   }
 
   private isValidEmail(value: string) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+    return /^[^@\s]+@[^@\s.]+(?:\.[^@\s.]+)+$/.test(value);
   }
 }

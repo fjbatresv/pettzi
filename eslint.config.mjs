@@ -5,7 +5,15 @@ export default [
   ...nx.configs['flat/typescript'],
   ...nx.configs['flat/javascript'],
   {
-    ignores: ['**/dist', '**/out-tsc', '**/cdk.out', 'apps/cdk/src/ses-templates/**/*.html'],
+    ignores: [
+      '**/dist',
+      '**/out-tsc',
+      '**/cdk.out',
+      '**/test-output',
+      '**/coverage',
+      'apps/cdk/src/ses-templates/**/*.html',
+      'apps/landing/**/*.html',
+    ],
   },
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
