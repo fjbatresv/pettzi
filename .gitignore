@@ -56,3 +56,4 @@ test-output
 .angular
 
 .nx/migrate-runs
+.nx/polygraph
