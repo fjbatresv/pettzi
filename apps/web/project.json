@@ -57,6 +57,9 @@
       "continuous": true,
       "executor": "@angular/build:dev-server",
       "defaultConfiguration": "development",
+      "readyWhen": {
+        "signal": true
+      },
       "configurations": {
         "production": {
           "buildTarget": "web:build:production"
@@ -64,9 +67,6 @@
         "development": {
           "buildTarget": "web:build:development"
         }
-      },
-      "readyWhen": {
-        "signal": true
       }
     },
     "extract-i18n": {
@@ -82,7 +82,11 @@
         "buildTarget": "web:build",
         "staticFilePath": "dist/web/browser",
         "spa": true
-      }
+      },
+      "readyWhen": {
+        "signal": true
+      },
+      "dependsOn": ["build"]
     }
   }
 }
