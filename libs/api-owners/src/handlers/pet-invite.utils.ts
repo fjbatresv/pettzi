@@ -108,11 +108,9 @@ const formatAge = (birthDate?: Date, locale: 'es' | 'en' = 'es') => {
   const today = new Date();
   let years = today.getFullYear() - birthDate.getFullYear();
   let months = today.getMonth() - birthDate.getMonth();
-  let days = today.getDate() - birthDate.getDate();
+  const days = today.getDate() - birthDate.getDate();
 
   if (days < 0) {
-    const daysInPrevMonth = new Date(today.getFullYear(), today.getMonth(), 0).getDate();
-    days += daysInPrevMonth;
     months -= 1;
   }
   if (months < 0) {
@@ -165,7 +163,7 @@ export const parseInviteToken = (token: string, secret: string): InviteTokenPayl
   if (!secret) {
     throw serverError('Invite secret is not configured');
   }
-  let decoded = '';
+  let decoded: string;
   try {
     decoded = Buffer.from(token, 'base64url').toString('utf-8');
   } catch {

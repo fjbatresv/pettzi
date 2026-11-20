@@ -19,9 +19,55 @@ updates:
         update-types:
           - 'minor'
           - 'patch'
+      security-updates:
+        applies-to: security-updates
     commit-message:
       prefix: 'chore'
       include: 'scope'
+
+  - package-ecosystem: 'npm'
+    directory: '/layers/cognito-deps/nodejs'
+    target-branch: 'main'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:15'
+    groups:
+      layer-security:
+        applies-to: security-updates
+
+  - package-ecosystem: 'npm'
+    directory: '/layers/ddb-deps/nodejs'
+    target-branch: 'main'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:15'
+    groups:
+      layer-security:
+        applies-to: security-updates
+
+  - package-ecosystem: 'npm'
+    directory: '/layers/s3-deps/nodejs'
+    target-branch: 'main'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:15'
+    groups:
+      layer-security:
+        applies-to: security-updates
+
+  - package-ecosystem: 'npm'
+    directory: '/layers/ses-deps/nodejs'
+    target-branch: 'main'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:15'
+    groups:
+      layer-security:
+        applies-to: security-updates
 
   - package-ecosystem: 'github-actions'
     directory: '/'

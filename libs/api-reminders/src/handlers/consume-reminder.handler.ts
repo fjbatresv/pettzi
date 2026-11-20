@@ -56,7 +56,7 @@ type PeriodicityMeta = {
 export const handler = async (event: SQSEvent) => {
   console.info('Consume reminders batch', { count: event.Records?.length ?? 0 });
   for (const record of event.Records ?? []) {
-    let payload: ReminderMessage | null = null;
+    let payload: ReminderMessage;
     try {
       payload = JSON.parse(record.body) as ReminderMessage;
     } catch {

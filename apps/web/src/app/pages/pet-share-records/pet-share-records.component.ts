@@ -169,11 +169,9 @@ export class PetShareRecordsComponent implements OnInit {
     const today = new Date();
     let years = today.getFullYear() - birth.getFullYear();
     let months = today.getMonth() - birth.getMonth();
-    let days = today.getDate() - birth.getDate();
+    const days = today.getDate() - birth.getDate();
 
     if (days < 0) {
-      const daysInPrevMonth = new Date(today.getFullYear(), today.getMonth(), 0).getDate();
-      days += daysInPrevMonth;
       months -= 1;
     }
 

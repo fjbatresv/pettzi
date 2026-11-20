@@ -23,7 +23,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     return err;
   }
 
-  let payload: UploadRequest = {};
+  let payload: UploadRequest;
   try {
     payload = event.body ? parseJson<UploadRequest>(event.body) : {};
   } catch (err: any) {
