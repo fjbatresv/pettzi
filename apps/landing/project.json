@@ -1,0 +1,29 @@
+{
+  "name": "landing",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/landing",
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/dist/landing"],
+      "options": {
+        "command": "mkdir -p dist/landing/es && cp apps/landing/index.html apps/landing/styles.css apps/landing/logo.svg apps/landing/og-image.png apps/landing/404.html apps/landing/robots.txt apps/landing/sitemap.xml dist/landing/ && cp apps/landing/es/index.html dist/landing/es/index.html"
+      }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "command": "node apps/landing/check.mjs"
+      }
+    },
+    "serve": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "command": "python3 -m http.server 4173 --directory dist/landing"
+      }
+    }
+  }
+}

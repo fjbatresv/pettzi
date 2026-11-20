@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#f4f1e9"/>
+  <path d="M0 500 1200 348v282H0z" fill="#eae6da"/>
+  <circle cx="1000" cy="115" r="72" fill="#e6b85b"/>
+  <g fill="none" stroke="#d7d3c7" stroke-width="2"><ellipse cx="965" cy="315" rx="226" ry="137" transform="rotate(-18 965 315)"/><ellipse cx="965" cy="315" rx="270" ry="183" transform="rotate(20 965 315)"/></g>
+  <text x="76" y="99" fill="#6c7068" font-family="monospace" font-size="17" letter-spacing="4">PETTZI · AN ENGINEERING PORTFOLIO</text>
+  <text x="70" y="276" fill="#242a25" font-family="Georgia,serif" font-size="112" letter-spacing="-6">Care, made</text>
+  <text x="70" y="390" fill="#b74c35" font-family="Georgia,serif" font-size="112" font-style="italic" letter-spacing="-6">considered.</text>
+  <text x="78" y="471" fill="#6c7068" font-family="Arial,sans-serif" font-size="25">A pet care platform, built in public.</text>
+  <g transform="translate(846 166)">
+    <rect x="0" y="0" width="260" height="315" fill="#fffdf7"/>
+    <path d="M57 187c-9-17-5-50 14-65 17-12 35-11 47-5 17-17 42-12 52 4 18 3 33 21 30 45l9 40c3 22-10 34-31 31-16-1-23-13-22-31l-4-17c-18 14-47 17-69 8l-7 30c-4 16-19 17-26 9-6-8-3-27 2-49z" fill="#ca8e5c"/>
+    <path d="M73 127c-28-23-31 11-18 36l18 11zm105-5c28-21 33 10 20 34l-13 16z" fill="#a96e4f"/>
+    <ellipse cx="130" cy="166" rx="45" ry="32" fill="#e8c9a0"/><circle cx="105" cy="151" r="4" fill="#242a25"/><circle cx="156" cy="151" r="4" fill="#242a25"/><ellipse cx="131" cy="164" rx="7" ry="5" fill="#242a25"/>
+    <path d="M73 204q45 15 98-2" fill="none" stroke="#b74c35" stroke-width="9"/><circle cx="128" cy="210" r="6" fill="#e6b85b"/>
+    <text x="24" y="269" fill="#6c7068" font-family="monospace" font-size="12" letter-spacing="2">FIELD RECORD / 001</text>
+    <text x="24" y="302" fill="#242a25" font-family="Georgia,serif" font-size="25">Miso · a good dog</text>
+  </g>
+  <text x="78" y="579" fill="#b74c35" font-family="monospace" font-size="15" letter-spacing="3">SERVERLESS · DOMAIN-DRIVEN · THOUGHTFUL</text>
+</svg>

@@ -1,9 +1,11 @@
 # PETTZI
 
+[Ver landing bilingüe](https://fjbatresv.github.io/pettzi/) · Portfolio de arquitectura y producto
+
 [![Status](https://img.shields.io/badge/status-public_reference-4c1?style=flat-square)](./README.md)
 [![Portfolio](https://img.shields.io/badge/purpose-portfolio-6f42c1?style=flat-square)](./README.md)
 [![Node.js](https://img.shields.io/badge/node-24-339933?style=flat-square&logo=node.js&logoColor=white)](./README.md)
-[![Angular](https://img.shields.io/badge/angular-21-DD0031?style=flat-square&logo=angular&logoColor=white)](./README.md)
+[![Angular](https://img.shields.io/badge/angular-22-DD0031?style=flat-square&logo=angular&logoColor=white)](./README.md)
 [![Nx](https://img.shields.io/badge/nx-monorepo-143055?style=flat-square&logo=nx&logoColor=white)](./README.md)
 [![AWS](https://img.shields.io/badge/aws-serverless-FF9900?style=flat-square&logo=amazonaws&logoColor=white)](./README.md)
 [![License](https://img.shields.io/badge/license-all_rights_reserved-lightgrey?style=flat-square)](./LICENSE.md)
