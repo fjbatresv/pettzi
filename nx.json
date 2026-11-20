@@ -68,5 +68,8 @@
       "style": "scss",
       "unitTestRunner": "jest"
     }
+  },
+  "affected": {
+    "legacy": true
   }
 }
