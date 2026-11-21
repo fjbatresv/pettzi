@@ -8,7 +8,7 @@
       "executor": "nx:run-commands",
       "outputs": ["{workspaceRoot}/dist/landing"],
       "options": {
-        "command": "mkdir -p dist/landing/es && cp apps/landing/index.html apps/landing/styles.css apps/landing/logo.svg apps/landing/og-image.png apps/landing/404.html apps/landing/robots.txt apps/landing/sitemap.xml dist/landing/ && cp apps/landing/es/index.html dist/landing/es/index.html"
+        "command": "mkdir -p dist/landing/es && cp apps/landing/index.html apps/landing/styles.css apps/landing/main.js apps/landing/logo.svg apps/landing/og-image.png apps/landing/404.html apps/landing/robots.txt apps/landing/sitemap.xml dist/landing/ && cp apps/landing/es/index.html dist/landing/es/index.html"
       }
     },
     "lint": {
