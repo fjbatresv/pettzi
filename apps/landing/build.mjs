@@ -9,16 +9,24 @@ const files = [
   'styles.css',
   'main.js',
   'logo.svg',
+  'logo-mark.svg',
   'og-image.png',
   '404.html',
   'robots.txt',
   'sitemap.xml',
   'es/index.html',
 ];
-const assets = ['styles.css', 'main.js', 'logo.svg', 'og-image.png'];
+const assets = [
+  'styles.css',
+  'main.js',
+  'logo.svg',
+  'logo-mark.svg',
+  'og-image.png',
+];
 
 await mkdir(join(output, 'es'), { recursive: true });
-for (const file of files) await copyFile(join(source, file), join(output, file));
+for (const file of files)
+  await copyFile(join(source, file), join(output, file));
 
 const versions = Object.fromEntries(
   await Promise.all(

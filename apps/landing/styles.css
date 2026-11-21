@@ -118,7 +118,6 @@ button:focus-visible {
 }
 .brand img {
   object-fit: contain;
-  filter: hue-rotate(105deg) saturate(0.7);
 }
 .brand-dot {
   color: var(--terracotta);
@@ -168,8 +167,8 @@ button:focus-visible {
 }
 .theme-toggle svg,
 .icon {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   fill: none;
   stroke: currentColor;
   stroke-width: 1.5;
@@ -178,6 +177,22 @@ button:focus-visible {
 }
 .menu-toggle {
   display: none;
+}
+.menu-icon {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.menu-icon path {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition:
+    transform 0.18s,
+    opacity 0.18s;
 }
 /* Hero and title block */
 .hero {
@@ -456,8 +471,8 @@ h3 {
   font-style: normal;
 }
 .arch-flow > i svg {
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   fill: none;
   stroke: currentColor;
   stroke-width: 1.5;
@@ -765,15 +780,14 @@ h3 {
     margin-left: auto;
     margin-right: 10px;
   }
-  .menu-toggle span {
-    width: 18px;
-    border-top: 1.5px solid currentColor;
+  .menu-toggle[aria-expanded='true'] .menu-top {
+    transform: translateY(6px) rotate(45deg);
   }
-  .menu-toggle[aria-expanded='true'] span:first-child {
-    transform: translateY(3px) rotate(45deg);
+  .menu-toggle[aria-expanded='true'] .menu-middle {
+    opacity: 0;
   }
-  .menu-toggle[aria-expanded='true'] span:last-child {
-    transform: translateY(-3px) rotate(-45deg);
+  .menu-toggle[aria-expanded='true'] .menu-bottom {
+    transform: translateY(-6px) rotate(-45deg);
   }
   .nav {
     position: absolute;
