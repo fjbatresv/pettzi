@@ -361,7 +361,7 @@ h2 em {
   font: 500 12px/1.35 var(--mono);
   letter-spacing: 0.04em;
 }
-/* Approach section */
+/* Product requirements */
 .section-pad {
   padding-block: 108px;
 }
@@ -374,34 +374,40 @@ h2 em {
   font-size: clamp(46px, 6vw, 66px);
   line-height: 0.99;
 }
-.approach {
+.needs .section-heading {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  column-gap: 9%;
-  row-gap: 45px;
+  align-items: end;
 }
-.approach-copy {
-  padding-top: 26px;
+.needs .section-heading .eyebrow {
+  grid-column: 1 / -1;
 }
-.approach-copy p {
-  color: var(--muted);
-  font-size: 16px;
-  line-height: 1.8;
+.needs .section-heading h2 {
+  grid-column: 1;
 }
-.principles {
-  grid-column: 1/-1;
+.needs .section-heading .section-intro {
+  grid-column: 2;
+  margin-bottom: 4px;
+}
+.need-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   border-top: 1px solid var(--rule);
-}
-.principles article {
-  padding: 22px 24px 0 0;
-}
-.principles article + article {
-  padding-left: 25px;
   border-left: 1px solid var(--rule);
 }
-.principles article > span,
+.need-grid article {
+  min-height: 230px;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  border-right: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+.need-grid article > span {
+  color: var(--terracotta);
+  font: 12px var(--mono);
+  letter-spacing: 0.04em;
+}
 .arch-notes article > span {
   color: var(--terracotta);
   font: 12px var(--mono);
@@ -410,15 +416,24 @@ h3 {
   font-size: 18px;
   line-height: 1.35;
 }
-.principles h3 {
-  margin: 12px 0 6px;
+.need-grid h3 {
+  margin: 14px 0 7px;
 }
-.principles p,
+.need-grid p,
 .arch-notes p {
-  max-width: 340px;
-  margin: 0;
   color: var(--muted);
   font-size: 16px;
+  line-height: 1.65;
+}
+.need-grid p {
+  margin: 0 0 13px;
+}
+.need-grid a {
+  margin-top: auto;
+  color: var(--terracotta);
+  font-size: 14px;
+  font-weight: 600;
+  text-underline-offset: 4px;
 }
 /* Architecture */
 .architecture,
@@ -726,6 +741,9 @@ h3 {
 }
 /* Tablet layout */
 @media (max-width: 1000px) {
+  .need-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
   .hero {
     gap: 5%;
     grid-template-columns: 1.1fr 0.9fr;
@@ -878,35 +896,22 @@ h3 {
   .section-pad {
     padding-block: 76px;
   }
-  .approach {
-    grid-template-columns: 1fr;
-    row-gap: 22px;
+  .needs .section-heading {
+    display: block;
   }
   .section-heading h2,
   .quality h2,
   .contact h2 {
     font-size: 49px;
   }
-  .approach-copy {
-    padding: 0;
-  }
-  .approach-copy p {
-    font-size: 16px;
-  }
-  .principles {
-    grid-column: auto;
+  .need-grid {
     grid-template-columns: 1fr;
-    margin-top: 10px;
   }
-  .principles article {
-    padding: 17px 0;
+  .need-grid article {
+    min-height: 0;
+    padding: 18px;
   }
-  .principles article + article {
-    padding-left: 0;
-    border-left: 0;
-    border-top: 1px solid var(--rule);
-  }
-  .principles p,
+  .need-grid p,
   .arch-notes p {
     font-size: 15px;
   }

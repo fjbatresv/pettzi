@@ -135,9 +135,9 @@
         </svg>
       </button>
       <nav class="nav" id="site-nav" aria-label="Navegación principal">
-        <a href="#approach">Enfoque</a><a href="#architecture">Arquitectura</a
-        ><a href="#flows">Flujos</a><a href="#decisions">Decisiones</a
-        ><a href="#docs">Documentos</a>
+        <a href="#approach">Necesidades</a
+        ><a href="#architecture">Arquitectura</a><a href="#flows">Flujos</a
+        ><a href="#decisions">Decisiones</a><a href="#docs">Documentos</a>
       </nav>
       <div class="header-actions">
         <a class="language" href="../" lang="en" hreflang="en">EN</a
@@ -216,49 +216,94 @@
         <div><b>≥80%</b><span>OBJETIVO DE COBERTURA</span></div>
         <div><b>EN / ES</b><span>IDIOMAS</span></div>
       </div>
-      <section id="approach" class="approach wrap section-pad">
-        <div class="section-heading">
-          <p class="eyebrow">01 / LA INTENCIÓN</p>
-          <h2>Más que el perfil.<br /><em>Una historia continua.</em></h2>
-        </div>
-        <div class="approach-copy">
-          <p>
-            El cuidado ocurre en fragmentos: una vacuna en la clínica, una nota
-            de quien cuida a la mascota, un recordatorio que llega a tiempo.
-            Pettzi exploró cómo reunirlos sin convertir el cuidado en un
-            trámite.
-          </p>
-          <p>
-            El producto ya no está activo. El código permanece como portafolio:
-            una oportunidad para revisar la arquitectura, sus compromisos y las
-            decisiones de un desarrollo completo.
-          </p>
-        </div>
-        <div class="principles">
-          <article>
-            <span>01</span>
-            <h3>Una historia compartida</h3>
-            <p>
-              Eventos de salud, recordatorios, rutinas, documentos y personas
-              cuidadoras forman parte del mismo relato.
+      <section id="approach" class="needs section-pad">
+        <div class="wrap">
+          <div class="section-heading">
+            <p class="eyebrow">01 / NECESIDADES DEL PRODUCTO</p>
+            <h2>Lo que el producto <em>necesitaba.</em></h2>
+            <p class="section-intro">
+              Una experiencia de cuidado animal requería flujos familiares,
+              límites claros, tareas confiables y un modelo de datos diseñado
+              para sus accesos reales.
             </p>
-          </article>
-          <article>
-            <span>02</span>
-            <h3>Límites con propósito</h3>
-            <p>
-              Cada dominio tiene una responsabilidad clara y contratos que hacen
-              visibles sus conexiones.
-            </p>
-          </article>
-          <article>
-            <span>03</span>
-            <h3>Cuidado desde el inicio</h3>
-            <p>
-              Los permisos, el acceso a datos y la accesibilidad dan forma a la
-              experiencia desde el comienzo.
-            </p>
-          </article>
+          </div>
+          <div class="need-grid">
+            <article>
+              <span>01 / REGISTROS POR DOMINIO</span>
+              <h3>Conectar distintos registros</h3>
+              <p>
+                Los eventos de salud, las rutinas, los recordatorios y los
+                catálogos necesitaban límites de dominio sin perder el historial
+                de cada mascota.
+              </p>
+              <a
+                href="https://github.com/fjbatresv/pettzi/blob/main/TABLE_DESIGN.md"
+                >Ver los patrones de acceso</a
+              >
+            </article>
+            <article>
+              <span>02 / CUIDADO COMPARTIDO</span>
+              <h3>Dar acceso a más personas cuidadoras</h3>
+              <p>
+                Los dueños y co-dueños requieren relaciones y roles explícitos
+                para compartir los registros de una mascota.
+              </p>
+              <a
+                href="https://github.com/fjbatresv/pettzi/tree/main/libs/api-owners"
+                >Explorar la API de Owners</a
+              >
+            </article>
+            <article>
+              <span>03 / SEGUIMIENTO</span>
+              <h3>Enviar recordatorios a tiempo</h3>
+              <p>
+                Los recordatorios pendientes necesitan un proceso programado que
+                consulte los registros y envíe correos sin bloquear una
+                solicitud de API.
+              </p>
+              <a
+                href="https://github.com/fjbatresv/pettzi/blob/main/ARCHITECTURE.md"
+                >Leer el flujo de eventos</a
+              >
+            </article>
+            <article>
+              <span>04 / DOCUMENTOS</span>
+              <h3>Manejar archivos fuera de los registros</h3>
+              <p>
+                Las fotos y documentos se cargan en S3; los registros de
+                mascotas conservan referencias en vez de guardar archivos
+                grandes.
+              </p>
+              <a
+                href="https://github.com/fjbatresv/pettzi/tree/main/libs/api-uploads"
+                >Explorar la API de Uploads</a
+              >
+            </article>
+            <article>
+              <span>05 / IDIOMA</span>
+              <h3>Ofrecer los mismos flujos en dos idiomas</h3>
+              <p>
+                La experiencia web ofrece español e inglés en las pantallas
+                principales del producto.
+              </p>
+              <a href="https://github.com/fjbatresv/pettzi/tree/main/apps/web"
+                >Explorar la app Angular</a
+              >
+            </article>
+            <article>
+              <span>06 / CÓMPUTO</span>
+              <h3>Ejecutar tareas sin un servidor siempre activo</h3>
+              <p>
+                Las solicitudes de API y las tareas programadas usan servicios
+                serverless administrados; la aplicación no mantiene un servidor
+                de cómputo activo todo el tiempo.
+              </p>
+              <a
+                href="https://github.com/fjbatresv/pettzi/blob/main/ARCHITECTURE.md"
+                >Revisar la arquitectura</a
+              >
+            </article>
+          </div>
         </div>
       </section>
       <section id="architecture" class="architecture section-pad">

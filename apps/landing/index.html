@@ -129,9 +129,9 @@
         </svg>
       </button>
       <nav class="nav" id="site-nav" aria-label="Main navigation">
-        <a href="#approach">Approach</a><a href="#architecture">Architecture</a
-        ><a href="#flows">Flows</a><a href="#decisions">Decisions</a
-        ><a href="#docs">Docs</a>
+        <a href="#approach">Product needs</a
+        ><a href="#architecture">Architecture</a><a href="#flows">Flows</a
+        ><a href="#decisions">Decisions</a><a href="#docs">Docs</a>
       </nav>
       <div class="header-actions">
         <a class="language" href="es/" lang="es" hreflang="es">ES</a
@@ -210,49 +210,90 @@
         <div><b>≥80%</b><span>COVERAGE TARGET</span></div>
         <div><b>EN / ES</b><span>LANGUAGES</span></div>
       </div>
-      <section id="approach" class="approach wrap section-pad">
-        <div class="section-heading">
-          <p class="eyebrow">01 / THE INTENT</p>
-          <h2>More than a pet profile.<br /><em>A little continuity.</em></h2>
-        </div>
-        <div class="approach-copy">
-          <p>
-            Care happens in fragments: a vaccine at the clinic, a note from a
-            sitter, a reminder that arrives at just the right time. Pettzi
-            explored bringing those fragments together without making care feel
-            like admin.
-          </p>
-          <p>
-            The product is no longer operated. The code remains as a portfolio
-            project: a chance to examine the architecture, tradeoffs, and design
-            decisions behind a full-stack build.
-          </p>
-        </div>
-        <div class="principles">
-          <article>
-            <span>01</span>
-            <h3>One shared story</h3>
-            <p>
-              Health events, reminders, routines, documents, and the people who
-              care for a pet belong together.
+      <section id="approach" class="needs section-pad">
+        <div class="wrap">
+          <div class="section-heading">
+            <p class="eyebrow">01 / PRODUCT REQUIREMENTS</p>
+            <h2>What the product <em>needed.</em></h2>
+            <p class="section-intro">
+              A pet-care product asked for familiar experiences backed by clear
+              boundaries, dependable jobs, and a data model built around real
+              access patterns.
             </p>
-          </article>
-          <article>
-            <span>02</span>
-            <h3>Boundaries with purpose</h3>
-            <p>
-              Each domain owns a clear part of the system, with contracts that
-              make the seams visible.
-            </p>
-          </article>
-          <article>
-            <span>03</span>
-            <h3>Careful by default</h3>
-            <p>
-              Permission, data access, and accessible interaction shape the
-              experience from the start.
-            </p>
-          </article>
+          </div>
+          <div class="need-grid">
+            <article>
+              <span>01 / DOMAIN RECORDS</span>
+              <h3>Keep different records connected</h3>
+              <p>
+                Health events, routines, reminders, and catalogs needed domain
+                boundaries while staying part of one pet history.
+              </p>
+              <a
+                href="https://github.com/fjbatresv/pettzi/blob/main/TABLE_DESIGN.md"
+                >See the access patterns</a
+              >
+            </article>
+            <article>
+              <span>02 / SHARED CARE</span>
+              <h3>Support more than one caregiver</h3>
+              <p>
+                Owners and co-owners need explicit relationships and roles to
+                share a pet’s records responsibly.
+              </p>
+              <a
+                href="https://github.com/fjbatresv/pettzi/tree/main/libs/api-owners"
+                >Explore the Owners API</a
+              >
+            </article>
+            <article>
+              <span>03 / FOLLOW-UP</span>
+              <h3>Send reminders on schedule</h3>
+              <p>
+                Due reminders need a scheduled processor that finds the right
+                records and sends email without blocking an API request.
+              </p>
+              <a
+                href="https://github.com/fjbatresv/pettzi/blob/main/ARCHITECTURE.md"
+                >Read the event flow</a
+              >
+            </article>
+            <article>
+              <span>04 / DOCUMENTS</span>
+              <h3>Handle files outside the data rows</h3>
+              <p>
+                Photos and documents need uploads through S3 while pet records
+                retain references instead of large file payloads.
+              </p>
+              <a
+                href="https://github.com/fjbatresv/pettzi/tree/main/libs/api-uploads"
+                >Explore the Uploads API</a
+              >
+            </article>
+            <article>
+              <span>05 / LANGUAGE</span>
+              <h3>Make the same flows work in two languages</h3>
+              <p>
+                The web experience supports English and Spanish across the
+                product’s core screens.
+              </p>
+              <a href="https://github.com/fjbatresv/pettzi/tree/main/apps/web"
+                >Browse the Angular app</a
+              >
+            </article>
+            <article>
+              <span>06 / COMPUTE</span>
+              <h3>Run work without an always-on app server</h3>
+              <p>
+                API requests and scheduled jobs use managed serverless services,
+                so the application has no continuously running compute host.
+              </p>
+              <a
+                href="https://github.com/fjbatresv/pettzi/blob/main/ARCHITECTURE.md"
+                >Review the architecture</a
+              >
+            </article>
+          </div>
         </div>
       </section>
       <section id="architecture" class="architecture section-pad">
