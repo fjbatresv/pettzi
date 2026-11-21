@@ -299,15 +299,14 @@ h2 em {
 .title-block > .eyebrow {
   margin-bottom: 14px;
 }
-.title-block > div:not(.title-art) {
+.title-block > div {
   display: flex;
   justify-content: space-between;
   gap: 14px;
   padding: 8px 0;
   border-top: 1px solid var(--rule);
 }
-.title-block > div > span,
-.title-art > span {
+.title-block > div > span {
   color: var(--muted);
   font: 12px var(--mono);
   letter-spacing: 0.08em;
@@ -316,50 +315,6 @@ h2 em {
   font-size: 14px;
   font-weight: 500;
   text-align: right;
-}
-.title-art {
-  position: relative;
-  height: 164px;
-  margin-top: 12px;
-  overflow: hidden;
-  border-top: 1px solid var(--rule);
-  background: radial-gradient(
-    ellipse at 54% 72%,
-    color-mix(in srgb, var(--green) 24%, transparent),
-    transparent 55%
-  );
-}
-.title-art > span {
-  position: absolute;
-  top: 12px;
-  left: 0;
-}
-.title-art svg {
-  position: absolute;
-  right: 10%;
-  bottom: 0;
-  width: 190px;
-}
-.title-art svg circle {
-  fill: color-mix(in srgb, var(--gold) 60%, transparent);
-}
-.title-art svg path {
-  fill: #be875a;
-  stroke: #875b3c;
-  stroke-width: 1.5;
-}
-.title-art svg ellipse {
-  fill: #efd0a5;
-}
-.title-art svg circle:not(:first-child) {
-  fill: #282d27;
-}
-.title-art b {
-  position: absolute;
-  right: 18px;
-  bottom: 12px;
-  color: var(--ink);
-  font: 500 27px var(--display);
 }
 /* Metrics strip */
 .metrics {
