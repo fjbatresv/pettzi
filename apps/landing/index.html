@@ -296,10 +296,77 @@
           </div>
         </div>
       </section>
+      <section id="process" class="process section-pad">
+        <div class="wrap">
+          <div class="section-heading">
+            <p class="eyebrow">02 / HOW I WORK</p>
+            <h2>From contract<br /><em>to reviewed code.</em></h2>
+          </div>
+          <div class="workflow-grid">
+            <article>
+              <span>01 / CONTRACT</span>
+              <h3>Start with OpenAPI</h3>
+              <p>
+                API contracts define routes and schemas before handlers are
+                wired, keeping implementation aligned with the published
+                surface.
+              </p>
+            </article>
+            <article>
+              <span>02 / BOUNDARIES</span>
+              <h3>Organize by domain in Nx</h3>
+              <p>
+                A single Nx workspace keeps each bounded context in its own API
+                library and CDK stack while sharing domain utilities.
+              </p>
+            </article>
+            <article>
+              <span>03 / HANDLERS</span>
+              <h3>Keep handlers thin</h3>
+              <p>
+                Handlers parse, validate, and delegate; domain libraries hold
+                rules, key builders, and mapping logic.
+              </p>
+            </article>
+            <article>
+              <span>04 / DATA</span>
+              <h3>Design around access patterns</h3>
+              <p>
+                The shared DynamoDB table uses explicit keys and indexes for the
+                reads and writes documented by the domain.
+              </p>
+            </article>
+            <article>
+              <span>05 / COVERAGE</span>
+              <h3>Set an ≥80% coverage target</h3>
+              <p>
+                AGENTS.md requires at least 80% coverage for touched files, with
+                behavior-focused cases for the changes.
+              </p>
+            </article>
+            <article>
+              <span>06 / SUPPLY CHAIN</span>
+              <h3>Keep automated checks in the loop</h3>
+              <p>
+                GitHub Actions runs CI and npm audit; Snyk scans dependencies,
+                and Dependabot maintains dependency updates.
+              </p>
+            </article>
+            <article>
+              <span>07 / REVIEW</span>
+              <h3>AI implements; a human reviews</h3>
+              <p>
+                Repository guidance assigns agents implementation work while a
+                human remains architect and final reviewer.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
       <section id="architecture" class="architecture section-pad">
         <div class="wrap">
           <div class="section-heading">
-            <p class="eyebrow">02 / UNDER THE SURFACE</p>
+            <p class="eyebrow">03 / ARCHITECTURE</p>
             <h2>Small domains.<br /><em>One connected system.</em></h2>
             <p class="section-intro">
               Angular at the edge, domain APIs in the middle, and a carefully
@@ -364,7 +431,7 @@
       </section>
       <section id="flows" class="wrap section-pad">
         <div class="section-heading">
-          <p class="eyebrow">03 / FOLLOW AN ORDER</p>
+          <p class="eyebrow">04 / FOLLOW AN ORDER</p>
           <h2>From intention<br /><em>to a useful moment.</em></h2>
         </div>
         <div class="flow-grid">
@@ -405,7 +472,7 @@
       <section id="decisions" class="decisions section-pad">
         <div class="wrap">
           <div class="section-heading">
-            <p class="eyebrow">04 / ENGINEERING NOTES</p>
+            <p class="eyebrow">05 / ENGINEERING NOTES</p>
             <h2>Choices with<br /><em>their edges showing.</em></h2>
           </div>
           <div class="decision-grid">
@@ -463,7 +530,7 @@
       <section id="quality" class="quality section-pad">
         <div class="wrap quality-inner">
           <div>
-            <p class="eyebrow">05 / QUALITY IS A FEATURE</p>
+            <p class="eyebrow">06 / QUALITY IS A FEATURE</p>
             <h2>Trust is built<br /><em>into the details.</em></h2>
             <p>
               Contracts, checks, and careful defaults support a system that
@@ -483,7 +550,7 @@
       </section>
       <section id="docs" class="wrap section-pad docs">
         <div class="section-heading">
-          <p class="eyebrow">06 / THE SOURCE MATERIAL</p>
+          <p class="eyebrow">07 / THE SOURCE MATERIAL</p>
           <h2>Read the<br /><em>working notes.</em></h2>
         </div>
         <div class="doc-grid">

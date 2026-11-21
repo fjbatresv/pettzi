@@ -435,6 +435,33 @@ h3 {
   font-weight: 600;
   text-underline-offset: 4px;
 }
+/* Working process */
+.workflow-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-top: 1px solid var(--rule);
+  border-left: 1px solid var(--rule);
+}
+.workflow-grid article {
+  min-height: 190px;
+  padding: 20px;
+  border-right: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+.workflow-grid article > span {
+  color: var(--terracotta);
+  font: 12px var(--mono);
+  letter-spacing: 0.04em;
+}
+.workflow-grid h3 {
+  margin: 14px 0 7px;
+}
+.workflow-grid p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.65;
+}
 /* Architecture */
 .architecture,
 .decisions {
@@ -744,6 +771,9 @@ h3 {
   .need-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+  .workflow-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
   .hero {
     gap: 5%;
     grid-template-columns: 1.1fr 0.9fr;
@@ -907,11 +937,15 @@ h3 {
   .need-grid {
     grid-template-columns: 1fr;
   }
+  .workflow-grid {
+    grid-template-columns: 1fr;
+  }
   .need-grid article {
     min-height: 0;
     padding: 18px;
   }
   .need-grid p,
+  .workflow-grid p,
   .arch-notes p {
     font-size: 15px;
   }
