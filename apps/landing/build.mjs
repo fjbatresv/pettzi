@@ -8,8 +8,8 @@ const files = [
   'index.html',
   'styles.css',
   'main.js',
-  'logo.svg',
-  'logo-mark.svg',
+  'logo-1x.png',
+  'logo-2x.png',
   'og-image.png',
   '404.html',
   'robots.txt',
@@ -19,8 +19,8 @@ const files = [
 const assets = [
   'styles.css',
   'main.js',
-  'logo.svg',
-  'logo-mark.svg',
+  'logo-1x.png',
+  'logo-2x.png',
   'og-image.png',
 ];
 
@@ -50,6 +50,17 @@ for (const file of ['index.html', 'es/index.html', '404.html']) {
       return version ? `${attribute}="${url}?v=${version}"` : reference;
     },
   );
+  html = html.replace(/\bsrcset="([^"]+)"/gi, (reference, candidates) => {
+    const versioned = candidates
+      .split(',')
+      .map((candidate) => {
+        const [url, ...descriptor] = candidate.trim().split(/\s+/);
+        const version = versions[basename(url)];
+        return `${version ? `${url}?v=${version}` : url} ${descriptor.join(' ')}`.trim();
+      })
+      .join(', ');
+    return `srcset="${versioned}"`;
+  });
   html = html.replace(
     /(<meta\s+(?:property|name)="(?:og:image|twitter:image)"\s+content=")([^"]+)(")/gi,
     (reference, prefix, url, suffix) => {

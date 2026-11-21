@@ -10,6 +10,7 @@
   --gold: #e2b65b;
   --green: #34483b;
   --card: #fffdf7;
+  --logo-badge: transparent;
   --display: 'Newsreader', Georgia, serif;
   --sans: 'DM Sans', sans-serif;
   --mono: 'DM Mono', monospace;
@@ -27,6 +28,7 @@
     --gold: #e6c274;
     --green: #35483b;
     --card: #303730;
+    --logo-badge: #f4f1e9;
   }
 }
 :root[data-theme='dark'] {
@@ -40,6 +42,7 @@
   --gold: #e6c274;
   --green: #35483b;
   --card: #303730;
+  --logo-badge: #f4f1e9;
 }
 :root[data-theme='light'] {
   color-scheme: light;
@@ -117,7 +120,11 @@ button:focus-visible {
   letter-spacing: -0.07em;
 }
 .brand img {
+  width: 32px;
+  height: auto;
   object-fit: contain;
+  background: var(--logo-badge);
+  border-radius: 2px;
 }
 .brand-dot {
   color: var(--terracotta);
@@ -786,6 +793,9 @@ h3 {
 }
 .footer .brand {
   font-size: 18px;
+}
+.footer .brand img {
+  width: 28px;
 }
 .footer-inner > span,
 .footer-inner > a:not(.brand) {

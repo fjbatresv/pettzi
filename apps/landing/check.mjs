@@ -86,6 +86,16 @@ for (const [path, language] of pages) {
         `${path}: versioned asset ${url}`,
       );
   }
+  for (const [, candidates] of html.matchAll(/\bsrcset="([^"]+)"/gi))
+    for (const candidate of candidates.split(',')) {
+      const url = candidate.trim().split(/\s+/)[0];
+      if (/\.(?:css|js|svg|png)(?:[?#]|$)/i.test(url))
+        assert.match(
+          url,
+          /\?v=[a-f\d]{8}(?:#|$)/i,
+          `${path}: versioned srcset ${url}`,
+        );
+    }
   for (const [, href] of html.matchAll(/href="([^"]+)"/g)) {
     if (href.startsWith('#'))
       assert.ok(
@@ -112,6 +122,11 @@ assert.ok(
   statSync('dist/landing/og-image.png').size <= 100_000,
   'OG image under 100 KB',
 );
+for (const path of ['dist/landing/logo-1x.png', 'dist/landing/logo-2x.png'])
+  assert.ok(statSync(path).size < 20_000, `${path}: logo below 20 KB`);
+const logo2x = readFileSync('dist/landing/logo-2x.png');
+assert.equal(logo2x.readUInt32BE(16), 64, 'Logo 2x width');
+assert.equal(logo2x.readUInt32BE(20), 77, 'Logo 2x height');
 const notFound = readFileSync('dist/landing/404.html', 'utf8');
 assert.match(notFound, /name="robots" content="noindex"/);
 assert.match(notFound, /lang="en"/);
