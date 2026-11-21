@@ -165,6 +165,7 @@
         <a href="#approach">Necesidades</a>
         <a href="#process">Proceso</a>
         <a href="#architecture">Arquitectura</a>
+        <a href="#monorepo">Monorepo Nx</a>
         <a href="#flows">Flujos</a>
         <a href="#decisions">Decisiones</a>
         <a href="#docs">Documentos</a>
@@ -969,9 +970,149 @@
           </div>
         </div>
       </section>
+      <section id="monorepo" class="monorepo section-pad">
+        <div class="wrap">
+          <div class="section-heading">
+            <p class="eyebrow">04 / ESPACIO NX</p>
+            <h2>Un monorepo,<br /><em>límites claros.</em></h2>
+            <p class="section-intro">
+              Tres aplicaciones, doce librerías y cuatro capas Lambda comparten
+              herramientas; las flechas reflejan el grafo Nx y las rutas de
+              handlers usadas por CDK.
+            </p>
+          </div>
+          <div
+            class="repo-map"
+            aria-label="Mapa del espacio Nx con aplicaciones, librerías y capas Lambda"
+          >
+            <section class="repo-group apps-group">
+              <h3>Apps <span>03</span></h3>
+              <article><b>apps/web</b><small>SPA Angular</small></article>
+              <article>
+                <b>apps/cdk</b><small>Stacks CDK + empaquetado Lambda</small>
+              </article>
+              <article>
+                <b>apps/landing</b><small>Portafolio estático EN / ES</small>
+              </article>
+            </section>
+            <section class="repo-group api-libs-group">
+              <h3>API de dominio <span>08</span></h3>
+              <div class="repo-api-grid">
+                <article>api-auth</article>
+                <article>api-pets</article>
+                <article>api-owners</article>
+                <article>api-events</article>
+                <article>api-reminders</article>
+                <article>api-routines</article>
+                <article>api-uploads</article>
+                <article>api-catalogs</article>
+              </div>
+            </section>
+            <section class="repo-group shared-libs-group">
+              <h3>Librerías compartidas <span>04</span></h3>
+              <article>
+                <b>domain-model</b
+                ><small>Tipos, mapeadores, constructores de claves</small>
+              </article>
+              <article>
+                <b>utils-dynamo</b><small>Helpers DynamoDB + HTTP</small>
+              </article>
+              <article class="standalone">
+                <b>shared-utils</b><small>Sin aristas Nx actuales</small>
+              </article>
+              <article class="standalone">
+                <b>infra-constructs</b><small>Sin aristas Nx actuales</small>
+              </article>
+            </section>
+            <section class="repo-group layers-group">
+              <h3>Capas Lambda <span>04</span></h3>
+              <article>cognito-deps</article>
+              <article>ddb-deps</article>
+              <article>s3-deps</article>
+              <article>ses-deps</article>
+            </section>
+          </div>
+          <ul class="dependency-routes">
+            <li>
+              <b>apps/web → domain-model</b
+              ><span
+                >Dependencia estática Nx para compartir tipos con la
+                aplicación.</span
+              >
+            </li>
+            <li>
+              <b>apps/cdk → ocho árboles de handlers api-*</b
+              ><span
+                >Los stacks CDK empaquetan entrypoints por rutas de origen;
+                estas rutas en cadenas no son aristas estáticas de Nx.</span
+              >
+            </li>
+            <li>
+              <b>Cada lib api-* → domain-model + utils-dynamo</b
+              ><span
+                >Los ocho proyectos API dependen de ambas; domain-model también
+                depende de los helpers de clave de utils-dynamo.</span
+              >
+            </li>
+            <li>
+              <b>apps/cdk → cuatro capas</b
+              ><span
+                >LayersStack empaqueta las carpetas y los stacks API adjuntan
+                las dependencias SDK.</span
+              >
+            </li>
+            <li>
+              <b>apps/landing</b
+              ><span
+                >Portafolio estático independiente con objetivos build y
+                lint.</span
+              >
+            </li>
+          </ul>
+          <div class="workspace-value-grid">
+            <article>
+              <span>UNA SOLA HERRAMIENTA</span>
+              <h3>Frontend, backend e infraestructura</h3>
+              <p>
+                Los objetivos Nx y scripts raíz coordinan build, test y lint en
+                el espacio de trabajo.
+              </p>
+            </article>
+            <article>
+              <span>REGLAS DE DOMINIO COMPARTIDAS</span>
+              <h3>Un modelo reutilizado</h3>
+              <p>
+                Las ocho API usan domain-model y utils-dynamo para tipos,
+                mapeadores, constructores de claves y helpers DynamoDB.
+              </p>
+            </article>
+            <article>
+              <span>VERIFICACIONES POR CAMBIOS</span>
+              <h3>Ejecuta lint y pruebas afectadas</h3>
+              <p>
+                Los scripts raíz lint:affected y test:affected usan Nx affected;
+                CI actualmente ejecuta lint y test del espacio con nx run-many.
+              </p>
+            </article>
+            <article>
+              <span>FORMA API REPETIBLE</span>
+              <h3>Librería + stack + ruta + contrato</h3>
+              <p>
+                Cada uno de los ocho dominios tiene una librería, un stack API
+                CDK, un prefijo mapeado y un contrato OpenAPI.
+              </p>
+            </article>
+          </div>
+          <p class="repo-note">
+            El grafo Nx contiene 3 apps y 12 librerías. El mapa no implica
+            límites de módulos forzados: eslint depConstraints actualmente
+            permite que <code>*</code> dependa de <code>*</code>.
+          </p>
+        </div>
+      </section>
       <section id="flows" class="wrap section-pad">
         <div class="section-heading">
-          <p class="eyebrow">04 / SIGUE EL RECORRIDO</p>
+          <p class="eyebrow">05 / SIGUE EL RECORRIDO</p>
           <h2>De una intención<br /><em>a un momento útil.</em></h2>
         </div>
         <div class="flow-grid">
@@ -1018,7 +1159,7 @@
       <section id="decisions" class="decisions section-pad">
         <div class="wrap">
           <div class="section-heading">
-            <p class="eyebrow">05 / APUNTES DE INGENIERÍA</p>
+            <p class="eyebrow">06 / APUNTES DE INGENIERÍA</p>
             <h2>Decisiones con<br /><em>sus bordes a la vista.</em></h2>
           </div>
           <div class="decision-grid">
@@ -1078,7 +1219,7 @@
       <section id="quality" class="quality section-pad">
         <div class="wrap quality-inner">
           <div>
-            <p class="eyebrow">06 / LA CALIDAD ES FUNCIONALIDAD</p>
+            <p class="eyebrow">07 / LA CALIDAD ES FUNCIONALIDAD</p>
             <h2>La confianza nace<br /><em>en los detalles.</em></h2>
             <p>
               Contratos, verificaciones y buenos valores predeterminados
@@ -1101,7 +1242,7 @@
       </section>
       <section id="docs" class="wrap section-pad docs">
         <div class="section-heading">
-          <p class="eyebrow">07 / MATERIAL DE REFERENCIA</p>
+          <p class="eyebrow">08 / MATERIAL DE REFERENCIA</p>
           <h2>Lee los<br /><em>documentos del proyecto.</em></h2>
         </div>
         <div class="doc-grid">

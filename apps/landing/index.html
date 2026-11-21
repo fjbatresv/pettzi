@@ -159,6 +159,7 @@
         <a href="#approach">Product needs</a>
         <a href="#process">Process</a>
         <a href="#architecture">Architecture</a>
+        <a href="#monorepo">Monorepo Nx</a>
         <a href="#flows">Flows</a>
         <a href="#decisions">Decisions</a>
         <a href="#docs">Docs</a>
@@ -948,9 +949,143 @@
           </div>
         </div>
       </section>
+      <section id="monorepo" class="monorepo section-pad">
+        <div class="wrap">
+          <div class="section-heading">
+            <p class="eyebrow">04 / NX WORKSPACE</p>
+            <h2>One repo,<br /><em>clear boundaries.</em></h2>
+            <p class="section-intro">
+              Three apps, twelve libraries, and four Lambda layers share a
+              toolchain; dependency arrows below reflect the Nx project graph
+              and CDK handler paths.
+            </p>
+          </div>
+          <div
+            class="repo-map"
+            aria-label="Nx workspace map with apps, libraries, and Lambda layers"
+          >
+            <section class="repo-group apps-group">
+              <h3>Apps <span>03</span></h3>
+              <article><b>apps/web</b><small>Angular SPA</small></article>
+              <article>
+                <b>apps/cdk</b><small>CDK stacks + Lambda bundling</small>
+              </article>
+              <article>
+                <b>apps/landing</b><small>Static EN / ES portfolio</small>
+              </article>
+            </section>
+            <section class="repo-group api-libs-group">
+              <h3>Domain API libs <span>08</span></h3>
+              <div class="repo-api-grid">
+                <article>api-auth</article>
+                <article>api-pets</article>
+                <article>api-owners</article>
+                <article>api-events</article>
+                <article>api-reminders</article>
+                <article>api-routines</article>
+                <article>api-uploads</article>
+                <article>api-catalogs</article>
+              </div>
+            </section>
+            <section class="repo-group shared-libs-group">
+              <h3>Shared libs <span>04</span></h3>
+              <article>
+                <b>domain-model</b><small>Types, mappers, key builders</small>
+              </article>
+              <article>
+                <b>utils-dynamo</b><small>DynamoDB + HTTP helpers</small>
+              </article>
+              <article class="standalone">
+                <b>shared-utils</b><small>No current Nx dependency edges</small>
+              </article>
+              <article class="standalone">
+                <b>infra-constructs</b
+                ><small>No current Nx dependency edges</small>
+              </article>
+            </section>
+            <section class="repo-group layers-group">
+              <h3>Lambda layers <span>04</span></h3>
+              <article>cognito-deps</article>
+              <article>ddb-deps</article>
+              <article>s3-deps</article>
+              <article>ses-deps</article>
+            </section>
+          </div>
+          <ul class="dependency-routes">
+            <li>
+              <b>apps/web → domain-model</b
+              ><span>Static Nx dependency for shared frontend types.</span>
+            </li>
+            <li>
+              <b>apps/cdk → eight api-* handler trees</b
+              ><span
+                >CDK stacks bundle handler entrypoints via source paths; these
+                string paths are not Nx static graph edges.</span
+              >
+            </li>
+            <li>
+              <b>Each api-* lib → domain-model + utils-dynamo</b
+              ><span
+                >All eight API projects have both dependencies; domain-model
+                also depends on utils-dynamo key helpers.</span
+              >
+            </li>
+            <li>
+              <b>apps/cdk → four layers</b
+              ><span
+                >LayersStack packages the layer folders and API stacks attach
+                their SDK dependencies.</span
+              >
+            </li>
+            <li>
+              <b>apps/landing</b
+              ><span>Standalone static site with build and lint targets.</span>
+            </li>
+          </ul>
+          <div class="workspace-value-grid">
+            <article>
+              <span>ONE TOOLCHAIN</span>
+              <h3>Frontend, backend, and IaC</h3>
+              <p>
+                Nx targets and root scripts coordinate project build, test, and
+                lint tasks across the workspace.
+              </p>
+            </article>
+            <article>
+              <span>SHARED DOMAIN RULES</span>
+              <h3>One model, reused everywhere</h3>
+              <p>
+                Every API uses domain-model and utils-dynamo for shared types,
+                mappers, key builders, and common DynamoDB helpers.
+              </p>
+            </article>
+            <article>
+              <span>CHANGE-AWARE CHECKS</span>
+              <h3>Run affected lint and tests</h3>
+              <p>
+                Root lint:affected and test:affected scripts use Nx affected; CI
+                currently runs workspace lint and test targets with nx run-many.
+              </p>
+            </article>
+            <article>
+              <span>REPEATABLE API SHAPE</span>
+              <h3>Library + stack + path + contract</h3>
+              <p>
+                Each of the eight API domains has a library, a CDK API stack, a
+                mapped base path, and an OpenAPI contract.
+              </p>
+            </article>
+          </div>
+          <p class="repo-note">
+            The Nx graph has 3 apps and 12 libraries. This map does not imply
+            enforced module boundaries: eslint depConstraints currently allow
+            <code>*</code> to depend on <code>*</code>.
+          </p>
+        </div>
+      </section>
       <section id="flows" class="wrap section-pad">
         <div class="section-heading">
-          <p class="eyebrow">04 / FOLLOW AN ORDER</p>
+          <p class="eyebrow">05 / FOLLOW AN ORDER</p>
           <h2>From intention<br /><em>to a useful moment.</em></h2>
         </div>
         <div class="flow-grid">
@@ -997,7 +1132,7 @@
       <section id="decisions" class="decisions section-pad">
         <div class="wrap">
           <div class="section-heading">
-            <p class="eyebrow">05 / ENGINEERING NOTES</p>
+            <p class="eyebrow">06 / ENGINEERING NOTES</p>
             <h2>Choices with<br /><em>their edges showing.</em></h2>
           </div>
           <div class="decision-grid">
@@ -1057,7 +1192,7 @@
       <section id="quality" class="quality section-pad">
         <div class="wrap quality-inner">
           <div>
-            <p class="eyebrow">06 / QUALITY IS A FEATURE</p>
+            <p class="eyebrow">07 / QUALITY IS A FEATURE</p>
             <h2>Trust is built<br /><em>into the details.</em></h2>
             <p>
               Contracts, checks, and careful defaults support a system that
@@ -1077,7 +1212,7 @@
       </section>
       <section id="docs" class="wrap section-pad docs">
         <div class="section-heading">
-          <p class="eyebrow">07 / THE SOURCE MATERIAL</p>
+          <p class="eyebrow">08 / THE SOURCE MATERIAL</p>
           <h2>Read the<br /><em>working notes.</em></h2>
         </div>
         <div class="doc-grid">
