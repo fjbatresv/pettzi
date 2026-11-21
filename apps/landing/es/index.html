@@ -4,10 +4,10 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#f4f1e9" />
-    <title>Pettzi — Cuidar, con intención</title>
+    <title>Pettzi — caso serverless por Javier Batres</title>
     <meta
       name="description"
-      content="Un portafolio público de ingeniería sobre software para el cuidado animal, arquitectura por dominios y decisiones de una plataforma serverless."
+      content="Caso de ingeniería serverless en AWS por Javier Batres: arquitectura de Pettzi, aplicación Angular, infraestructura CDK y decisiones de entrega."
     />
     <link rel="canonical" href="https://fjbatresv.github.io/pettzi/es/" />
     <link
@@ -42,10 +42,13 @@
     <link rel="stylesheet" href="../styles.css" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Pettzi" />
-    <meta property="og:title" content="Pettzi — Cuidar, con intención" />
+    <meta
+      property="og:title"
+      content="Pettzi — caso serverless por Javier Batres"
+    />
     <meta
       property="og:description"
-      content="Un portafolio público de ingeniería sobre software para el cuidado animal, arquitectura por dominios y decisiones de una plataforma serverless."
+      content="Caso de ingeniería serverless en AWS por Javier Batres: arquitectura de Pettzi, aplicación Angular, infraestructura CDK y decisiones de entrega."
     />
     <meta property="og:url" content="https://fjbatresv.github.io/pettzi/es/" />
     <meta property="og:locale" content="es_ES" />
@@ -56,8 +59,23 @@
     />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Pettzi — cuidar, con intención" />
+    <meta
+      property="og:image:alt"
+      content="Caso de ingeniería Pettzi: AWS, Angular y CDK"
+    />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="Pettzi — caso serverless por Javier Batres"
+    />
+    <meta
+      name="twitter:description"
+      content="Caso de ingeniería serverless en AWS por Javier Batres: arquitectura de Pettzi, aplicación Angular, infraestructura CDK y decisiones de entrega."
+    />
+    <meta
+      name="twitter:image"
+      content="https://fjbatresv.github.io/pettzi/og-image.png"
+    />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -72,14 +90,19 @@
             "@type": "WebPage",
             "@id": "https://fjbatresv.github.io/pettzi/es/#webpage",
             "url": "https://fjbatresv.github.io/pettzi/es/",
-            "name": "Pettzi — Cuidar, con intención",
-            "isPartOf": { "@id": "https://fjbatresv.github.io/pettzi/#website" }
+            "name": "Pettzi — caso serverless por Javier Batres",
+            "isPartOf": {
+              "@id": "https://fjbatresv.github.io/pettzi/#website"
+            },
+            "author": { "@id": "https://fjbatresv.github.io/pettzi/#person" }
           },
           {
             "@type": "Person",
             "@id": "https://fjbatresv.github.io/pettzi/#person",
             "name": "Javier Batres",
-            "url": "https://fjbatresv.com"
+            "url": "https://fjbatresv.com",
+            "jobTitle": "Solutions Architect and Senior Full Stack Engineer",
+            "sameAs": "https://github.com/fjbatresv"
           },
           {
             "@type": "SoftwareSourceCode",
@@ -135,9 +158,13 @@
         </svg>
       </button>
       <nav class="nav" id="site-nav" aria-label="Navegación principal">
-        <a href="#approach">Necesidades</a
-        ><a href="#architecture">Arquitectura</a><a href="#flows">Flujos</a
-        ><a href="#decisions">Decisiones</a><a href="#docs">Documentos</a>
+        <a href="#approach">Necesidades</a>
+        <a href="#process">Proceso</a>
+        <a href="#architecture">Arquitectura</a>
+        <a href="#flows">Flujos</a>
+        <a href="#decisions">Decisiones</a>
+        <a href="#docs">Documentos</a>
+        <a class="nav-contact" href="#contact">Contacto</a>
       </nav>
       <div class="header-actions">
         <a class="language" href="../" lang="en" hreflang="en">EN</a
@@ -495,48 +522,50 @@
               <span>01 / DATOS</span>
               <h3>Una tabla en vez de varias</h3>
               <p>
-                Reúne patrones de acceso relacionados; las claves e índices
-                requieren planificación.
+                Alternativa: separar tablas por dominio. La tabla común reúne
+                patrones documentados, a cambio de planificar claves e índices.
               </p>
             </article>
             <article>
               <span>02 / LÍMITES</span>
               <h3>API de dominio con OpenAPI</h3>
               <p>
-                Los contratos hacen visibles los límites; cada cambio debe
-                mantenerse alineado.
+                Alternativa: acoplar servicios sin contratos documentados. Los
+                contratos muestran límites y exigen mantener cada cambio
+                alineado.
               </p>
             </article>
             <article>
               <span>03 / CÓMPUTO</span>
               <h3>Servicios serverless de AWS</h3>
               <p>
-                El escalado administrado reduce la operación de servidores; el
-                diseño sigue límites del proveedor.
+                Alternativa: un servidor siempre activo. El escalado
+                administrado reduce su operación, sujeto a límites del
+                proveedor.
               </p>
             </article>
             <article>
               <span>04 / ENTREGA</span>
               <h3>Handlers pequeños, lógica en dominio</h3>
               <p>
-                Los handlers mantienen un flujo predecible; las reglas viven en
-                código de dominio compartido.
+                Alternativa: reglas en cada handler. El dominio compartido da un
+                flujo predecible, aunque añade una capa que recorrer.
               </p>
             </article>
             <article>
               <span>05 / TAREAS PROGRAMADAS</span>
               <h3>EventBridge para recordatorios</h3>
               <p>
-                El procesamiento programado queda fuera de las solicitudes; la
-                entrega es asíncrona.
+                Alternativa: buscar recordatorios pendientes en cada solicitud.
+                La tarea programada queda aparte y entrega de forma asíncrona.
               </p>
             </article>
             <article>
               <span>06 / HERRAMIENTAS</span>
               <h3>Monorepo Nx</h3>
               <p>
-                Las herramientas compartidas apoyan los dominios; los límites
-                entre tareas siguen explícitos.
+                Alternativa: repositorios separados. Nx comparte herramientas y
+                requiere mantener explícitos los límites entre dominios.
               </p>
             </article>
           </div>
@@ -602,6 +631,39 @@
           ></a>
         </div>
       </section>
+      <section class="services section-pad">
+        <div class="wrap">
+          <div class="section-heading">
+            <p class="eyebrow">QUÉ PUEDO ENTREGAR</p>
+            <h2>De la arquitectura<br /><em>al software en marcha.</em></h2>
+          </div>
+          <div class="service-grid">
+            <article>
+              <h3>Backends serverless</h3>
+              <p>
+                APIs de dominio en AWS Lambda, API Gateway, EventBridge y SES.
+              </p>
+            </article>
+            <article>
+              <h3>Infraestructura como código</h3>
+              <p>Recursos de AWS desplegables y administrados con CDK.</p>
+            </article>
+            <article>
+              <h3>Aplicaciones web</h3>
+              <p>
+                Interfaces Angular conectadas con contratos de API documentados.
+              </p>
+            </article>
+            <article>
+              <h3>Fundamentos de ingeniería</h3>
+              <p>
+                Documentación de arquitectura, verificaciones CI y límites de
+                dominio mantenibles.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
       <section id="contact" class="contact section-pad">
         <div class="wrap contact-inner">
           <p class="eyebrow">UNA NOTA FINAL</p>
@@ -612,12 +674,23 @@
             El experimento de producto terminó. Las preguntas que dejó siguen
             abiertas.
           </p>
-          <div>
-            <a class="button button-light" href="https://fjbatresv.com"
-              >Visitar fjbatresv.com
-              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M7 17 17 7M7 7h10v10" /></svg></a
-            ><a href="mailto:fjbatresv@gmail.com">fjbatresv@gmail.com</a>
+          <div class="contact-options">
+            <article>
+              <h3>¿Buscas contratar a un ingeniero sénior?</h3>
+              <a class="button button-light" href="mailto:fjbatresv@gmail.com"
+                >Escribir a Javier
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M7 17 17 7M7 7h10v10" /></svg
+              ></a>
+              <a href="https://fjbatresv.com">Conoce a Javier</a>
+            </article>
+            <article>
+              <h3>¿Quieres construir un producto similar?</h3>
+              <a class="button button-light" href="mailto:fjbatresv@gmail.com"
+                >Hablemos del proyecto</a
+              >
+              <a href="https://github.com/fjbatresv">Perfil de GitHub</a>
+            </article>
           </div>
         </div>
       </section>

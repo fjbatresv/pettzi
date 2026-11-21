@@ -4,10 +4,10 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#f4f1e9" />
-    <title>Pettzi — Care, made considered</title>
+    <title>Pettzi — serverless case study by Javier Batres</title>
     <meta
       name="description"
-      content="A public engineering portfolio exploring thoughtful pet care software, domain architecture, and the decisions behind a serverless platform."
+      content="An AWS serverless case study by Javier Batres, showing Pettzi’s architecture, Angular app, CDK infrastructure, and delivery decisions."
     />
     <link rel="canonical" href="https://fjbatresv.github.io/pettzi/" />
     <link
@@ -42,10 +42,13 @@
     <link rel="stylesheet" href="styles.css" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Pettzi" />
-    <meta property="og:title" content="Pettzi — Care, made considered" />
+    <meta
+      property="og:title"
+      content="Pettzi — serverless case study by Javier Batres"
+    />
     <meta
       property="og:description"
-      content="A public engineering portfolio exploring thoughtful pet care software, domain architecture, and the decisions behind a serverless platform."
+      content="An AWS serverless case study by Javier Batres, showing Pettzi’s architecture, Angular app, CDK infrastructure, and delivery decisions."
     />
     <meta property="og:url" content="https://fjbatresv.github.io/pettzi/" />
     <meta property="og:locale" content="en_US" />
@@ -56,8 +59,23 @@
     />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Pettzi — care, made considered" />
+    <meta
+      property="og:image:alt"
+      content="Pettzi engineering case study: AWS, Angular, and CDK"
+    />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="Pettzi — serverless case study by Javier Batres"
+    />
+    <meta
+      name="twitter:description"
+      content="An AWS serverless case study by Javier Batres, showing Pettzi’s architecture, Angular app, CDK infrastructure, and delivery decisions."
+    />
+    <meta
+      name="twitter:image"
+      content="https://fjbatresv.github.io/pettzi/og-image.png"
+    />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -72,14 +90,19 @@
             "@type": "WebPage",
             "@id": "https://fjbatresv.github.io/pettzi/#webpage",
             "url": "https://fjbatresv.github.io/pettzi/",
-            "name": "Pettzi — Care, made considered",
-            "isPartOf": { "@id": "https://fjbatresv.github.io/pettzi/#website" }
+            "name": "Pettzi — serverless case study by Javier Batres",
+            "isPartOf": {
+              "@id": "https://fjbatresv.github.io/pettzi/#website"
+            },
+            "author": { "@id": "https://fjbatresv.github.io/pettzi/#person" }
           },
           {
             "@type": "Person",
             "@id": "https://fjbatresv.github.io/pettzi/#person",
             "name": "Javier Batres",
-            "url": "https://fjbatresv.com"
+            "url": "https://fjbatresv.com",
+            "jobTitle": "Solutions Architect and Senior Full Stack Engineer",
+            "sameAs": "https://github.com/fjbatresv"
           },
           {
             "@type": "SoftwareSourceCode",
@@ -129,9 +152,13 @@
         </svg>
       </button>
       <nav class="nav" id="site-nav" aria-label="Main navigation">
-        <a href="#approach">Product needs</a
-        ><a href="#architecture">Architecture</a><a href="#flows">Flows</a
-        ><a href="#decisions">Decisions</a><a href="#docs">Docs</a>
+        <a href="#approach">Product needs</a>
+        <a href="#process">Process</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#flows">Flows</a>
+        <a href="#decisions">Decisions</a>
+        <a href="#docs">Docs</a>
+        <a class="nav-contact" href="#contact">Contact</a>
       </nav>
       <div class="header-actions">
         <a class="language" href="es/" lang="es" hreflang="es">ES</a
@@ -480,48 +507,50 @@
               <span>01 / STORAGE</span>
               <h3>Single table over separate tables</h3>
               <p>
-                It keeps related access patterns together; keys and indexes need
-                careful planning.
+                Alternative: separate tables per domain. The shared table keeps
+                documented access patterns together, at the cost of careful key
+                and index planning.
               </p>
             </article>
             <article>
               <span>02 / BOUNDARIES</span>
               <h3>Domain APIs with OpenAPI</h3>
               <p>
-                Contracts make service boundaries visible; every change needs
-                contract alignment.
+                Alternative: undocumented service coupling. Contracts make
+                boundaries visible, with the cost of keeping each change
+                aligned.
               </p>
             </article>
             <article>
               <span>03 / COMPUTE</span>
               <h3>Serverless AWS services</h3>
               <p>
-                Managed scaling reduces server operations; the design follows
-                provider service limits.
+                Alternative: an always-on server. Managed scaling reduces server
+                operations, while the design follows provider limits.
               </p>
             </article>
             <article>
               <span>04 / DELIVERY</span>
               <h3>Thin handlers, domain libraries</h3>
               <p>
-                Handlers stay predictable; business rules live in shared domain
-                code.
+                Alternative: business rules in each handler. Shared domain code
+                keeps handlers predictable, with an extra layer to navigate.
               </p>
             </article>
             <article>
               <span>05 / SCHEDULED WORK</span>
               <h3>EventBridge for reminders</h3>
               <p>
-                Scheduled processing stays outside request paths; delivery is
-                asynchronous.
+                Alternative: check due reminders during API requests. Scheduled
+                work keeps that processing separate, with asynchronous delivery.
               </p>
             </article>
             <article>
               <span>06 / TOOLING</span>
               <h3>Nx monorepo</h3>
               <p>
-                Shared workspace tooling supports bounded contexts; task
-                boundaries remain explicit.
+                Alternative: separate repositories. Nx shares workspace tooling,
+                while bounded-context boundaries must stay explicit.
               </p>
             </article>
           </div>
@@ -584,6 +613,37 @@
           ></a>
         </div>
       </section>
+      <section class="services section-pad">
+        <div class="wrap">
+          <div class="section-heading">
+            <p class="eyebrow">WHAT I DELIVER</p>
+            <h2>From system shape<br /><em>to shipped software.</em></h2>
+          </div>
+          <div class="service-grid">
+            <article>
+              <h3>Serverless backends</h3>
+              <p>
+                Domain APIs on AWS Lambda, API Gateway, EventBridge, and SES.
+              </p>
+            </article>
+            <article>
+              <h3>Infrastructure as code</h3>
+              <p>Deployable AWS resources composed and managed with CDK.</p>
+            </article>
+            <article>
+              <h3>Web applications</h3>
+              <p>Angular interfaces connected to documented API contracts.</p>
+            </article>
+            <article>
+              <h3>Engineering foundations</h3>
+              <p>
+                Architecture documentation, CI checks, and maintainable domain
+                boundaries.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
       <section id="contact" class="contact section-pad">
         <div class="wrap contact-inner">
           <p class="eyebrow">A NOTE TO CLOSE</p>
@@ -591,12 +651,23 @@
           <p>
             The product experiment has ended. The questions behind it continue.
           </p>
-          <div>
-            <a class="button button-light" href="https://fjbatresv.com"
-              >Visit fjbatresv.com
-              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M7 17 17 7M7 7h10v10" /></svg></a
-            ><a href="mailto:fjbatresv@gmail.com">fjbatresv@gmail.com</a>
+          <div class="contact-options">
+            <article>
+              <h3>Hiring for a senior engineering role?</h3>
+              <a class="button button-light" href="mailto:fjbatresv@gmail.com"
+                >Email Javier
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M7 17 17 7M7 7h10v10" /></svg
+              ></a>
+              <a href="https://fjbatresv.com">About Javier</a>
+            </article>
+            <article>
+              <h3>Building a product with similar needs?</h3>
+              <a class="button button-light" href="mailto:fjbatresv@gmail.com"
+                >Discuss a project</a
+              >
+              <a href="https://github.com/fjbatresv">GitHub profile</a>
+            </article>
           </div>
         </div>
       </section>

@@ -32,6 +32,9 @@ for (const [path, language] of pages) {
     );
   assert.match(html, /og:image:alt/, `${path}: image alt`);
   assert.match(html, /name="twitter:card" content="summary_large_image"/);
+  assert.match(html, /name="twitter:title"/);
+  assert.match(html, /name="twitter:description"/);
+  assert.match(html, /name="twitter:image"/);
   assert.match(html, /"@graph"/);
   for (const type of [
     'WebSite',
@@ -49,6 +52,10 @@ for (const [path, language] of pages) {
     html,
     /"url"\s*:\s*"https:\/\/fjbatresv\.com"/,
     `${path}: Person URL`,
+  );
+  assert.match(
+    html,
+    /"jobTitle"\s*:\s*"Solutions Architect and Senior Full Stack Engineer"/,
   );
   assert.match(html, /rel="preload"[^>]*as="font"[^>]*crossorigin/);
   assert.equal((html.match(/<h1\b/g) ?? []).length, 1, `${path}: one h1`);
@@ -73,7 +80,11 @@ for (const [path, language] of pages) {
       !/^(?:[a-z]+:|\/\/|#)/i.test(url) &&
       /\.(?:css|js|svg|png)(?:[?#]|$)/i.test(url)
     )
-      assert.match(url, /\?v=[a-f\d]{8}(?:#|$)/i, `${path}: versioned asset ${url}`);
+      assert.match(
+        url,
+        /\?v=[a-f\d]{8}(?:#|$)/i,
+        `${path}: versioned asset ${url}`,
+      );
   }
   for (const [, href] of html.matchAll(/href="([^"]+)"/g)) {
     if (href.startsWith('#'))

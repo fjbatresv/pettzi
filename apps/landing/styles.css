@@ -146,6 +146,11 @@ button:focus-visible {
 .nav a[aria-current='location'] {
   box-shadow: inset 0 -2px var(--terracotta);
 }
+.nav .nav-contact {
+  padding-inline: 15px;
+  border: 1px solid var(--terracotta);
+  color: var(--terracotta);
+}
 .language {
   font: 500 12px var(--mono);
 }
@@ -612,6 +617,27 @@ h3 {
   font-size: 16px;
   line-height: 1.6;
 }
+/* Services */
+.service-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-top: 1px solid var(--rule);
+  border-left: 1px solid var(--rule);
+}
+.service-grid article {
+  padding: 20px;
+  border-right: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+.service-grid h3,
+.contact-options h3 {
+  margin: 0 0 8px;
+}
+.service-grid p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 16px;
+}
 /* Quality */
 .quality,
 .contact {
@@ -712,23 +738,38 @@ h3 {
   color: #e0e5d9;
   font-size: 17px;
 }
-.contact > div > div {
+.contact-options {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
-  gap: 25px;
+  gap: 16px;
+}
+.contact-options article {
+  min-width: min(300px, 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 20px;
+  border: 1px solid rgb(255 255 255 / 28%);
+}
+.contact-options h3 {
+  font-size: 17px;
 }
 .button-light {
   background: #f7f2e8;
   color: #253128;
 }
-.contact-inner > div > a:last-child {
+.contact-options a:not(.button) {
   min-height: 44px;
   display: inline-flex;
   align-items: center;
   color: #f7f2e8;
   font-size: 16px;
   text-underline-offset: 4px;
+}
+.contact-options .button {
+  margin-top: auto;
 }
 /* Footer */
 .footer {
@@ -768,6 +809,9 @@ h3 {
 }
 /* Tablet layout */
 @media (max-width: 1000px) {
+  .service-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
   .need-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -811,7 +855,7 @@ h3 {
   }
 }
 /* Mobile layout */
-@media (max-width: 700px) {
+@media (max-width: 1100px) {
   .wrap {
     width: calc(100% - 38px);
   }
@@ -1044,10 +1088,16 @@ h3 {
   .doc-grid a > b {
     font-size: 24px;
   }
-  .contact-inner > div {
+  .contact-options {
     display: flex;
     flex-direction: column;
-    gap: 7px;
+    align-items: stretch;
+  }
+  .contact-options article {
+    min-width: 0;
+  }
+  .service-grid {
+    grid-template-columns: 1fr;
   }
   .footer-inner {
     min-height: 100px;
