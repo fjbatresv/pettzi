@@ -1,20 +1,520 @@
 <!doctype html>
 <html lang="es">
-<head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#f4f1e9"><title>Pettzi — Cuidar, con intención</title>
-  <meta name="description" content="Un portafolio público de ingeniería sobre software para el cuidado animal, arquitectura por dominios y decisiones de una plataforma serverless.">
-  <link rel="canonical" href="https://fjbatresv.github.io/pettzi/es/"><link rel="alternate" hreflang="en" href="https://fjbatresv.github.io/pettzi/"><link rel="alternate" hreflang="es" href="https://fjbatresv.github.io/pettzi/es/"><link rel="alternate" hreflang="x-default" href="https://fjbatresv.github.io/pettzi/"><link rel="icon" href="../logo.svg" type="image/svg+xml"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="preload" href="https://fonts.gstatic.com/s/newsreader/v26/cY9qfjOCX1hbuyalUrK49dLac06G1ZGsZBtoBCzBDXXD9JVF438weI_ADA.ttf" as="font" type="font/ttf" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap" rel="stylesheet"><link rel="stylesheet" href="../styles.css">
-  <meta property="og:type" content="website"><meta property="og:site_name" content="Pettzi"><meta property="og:title" content="Pettzi — Cuidar, con intención"><meta property="og:description" content="Un portafolio público de ingeniería sobre software para el cuidado animal, arquitectura por dominios y decisiones de una plataforma serverless."><meta property="og:url" content="https://fjbatresv.github.io/pettzi/es/"><meta property="og:locale" content="es_ES"><meta property="og:locale:alternate" content="en_US"><meta property="og:image" content="https://fjbatresv.github.io/pettzi/og-image.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Pettzi — cuidar, con intención"><meta name="twitter:card" content="summary_large_image">
-  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://fjbatresv.github.io/pettzi/#website","url":"https://fjbatresv.github.io/pettzi/","name":"Pettzi"},{"@type":"WebPage","@id":"https://fjbatresv.github.io/pettzi/es/#webpage","url":"https://fjbatresv.github.io/pettzi/es/","name":"Pettzi — Cuidar, con intención","isPartOf":{"@id":"https://fjbatresv.github.io/pettzi/#website"}},{"@type":"Person","@id":"https://fjbatresv.github.io/pettzi/#person","name":"Javier Batres","url":"https://fjbatresv.com"},{"@type":"SoftwareSourceCode","name":"Pettzi","codeRepository":"https://github.com/fjbatresv/pettzi","programmingLanguage":["TypeScript","HTML","CSS"],"runtimePlatform":"Node.js 24, Angular, AWS","author":{"@id":"https://fjbatresv.github.io/pettzi/#person"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Inicio","item":"https://fjbatresv.github.io/pettzi/"},{"@type":"ListItem","position":2,"name":"Portafolio","item":"https://fjbatresv.github.io/pettzi/es/"}]}]}</script>
-</head><body><a class="skip-link" href="#main">Saltar al contenido</a>
-<header class="masthead wrap"><a class="brand" href="./" aria-label="Inicio de Pettzi"><img src="../logo.svg" alt="" width="32" height="32"><span>pettzi<span class="brand-dot">.</span></span></a><button class="menu-toggle" aria-label="Abrir navegación" aria-expanded="false" aria-controls="site-nav"><span></span><span></span></button><nav class="nav" id="site-nav" aria-label="Navegación principal"><a href="#approach">Enfoque</a><a href="#architecture">Arquitectura</a><a href="#flows">Flujos</a><a href="#decisions">Decisiones</a><a href="#docs">Documentos</a></nav><div class="header-actions"><a class="language" href="../" lang="en" hreflang="en">EN</a><button class="theme-toggle" aria-label="Cambiar tema de color" title="Cambiar tema de color"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg></button></div></header>
-<main id="main"><section class="hero wrap"><div class="hero-copy"><p class="eyebrow"><span class="status-dot"></span> Portafolio independiente de ingeniería</p><h1>Cuidar, con<br><em>intención.</em></h1><p class="hero-lede">Pettzi nació como un lugar para reunir cada detalle de la vida de una mascota. Hoy es un estudio público sobre cómo construir software con cuidado, desde el modelo de datos hasta el detalle más pequeño de la interfaz.</p><div class="hero-actions"><a class="button button-dark" href="https://github.com/fjbatresv/pettzi">Explorar el repositorio <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></a><a class="text-link" href="#architecture">Recorrer la arquitectura <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16m-7-7 7 7 7-7"/></svg></a></div><p class="hero-note"><span class="note-line"></span> Un experimento de producto concluido. Queda como referencia, no como servicio activo.</p></div><aside class="title-block"><p class="eyebrow">PROYECTO / APUNTES DE CAMPO</p><div><span>PROYECTO</span><b>pettzi · cuidado animal</b></div><div><span>DOMINIOS</span><b>8 API de dominio</b></div><div><span>STACK</span><b>Angular · Node.js 24 · AWS CDK</b></div><div><span>ESTADO</span><b>Concluido · código abierto</b></div><div><span>IDIOMAS</span><b>English / Español</b></div><div class="title-art"><span>FICHA / 001</span><svg viewBox="0 0 240 150" role="img" aria-label="Ilustración de un perro amigable"><circle cx="120" cy="75" r="67"/><path d="M67 70c-22-31-31 6-12 32l23 10m95-42c23-29 31 7 12 31l-20 10M72 84c0-36 22-53 48-48 27-11 54 8 51 47l8 31c4 18-10 24-25 18l-7-31c-24 16-52 17-74 3l-4 27c-17 12-29 3-24-14z"/><ellipse cx="120" cy="82" rx="35" ry="26"/><circle cx="101" cy="68" r="3"/><circle cx="139" cy="68" r="3"/><path d="M116 80q4-7 9 0m-5 5v7m-8 2q8 8 16 0"/></svg><b>Miso</b></div></aside></section>
-<div class="metrics wrap"><div><b>08</b><span>API DE DOMINIO</span></div><div><b>18</b><span>STACKS CDK</span></div><div><b>08</b><span>CONTRATOS OPENAPI</span></div><div><b>≥80%</b><span>OBJETIVO DE COBERTURA</span></div><div><b>EN / ES</b><span>IDIOMAS</span></div></div>
-<section id="approach" class="approach wrap section-pad"><div class="section-heading"><p class="eyebrow">01 / LA INTENCIÓN</p><h2>Más que el perfil.<br><em>Una historia continua.</em></h2></div><div class="approach-copy"><p>El cuidado ocurre en fragmentos: una vacuna en la clínica, una nota de quien cuida a la mascota, un recordatorio que llega a tiempo. Pettzi exploró cómo reunirlos sin convertir el cuidado en un trámite.</p><p>El producto ya no está activo. El código permanece como portafolio: una oportunidad para revisar la arquitectura, sus compromisos y las decisiones de un desarrollo completo.</p></div><div class="principles"><article><span>01</span><h3>Una historia compartida</h3><p>Eventos de salud, recordatorios, rutinas, documentos y personas cuidadoras forman parte del mismo relato.</p></article><article><span>02</span><h3>Límites con propósito</h3><p>Cada dominio tiene una responsabilidad clara y contratos que hacen visibles sus conexiones.</p></article><article><span>03</span><h3>Cuidado desde el inicio</h3><p>Los permisos, el acceso a datos y la accesibilidad dan forma a la experiencia desde el comienzo.</p></article></div></section>
-<section id="architecture" class="architecture section-pad"><div class="wrap"><div class="section-heading"><p class="eyebrow">02 / BAJO LA SUPERFICIE</p><h2>Dominios pequeños.<br><em>Un sistema conectado.</em></h2><p class="section-intro">Angular en el borde, API de dominio en el centro y una tabla cuidadosamente modelada como base.</p></div><div class="arch-flow" role="img" aria-label="Cliente Angular, API Gateway, ocho API de dominio y servicios AWS"><div>Angular<br><small>cliente web</small></div><i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6"/></svg></i><div>API Gateway<br><small>HTTP API</small></div><i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6"/></svg></i><div class="domain-list"><b>API DE DOMINIO</b><span>auth · mascotas · propietarios · eventos</span><span>recordatorios · rutinas · archivos · catálogos</span></div><i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6"/></svg></i><div>Lambda<br><small>Node.js 24</small></div><i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6"/></svg></i><div>DynamoDB · S3<br><small>Cognito · EventBridge · SES</small></div></div><p class="diagram-note">Almacenamiento de tabla única; los recordatorios programados se procesan fuera de las solicitudes síncronas. El repositorio detalla el despliegue.</p><div class="arch-notes"><article><span>A</span><div><h3>Los accesos definen el almacenamiento</h3><p>Las claves explícitas responden a los patrones de acceso documentados para la tabla DynamoDB compartida de Pettzi.</p></div></article><article><span>B</span><div><h3>Los contratos muestran los límites</h3><p>Cada dominio tiene un contrato OpenAPI; los handlers se mantienen pequeños y las reglas compartidas viven en librerías.</p></div></article></div></div></section>
-<section id="flows" class="wrap section-pad"><div class="section-heading"><p class="eyebrow">03 / SIGUE EL RECORRIDO</p><h2>De una intención<br><em>a un momento útil.</em></h2></div><div class="flow-grid"><article><p class="eyebrow">EVENTO DE SALUD</p><h3>Registrar una visita en contexto</h3><ol><li><b>01</b> La persona registra una visita desde Angular.</li><li><b>02</b> La API de eventos valida la solicitud con su contrato.</li><li><b>03</b> Un servicio de dominio guarda el evento en DynamoDB.</li><li><b>04</b> La cronología lo muestra junto al historial de cuidado.</li></ol></article><article><p class="eyebrow">RECORDATORIO</p><h3>Hacer llegar el seguimiento</h3><ol><li><b>01</b> La persona programa un recordatorio de vacunación.</li><li><b>02</b> EventBridge activa el procesador diario.</li><li><b>03</b> Lambda consulta los pendientes mediante DynamoDB GSI1.</li><li><b>04</b> Amazon SES envía un correo cuando llega la fecha.</li></ol></article></div></section>
-<section id="decisions" class="decisions section-pad"><div class="wrap"><div class="section-heading"><p class="eyebrow">04 / APUNTES DE INGENIERÍA</p><h2>Decisiones con<br><em>sus bordes a la vista.</em></h2></div><div class="decision-grid"><article><span>01 / DATOS</span><h3>Una tabla en vez de varias</h3><p>Reúne patrones de acceso relacionados; las claves e índices requieren planificación.</p></article><article><span>02 / LÍMITES</span><h3>API de dominio con OpenAPI</h3><p>Los contratos hacen visibles los límites; cada cambio debe mantenerse alineado.</p></article><article><span>03 / CÓMPUTO</span><h3>Servicios serverless de AWS</h3><p>El escalado administrado reduce la operación de servidores; el diseño sigue límites del proveedor.</p></article><article><span>04 / ENTREGA</span><h3>Handlers pequeños, lógica en dominio</h3><p>Los handlers mantienen un flujo predecible; las reglas viven en código de dominio compartido.</p></article><article><span>05 / TAREAS PROGRAMADAS</span><h3>EventBridge para recordatorios</h3><p>El procesamiento programado queda fuera de las solicitudes; la entrega es asíncrona.</p></article><article><span>06 / HERRAMIENTAS</span><h3>Monorepo Nx</h3><p>Las herramientas compartidas apoyan los dominios; los límites entre tareas siguen explícitos.</p></article></div></div></section>
-<section id="quality" class="quality section-pad"><div class="wrap quality-inner"><div><p class="eyebrow">05 / LA CALIDAD ES FUNCIONALIDAD</p><h2>La confianza nace<br><em>en los detalles.</em></h2><p>Contratos, verificaciones y buenos valores predeterminados respaldan un sistema con datos personales de cuidado.</p></div><ul><li><b>≥80%</b><span>objetivo de cobertura para archivos modificados</span></li><li><b>08</b><span>contratos OpenAPI</span></li><li><b>CI + Snyk</b><span>revisiones automatizadas y análisis de seguridad</span></li><li><b>EN / ES</b><span>experiencia en dos idiomas</span></li></ul></div></section>
-<section id="docs" class="wrap section-pad docs"><div class="section-heading"><p class="eyebrow">06 / MATERIAL DE REFERENCIA</p><h2>Lee los<br><em>documentos del proyecto.</em></h2></div><div class="doc-grid"><a href="https://github.com/fjbatresv/pettzi/blob/main/README.md"><span>01 / RESUMEN</span><b>README del proyecto</b><small>Objetivos, inicio y estructura <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></small></a><a href="https://github.com/fjbatresv/pettzi/blob/main/ARCHITECTURE.md"><span>02 / SISTEMA</span><b>Arquitectura</b><small>Servicios, límites y recorridos <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></small></a><a href="https://github.com/fjbatresv/pettzi/blob/main/TABLE_DESIGN.md"><span>03 / DATOS</span><b>Diseño de tabla</b><small>Claves, índices y accesos <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></small></a><a href="https://github.com/fjbatresv/pettzi/blob/main/DESIGN-SYSTEM.md"><span>04 / INTERFAZ</span><b>Sistema de diseño</b><small>Tokens e interacciones <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></small></a></div></section>
-<section id="contact" class="contact section-pad"><div class="wrap contact-inner"><p class="eyebrow">UNA NOTA FINAL</p><h2>El trabajo atento<br>comienza con <em>una conversación.</em></h2><p>El experimento de producto terminó. Las preguntas que dejó siguen abiertas.</p><div><a class="button button-light" href="https://fjbatresv.com">Visitar fjbatresv.com <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></a><a href="mailto:fjbatresv@gmail.com">fjbatresv@gmail.com</a></div></div></section></main>
-<footer class="footer"><div class="wrap footer-inner"><a class="brand" href="./"><img src="../logo.svg" alt="" width="28" height="28"><span>pettzi<span class="brand-dot">.</span></span></a><span>Hecho con cuidado. Conservado como referencia.</span><a href="https://github.com/fjbatresv/pettzi">GitHub</a><span>© Javier Batres · 2026</span></div></footer><script src="../main.js" defer></script></body></html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f4f1e9" />
+    <title>Pettzi — Cuidar, con intención</title>
+    <meta
+      name="description"
+      content="Un portafolio público de ingeniería sobre software para el cuidado animal, arquitectura por dominios y decisiones de una plataforma serverless."
+    />
+    <link rel="canonical" href="https://fjbatresv.github.io/pettzi/es/" />
+    <link
+      rel="alternate"
+      hreflang="en"
+      href="https://fjbatresv.github.io/pettzi/"
+    />
+    <link
+      rel="alternate"
+      hreflang="es"
+      href="https://fjbatresv.github.io/pettzi/es/"
+    />
+    <link
+      rel="alternate"
+      hreflang="x-default"
+      href="https://fjbatresv.github.io/pettzi/"
+    />
+    <link rel="icon" href="../logo.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="preload"
+      href="https://fonts.gstatic.com/s/newsreader/v26/cY9qfjOCX1hbuyalUrK49dLac06G1ZGsZBtoBCzBDXXD9JVF438weI_ADA.ttf"
+      as="font"
+      type="font/ttf"
+      crossorigin
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../styles.css" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Pettzi" />
+    <meta property="og:title" content="Pettzi — Cuidar, con intención" />
+    <meta
+      property="og:description"
+      content="Un portafolio público de ingeniería sobre software para el cuidado animal, arquitectura por dominios y decisiones de una plataforma serverless."
+    />
+    <meta property="og:url" content="https://fjbatresv.github.io/pettzi/es/" />
+    <meta property="og:locale" content="es_ES" />
+    <meta property="og:locale:alternate" content="en_US" />
+    <meta
+      property="og:image"
+      content="https://fjbatresv.github.io/pettzi/og-image.png"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Pettzi — cuidar, con intención" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://fjbatresv.github.io/pettzi/#website",
+            "url": "https://fjbatresv.github.io/pettzi/",
+            "name": "Pettzi"
+          },
+          {
+            "@type": "WebPage",
+            "@id": "https://fjbatresv.github.io/pettzi/es/#webpage",
+            "url": "https://fjbatresv.github.io/pettzi/es/",
+            "name": "Pettzi — Cuidar, con intención",
+            "isPartOf": { "@id": "https://fjbatresv.github.io/pettzi/#website" }
+          },
+          {
+            "@type": "Person",
+            "@id": "https://fjbatresv.github.io/pettzi/#person",
+            "name": "Javier Batres",
+            "url": "https://fjbatresv.com"
+          },
+          {
+            "@type": "SoftwareSourceCode",
+            "name": "Pettzi",
+            "codeRepository": "https://github.com/fjbatresv/pettzi",
+            "programmingLanguage": ["TypeScript", "HTML", "CSS"],
+            "runtimePlatform": "Node.js 24, Angular, AWS",
+            "author": { "@id": "https://fjbatresv.github.io/pettzi/#person" }
+          },
+          {
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Inicio",
+                "item": "https://fjbatresv.github.io/pettzi/"
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Portafolio",
+                "item": "https://fjbatresv.github.io/pettzi/es/"
+              }
+            ]
+          }
+        ]
+      }
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Saltar al contenido</a>
+    <header class="masthead wrap">
+      <a class="brand" href="./" aria-label="Inicio de Pettzi"
+        ><img src="../logo.svg" alt="" width="32" height="32" /><span
+          >pettzi<span class="brand-dot">.</span></span
+        ></a
+      ><button
+        class="menu-toggle"
+        aria-label="Abrir navegación"
+        aria-expanded="false"
+        aria-controls="site-nav"
+      >
+        <span></span><span></span>
+      </button>
+      <nav class="nav" id="site-nav" aria-label="Navegación principal">
+        <a href="#approach">Enfoque</a><a href="#architecture">Arquitectura</a
+        ><a href="#flows">Flujos</a><a href="#decisions">Decisiones</a
+        ><a href="#docs">Documentos</a>
+      </nav>
+      <div class="header-actions">
+        <a class="language" href="../" lang="en" hreflang="en">EN</a
+        ><button
+          class="theme-toggle"
+          aria-label="Cambiar tema de color"
+          title="Cambiar tema de color"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="4" />
+            <path
+              d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"
+            />
+          </svg>
+        </button>
+      </div>
+    </header>
+    <main id="main">
+      <section class="hero wrap">
+        <div class="hero-copy">
+          <p class="eyebrow">
+            <span class="status-dot"></span> Portafolio independiente de
+            ingeniería
+          </p>
+          <h1>Cuidar, con<br /><em>intención.</em></h1>
+          <p class="hero-lede">
+            Pettzi nació como un lugar para reunir cada detalle de la vida de
+            una mascota. Hoy es un estudio público sobre cómo construir software
+            con cuidado, desde el modelo de datos hasta el detalle más pequeño
+            de la interfaz.
+          </p>
+          <div class="hero-actions">
+            <a
+              class="button button-dark"
+              href="https://github.com/fjbatresv/pettzi"
+              >Explorar el repositorio
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M7 17 17 7M7 7h10v10" /></svg></a
+            ><a class="text-link" href="#architecture"
+              >Recorrer la arquitectura
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 4v16m-7-7 7 7 7-7" /></svg
+            ></a>
+          </div>
+          <p class="hero-note">
+            <span class="note-line"></span> Un experimento de producto
+            concluido. Queda como referencia, no como servicio activo.
+          </p>
+        </div>
+        <aside class="title-block">
+          <p class="eyebrow">PROYECTO / APUNTES DE CAMPO</p>
+          <div><span>PROYECTO</span><b>pettzi · cuidado animal</b></div>
+          <div><span>DOMINIOS</span><b>8 API de dominio</b></div>
+          <div><span>STACK</span><b>Angular · Node.js 24 · AWS CDK</b></div>
+          <div><span>ESTADO</span><b>Concluido · código abierto</b></div>
+          <div><span>IDIOMAS</span><b>English / Español</b></div>
+          <div class="title-art">
+            <span>FICHA / 001</span
+            ><svg
+              viewBox="0 0 240 150"
+              role="img"
+              aria-label="Ilustración de un perro amigable"
+            >
+              <circle cx="120" cy="75" r="67" />
+              <path
+                d="M67 70c-22-31-31 6-12 32l23 10m95-42c23-29 31 7 12 31l-20 10M72 84c0-36 22-53 48-48 27-11 54 8 51 47l8 31c4 18-10 24-25 18l-7-31c-24 16-52 17-74 3l-4 27c-17 12-29 3-24-14z"
+              />
+              <ellipse cx="120" cy="82" rx="35" ry="26" />
+              <circle cx="101" cy="68" r="3" />
+              <circle cx="139" cy="68" r="3" />
+              <path d="M116 80q4-7 9 0m-5 5v7m-8 2q8 8 16 0" /></svg
+            ><b>Miso</b>
+          </div>
+        </aside>
+      </section>
+      <div class="metrics wrap">
+        <div><b>08</b><span>API DE DOMINIO</span></div>
+        <div><b>18</b><span>STACKS CDK</span></div>
+        <div><b>08</b><span>CONTRATOS OPENAPI</span></div>
+        <div><b>≥80%</b><span>OBJETIVO DE COBERTURA</span></div>
+        <div><b>EN / ES</b><span>IDIOMAS</span></div>
+      </div>
+      <section id="approach" class="approach wrap section-pad">
+        <div class="section-heading">
+          <p class="eyebrow">01 / LA INTENCIÓN</p>
+          <h2>Más que el perfil.<br /><em>Una historia continua.</em></h2>
+        </div>
+        <div class="approach-copy">
+          <p>
+            El cuidado ocurre en fragmentos: una vacuna en la clínica, una nota
+            de quien cuida a la mascota, un recordatorio que llega a tiempo.
+            Pettzi exploró cómo reunirlos sin convertir el cuidado en un
+            trámite.
+          </p>
+          <p>
+            El producto ya no está activo. El código permanece como portafolio:
+            una oportunidad para revisar la arquitectura, sus compromisos y las
+            decisiones de un desarrollo completo.
+          </p>
+        </div>
+        <div class="principles">
+          <article>
+            <span>01</span>
+            <h3>Una historia compartida</h3>
+            <p>
+              Eventos de salud, recordatorios, rutinas, documentos y personas
+              cuidadoras forman parte del mismo relato.
+            </p>
+          </article>
+          <article>
+            <span>02</span>
+            <h3>Límites con propósito</h3>
+            <p>
+              Cada dominio tiene una responsabilidad clara y contratos que hacen
+              visibles sus conexiones.
+            </p>
+          </article>
+          <article>
+            <span>03</span>
+            <h3>Cuidado desde el inicio</h3>
+            <p>
+              Los permisos, el acceso a datos y la accesibilidad dan forma a la
+              experiencia desde el comienzo.
+            </p>
+          </article>
+        </div>
+      </section>
+      <section id="architecture" class="architecture section-pad">
+        <div class="wrap">
+          <div class="section-heading">
+            <p class="eyebrow">02 / BAJO LA SUPERFICIE</p>
+            <h2>Dominios pequeños.<br /><em>Un sistema conectado.</em></h2>
+            <p class="section-intro">
+              Angular en el borde, API de dominio en el centro y una tabla
+              cuidadosamente modelada como base.
+            </p>
+          </div>
+          <div
+            class="arch-flow"
+            role="img"
+            aria-label="Cliente Angular, API Gateway, ocho API de dominio y servicios AWS"
+          >
+            <div>Angular<br /><small>cliente web</small></div>
+            <i aria-hidden="true"
+              ><svg viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6" /></svg
+            ></i>
+            <div>API Gateway<br /><small>HTTP API</small></div>
+            <i aria-hidden="true"
+              ><svg viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6" /></svg
+            ></i>
+            <div class="domain-list">
+              <b>API DE DOMINIO</b
+              ><span>auth · mascotas · propietarios · eventos</span
+              ><span>recordatorios · rutinas · archivos · catálogos</span>
+            </div>
+            <i aria-hidden="true"
+              ><svg viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6" /></svg
+            ></i>
+            <div>Lambda<br /><small>Node.js 24</small></div>
+            <i aria-hidden="true"
+              ><svg viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6" /></svg
+            ></i>
+            <div>
+              DynamoDB · S3<br /><small>Cognito · EventBridge · SES</small>
+            </div>
+          </div>
+          <p class="diagram-note">
+            Almacenamiento de tabla única; los recordatorios programados se
+            procesan fuera de las solicitudes síncronas. El repositorio detalla
+            el despliegue.
+          </p>
+          <div class="arch-notes">
+            <article>
+              <span>A</span>
+              <div>
+                <h3>Los accesos definen el almacenamiento</h3>
+                <p>
+                  Las claves explícitas responden a los patrones de acceso
+                  documentados para la tabla DynamoDB compartida de Pettzi.
+                </p>
+              </div>
+            </article>
+            <article>
+              <span>B</span>
+              <div>
+                <h3>Los contratos muestran los límites</h3>
+                <p>
+                  Cada dominio tiene un contrato OpenAPI; los handlers se
+                  mantienen pequeños y las reglas compartidas viven en
+                  librerías.
+                </p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+      <section id="flows" class="wrap section-pad">
+        <div class="section-heading">
+          <p class="eyebrow">03 / SIGUE EL RECORRIDO</p>
+          <h2>De una intención<br /><em>a un momento útil.</em></h2>
+        </div>
+        <div class="flow-grid">
+          <article>
+            <p class="eyebrow">EVENTO DE SALUD</p>
+            <h3>Registrar una visita en contexto</h3>
+            <ol>
+              <li><b>01</b> La persona registra una visita desde Angular.</li>
+              <li>
+                <b>02</b> La API de eventos valida la solicitud con su contrato.
+              </li>
+              <li>
+                <b>03</b> Un servicio de dominio guarda el evento en DynamoDB.
+              </li>
+              <li>
+                <b>04</b> La cronología lo muestra junto al historial de
+                cuidado.
+              </li>
+            </ol>
+          </article>
+          <article>
+            <p class="eyebrow">RECORDATORIO</p>
+            <h3>Hacer llegar el seguimiento</h3>
+            <ol>
+              <li>
+                <b>01</b> La persona programa un recordatorio de vacunación.
+              </li>
+              <li><b>02</b> EventBridge activa el procesador diario.</li>
+              <li>
+                <b>03</b> Lambda consulta los pendientes mediante DynamoDB GSI1.
+              </li>
+              <li>
+                <b>04</b> Amazon SES envía un correo cuando llega la fecha.
+              </li>
+            </ol>
+          </article>
+        </div>
+      </section>
+      <section id="decisions" class="decisions section-pad">
+        <div class="wrap">
+          <div class="section-heading">
+            <p class="eyebrow">04 / APUNTES DE INGENIERÍA</p>
+            <h2>Decisiones con<br /><em>sus bordes a la vista.</em></h2>
+          </div>
+          <div class="decision-grid">
+            <article>
+              <span>01 / DATOS</span>
+              <h3>Una tabla en vez de varias</h3>
+              <p>
+                Reúne patrones de acceso relacionados; las claves e índices
+                requieren planificación.
+              </p>
+            </article>
+            <article>
+              <span>02 / LÍMITES</span>
+              <h3>API de dominio con OpenAPI</h3>
+              <p>
+                Los contratos hacen visibles los límites; cada cambio debe
+                mantenerse alineado.
+              </p>
+            </article>
+            <article>
+              <span>03 / CÓMPUTO</span>
+              <h3>Servicios serverless de AWS</h3>
+              <p>
+                El escalado administrado reduce la operación de servidores; el
+                diseño sigue límites del proveedor.
+              </p>
+            </article>
+            <article>
+              <span>04 / ENTREGA</span>
+              <h3>Handlers pequeños, lógica en dominio</h3>
+              <p>
+                Los handlers mantienen un flujo predecible; las reglas viven en
+                código de dominio compartido.
+              </p>
+            </article>
+            <article>
+              <span>05 / TAREAS PROGRAMADAS</span>
+              <h3>EventBridge para recordatorios</h3>
+              <p>
+                El procesamiento programado queda fuera de las solicitudes; la
+                entrega es asíncrona.
+              </p>
+            </article>
+            <article>
+              <span>06 / HERRAMIENTAS</span>
+              <h3>Monorepo Nx</h3>
+              <p>
+                Las herramientas compartidas apoyan los dominios; los límites
+                entre tareas siguen explícitos.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+      <section id="quality" class="quality section-pad">
+        <div class="wrap quality-inner">
+          <div>
+            <p class="eyebrow">05 / LA CALIDAD ES FUNCIONALIDAD</p>
+            <h2>La confianza nace<br /><em>en los detalles.</em></h2>
+            <p>
+              Contratos, verificaciones y buenos valores predeterminados
+              respaldan un sistema con datos personales de cuidado.
+            </p>
+          </div>
+          <ul>
+            <li>
+              <b>≥80%</b
+              ><span>objetivo de cobertura para archivos modificados</span>
+            </li>
+            <li><b>08</b><span>contratos OpenAPI</span></li>
+            <li>
+              <b>CI + Snyk</b
+              ><span>revisiones automatizadas y análisis de seguridad</span>
+            </li>
+            <li><b>EN / ES</b><span>experiencia en dos idiomas</span></li>
+          </ul>
+        </div>
+      </section>
+      <section id="docs" class="wrap section-pad docs">
+        <div class="section-heading">
+          <p class="eyebrow">06 / MATERIAL DE REFERENCIA</p>
+          <h2>Lee los<br /><em>documentos del proyecto.</em></h2>
+        </div>
+        <div class="doc-grid">
+          <a href="https://github.com/fjbatresv/pettzi/blob/main/README.md"
+            ><span>01 / RESUMEN</span><b>README del proyecto</b
+            ><small
+              >Objetivos, inicio y estructura
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M7 17 17 7M7 7h10v10" /></svg></small></a
+          ><a
+            href="https://github.com/fjbatresv/pettzi/blob/main/ARCHITECTURE.md"
+            ><span>02 / SISTEMA</span><b>Arquitectura</b
+            ><small
+              >Servicios, límites y recorridos
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M7 17 17 7M7 7h10v10" /></svg></small></a
+          ><a
+            href="https://github.com/fjbatresv/pettzi/blob/main/TABLE_DESIGN.md"
+            ><span>03 / DATOS</span><b>Diseño de tabla</b
+            ><small
+              >Claves, índices y accesos
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M7 17 17 7M7 7h10v10" /></svg></small></a
+          ><a
+            href="https://github.com/fjbatresv/pettzi/blob/main/DESIGN-SYSTEM.md"
+            ><span>04 / INTERFAZ</span><b>Sistema de diseño</b
+            ><small
+              >Tokens e interacciones
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M7 17 17 7M7 7h10v10" /></svg></small
+          ></a>
+        </div>
+      </section>
+      <section id="contact" class="contact section-pad">
+        <div class="wrap contact-inner">
+          <p class="eyebrow">UNA NOTA FINAL</p>
+          <h2>
+            El trabajo atento<br />comienza con <em>una conversación.</em>
+          </h2>
+          <p>
+            El experimento de producto terminó. Las preguntas que dejó siguen
+            abiertas.
+          </p>
+          <div>
+            <a class="button button-light" href="https://fjbatresv.com"
+              >Visitar fjbatresv.com
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M7 17 17 7M7 7h10v10" /></svg></a
+            ><a href="mailto:fjbatresv@gmail.com">fjbatresv@gmail.com</a>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer class="footer">
+      <div class="wrap footer-inner">
+        <a class="brand" href="./"
+          ><img src="../logo.svg" alt="" width="28" height="28" /><span
+            >pettzi<span class="brand-dot">.</span></span
+          ></a
+        ><span>Hecho con cuidado. Conservado como referencia.</span
+        ><a href="https://github.com/fjbatresv/pettzi">GitHub</a
+        ><span>© Javier Batres · 2026</span>
+      </div>
+    </footer>
+    <script src="../main.js" defer></script>
+  </body>
+</html>

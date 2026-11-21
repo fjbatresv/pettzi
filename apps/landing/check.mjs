@@ -2,41 +2,98 @@ import assert from 'node:assert/strict';
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 
-const pages = [['dist/landing/index.html', 'en'], ['dist/landing/es/index.html', 'es']];
+const pages = [
+  ['dist/landing/index.html', 'en'],
+  ['dist/landing/es/index.html', 'es'],
+];
 const ids = [];
 for (const [path, language] of pages) {
   const html = readFileSync(path, 'utf8');
-  assert.match(html, new RegExp(`<html lang="${language}"`), `${path}: language`);
+  assert.match(
+    html,
+    new RegExp(`<html lang="${language}"`),
+    `${path}: language`,
+  );
   const title = html.match(/<title>([^<]+)<\/title>/)?.[1];
-  const description = html.match(/<meta name="description" content="([^"]+)"/)?.[1];
+  const description = html.match(
+    /<meta\s+name="description"\s+content="([^"]+)"/,
+  )?.[1];
   assert.ok(title && title.length <= 60, `${path}: title length`);
-  assert.ok(description && description.length >= 70 && description.length <= 160, `${path}: description length`);
+  assert.ok(
+    description && description.length >= 70 && description.length <= 160,
+    `${path}: description length`,
+  );
   assert.match(html, /rel="canonical" href="https:\/\//, `${path}: canonical`);
-  for (const locale of ['en', 'es', 'x-default']) assert.match(html, new RegExp(`hreflang="${locale}"`), `${path}: ${locale} alternate`);
+  for (const locale of ['en', 'es', 'x-default'])
+    assert.match(
+      html,
+      new RegExp(`hreflang="${locale}"`),
+      `${path}: ${locale} alternate`,
+    );
   assert.match(html, /og:image:alt/, `${path}: image alt`);
   assert.match(html, /name="twitter:card" content="summary_large_image"/);
   assert.match(html, /"@graph"/);
-  for (const type of ['WebSite', 'WebPage', 'Person', 'SoftwareSourceCode', 'BreadcrumbList']) assert.match(html, new RegExp(`"@type":"${type}"`), `${path}: JSON-LD ${type}`);
-  assert.match(html, /"url":"https:\/\/fjbatresv\.com"/, `${path}: Person URL`);
+  for (const type of [
+    'WebSite',
+    'WebPage',
+    'Person',
+    'SoftwareSourceCode',
+    'BreadcrumbList',
+  ])
+    assert.match(
+      html,
+      new RegExp(`"@type"\\s*:\\s*"${type}"`),
+      `${path}: JSON-LD ${type}`,
+    );
+  assert.match(
+    html,
+    /"url"\s*:\s*"https:\/\/fjbatresv\.com"/,
+    `${path}: Person URL`,
+  );
   assert.match(html, /rel="preload"[^>]*as="font"[^>]*crossorigin/);
   assert.equal((html.match(/<h1\b/g) ?? []).length, 1, `${path}: one h1`);
   assert.doesNotMatch(html, /<img(?![^>]*\balt=)/, `${path}: img alt`);
   assert.doesNotMatch(html, /<img(?![^>]*\bwidth=)/, `${path}: img width`);
   assert.doesNotMatch(html, /<img(?![^>]*\bheight=)/, `${path}: img height`);
-  const headingLevels = [...html.matchAll(/<h([1-6])\b/g)].map(([, level]) => Number(level));
-  assert.ok(headingLevels.every((level, index) => index === 0 || level <= headingLevels[index - 1] + 1), `${path}: heading order`);
-  const pageIds = [...html.matchAll(/<section\b[^>]*\bid="([^"]+)"/g)].map(([, id]) => id);
+  const headingLevels = [...html.matchAll(/<h([1-6])\b/g)].map(([, level]) =>
+    Number(level),
+  );
+  assert.ok(
+    headingLevels.every(
+      (level, index) => index === 0 || level <= headingLevels[index - 1] + 1,
+    ),
+    `${path}: heading order`,
+  );
+  const pageIds = [...html.matchAll(/<section\b[^>]*\bid="([^"]+)"/g)].map(
+    ([, id]) => id,
+  );
   ids.push(pageIds);
   for (const [, href] of html.matchAll(/href="([^"]+)"/g)) {
-    if (href.startsWith('#')) assert.ok(html.includes(`id="${href.slice(1)}"`), `${path}: anchor ${href}`);
-    else if (!/^(?:[a-z]+:|\/\/)/i.test(href)) assert.ok(existsSync(resolve(dirname(path), decodeURIComponent(href.split('#')[0] || 'index.html'))), `${path}: local link ${href}`);
+    if (href.startsWith('#'))
+      assert.ok(
+        html.includes(`id="${href.slice(1)}"`),
+        `${path}: anchor ${href}`,
+      );
+    else if (!/^(?:[a-z]+:|\/\/)/i.test(href))
+      assert.ok(
+        existsSync(
+          resolve(
+            dirname(path),
+            decodeURIComponent(href.split('#')[0] || 'index.html'),
+          ),
+        ),
+        `${path}: local link ${href}`,
+      );
   }
 }
 assert.deepEqual(ids[0], ids[1], 'EN/ES section ID parity');
 const image = readFileSync('dist/landing/og-image.png');
 assert.equal(image.readUInt32BE(16), 1200, 'OG image width');
 assert.equal(image.readUInt32BE(20), 630, 'OG image height');
-assert.ok(statSync('dist/landing/og-image.png').size <= 100_000, 'OG image under 100 KB');
+assert.ok(
+  statSync('dist/landing/og-image.png').size <= 100_000,
+  'OG image under 100 KB',
+);
 const notFound = readFileSync('dist/landing/404.html', 'utf8');
 assert.match(notFound, /name="robots" content="noindex"/);
 assert.match(notFound, /lang="en"/);
@@ -45,5 +102,8 @@ assert.doesNotMatch(notFound, /rel="canonical"/);
 const sitemap = readFileSync('dist/landing/sitemap.xml', 'utf8');
 assert.match(sitemap, /<lastmod>\d{4}-\d{2}-\d{2}<\/lastmod>/);
 assert.match(sitemap, /hreflang="es"/);
-assert.match(readFileSync('dist/landing/robots.txt', 'utf8'), /Sitemap: https:\/\/fjbatresv\.github\.io\/pettzi\/sitemap\.xml/);
+assert.match(
+  readFileSync('dist/landing/robots.txt', 'utf8'),
+  /Sitemap: https:\/\/fjbatresv\.github\.io\/pettzi\/sitemap\.xml/,
+);
 console.log('Landing SEO, metadata, locale parity, and asset checks passed.');
