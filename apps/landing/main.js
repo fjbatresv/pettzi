@@ -35,6 +35,48 @@ document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape') closeMenu();
 });
 
+const architecture = document.querySelector('.architecture');
+const viewControls = architecture?.querySelector('.architecture-tabs');
+const viewTabs = [...(viewControls?.querySelectorAll('[role="tab"]') ?? [])];
+const viewMap = architecture?.querySelector('.system-map');
+if (viewControls && viewMap && viewTabs.length) {
+  const activateView = (tab, moveFocus = false) => {
+    const view = tab.dataset.view;
+    viewControls.dataset.activeView = view;
+    viewMap.dataset.activeView = view;
+    architecture.dataset.viewsEnhanced = 'true';
+    viewTabs.forEach((candidate) => {
+      const selected = candidate === tab;
+      candidate.setAttribute('aria-selected', String(selected));
+      candidate.tabIndex = selected ? 0 : -1;
+      const panel = document.getElementById(
+        candidate.getAttribute('aria-controls'),
+      );
+      if (panel) panel.hidden = !selected;
+    });
+    if (moveFocus) tab.focus();
+  };
+
+  viewTabs.forEach((tab, index) => {
+    tab.addEventListener('click', () => activateView(tab));
+    tab.addEventListener('keydown', (event) => {
+      let nextIndex;
+      if (event.key === 'ArrowRight') nextIndex = (index + 1) % viewTabs.length;
+      if (event.key === 'ArrowLeft')
+        nextIndex = (index - 1 + viewTabs.length) % viewTabs.length;
+      if (event.key === 'Home') nextIndex = 0;
+      if (event.key === 'End') nextIndex = viewTabs.length - 1;
+      if (nextIndex !== undefined) {
+        event.preventDefault();
+        activateView(viewTabs[nextIndex], true);
+      }
+    });
+  });
+
+  viewControls.hidden = false;
+  activateView(viewTabs[0]);
+}
+
 const sections = [...document.querySelectorAll('main section[id]')];
 if ('IntersectionObserver' in window) {
   const reveal = new IntersectionObserver(

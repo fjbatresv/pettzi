@@ -74,6 +74,8 @@ for (const [path, language] of pages) {
   const pageIds = [...html.matchAll(/<section\b[^>]*\bid="([^"]+)"/g)].map(
     ([, id]) => id,
   );
+  for (const sectionId of ['architecture'])
+    assert.ok(pageIds.includes(sectionId), `${path}: ${sectionId} section`);
   ids.push(pageIds);
   for (const [, url] of html.matchAll(/\b(?:href|src)="([^"]+)"/gi)) {
     if (
