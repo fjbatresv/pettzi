@@ -6,6 +6,8 @@
   --ink: #252b25;
   --muted: #5e655e;
   --rule: #cfccbf;
+  --connector: var(--muted);
+  --connector-active: var(--terracotta);
   --terracotta: #a83f2c;
   --gold: #e2b65b;
   --green: #34483b;
@@ -24,6 +26,8 @@
     --ink: #f0ede3;
     --muted: #c4c6b9;
     --rule: #4c534a;
+    --connector: var(--muted);
+    --connector-active: var(--terracotta);
     --terracotta: #ed997e;
     --gold: #e6c274;
     --green: #35483b;
@@ -38,6 +42,8 @@
   --ink: #f0ede3;
   --muted: #c4c6b9;
   --rule: #4c534a;
+  --connector: var(--muted);
+  --connector-active: var(--terracotta);
   --terracotta: #ed997e;
   --gold: #e6c274;
   --green: #35483b;
@@ -531,6 +537,175 @@ h3 {
   font: 12px/1.5 var(--mono);
   text-align: right;
 }
+.architecture-diagrams {
+  margin: 20px 0 24px;
+  padding: 18px 0 0;
+  border-top: 1px solid var(--rule);
+}
+.architecture-diagrams > .eyebrow {
+  margin: 0 0 10px;
+}
+.diagram-flow {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 28px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.diagram-node {
+  position: relative;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 12px;
+  border: 1px solid var(--rule);
+  border-top: 3px solid var(--connector);
+  background: var(--card);
+  color: var(--ink);
+  transition:
+    border-color 0.2s,
+    background-color 0.2s,
+    box-shadow 0.2s;
+}
+.diagram-node > b {
+  font-size: 14px;
+  line-height: 1.35;
+}
+.diagram-node > small {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.4;
+}
+.diagram-node > code {
+  color: var(--muted);
+  font: 10px/1.45 var(--mono);
+  overflow-wrap: normal;
+  word-break: normal;
+}
+.diagram-node:not(:last-child)::after,
+.diagram-node:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  right: -28px;
+}
+.diagram-node:not(:last-child)::after {
+  width: 20px;
+  height: 2px;
+  background: var(--connector);
+  transform: translateY(-50%);
+}
+.diagram-node:not(:last-child)::before {
+  width: 8px;
+  height: 10px;
+  background: var(--connector);
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+  transform: translateY(-50%);
+}
+.diagram-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.diagram-pills span {
+  padding: 2px 5px;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  color: var(--ink);
+  font: 10px/1.4 var(--mono);
+}
+.architecture-sidepaths {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  margin-top: 16px;
+}
+.diagram-support {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--rule);
+  background: var(--paper-deep);
+}
+.diagram-support > h4 {
+  margin: 0 0 9px;
+  font: 500 17px/1.25 var(--display);
+}
+.support-flow {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+.monitor-flow {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.support-flow .diagram-node,
+.monitor-flow .diagram-node {
+  padding: 9px;
+}
+.monitor-flow .diagram-node:not(:last-child)::after {
+  height: 0;
+  border-top: 2px dashed var(--connector);
+  background: transparent;
+}
+.async-label {
+  margin: 20px 0 10px;
+}
+.async-flow {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+.architecture-diagrams .diagram-node[data-in-view] {
+  color: var(--ink);
+}
+.architecture-diagrams .diagram-node > small,
+.architecture-diagrams .diagram-node > code {
+  color: var(--muted);
+}
+.architecture-diagrams[data-active-view='context']
+  .diagram-node[data-in-view~='context'],
+.architecture-diagrams[data-active-view='containers']
+  .diagram-node[data-in-view~='containers'],
+.architecture-diagrams[data-active-view='request']
+  .diagram-node[data-in-view~='request'],
+.architecture-diagrams[data-active-view='async']
+  .diagram-node[data-in-view~='async'] {
+  border-top-color: var(--connector-active);
+  box-shadow: inset 0 0 0 1px var(--connector-active);
+}
+.architecture-diagrams[data-active-view='context']
+  .diagram-node[data-in-view~='context']:not(:last-child)::after,
+.architecture-diagrams[data-active-view='context']
+  .diagram-node[data-in-view~='context']:not(:last-child)::before,
+.architecture-diagrams[data-active-view='containers']
+  .diagram-node[data-in-view~='containers']:not(:last-child)::after,
+.architecture-diagrams[data-active-view='containers']
+  .diagram-node[data-in-view~='containers']:not(:last-child)::before,
+.architecture-diagrams[data-active-view='request']
+  .diagram-node[data-in-view~='request']:not(:last-child)::after,
+.architecture-diagrams[data-active-view='request']
+  .diagram-node[data-in-view~='request']:not(:last-child)::before,
+.architecture-diagrams[data-active-view='async']
+  .diagram-node[data-in-view~='async']:not(:last-child)::after,
+.architecture-diagrams[data-active-view='async']
+  .diagram-node[data-in-view~='async']:not(:last-child)::before {
+  background-color: var(--connector-active);
+}
+.architecture-diagrams[data-active-view='context']
+  .monitor-flow
+  .diagram-node[data-in-view~='context']:not(:last-child)::after,
+.architecture-diagrams[data-active-view='containers']
+  .monitor-flow
+  .diagram-node[data-in-view~='containers']:not(:last-child)::after,
+.architecture-diagrams[data-active-view='request']
+  .monitor-flow
+  .diagram-node[data-in-view~='request']:not(:last-child)::after,
+.architecture-diagrams[data-active-view='async']
+  .monitor-flow
+  .diagram-node[data-in-view~='async']:not(:last-child)::after {
+  border-color: var(--connector-active);
+  background: transparent;
+}
 .map-zones {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -543,7 +718,6 @@ h3 {
   background: var(--card);
   transition:
     border-color 0.2s,
-    opacity 0.2s,
     transform 0.2s;
 }
 .map-zone h4 {
@@ -584,7 +758,6 @@ h3 {
   transition:
     border-color 0.2s,
     box-shadow 0.2s,
-    opacity 0.2s,
     transform 0.2s;
 }
 .map-node > b {
@@ -598,8 +771,9 @@ h3 {
 }
 .map-node > code {
   color: var(--muted);
-  font: 12px/1.5 var(--mono);
-  overflow-wrap: anywhere;
+  font: 10px/1.45 var(--mono);
+  overflow-wrap: normal;
+  word-break: normal;
 }
 .api-node-grid {
   display: grid;
@@ -635,7 +809,8 @@ h3 {
 .architecture[data-views-enhanced]
   .system-map[data-active-view='async']
   .map-node:not([data-in-view~='async']) {
-  opacity: 0.43;
+  border-left-color: var(--rule);
+  background: var(--paper-deep);
 }
 .architecture[data-views-enhanced]
   .system-map[data-active-view='context']
@@ -650,8 +825,8 @@ h3 {
   .system-map[data-active-view='async']
   .map-node[data-in-view~='async'] {
   border-left-color: var(--terracotta);
+  background: var(--card);
   box-shadow: 0 0 0 1px var(--terracotta);
-  opacity: 1;
   transform: translateY(-1px);
 }
 .diagram-alternative {
@@ -790,7 +965,8 @@ h3 {
   display: block;
   color: var(--terracotta);
   font: 12px/1.45 var(--mono);
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
+  word-break: normal;
 }
 .stack-card > p {
   margin: 5px 0 0;
@@ -1212,6 +1388,42 @@ h3 {
   }
 }
 @media (max-width: 900px) {
+  .architecture-diagrams .diagram-flow,
+  .architecture-sidepaths {
+    grid-template-columns: 1fr;
+  }
+  .diagram-flow {
+    gap: 28px;
+  }
+  .diagram-node:not(:last-child)::after,
+  .diagram-node:not(:last-child)::before {
+    top: auto;
+    right: auto;
+    left: 50%;
+    transform: none;
+  }
+  .diagram-node:not(:last-child)::after {
+    bottom: -20px;
+    width: 2px;
+    height: 20px;
+  }
+  .diagram-node:not(:last-child)::before {
+    bottom: -28px;
+    width: 10px;
+    height: 8px;
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+  }
+  .monitor-flow .diagram-node:not(:last-child)::after {
+    height: 20px;
+    border-top: 0;
+    border-left: 2px dashed var(--connector);
+    background: transparent;
+  }
+  .architecture-diagrams[data-active-view='containers']
+    .monitor-flow
+    .diagram-node[data-in-view~='containers']:not(:last-child)::after {
+    border-left-color: var(--connector-active);
+  }
   .map-zone.edge,
   .map-zone.identity,
   .map-zone.api,

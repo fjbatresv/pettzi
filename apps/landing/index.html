@@ -422,14 +422,131 @@
               <span>18 stack definitions · 8 APIs · 4 Lambda layers</span>
             </div>
             <p id="architecture-map-description" class="sr-only">
-              CloudFront and S3 deliver the Angular frontend and email assets;
-              API Gateway routes requests to eight domain APIs, whose Lambda
-              handlers use Cognito, a shared DynamoDB table, and the S3
-              documents bucket. EventBridge Scheduler invokes the reminder
-              dispatch and queue workflow, which sends templated email through
-              SES. Monitoring is defined, while AppRegistry stack classes are
-              present but are not wired into the current CDK entry point.
+              CloudFront and S3 deliver the Angular frontend; browser requests
+              then use the API custom domain, one of eight HTTP APIs, Lambda
+              handlers with shared SDK layers, and DynamoDB or S3. Cognito JWT
+              authorization protects configured routes. Reminder schedules
+              invoke a dispatcher Lambda, FIFO SQS, a consumer Lambda, and SES
+              templates; MonitoringStack watches API, Lambda, and data services.
+              AppRegistry stack classes are defined but are not wired into the
+              current CDK entry point.
             </p>
+            <div class="architecture-diagrams">
+              <p class="eyebrow">REQUEST + DATA PATH</p>
+              <ol
+                class="diagram-flow request-flow"
+                aria-label="Request from browser through the data stores"
+              >
+                <li
+                  class="diagram-node"
+                  data-in-view="context containers request"
+                >
+                  <b>Browser · Angular</b><small>SPA client</small>
+                </li>
+                <li
+                  class="diagram-node"
+                  data-in-view="context containers request"
+                >
+                  <b>Frontend CDN</b><small>CloudFront + S3</small
+                  ><code>Pettzi<wbr />Frontend<wbr />Stack</code>
+                </li>
+                <li class="diagram-node" data-in-view="containers request">
+                  <b>API domain</b><small>CloudFront paths</small
+                  ><code>Pettzi<wbr />Api<wbr />Domain<wbr />Stack</code>
+                </li>
+                <li class="diagram-node" data-in-view="containers request">
+                  <b>Eight HTTP APIs</b>
+                  <div class="diagram-pills">
+                    <span>auth</span><span>pets</span><span>owners</span
+                    ><span>events</span><span>reminders</span
+                    ><span>routines</span><span>uploads</span
+                    ><span>catalogs</span>
+                  </div>
+                </li>
+                <li class="diagram-node" data-in-view="containers request">
+                  <b>Lambda handlers</b
+                  ><small>Node.js 24 · one per handler</small>
+                  <div class="diagram-pills layer-pills">
+                    <span>cognito-deps</span><span>ddb-deps</span
+                    ><span>s3-deps</span><span>ses-deps</span>
+                  </div>
+                  <code>Pettzi<wbr />Layers<wbr />Stack</code>
+                </li>
+                <li
+                  class="diagram-node"
+                  data-in-view="containers request async"
+                >
+                  <b>DynamoDB + S3</b
+                  ><small>PettziTable · private DocsBucket</small
+                  ><code>Pettzi<wbr />Core<wbr />Infra<wbr />Stack</code>
+                </li>
+              </ol>
+              <div class="architecture-sidepaths">
+                <section class="diagram-support">
+                  <h4>Authorization</h4>
+                  <ol
+                    class="diagram-flow support-flow"
+                    aria-label="Cognito authorizes protected routes"
+                  >
+                    <li
+                      class="diagram-node"
+                      data-in-view="context containers request"
+                    >
+                      <b>Cognito User Pool</b
+                      ><code>Pettzi<wbr />Auth<wbr />Stack</code>
+                    </li>
+                    <li class="diagram-node" data-in-view="containers request">
+                      <b>JWT authorizer</b>
+                    </li>
+                    <li class="diagram-node" data-in-view="containers request">
+                      <b>Protected API routes</b>
+                    </li>
+                  </ol>
+                </section>
+                <section class="diagram-support">
+                  <h4>Monitoring</h4>
+                  <ol
+                    class="diagram-flow monitor-flow"
+                    aria-label="Monitoring watches APIs, Lambda, and data services"
+                  >
+                    <li class="diagram-node" data-in-view="containers">
+                      <b>Dashboards + alarms</b
+                      ><code>Pettzi<wbr />Monitoring<wbr />Stack</code>
+                    </li>
+                    <li class="diagram-node" data-in-view="containers">
+                      <b>Watches</b>
+                      <div class="diagram-pills">
+                        <span>HTTP APIs</span><span>Lambda</span
+                        ><span>DynamoDB</span><span>S3 + SES</span>
+                      </div>
+                    </li>
+                  </ol>
+                </section>
+              </div>
+              <p class="eyebrow async-label">ASYNC / EMAIL PATH</p>
+              <ol
+                class="diagram-flow async-flow"
+                aria-label="Reminder delivery from schedule to email"
+              >
+                <li class="diagram-node" data-in-view="containers async">
+                  <b>EventBridge Scheduler</b
+                  ><small>one schedule per reminder</small>
+                </li>
+                <li class="diagram-node" data-in-view="containers async">
+                  <b>Dispatch Lambda</b><small>sends a queue message</small>
+                </li>
+                <li class="diagram-node" data-in-view="containers async">
+                  <b>FIFO SQS</b><small>reminder queue</small>
+                </li>
+                <li class="diagram-node" data-in-view="containers async">
+                  <b>Consumer Lambda</b><small>validates and processes</small>
+                </li>
+                <li class="diagram-node" data-in-view="containers async">
+                  <b>SES template</b><small>bilingual reminder email</small
+                  ><code>Pettzi<wbr />Ses<wbr />Templates<wbr />Stack</code>
+                </li>
+              </ol>
+            </div>
             <div class="map-zones">
               <div class="map-zone edge">
                 <h4><span>01</span> Edge</h4>
@@ -438,20 +555,22 @@
                   ><small
                     >CloudFront · private S3 site bucket · ACM · Route 53
                     alias</small
-                  ><code>PettziFrontendStack</code>
+                  ><code>Pettzi<wbr />Frontend<wbr />Stack</code>
                 </div>
                 <div class="map-node" data-in-view="containers request">
                   <b>Unified API domain</b
                   ><small
                     >CloudFront paths to eight HTTP APIs · custom domain ·
                     ACM</small
-                  ><code>PettziApiDomainStack</code>
+                  ><code>Pettzi<wbr />Api<wbr />Domain<wbr />Stack</code>
                 </div>
                 <div class="map-node" data-in-view="containers">
                   <b>Email assets CDN</b
                   ><small
                     >CloudFront · private S3 bucket · custom domain · ACM</small
-                  ><code>PettziEmailAssetsCdnStack</code>
+                  ><code
+                    >Pettzi<wbr />Email<wbr />Assets<wbr />Cdn<wbr />Stack</code
+                  >
                 </div>
               </div>
               <div class="map-zone identity">
@@ -459,38 +578,43 @@
                 <div class="map-node" data-in-view="context containers request">
                   <b>Cognito User Pool + client</b
                   ><small>JWT authorizer on protected API routes</small
-                  ><code>PettziAuthStack</code>
+                  ><code>Pettzi<wbr />Auth<wbr />Stack</code>
                 </div>
               </div>
               <div class="map-zone api">
                 <h4><span>03</span> API layer</h4>
                 <div class="api-node-grid">
                   <div class="map-node" data-in-view="containers request">
-                    <b>auth · /auth</b><code>PettziAuthApiStack</code>
+                    <b>auth · /auth</b
+                    ><code>Pettzi<wbr />Auth<wbr />Api<wbr />Stack</code>
                   </div>
                   <div class="map-node" data-in-view="containers request">
-                    <b>pets · /pets</b><code>PettziPetsApiStack</code>
+                    <b>pets · /pets</b
+                    ><code>Pettzi<wbr />Pets<wbr />Api<wbr />Stack</code>
                   </div>
                   <div class="map-node" data-in-view="containers request">
-                    <b>owners · /owners</b><code>PettziOwnersApiStack</code>
+                    <b>owners · /owners</b
+                    ><code>Pettzi<wbr />Owners<wbr />Api<wbr />Stack</code>
                   </div>
                   <div class="map-node" data-in-view="containers request">
-                    <b>events · /events</b><code>PettziEventsApiStack</code>
+                    <b>events · /events</b
+                    ><code>Pettzi<wbr />Events<wbr />Api<wbr />Stack</code>
                   </div>
                   <div class="map-node" data-in-view="containers request">
                     <b>reminders · /reminders</b
-                    ><code>PettziRemindersApiStack</code>
+                    ><code>Pettzi<wbr />Reminders<wbr />Api<wbr />Stack</code>
                   </div>
                   <div class="map-node" data-in-view="containers request">
                     <b>routines · /routines</b
-                    ><code>PettziRoutinesApiStack</code>
+                    ><code>Pettzi<wbr />Routines<wbr />Api<wbr />Stack</code>
                   </div>
                   <div class="map-node" data-in-view="containers request">
-                    <b>uploads · /uploads</b><code>PettziUploadsApiStack</code>
+                    <b>uploads · /uploads</b
+                    ><code>Pettzi<wbr />Uploads<wbr />Api<wbr />Stack</code>
                   </div>
                   <div class="map-node" data-in-view="containers request">
                     <b>catalogs · /catalogs</b
-                    ><code>PettziCatalogsApiStack</code>
+                    ><code>Pettzi<wbr />Catalogs<wbr />Api<wbr />Stack</code>
                   </div>
                 </div>
                 <p class="zone-note">
@@ -511,7 +635,7 @@
                 <div class="map-node" data-in-view="containers">
                   <b>Four shared Lambda layers</b
                   ><small>Cognito · DynamoDB · S3 · SES SDK dependencies</small
-                  ><code>PettziLayersStack</code>
+                  ><code>Pettzi<wbr />Layers<wbr />Stack</code>
                 </div>
               </div>
               <div class="map-zone data">
@@ -521,14 +645,19 @@
                   ><small
                     >PK / SK · GSI1PK / GSI1SK; GSI1 serves owner pets, due
                     vaccination reminders, and shared records by pet</small
-                  ><code>PettziCoreInfraStack · TABLE_DESIGN.md</code>
+                  ><code
+                    >Pettzi<wbr />Core<wbr />Infra<wbr />Stack ·
+                    TABLE_DESIGN.md</code
+                  >
                 </div>
                 <div class="map-node" data-in-view="containers request">
                   <b>DocsBucket · private S3</b
                   ><small
                     >Uploads API issues presigned upload and download
                     URLs</small
-                  ><code>PettziCoreInfraStack · PettziUploadsApiStack</code>
+                  ><code
+                    >Pettzi<wbr />Core<wbr />Infra<wbr />Stack · Pettzi<wbr />Uploads<wbr />Api<wbr />Stack</code
+                  >
                 </div>
               </div>
               <div class="map-zone async">
@@ -538,18 +667,18 @@
                   ><small
                     >Per-reminder schedules invoke dispatch Lambda → FIFO SQS →
                     consume Lambda</small
-                  ><code>PettziRemindersApiStack</code>
+                  ><code>Pettzi<wbr />Reminders<wbr />Api<wbr />Stack</code>
                 </div>
                 <div class="map-node" data-in-view="containers async">
                   <b>SES templates</b
                   ><small
                     >Welcome, reset, reminder, and shared-pet invite
                     templates</small
-                  ><code>PettziSesTemplatesStack</code>
+                  ><code>Pettzi<wbr />Ses<wbr />Templates<wbr />Stack</code>
                 </div>
                 <p class="zone-note">
-                  Routines are request-driven in PettziRoutinesApiStack; it
-                  defines no schedule.
+                  Routines are request-driven in Pettzi<wbr />Routines<wbr />Api<wbr />Stack;
+                  it defines no schedule.
                 </p>
               </div>
               <div class="map-zone ops">
@@ -557,13 +686,14 @@
                 <div class="map-node" data-in-view="containers">
                   <b>Dashboards + alarms</b
                   ><small>API, Lambda, DynamoDB, S3, and SES monitoring</small
-                  ><code>PettziMonitoringStack</code>
+                  ><code>Pettzi<wbr />Monitoring<wbr />Stack</code>
                 </div>
                 <div class="map-node map-node-note" data-in-view="containers">
                   <b>Service Catalog AppRegistry</b
                   ><small
-                    >PettziApplicationStack and AppRegistryAssociationsStack are
-                    defined but not instantiated by apps/cdk/src/main.ts.</small
+                    >Pettzi<wbr />Application<wbr />Stack and App<wbr />Registry<wbr />Associations<wbr />Stack
+                    are defined but not instantiated by
+                    apps/cdk/src/main.ts.</small
                   >
                 </div>
               </div>
@@ -818,20 +948,20 @@
                 <h4>Foundation + identity <span>03</span></h4>
                 <div class="stack-card-grid">
                   <article class="stack-card">
-                    <b>PettziCoreInfraStack</b>
+                    <b>Pettzi<wbr />Core<wbr />Infra<wbr />Stack</b>
                     <p>
                       Shared single-table DynamoDB, docs and log buckets, and
                       infrastructure alarms.
                     </p>
                   </article>
                   <article class="stack-card">
-                    <b>PettziLayersStack</b>
+                    <b>Pettzi<wbr />Layers<wbr />Stack</b>
                     <p>
                       Builds and publishes the four shared SDK Lambda layers.
                     </p>
                   </article>
                   <article class="stack-card">
-                    <b>PettziAuthStack</b>
+                    <b>Pettzi<wbr />Auth<wbr />Stack</b>
                     <p>Cognito User Pool and web app client.</p>
                   </article>
                 </div>
@@ -840,43 +970,43 @@
                 <h4>Domain APIs <span>08</span></h4>
                 <div class="stack-card-grid">
                   <article class="stack-card">
-                    <b>PettziAuthApiStack</b>
+                    <b>Pettzi<wbr />Auth<wbr />Api<wbr />Stack</b>
                     <p>
                       Auth HTTP API, account handlers, and templated account
                       email.
                     </p>
                   </article>
                   <article class="stack-card">
-                    <b>PettziPetsApiStack</b>
+                    <b>Pettzi<wbr />Pets<wbr />Api<wbr />Stack</b>
                     <p>Pet profiles and shared-record API handlers.</p>
                   </article>
                   <article class="stack-card">
-                    <b>PettziOwnersApiStack</b>
+                    <b>Pettzi<wbr />Owners<wbr />Api<wbr />Stack</b>
                     <p>Owner links, roles, invitations, and secret rotation.</p>
                   </article>
                   <article class="stack-card">
-                    <b>PettziEventsApiStack</b>
+                    <b>Pettzi<wbr />Events<wbr />Api<wbr />Stack</b>
                     <p>Pet health events and timeline handlers.</p>
                   </article>
                   <article class="stack-card">
-                    <b>PettziRemindersApiStack</b>
+                    <b>Pettzi<wbr />Reminders<wbr />Api<wbr />Stack</b>
                     <p>
                       Reminder handlers, schedules, FIFO queue, and email
                       consumer.
                     </p>
                   </article>
                   <article class="stack-card">
-                    <b>PettziRoutinesApiStack</b>
+                    <b>Pettzi<wbr />Routines<wbr />Api<wbr />Stack</b>
                     <p>Pet routines, activities, history, and occurrences.</p>
                   </article>
                   <article class="stack-card">
-                    <b>PettziUploadsApiStack</b>
+                    <b>Pettzi<wbr />Uploads<wbr />Api<wbr />Stack</b>
                     <p>
                       Presigned file transfers and upload-triggered thumbnails.
                     </p>
                   </article>
                   <article class="stack-card">
-                    <b>PettziCatalogsApiStack</b>
+                    <b>Pettzi<wbr />Catalogs<wbr />Api<wbr />Stack</b>
                     <p>Species, breeds, and vaccine catalog endpoints.</p>
                   </article>
                 </div>
@@ -885,28 +1015,28 @@
                 <h4>Delivery + messaging <span>04</span></h4>
                 <div class="stack-card-grid">
                   <article class="stack-card">
-                    <b>PettziFrontendStack</b>
+                    <b>Pettzi<wbr />Frontend<wbr />Stack</b>
                     <p>
                       Private S3 SPA origin, CloudFront, WAF, certificate, and
                       DNS alias.
                     </p>
                   </article>
                   <article class="stack-card">
-                    <b>PettziApiDomainStack</b>
+                    <b>Pettzi<wbr />Api<wbr />Domain<wbr />Stack</b>
                     <p>
                       Custom API edge, base-path mappings, certificate, and DNS
                       alias.
                     </p>
                   </article>
                   <article class="stack-card">
-                    <b>PettziEmailAssetsCdnStack</b>
+                    <b>Pettzi<wbr />Email<wbr />Assets<wbr />Cdn<wbr />Stack</b>
                     <p>
                       Private S3 origin and CloudFront distribution for email
                       assets.
                     </p>
                   </article>
                   <article class="stack-card">
-                    <b>PettziSesTemplatesStack</b>
+                    <b>Pettzi<wbr />Ses<wbr />Templates<wbr />Stack</b>
                     <p>
                       SES identity (when configured) and bilingual message
                       templates.
@@ -918,21 +1048,21 @@
                 <h4>Operations + inventory <span>03</span></h4>
                 <div class="stack-card-grid">
                   <article class="stack-card">
-                    <b>PettziMonitoringStack</b>
+                    <b>Pettzi<wbr />Monitoring<wbr />Stack</b>
                     <p>
                       Service dashboards and API, Lambda, data, and email
                       alarms.
                     </p>
                   </article>
                   <article class="stack-card">
-                    <b>PettziApplicationStack</b>
+                    <b>Pettzi<wbr />Application<wbr />Stack</b>
                     <p>
                       Defines the AppRegistry application and metadata; not
                       instantiated from main.ts.
                     </p>
                   </article>
                   <article class="stack-card">
-                    <b>AppRegistryAssociationsStack</b>
+                    <b>App<wbr />Registry<wbr />Associations<wbr />Stack</b>
                     <p>
                       Defines stack associations for AppRegistry; not
                       instantiated from main.ts.

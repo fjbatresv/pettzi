@@ -39,11 +39,13 @@ const architecture = document.querySelector('.architecture');
 const viewControls = architecture?.querySelector('.architecture-tabs');
 const viewTabs = [...(viewControls?.querySelectorAll('[role="tab"]') ?? [])];
 const viewMap = architecture?.querySelector('.system-map');
-if (viewControls && viewMap && viewTabs.length) {
+const viewDiagram = architecture?.querySelector('.architecture-diagrams');
+if (viewControls && viewMap && viewDiagram && viewTabs.length) {
   const activateView = (tab, moveFocus = false) => {
     const view = tab.dataset.view;
     viewControls.dataset.activeView = view;
     viewMap.dataset.activeView = view;
+    viewDiagram.dataset.activeView = view;
     architecture.dataset.viewsEnhanced = 'true';
     viewTabs.forEach((candidate) => {
       const selected = candidate === tab;
