@@ -337,7 +337,7 @@ h2 em {
 .title-art svg {
   position: absolute;
   right: 10%;
-  bottom: -15px;
+  bottom: 0;
   width: 190px;
 }
 .title-art svg circle {
