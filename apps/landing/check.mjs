@@ -68,6 +68,13 @@ for (const [path, language] of pages) {
     ([, id]) => id,
   );
   ids.push(pageIds);
+  for (const [, url] of html.matchAll(/\b(?:href|src)="([^"]+)"/gi)) {
+    if (
+      !/^(?:[a-z]+:|\/\/|#)/i.test(url) &&
+      /\.(?:css|js|svg|png)(?:[?#]|$)/i.test(url)
+    )
+      assert.match(url, /\?v=[a-f\d]{8}(?:#|$)/i, `${path}: versioned asset ${url}`);
+  }
   for (const [, href] of html.matchAll(/href="([^"]+)"/g)) {
     if (href.startsWith('#'))
       assert.ok(
@@ -79,7 +86,7 @@ for (const [path, language] of pages) {
         existsSync(
           resolve(
             dirname(path),
-            decodeURIComponent(href.split('#')[0] || 'index.html'),
+            decodeURIComponent(href.split(/[?#]/, 1)[0] || 'index.html'),
           ),
         ),
         `${path}: local link ${href}`,
