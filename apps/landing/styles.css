@@ -1036,9 +1036,6 @@ h3 {
   color: var(--muted);
   font: 14px/1.45 var(--sans);
 }
-.repo-group > article.standalone {
-  border-left-color: var(--rule);
-}
 .repo-api-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1052,32 +1049,138 @@ h3 {
   font: 12px/1.45 var(--mono);
   overflow-wrap: anywhere;
 }
-.dependency-routes {
+.dependency-graph {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+.graph-flow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 42px minmax(0, 1.35fr) 42px minmax(
+      0,
+      1fr
+    );
+  align-items: stretch;
+  gap: 8px;
+}
+.graph-node {
+  min-width: 0;
+  padding: 11px;
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--terracotta);
+  background: var(--card);
+  color: var(--ink);
+}
+.graph-node > b {
+  display: block;
+  font: 12px/1.45 var(--mono);
+  overflow-wrap: anywhere;
+}
+.graph-node > small {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+.graph-arrow {
+  position: relative;
+  align-self: center;
+  width: 100%;
+  height: 2px;
+  background: var(--connector);
+}
+.graph-arrow::after {
+  position: absolute;
+  top: 50%;
+  right: -1px;
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 7px solid var(--connector-active);
+  content: '';
+  transform: translateY(-50%);
+}
+.graph-arrow--dashed {
+  background: repeating-linear-gradient(
+    to right,
+    var(--connector) 0 5px,
+    transparent 5px 9px
+  );
+}
+.graph-flow--apis {
+  grid-template-columns: minmax(0, 1fr) 42px minmax(0, 1.35fr);
+}
+.graph-api-pills {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  margin-top: 8px;
+}
+.graph-api-pills span {
+  min-width: 0;
+  padding: 3px 4px;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  font: 10px/1.4 var(--mono);
+  overflow-wrap: anywhere;
+}
+.graph-targets {
+  min-width: 0;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
-  margin: 13px 0 0;
+}
+.graph-flow--cdk .graph-node {
+  border-left-color: var(--gold);
+}
+.graph-flow--landing {
+  grid-template-columns: minmax(0, 1fr);
+}
+.graph-flow--landing .graph-node {
+  border-left-color: var(--rule);
+}
+.graph-legend {
+  display: grid;
+  gap: 5px;
+  margin: 10px 0 0;
   padding: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
   list-style: none;
 }
-.dependency-routes li {
-  min-width: 0;
+.graph-legend li {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 13px;
-  border: 1px solid var(--rule);
-  background: var(--card);
+  align-items: baseline;
+  gap: 9px;
 }
-.dependency-routes b {
-  color: var(--terracotta);
-  font: 12px/1.5 var(--mono);
-  overflow-wrap: anywhere;
+.legend-line {
+  position: relative;
+  flex: 0 0 28px;
+  height: 2px;
+  margin-bottom: 3px;
+  background: var(--connector);
 }
-.dependency-routes span {
-  color: var(--muted);
-  font-size: 14px;
-  line-height: 1.55;
+.legend-line::after {
+  position: absolute;
+  top: 50%;
+  right: -1px;
+  width: 0;
+  height: 0;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  border-left: 6px solid var(--connector-active);
+  content: '';
+  transform: translateY(-50%);
+}
+.legend-line--dashed {
+  background: repeating-linear-gradient(
+    to right,
+    var(--connector) 0 5px,
+    transparent 5px 9px
+  );
 }
 .workspace-value-grid {
   display: grid;
@@ -1103,12 +1206,6 @@ h3 {
   margin: 0;
   color: var(--muted);
   font-size: 15px;
-  line-height: 1.55;
-}
-.repo-note {
-  margin: 13px 0 0;
-  color: var(--muted);
-  font-size: 14px;
   line-height: 1.55;
 }
 /* User journeys */
@@ -1681,11 +1778,43 @@ h3 {
   .repo-map,
   .stack-group-grid,
   .stack-card-grid,
-  .dependency-routes,
   .workspace-value-grid,
   .view-steps,
   .api-node-grid {
     grid-template-columns: 1fr;
+  }
+  .dependency-graph .graph-flow,
+  .dependency-graph .graph-flow--apis,
+  .dependency-graph .graph-flow--landing,
+  .graph-targets {
+    grid-template-columns: 1fr;
+  }
+  .graph-flow {
+    gap: 8px;
+  }
+  .graph-arrow {
+    justify-self: center;
+    width: 2px;
+    height: 20px;
+    background: var(--connector);
+  }
+  .graph-arrow::after {
+    top: auto;
+    right: auto;
+    bottom: -1px;
+    left: 50%;
+    border-top: 7px solid var(--connector-active);
+    border-right: 5px solid transparent;
+    border-bottom: 0;
+    border-left: 5px solid transparent;
+    transform: translateX(-50%);
+  }
+  .graph-arrow--dashed {
+    background: repeating-linear-gradient(
+      to bottom,
+      var(--connector) 0 5px,
+      transparent 5px 9px
+    );
   }
   .map-titlebar h3 {
     font-size: 25px;

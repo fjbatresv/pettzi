@@ -1083,16 +1083,16 @@
         <div class="wrap">
           <div class="section-heading">
             <p class="eyebrow">04 / NX WORKSPACE</p>
-            <h2>One repo,<br /><em>clear boundaries.</em></h2>
+            <h2>One repo,<br /><em>one system.</em></h2>
             <p class="section-intro">
-              Three apps, twelve libraries, and four Lambda layers share a
-              toolchain; dependency arrows below reflect the Nx project graph
-              and CDK handler paths.
+              Three apps, twelve libraries, and four Lambda layers share one
+              toolchain; follow the Nx dependencies and CDK handler and layer
+              wiring.
             </p>
           </div>
           <div
             class="repo-map"
-            aria-label="Nx workspace map with apps, libraries, and Lambda layers"
+            aria-label="Nx workspace map with application, library, and Lambda dependency paths"
           >
             <section class="repo-group apps-group">
               <h3>Apps <span>03</span></h3>
@@ -1125,12 +1125,12 @@
               <article>
                 <b>utils-dynamo</b><small>DynamoDB + HTTP helpers</small>
               </article>
-              <article class="standalone">
-                <b>shared-utils</b><small>No current Nx dependency edges</small>
+              <article>
+                <b>shared-utils</b><small>General-purpose Lambda helpers</small>
               </article>
-              <article class="standalone">
+              <article>
                 <b>infra-constructs</b
-                ><small>No current Nx dependency edges</small>
+                ><small>Reusable AWS CDK constructs</small>
               </article>
             </section>
             <section class="repo-group layers-group">
@@ -1141,35 +1141,89 @@
               <article>ses-deps</article>
             </section>
           </div>
-          <ul class="dependency-routes">
-            <li>
-              <b>apps/web → domain-model</b
-              ><span>Static Nx dependency for shared frontend types.</span>
-            </li>
-            <li>
-              <b>apps/cdk → eight api-* handler trees</b
-              ><span
-                >CDK stacks bundle handler entrypoints via source paths; these
-                string paths are not Nx static graph edges.</span
+          <div
+            class="dependency-graph"
+            role="group"
+            aria-label="Nx project dependencies and CDK source wiring"
+          >
+            <div class="graph-flow">
+              <div class="graph-node">
+                <b>apps/web</b><small>Angular SPA</small>
+              </div>
+              <span class="graph-arrow" aria-hidden="true"></span>
+              <div class="graph-node">
+                <b>domain-model</b
+                ><small>Shared types, mappers, and key builders</small>
+              </div>
+              <span class="graph-arrow" aria-hidden="true"></span>
+              <div class="graph-node">
+                <b>utils-dynamo</b
+                ><small>DynamoDB key and access helpers</small>
+              </div>
+            </div>
+            <div class="graph-flow graph-flow--apis">
+              <div class="graph-node graph-api-source">
+                <b>Eight API libraries</b>
+                <div class="graph-api-pills">
+                  <span>api-auth</span><span>api-pets</span
+                  ><span>api-owners</span><span>api-events</span
+                  ><span>api-reminders</span><span>api-routines</span
+                  ><span>api-uploads</span><span>api-catalogs</span>
+                </div>
+              </div>
+              <span class="graph-arrow" aria-hidden="true"></span>
+              <div
+                class="graph-targets"
+                aria-label="Each API library depends on both shared libraries"
               >
+                <div class="graph-node">
+                  <b>domain-model</b
+                  ><small>Shared domain types and mappers</small>
+                </div>
+                <div class="graph-node">
+                  <b>utils-dynamo</b><small>Common DynamoDB helpers</small>
+                </div>
+              </div>
+            </div>
+            <div class="graph-flow graph-flow--cdk">
+              <div class="graph-node">
+                <b>apps/cdk</b><small>CDK stacks</small>
+              </div>
+              <span
+                class="graph-arrow graph-arrow--dashed"
+                aria-hidden="true"
+              ></span>
+              <div class="graph-node">
+                <b>API handler paths</b
+                ><small
+                  >Eight source entrypoints bundled by the API stacks</small
+                >
+              </div>
+              <span
+                class="graph-arrow graph-arrow--dashed"
+                aria-hidden="true"
+              ></span>
+              <div class="graph-node">
+                <b>Four Lambda layers</b
+                ><small>cognito-deps · ddb-deps · s3-deps · ses-deps</small>
+              </div>
+            </div>
+            <div class="graph-flow graph-flow--landing">
+              <div class="graph-node">
+                <b>apps/landing</b><small>Standalone static site</small>
+              </div>
+            </div>
+          </div>
+          <ul class="graph-legend">
+            <li>
+              <span class="legend-line"></span>Solid arrows: Nx project
+              dependencies; each API library depends directly on domain-model
+              and utils-dynamo.
             </li>
             <li>
-              <b>Each api-* lib → domain-model + utils-dynamo</b
-              ><span
-                >All eight API projects have both dependencies; domain-model
-                also depends on utils-dynamo key helpers.</span
-              >
-            </li>
-            <li>
-              <b>apps/cdk → four layers</b
-              ><span
-                >LayersStack packages the layer folders and API stacks attach
-                their SDK dependencies.</span
-              >
-            </li>
-            <li>
-              <b>apps/landing</b
-              ><span>Standalone static site with build and lint targets.</span>
+              <span class="legend-line legend-line--dashed"></span>Dashed
+              arrows: CDK source-path and Lambda-layer wiring, which are not
+              static Nx graph edges.
             </li>
           </ul>
           <div class="workspace-value-grid">
@@ -1206,11 +1260,6 @@
               </p>
             </article>
           </div>
-          <p class="repo-note">
-            The Nx graph has 3 apps and 12 libraries. This map does not imply
-            enforced module boundaries: eslint depConstraints currently allow
-            <code>*</code> to depend on <code>*</code>.
-          </p>
         </div>
       </section>
       <section id="flows" class="wrap section-pad">
