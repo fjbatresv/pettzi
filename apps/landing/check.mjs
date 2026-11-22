@@ -32,6 +32,9 @@ for (const [path, language] of pages) {
     );
   assert.match(html, /og:image:alt/, `${path}: image alt`);
   assert.match(html, /name="twitter:card" content="summary_large_image"/);
+  assert.match(html, /name="twitter:title"/);
+  assert.match(html, /name="twitter:description"/);
+  assert.match(html, /name="twitter:image"/);
   assert.match(html, /"@graph"/);
   for (const type of [
     'WebSite',
@@ -50,6 +53,10 @@ for (const [path, language] of pages) {
     /"url"\s*:\s*"https:\/\/fjbatresv\.com"/,
     `${path}: Person URL`,
   );
+  assert.match(
+    html,
+    /"jobTitle"\s*:\s*"Solutions Architect and Senior Full Stack Engineer"/,
+  );
   assert.match(html, /rel="preload"[^>]*as="font"[^>]*crossorigin/);
   assert.equal((html.match(/<h1\b/g) ?? []).length, 1, `${path}: one h1`);
   assert.doesNotMatch(html, /<img(?![^>]*\balt=)/, `${path}: img alt`);
@@ -67,7 +74,30 @@ for (const [path, language] of pages) {
   const pageIds = [...html.matchAll(/<section\b[^>]*\bid="([^"]+)"/g)].map(
     ([, id]) => id,
   );
+  for (const sectionId of ['architecture', 'monorepo'])
+    assert.ok(pageIds.includes(sectionId), `${path}: ${sectionId} section`);
   ids.push(pageIds);
+  for (const [, url] of html.matchAll(/\b(?:href|src)="([^"]+)"/gi)) {
+    if (
+      !/^(?:[a-z]+:|\/\/|#)/i.test(url) &&
+      /\.(?:css|js|svg|png)(?:[?#]|$)/i.test(url)
+    )
+      assert.match(
+        url,
+        /\?v=[a-f\d]{8}(?:#|$)/i,
+        `${path}: versioned asset ${url}`,
+      );
+  }
+  for (const [, candidates] of html.matchAll(/\bsrcset="([^"]+)"/gi))
+    for (const candidate of candidates.split(',')) {
+      const url = candidate.trim().split(/\s+/)[0];
+      if (/\.(?:css|js|svg|png)(?:[?#]|$)/i.test(url))
+        assert.match(
+          url,
+          /\?v=[a-f\d]{8}(?:#|$)/i,
+          `${path}: versioned srcset ${url}`,
+        );
+    }
   for (const [, href] of html.matchAll(/href="([^"]+)"/g)) {
     if (href.startsWith('#'))
       assert.ok(
@@ -79,7 +109,7 @@ for (const [path, language] of pages) {
         existsSync(
           resolve(
             dirname(path),
-            decodeURIComponent(href.split('#')[0] || 'index.html'),
+            decodeURIComponent(href.split(/[?#]/, 1)[0] || 'index.html'),
           ),
         ),
         `${path}: local link ${href}`,
@@ -94,6 +124,11 @@ assert.ok(
   statSync('dist/landing/og-image.png').size <= 100_000,
   'OG image under 100 KB',
 );
+for (const path of ['dist/landing/logo-1x.png', 'dist/landing/logo-2x.png'])
+  assert.ok(statSync(path).size < 20_000, `${path}: logo below 20 KB`);
+const logo2x = readFileSync('dist/landing/logo-2x.png');
+assert.equal(logo2x.readUInt32BE(16), 64, 'Logo 2x width');
+assert.equal(logo2x.readUInt32BE(20), 77, 'Logo 2x height');
 const notFound = readFileSync('dist/landing/404.html', 'utf8');
 assert.match(notFound, /name="robots" content="noindex"/);
 assert.match(notFound, /lang="en"/);

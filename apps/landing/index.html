@@ -4,10 +4,10 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#f4f1e9" />
-    <title>Pettzi — Care, made considered</title>
+    <title>Pettzi — serverless case study by Javier Batres</title>
     <meta
       name="description"
-      content="A public engineering portfolio exploring thoughtful pet care software, domain architecture, and the decisions behind a serverless platform."
+      content="An AWS serverless case study by Javier Batres, showing Pettzi’s architecture, Angular app, CDK infrastructure, and delivery decisions."
     />
     <link rel="canonical" href="https://fjbatresv.github.io/pettzi/" />
     <link
@@ -25,7 +25,7 @@
       hreflang="x-default"
       href="https://fjbatresv.github.io/pettzi/"
     />
-    <link rel="icon" href="logo.svg" type="image/svg+xml" />
+    <link rel="icon" href="logo-2x.png" type="image/png" sizes="64x77" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -42,10 +42,13 @@
     <link rel="stylesheet" href="styles.css" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Pettzi" />
-    <meta property="og:title" content="Pettzi — Care, made considered" />
+    <meta
+      property="og:title"
+      content="Pettzi — serverless case study by Javier Batres"
+    />
     <meta
       property="og:description"
-      content="A public engineering portfolio exploring thoughtful pet care software, domain architecture, and the decisions behind a serverless platform."
+      content="An AWS serverless case study by Javier Batres, showing Pettzi’s architecture, Angular app, CDK infrastructure, and delivery decisions."
     />
     <meta property="og:url" content="https://fjbatresv.github.io/pettzi/" />
     <meta property="og:locale" content="en_US" />
@@ -56,8 +59,23 @@
     />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Pettzi — care, made considered" />
+    <meta
+      property="og:image:alt"
+      content="Pettzi engineering case study: AWS, Angular, and CDK"
+    />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="Pettzi — serverless case study by Javier Batres"
+    />
+    <meta
+      name="twitter:description"
+      content="An AWS serverless case study by Javier Batres, showing Pettzi’s architecture, Angular app, CDK infrastructure, and delivery decisions."
+    />
+    <meta
+      name="twitter:image"
+      content="https://fjbatresv.github.io/pettzi/og-image.png"
+    />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -72,14 +90,19 @@
             "@type": "WebPage",
             "@id": "https://fjbatresv.github.io/pettzi/#webpage",
             "url": "https://fjbatresv.github.io/pettzi/",
-            "name": "Pettzi — Care, made considered",
-            "isPartOf": { "@id": "https://fjbatresv.github.io/pettzi/#website" }
+            "name": "Pettzi — serverless case study by Javier Batres",
+            "isPartOf": {
+              "@id": "https://fjbatresv.github.io/pettzi/#website"
+            },
+            "author": { "@id": "https://fjbatresv.github.io/pettzi/#person" }
           },
           {
             "@type": "Person",
             "@id": "https://fjbatresv.github.io/pettzi/#person",
             "name": "Javier Batres",
-            "url": "https://fjbatresv.com"
+            "url": "https://fjbatresv.com",
+            "jobTitle": "Solutions Architect and Senior Full Stack Engineer",
+            "sameAs": "https://github.com/fjbatresv"
           },
           {
             "@type": "SoftwareSourceCode",
@@ -108,21 +131,39 @@
     <a class="skip-link" href="#main">Skip to content</a>
     <header class="masthead wrap">
       <a class="brand" href="./" aria-label="Pettzi home"
-        ><img src="logo.svg" alt="" width="32" height="32" /><span
-          >pettzi<span class="brand-dot">.</span></span
-        ></a
+        ><img
+          src="logo-1x.png"
+          srcset="logo-1x.png 1x, logo-2x.png 2x"
+          alt=""
+          width="64"
+          height="77"
+        /><span>pettzi<span class="brand-dot">.</span></span></a
       ><button
         class="menu-toggle"
         aria-label="Open navigation"
         aria-expanded="false"
         aria-controls="site-nav"
       >
-        <span></span><span></span>
+        <svg
+          class="menu-icon"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path class="menu-top" d="M4 6h16" />
+          <path class="menu-middle" d="M4 12h16" />
+          <path class="menu-bottom" d="M4 18h16" />
+        </svg>
       </button>
       <nav class="nav" id="site-nav" aria-label="Main navigation">
-        <a href="#approach">Approach</a><a href="#architecture">Architecture</a
-        ><a href="#flows">Flows</a><a href="#decisions">Decisions</a
-        ><a href="#docs">Docs</a>
+        <a href="#approach">Product needs</a>
+        <a href="#process">Process</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#monorepo">Monorepo Nx</a>
+        <a href="#flows">Flows</a>
+        <a href="#decisions">Decisions</a>
+        <a href="#docs">Docs</a>
+        <a class="nav-contact" href="#contact">Contact</a>
       </nav>
       <div class="header-actions">
         <a class="language" href="es/" lang="es" hreflang="es">ES</a
@@ -144,56 +185,54 @@
       <section class="hero wrap">
         <div class="hero-copy">
           <p class="eyebrow">
-            <span class="status-dot"></span> Independent engineering portfolio
+            <span class="status-dot"></span> Case study · Full-stack serverless
+            on AWS
           </p>
-          <h1>Care, made<br /><em>considered.</em></h1>
+          <h1>Full-stack serverless,<br /><em>end to end.</em></h1>
           <p class="hero-lede">
-            Pettzi began as a place to keep every detail of a pet’s life in one
-            thoughtful record. Today, it’s a public study in building software
-            with care—from the data model to the smallest interface detail.
+            Pettzi is a concluded pet-care product; this case study shows how
+            Javier Batres designed and built it across product, architecture,
+            backend, frontend, and infrastructure.
           </p>
           <div class="hero-actions">
-            <a
-              class="button button-dark"
-              href="https://github.com/fjbatresv/pettzi"
-              >Explore the repository
+            <a class="button button-dark" href="#contact"
+              >Talk to me
               <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M7 17 17 7M7 7h10v10" /></svg></a
             ><a class="text-link" href="#architecture"
-              >Take the architecture tour
+              >Explore the architecture
               <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M12 4v16m-7-7 7 7 7-7" /></svg
-            ></a>
+                <path d="M12 4v16m-7-7 7 7 7-7" /></svg></a
+            ><a class="text-link" href="https://github.com/fjbatresv/pettzi"
+              >GitHub repository</a
+            >
           </div>
           <p class="hero-note">
-            <span class="note-line"></span> A completed product experiment.
-            Shared as a reference, not a live service.
+            <span class="note-line"></span> Product concluded; the repository
+            remains as a technical reference.
           </p>
         </div>
         <aside class="title-block">
-          <p class="eyebrow">PROJECT / FIELD NOTES</p>
-          <div><span>PROJECT</span><b>pettzi · pet care platform</b></div>
-          <div><span>DOMAINS</span><b>8 domain APIs</b></div>
-          <div><span>STACK</span><b>Angular · Node.js 24 · AWS CDK</b></div>
-          <div><span>STATE</span><b>Completed · open source</b></div>
-          <div><span>LANGUAGES</span><b>English / Español</b></div>
-          <div class="title-art">
-            <span>FIELD RECORD / 001</span
-            ><svg
-              viewBox="0 0 240 150"
-              role="img"
-              aria-label="A friendly illustrated dog"
+          <p class="eyebrow">PROJECT / ENGINEERING CASE STUDY</p>
+          <div>
+            <span>ROLE</span
+            ><b
+              >Owner end to end: product, architecture, backend, frontend, IaC,
+              CI/CD</b
             >
-              <circle cx="120" cy="75" r="67" />
-              <path
-                d="M67 70c-22-31-31 6-12 32l23 10m95-42c23-29 31 7 12 31l-20 10M72 84c0-36 22-53 48-48 27-11 54 8 51 47l8 31c4 18-10 24-25 18l-7-31c-24 16-52 17-74 3l-4 27c-17 12-29 3-24-14z"
-              />
-              <ellipse cx="120" cy="82" rx="35" ry="26" />
-              <circle cx="101" cy="68" r="3" />
-              <circle cx="139" cy="68" r="3" />
-              <path d="M116 80q4-7 9 0m-5 5v7m-8 2q8 8 16 0" /></svg
-            ><b>Miso</b>
           </div>
+          <div>
+            <span>STACK</span
+            ><b
+              >Angular · Nx · TypeScript · AWS CDK · Lambda · Node.js 24 ·
+              DynamoDB</b
+            >
+          </div>
+          <div>
+            <span>STATUS</span
+            ><b>Completed product · public technical reference</b>
+          </div>
+          <div><span>REPOSITORY</span><b>github.com/fjbatresv/pettzi</b></div>
         </aside>
       </section>
       <div class="metrics wrap">
@@ -203,120 +242,1029 @@
         <div><b>≥80%</b><span>COVERAGE TARGET</span></div>
         <div><b>EN / ES</b><span>LANGUAGES</span></div>
       </div>
-      <section id="approach" class="approach wrap section-pad">
-        <div class="section-heading">
-          <p class="eyebrow">01 / THE INTENT</p>
-          <h2>More than a pet profile.<br /><em>A little continuity.</em></h2>
+      <section id="approach" class="needs section-pad">
+        <div class="wrap">
+          <div class="section-heading">
+            <p class="eyebrow">01 / PRODUCT REQUIREMENTS</p>
+            <h2>What the product <em>needed.</em></h2>
+            <p class="section-intro">
+              A pet-care product asked for familiar experiences backed by clear
+              boundaries, dependable jobs, and a data model built around real
+              access patterns.
+            </p>
+          </div>
+          <div class="need-grid">
+            <article>
+              <span>01 / DOMAIN RECORDS</span>
+              <h3>Keep different records connected</h3>
+              <p>
+                Health events, routines, reminders, and catalogs needed domain
+                boundaries while staying part of one pet history.
+              </p>
+              <a
+                href="https://github.com/fjbatresv/pettzi/blob/main/TABLE_DESIGN.md"
+                >See the access patterns</a
+              >
+            </article>
+            <article>
+              <span>02 / SHARED CARE</span>
+              <h3>Support more than one caregiver</h3>
+              <p>
+                Owners and co-owners need explicit relationships and roles to
+                share a pet’s records responsibly.
+              </p>
+              <a
+                href="https://github.com/fjbatresv/pettzi/tree/main/libs/api-owners"
+                >Explore the Owners API</a
+              >
+            </article>
+            <article>
+              <span>03 / FOLLOW-UP</span>
+              <h3>Send reminders on schedule</h3>
+              <p>
+                Due reminders need a scheduled processor that finds the right
+                records and sends email without blocking an API request.
+              </p>
+              <a
+                href="https://github.com/fjbatresv/pettzi/blob/main/ARCHITECTURE.md"
+                >Read the event flow</a
+              >
+            </article>
+            <article>
+              <span>04 / DOCUMENTS</span>
+              <h3>Handle files outside the data rows</h3>
+              <p>
+                Photos and documents need uploads through S3 while pet records
+                retain references instead of large file payloads.
+              </p>
+              <a
+                href="https://github.com/fjbatresv/pettzi/tree/main/libs/api-uploads"
+                >Explore the Uploads API</a
+              >
+            </article>
+            <article>
+              <span>05 / LANGUAGE</span>
+              <h3>Make the same flows work in two languages</h3>
+              <p>
+                The web experience supports English and Spanish across the
+                product’s core screens.
+              </p>
+              <a href="https://github.com/fjbatresv/pettzi/tree/main/apps/web"
+                >Browse the Angular app</a
+              >
+            </article>
+            <article>
+              <span>06 / COMPUTE</span>
+              <h3>Run work without an always-on app server</h3>
+              <p>
+                API requests and scheduled jobs use managed serverless services,
+                so the application has no continuously running compute host.
+              </p>
+              <a
+                href="https://github.com/fjbatresv/pettzi/blob/main/ARCHITECTURE.md"
+                >Review the architecture</a
+              >
+            </article>
+          </div>
         </div>
-        <div class="approach-copy">
-          <p>
-            Care happens in fragments: a vaccine at the clinic, a note from a
-            sitter, a reminder that arrives at just the right time. Pettzi
-            explored bringing those fragments together without making care feel
-            like admin.
-          </p>
-          <p>
-            The product is no longer operated. The code remains as a portfolio
-            project: a chance to examine the architecture, tradeoffs, and design
-            decisions behind a full-stack build.
-          </p>
-        </div>
-        <div class="principles">
-          <article>
-            <span>01</span>
-            <h3>One shared story</h3>
-            <p>
-              Health events, reminders, routines, documents, and the people who
-              care for a pet belong together.
-            </p>
-          </article>
-          <article>
-            <span>02</span>
-            <h3>Boundaries with purpose</h3>
-            <p>
-              Each domain owns a clear part of the system, with contracts that
-              make the seams visible.
-            </p>
-          </article>
-          <article>
-            <span>03</span>
-            <h3>Careful by default</h3>
-            <p>
-              Permission, data access, and accessible interaction shape the
-              experience from the start.
-            </p>
-          </article>
+      </section>
+      <section id="process" class="process section-pad">
+        <div class="wrap">
+          <div class="section-heading">
+            <p class="eyebrow">02 / HOW I WORK</p>
+            <h2>From contract<br /><em>to reviewed code.</em></h2>
+          </div>
+          <div class="workflow-grid">
+            <article>
+              <span>01 / CONTRACT</span>
+              <h3>Start with OpenAPI</h3>
+              <p>
+                API contracts define routes and schemas before handlers are
+                wired, keeping implementation aligned with the published
+                surface.
+              </p>
+            </article>
+            <article>
+              <span>02 / BOUNDARIES</span>
+              <h3>Organize by domain in Nx</h3>
+              <p>
+                A single Nx workspace keeps each bounded context in its own API
+                library and CDK stack while sharing domain utilities.
+              </p>
+            </article>
+            <article>
+              <span>03 / HANDLERS</span>
+              <h3>Keep handlers thin</h3>
+              <p>
+                Handlers parse, validate, and delegate; domain libraries hold
+                rules, key builders, and mapping logic.
+              </p>
+            </article>
+            <article>
+              <span>04 / DATA</span>
+              <h3>Design around access patterns</h3>
+              <p>
+                The shared DynamoDB table uses explicit keys and indexes for the
+                reads and writes documented by the domain.
+              </p>
+            </article>
+            <article>
+              <span>05 / COVERAGE</span>
+              <h3>Set an ≥80% coverage target</h3>
+              <p>
+                AGENTS.md requires at least 80% coverage for touched files, with
+                behavior-focused cases for the changes.
+              </p>
+            </article>
+            <article>
+              <span>06 / SUPPLY CHAIN</span>
+              <h3>Keep automated checks in the loop</h3>
+              <p>
+                GitHub Actions runs CI and npm audit; Snyk scans dependencies,
+                and Dependabot maintains dependency updates.
+              </p>
+            </article>
+            <article>
+              <span>07 / REVIEW</span>
+              <h3>AI implements; a human reviews</h3>
+              <p>
+                Repository guidance assigns agents implementation work while a
+                human remains architect and final reviewer.
+              </p>
+            </article>
+          </div>
         </div>
       </section>
       <section id="architecture" class="architecture section-pad">
         <div class="wrap">
           <div class="section-heading">
-            <p class="eyebrow">02 / UNDER THE SURFACE</p>
-            <h2>Small domains.<br /><em>One connected system.</em></h2>
+            <p class="eyebrow">03 / SYSTEM ARCHITECTURE</p>
+            <h2>From browser edge<br /><em>to scheduled email.</em></h2>
             <p class="section-intro">
-              Angular at the edge, domain APIs in the middle, and a carefully
-              modeled table beneath them.
+              A C4-inspired map of the deployed shape: eight domain APIs, shared
+              compute and storage, delivery edges, and the operational stacks
+              around them.
             </p>
           </div>
           <div
-            class="arch-flow"
+            class="system-map"
             role="img"
-            aria-label="Angular client to API Gateway, eight domain APIs and AWS services"
+            aria-labelledby="architecture-map-title"
+            aria-describedby="architecture-map-description"
           >
-            <div>Angular<br /><small>web client</small></div>
-            <i aria-hidden="true"
-              ><svg viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6" /></svg
-            ></i>
-            <div>API Gateway<br /><small>HTTP API</small></div>
-            <i aria-hidden="true"
-              ><svg viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6" /></svg
-            ></i>
-            <div class="domain-list">
-              <b>DOMAIN APIs</b><span>auth · pets · owners · events</span
-              ><span>reminders · routines · uploads · catalogs</span>
+            <div class="map-titlebar">
+              <div>
+                <p class="eyebrow">SYSTEM MAP / AWS CDK</p>
+                <h3 id="architecture-map-title">
+                  One product, seven connected zones
+                </h3>
+              </div>
+              <span>18 stack definitions · 8 APIs · 4 Lambda layers</span>
             </div>
-            <i aria-hidden="true"
-              ><svg viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6" /></svg
-            ></i>
-            <div>Lambda<br /><small>Node.js 24</small></div>
-            <i aria-hidden="true"
-              ><svg viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6" /></svg
-            ></i>
-            <div>
-              DynamoDB · S3<br /><small>Cognito · EventBridge · SES</small>
+            <p id="architecture-map-description" class="sr-only">
+              CloudFront and S3 deliver the Angular frontend; browser requests
+              then use the API custom domain, one of eight HTTP APIs, Lambda
+              handlers with shared SDK layers, and DynamoDB or S3. Cognito JWT
+              authorization protects configured routes. Reminder schedules
+              invoke a dispatcher Lambda, FIFO SQS, a consumer Lambda, and SES
+              templates; MonitoringStack watches API, Lambda, and data services.
+              AppRegistry stack classes are defined but are not wired into the
+              current CDK entry point.
+            </p>
+            <div class="architecture-diagrams">
+              <p class="eyebrow">REQUEST + DATA PATH</p>
+              <ol
+                class="diagram-flow request-flow"
+                aria-label="Request from browser through the data stores"
+              >
+                <li
+                  class="diagram-node"
+                  data-in-view="context containers request"
+                >
+                  <b>Browser · Angular</b><small>SPA client</small>
+                </li>
+                <li
+                  class="diagram-node"
+                  data-in-view="context containers request"
+                >
+                  <b>Frontend CDN</b><small>CloudFront + S3</small
+                  ><code>Pettzi<wbr />Frontend<wbr />Stack</code>
+                </li>
+                <li class="diagram-node" data-in-view="containers request">
+                  <b>API domain</b><small>CloudFront paths</small
+                  ><code>Pettzi<wbr />Api<wbr />Domain<wbr />Stack</code>
+                </li>
+                <li class="diagram-node" data-in-view="containers request">
+                  <b>Eight HTTP APIs</b>
+                  <div class="diagram-pills">
+                    <span>auth</span><span>pets</span><span>owners</span
+                    ><span>events</span><span>reminders</span
+                    ><span>routines</span><span>uploads</span
+                    ><span>catalogs</span>
+                  </div>
+                </li>
+                <li class="diagram-node" data-in-view="containers request">
+                  <b>Lambda handlers</b
+                  ><small>Node.js 24 · one per handler</small>
+                  <div class="diagram-pills layer-pills">
+                    <span>cognito-deps</span><span>ddb-deps</span
+                    ><span>s3-deps</span><span>ses-deps</span>
+                  </div>
+                  <code>Pettzi<wbr />Layers<wbr />Stack</code>
+                </li>
+                <li
+                  class="diagram-node"
+                  data-in-view="containers request async"
+                >
+                  <b>DynamoDB + S3</b
+                  ><small>PettziTable · private DocsBucket</small
+                  ><code>Pettzi<wbr />Core<wbr />Infra<wbr />Stack</code>
+                </li>
+              </ol>
+              <div class="architecture-sidepaths">
+                <section class="diagram-support">
+                  <h4>Authorization</h4>
+                  <ol
+                    class="diagram-flow support-flow"
+                    aria-label="Cognito authorizes protected routes"
+                  >
+                    <li
+                      class="diagram-node"
+                      data-in-view="context containers request"
+                    >
+                      <b>Cognito User Pool</b
+                      ><code>Pettzi<wbr />Auth<wbr />Stack</code>
+                    </li>
+                    <li class="diagram-node" data-in-view="containers request">
+                      <b>JWT authorizer</b>
+                    </li>
+                    <li class="diagram-node" data-in-view="containers request">
+                      <b>Protected API routes</b>
+                    </li>
+                  </ol>
+                </section>
+                <section class="diagram-support">
+                  <h4>Monitoring</h4>
+                  <ol
+                    class="diagram-flow monitor-flow"
+                    aria-label="Monitoring watches APIs, Lambda, and data services"
+                  >
+                    <li class="diagram-node" data-in-view="containers">
+                      <b>Dashboards + alarms</b
+                      ><code>Pettzi<wbr />Monitoring<wbr />Stack</code>
+                    </li>
+                    <li class="diagram-node" data-in-view="containers">
+                      <b>Watches</b>
+                      <div class="diagram-pills">
+                        <span>HTTP APIs</span><span>Lambda</span
+                        ><span>DynamoDB</span><span>S3 + SES</span>
+                      </div>
+                    </li>
+                  </ol>
+                </section>
+              </div>
+              <p class="eyebrow async-label">ASYNC / EMAIL PATH</p>
+              <ol
+                class="diagram-flow async-flow"
+                aria-label="Reminder delivery from schedule to email"
+              >
+                <li class="diagram-node" data-in-view="containers async">
+                  <b>EventBridge Scheduler</b
+                  ><small>one schedule per reminder</small>
+                </li>
+                <li class="diagram-node" data-in-view="containers async">
+                  <b>Dispatch Lambda</b><small>sends a queue message</small>
+                </li>
+                <li class="diagram-node" data-in-view="containers async">
+                  <b>FIFO SQS</b><small>reminder queue</small>
+                </li>
+                <li class="diagram-node" data-in-view="containers async">
+                  <b>Consumer Lambda</b><small>validates and processes</small>
+                </li>
+                <li class="diagram-node" data-in-view="containers async">
+                  <b>SES template</b><small>bilingual reminder email</small
+                  ><code>Pettzi<wbr />Ses<wbr />Templates<wbr />Stack</code>
+                </li>
+              </ol>
+            </div>
+            <div class="map-zones">
+              <div class="map-zone edge">
+                <h4><span>01</span> Edge</h4>
+                <div class="map-node" data-in-view="context containers request">
+                  <b>Frontend CDN</b
+                  ><small
+                    >CloudFront · private S3 site bucket · ACM · Route 53
+                    alias</small
+                  ><code>Pettzi<wbr />Frontend<wbr />Stack</code>
+                </div>
+                <div class="map-node" data-in-view="containers request">
+                  <b>Unified API domain</b
+                  ><small
+                    >CloudFront paths to eight HTTP APIs · custom domain ·
+                    ACM</small
+                  ><code>Pettzi<wbr />Api<wbr />Domain<wbr />Stack</code>
+                </div>
+                <div class="map-node" data-in-view="containers">
+                  <b>Email assets CDN</b
+                  ><small
+                    >CloudFront · private S3 bucket · custom domain · ACM</small
+                  ><code
+                    >Pettzi<wbr />Email<wbr />Assets<wbr />Cdn<wbr />Stack</code
+                  >
+                </div>
+              </div>
+              <div class="map-zone identity">
+                <h4><span>02</span> Identity</h4>
+                <div class="map-node" data-in-view="context containers request">
+                  <b>Cognito User Pool + client</b
+                  ><small>JWT authorizer on protected API routes</small
+                  ><code>Pettzi<wbr />Auth<wbr />Stack</code>
+                </div>
+              </div>
+              <div class="map-zone api">
+                <h4><span>03</span> API layer</h4>
+                <div class="api-node-grid">
+                  <div class="map-node" data-in-view="containers request">
+                    <b>auth · /auth</b
+                    ><code>Pettzi<wbr />Auth<wbr />Api<wbr />Stack</code>
+                  </div>
+                  <div class="map-node" data-in-view="containers request">
+                    <b>pets · /pets</b
+                    ><code>Pettzi<wbr />Pets<wbr />Api<wbr />Stack</code>
+                  </div>
+                  <div class="map-node" data-in-view="containers request">
+                    <b>owners · /owners</b
+                    ><code>Pettzi<wbr />Owners<wbr />Api<wbr />Stack</code>
+                  </div>
+                  <div class="map-node" data-in-view="containers request">
+                    <b>events · /events</b
+                    ><code>Pettzi<wbr />Events<wbr />Api<wbr />Stack</code>
+                  </div>
+                  <div class="map-node" data-in-view="containers request">
+                    <b>reminders · /reminders</b
+                    ><code>Pettzi<wbr />Reminders<wbr />Api<wbr />Stack</code>
+                  </div>
+                  <div class="map-node" data-in-view="containers request">
+                    <b>routines · /routines</b
+                    ><code>Pettzi<wbr />Routines<wbr />Api<wbr />Stack</code>
+                  </div>
+                  <div class="map-node" data-in-view="containers request">
+                    <b>uploads · /uploads</b
+                    ><code>Pettzi<wbr />Uploads<wbr />Api<wbr />Stack</code>
+                  </div>
+                  <div class="map-node" data-in-view="containers request">
+                    <b>catalogs · /catalogs</b
+                    ><code>Pettzi<wbr />Catalogs<wbr />Api<wbr />Stack</code>
+                  </div>
+                </div>
+                <p class="zone-note">
+                  Each API is an API Gateway HTTP API; the custom domain maps
+                  its base path.
+                </p>
+              </div>
+              <div class="map-zone compute">
+                <h4><span>04</span> Compute</h4>
+                <div class="map-node" data-in-view="containers request">
+                  <b>Lambda per handler</b
+                  ><small>Node.js 24 functions in each domain API stack</small
+                  ><code
+                    >AuthApi · PetsApi · OwnersApi · EventsApi · RemindersApi ·
+                    RoutinesApi · UploadsApi · CatalogsApi</code
+                  >
+                </div>
+                <div class="map-node" data-in-view="containers">
+                  <b>Four shared Lambda layers</b
+                  ><small>Cognito · DynamoDB · S3 · SES SDK dependencies</small
+                  ><code>Pettzi<wbr />Layers<wbr />Stack</code>
+                </div>
+              </div>
+              <div class="map-zone data">
+                <h4><span>05</span> Data</h4>
+                <div class="map-node" data-in-view="containers request async">
+                  <b>PettziTable · single table</b
+                  ><small
+                    >PK / SK · GSI1PK / GSI1SK; GSI1 serves owner pets, due
+                    vaccination reminders, and shared records by pet</small
+                  ><code
+                    >Pettzi<wbr />Core<wbr />Infra<wbr />Stack ·
+                    TABLE_DESIGN.md</code
+                  >
+                </div>
+                <div class="map-node" data-in-view="containers request">
+                  <b>DocsBucket · private S3</b
+                  ><small
+                    >Uploads API issues presigned upload and download
+                    URLs</small
+                  ><code
+                    >Pettzi<wbr />Core<wbr />Infra<wbr />Stack · Pettzi<wbr />Uploads<wbr />Api<wbr />Stack</code
+                  >
+                </div>
+              </div>
+              <div class="map-zone async">
+                <h4><span>06</span> Async / email</h4>
+                <div class="map-node" data-in-view="containers async">
+                  <b>EventBridge Scheduler</b
+                  ><small
+                    >Per-reminder schedules invoke dispatch Lambda → FIFO SQS →
+                    consume Lambda</small
+                  ><code>Pettzi<wbr />Reminders<wbr />Api<wbr />Stack</code>
+                </div>
+                <div class="map-node" data-in-view="containers async">
+                  <b>SES templates</b
+                  ><small
+                    >Welcome, reset, reminder, and shared-pet invite
+                    templates</small
+                  ><code>Pettzi<wbr />Ses<wbr />Templates<wbr />Stack</code>
+                </div>
+                <p class="zone-note">
+                  Routines are request-driven in Pettzi<wbr />Routines<wbr />Api<wbr />Stack;
+                  it defines no schedule.
+                </p>
+              </div>
+              <div class="map-zone ops">
+                <h4><span>07</span> Operations</h4>
+                <div class="map-node" data-in-view="containers">
+                  <b>Dashboards + alarms</b
+                  ><small>API, Lambda, DynamoDB, S3, and SES monitoring</small
+                  ><code>Pettzi<wbr />Monitoring<wbr />Stack</code>
+                </div>
+                <div class="map-node map-node-note" data-in-view="containers">
+                  <b>Service Catalog AppRegistry</b
+                  ><small
+                    >Pettzi<wbr />Application<wbr />Stack and App<wbr />Registry<wbr />Associations<wbr />Stack
+                    are defined but not instantiated by
+                    apps/cdk/src/main.ts.</small
+                  >
+                </div>
+              </div>
             </div>
           </div>
-          <p class="diagram-note">
-            Single-table storage; scheduled reminders run separately from
-            synchronous API requests. See the repository for deployment details.
-          </p>
-          <div class="arch-notes">
-            <article>
-              <span>A</span>
-              <div>
-                <h3>Access patterns shape storage</h3>
-                <p>
-                  Explicit keys support the access patterns documented for
-                  Pettzi’s shared DynamoDB table.
-                </p>
+          <details class="diagram-alternative">
+            <summary>Read the architecture diagram as a list</summary>
+            <ol>
+              <li>
+                CloudFront serves the Angular frontend from a private S3 bucket;
+                FrontendStack provisions its ACM certificate and Route 53 alias
+                when custom-domain configuration is supplied.
+              </li>
+              <li>
+                ApiDomainStack places a CloudFront distribution in front of
+                eight API Gateway HTTP APIs and maps their base paths; Cognito
+                supplies JWT authorization for protected routes.
+              </li>
+              <li>
+                Each API stack defines Lambda handlers; the four shared layers
+                package Cognito, DynamoDB, S3, and SES SDK dependencies.
+              </li>
+              <li>
+                CoreInfraStack owns PettziTable and the private docs bucket.
+                GSI1 supports owner-to-pet lookup, due vaccination reminders,
+                and shared-record listing.
+              </li>
+              <li>
+                Reminder schedules invoke a dispatch Lambda, enqueue work in
+                FIFO SQS, and reach a consumer Lambda that sends an SES
+                template.
+              </li>
+              <li>
+                MonitoringStack defines dashboards and alarms. AppRegistry
+                classes exist in source but are not created from the current CDK
+                main.ts.
+              </li>
+            </ol>
+          </details>
+          <div
+            class="architecture-tabs"
+            role="tablist"
+            aria-label="Architecture views"
+            hidden
+          >
+            <button
+              id="architecture-tab-context"
+              type="button"
+              role="tab"
+              aria-controls="architecture-view-context"
+              aria-selected="true"
+              tabindex="0"
+              data-view="context"
+            >
+              Context
+            </button>
+            <button
+              id="architecture-tab-containers"
+              type="button"
+              role="tab"
+              aria-controls="architecture-view-containers"
+              aria-selected="false"
+              tabindex="-1"
+              data-view="containers"
+            >
+              Containers
+            </button>
+            <button
+              id="architecture-tab-request"
+              type="button"
+              role="tab"
+              aria-controls="architecture-view-request"
+              aria-selected="false"
+              tabindex="-1"
+              data-view="request"
+            >
+              Request path
+            </button>
+            <button
+              id="architecture-tab-async"
+              type="button"
+              role="tab"
+              aria-controls="architecture-view-async"
+              aria-selected="false"
+              tabindex="-1"
+              data-view="async"
+            >
+              Async / email path
+            </button>
+          </div>
+          <div class="architecture-views">
+            <article
+              id="architecture-view-context"
+              class="architecture-view"
+              role="tabpanel"
+              aria-labelledby="architecture-tab-context"
+              tabindex="0"
+            >
+              <p class="eyebrow">VIEW 01 / CONTEXT</p>
+              <h3>Caregivers use Pettzi to keep a pet’s care in context.</h3>
+              <ol class="view-steps">
+                <li>
+                  <b>Primary owner or co-owner</b
+                  ><span
+                    >Manages pets, health events, files, reminders, and routines
+                    in the Angular app.</span
+                  >
+                </li>
+                <li>
+                  <b>Pettzi</b
+                  ><span
+                    >Connects the browser experience to domain APIs and shared
+                    records.</span
+                  >
+                </li>
+                <li>
+                  <b>Email recipient</b
+                  ><span
+                    >Receives account and reminder messages sent through SES
+                    templates.</span
+                  >
+                </li>
+              </ol>
+            </article>
+            <article
+              id="architecture-view-containers"
+              class="architecture-view"
+              role="tabpanel"
+              aria-labelledby="architecture-tab-containers"
+              tabindex="0"
+            >
+              <p class="eyebrow">VIEW 02 / CONTAINERS</p>
+              <h3>One SPA, eight APIs, shared AWS data services.</h3>
+              <ol class="view-steps">
+                <li>
+                  <b>Web container</b
+                  ><span
+                    >Angular SPA is hosted in private S3 behind
+                    CloudFront.</span
+                  >
+                </li>
+                <li>
+                  <b>API containers</b
+                  ><span
+                    >Eight API Gateway HTTP APIs route to Node.js 24 Lambda
+                    handlers; Cognito authorizes protected routes.</span
+                  >
+                </li>
+                <li>
+                  <b>Shared services</b
+                  ><span
+                    >DynamoDB, S3, SES, EventBridge Scheduler, SQS, and four
+                    Lambda layers support the domain APIs.</span
+                  >
+                </li>
+              </ol>
+            </article>
+            <article
+              id="architecture-view-request"
+              class="architecture-view"
+              role="tabpanel"
+              aria-labelledby="architecture-tab-request"
+              tabindex="0"
+            >
+              <p class="eyebrow">VIEW 03 / REQUEST PATH</p>
+              <h3>A protected event request crosses explicit boundaries.</h3>
+              <ol class="view-steps">
+                <li>
+                  <b>Browser → API edge</b
+                  ><span
+                    >Angular sends a request to the custom API domain; its path
+                    maps to the Events HTTP API.</span
+                  >
+                </li>
+                <li>
+                  <b>HTTP API → handler</b
+                  ><span
+                    >For a protected route, the Cognito JWT authorizer checks
+                    the token before API Gateway invokes the event Lambda.</span
+                  >
+                </li>
+                <li>
+                  <b>Handler → data</b
+                  ><span
+                    >The domain library maps the event with shared key builders;
+                    the handler reads or writes PettziTable.</span
+                  >
+                </li>
+                <li>
+                  <b>File access</b
+                  ><span
+                    >Uploads API returns presigned S3 URLs for direct document
+                    or image transfer.</span
+                  >
+                </li>
+              </ol>
+              <p class="view-note">
+                Some routes are intentionally public, including catalog reads
+                and shared-record access.
+              </p>
+            </article>
+            <article
+              id="architecture-view-async"
+              class="architecture-view"
+              role="tabpanel"
+              aria-labelledby="architecture-tab-async"
+              tabindex="0"
+            >
+              <p class="eyebrow">VIEW 04 / ASYNC + EMAIL</p>
+              <h3>A reminder is delivered outside the API request.</h3>
+              <ol class="view-steps">
+                <li>
+                  <b>Reminder saved</b
+                  ><span
+                    >Reminders API creates the reminder and its EventBridge
+                    Scheduler schedule.</span
+                  >
+                </li>
+                <li>
+                  <b>Schedule fires</b
+                  ><span
+                    >Scheduler invokes the dispatch Lambda, which sends a
+                    message to FIFO SQS.</span
+                  >
+                </li>
+                <li>
+                  <b>Message consumed</b
+                  ><span
+                    >The consumer Lambda validates the due reminder and invokes
+                    SES with the reminder template.</span
+                  >
+                </li>
+                <li>
+                  <b>Routine boundary</b
+                  ><span
+                    >Routine reads and updates use the Routines API; its stack
+                    does not create a schedule.</span
+                  >
+                </li>
+              </ol>
+            </article>
+          </div>
+          <div class="cdk-stack-list">
+            <div class="section-heading compact-heading">
+              <p class="eyebrow">
+                18 CDK STACK DEFINITIONS / GROUPED BY CONCERN
+              </p>
+              <h3>The deployment surface</h3>
+            </div>
+            <div class="stack-group-grid">
+              <section class="stack-group">
+                <h4>Foundation + identity <span>03</span></h4>
+                <div class="stack-card-grid">
+                  <article class="stack-card">
+                    <b>Pettzi<wbr />Core<wbr />Infra<wbr />Stack</b>
+                    <p>
+                      Shared single-table DynamoDB, docs and log buckets, and
+                      infrastructure alarms.
+                    </p>
+                  </article>
+                  <article class="stack-card">
+                    <b>Pettzi<wbr />Layers<wbr />Stack</b>
+                    <p>
+                      Builds and publishes the four shared SDK Lambda layers.
+                    </p>
+                  </article>
+                  <article class="stack-card">
+                    <b>Pettzi<wbr />Auth<wbr />Stack</b>
+                    <p>Cognito User Pool and web app client.</p>
+                  </article>
+                </div>
+              </section>
+              <section class="stack-group">
+                <h4>Domain APIs <span>08</span></h4>
+                <div class="stack-card-grid">
+                  <article class="stack-card">
+                    <b>Pettzi<wbr />Auth<wbr />Api<wbr />Stack</b>
+                    <p>
+                      Auth HTTP API, account handlers, and templated account
+                      email.
+                    </p>
+                  </article>
+                  <article class="stack-card">
+                    <b>Pettzi<wbr />Pets<wbr />Api<wbr />Stack</b>
+                    <p>Pet profiles and shared-record API handlers.</p>
+                  </article>
+                  <article class="stack-card">
+                    <b>Pettzi<wbr />Owners<wbr />Api<wbr />Stack</b>
+                    <p>Owner links, roles, invitations, and secret rotation.</p>
+                  </article>
+                  <article class="stack-card">
+                    <b>Pettzi<wbr />Events<wbr />Api<wbr />Stack</b>
+                    <p>Pet health events and timeline handlers.</p>
+                  </article>
+                  <article class="stack-card">
+                    <b>Pettzi<wbr />Reminders<wbr />Api<wbr />Stack</b>
+                    <p>
+                      Reminder handlers, schedules, FIFO queue, and email
+                      consumer.
+                    </p>
+                  </article>
+                  <article class="stack-card">
+                    <b>Pettzi<wbr />Routines<wbr />Api<wbr />Stack</b>
+                    <p>Pet routines, activities, history, and occurrences.</p>
+                  </article>
+                  <article class="stack-card">
+                    <b>Pettzi<wbr />Uploads<wbr />Api<wbr />Stack</b>
+                    <p>
+                      Presigned file transfers and upload-triggered thumbnails.
+                    </p>
+                  </article>
+                  <article class="stack-card">
+                    <b>Pettzi<wbr />Catalogs<wbr />Api<wbr />Stack</b>
+                    <p>Species, breeds, and vaccine catalog endpoints.</p>
+                  </article>
+                </div>
+              </section>
+              <section class="stack-group">
+                <h4>Delivery + messaging <span>04</span></h4>
+                <div class="stack-card-grid">
+                  <article class="stack-card">
+                    <b>Pettzi<wbr />Frontend<wbr />Stack</b>
+                    <p>
+                      Private S3 SPA origin, CloudFront, WAF, certificate, and
+                      DNS alias.
+                    </p>
+                  </article>
+                  <article class="stack-card">
+                    <b>Pettzi<wbr />Api<wbr />Domain<wbr />Stack</b>
+                    <p>
+                      Custom API edge, base-path mappings, certificate, and DNS
+                      alias.
+                    </p>
+                  </article>
+                  <article class="stack-card">
+                    <b>Pettzi<wbr />Email<wbr />Assets<wbr />Cdn<wbr />Stack</b>
+                    <p>
+                      Private S3 origin and CloudFront distribution for email
+                      assets.
+                    </p>
+                  </article>
+                  <article class="stack-card">
+                    <b>Pettzi<wbr />Ses<wbr />Templates<wbr />Stack</b>
+                    <p>
+                      SES identity (when configured) and bilingual message
+                      templates.
+                    </p>
+                  </article>
+                </div>
+              </section>
+              <section class="stack-group">
+                <h4>Operations + inventory <span>03</span></h4>
+                <div class="stack-card-grid">
+                  <article class="stack-card">
+                    <b>Pettzi<wbr />Monitoring<wbr />Stack</b>
+                    <p>
+                      Service dashboards and API, Lambda, data, and email
+                      alarms.
+                    </p>
+                  </article>
+                  <article class="stack-card">
+                    <b>Pettzi<wbr />Application<wbr />Stack</b>
+                    <p>
+                      Defines the AppRegistry application and metadata; not
+                      instantiated from main.ts.
+                    </p>
+                  </article>
+                  <article class="stack-card">
+                    <b>App<wbr />Registry<wbr />Associations<wbr />Stack</b>
+                    <p>
+                      Defines stack associations for AppRegistry; not
+                      instantiated from main.ts.
+                    </p>
+                  </article>
+                </div>
+              </section>
+            </div>
+            <p class="stack-note">
+              The count is the 18 <code>*-stack.ts</code> definitions in
+              apps/cdk/src. Frontend, API-domain, and email-assets CDN stacks
+              are conditional on domain configuration.
+            </p>
+          </div>
+        </div>
+      </section>
+      <section id="monorepo" class="monorepo section-pad">
+        <div class="wrap">
+          <div class="section-heading">
+            <p class="eyebrow">04 / NX WORKSPACE</p>
+            <h2>One repo,<br /><em>one system.</em></h2>
+            <p class="section-intro">
+              Three apps, twelve libraries, and four Lambda layers share one
+              toolchain; follow the Nx dependencies and CDK handler and layer
+              wiring.
+            </p>
+          </div>
+          <div
+            class="repo-map"
+            aria-label="Nx workspace map with application, library, and Lambda dependency paths"
+          >
+            <section class="repo-group apps-group">
+              <h3>Apps <span>03</span></h3>
+              <article><b>apps/web</b><small>Angular SPA</small></article>
+              <article>
+                <b>apps/cdk</b><small>CDK stacks + Lambda bundling</small>
+              </article>
+              <article>
+                <b>apps/landing</b><small>Static EN / ES portfolio</small>
+              </article>
+            </section>
+            <section class="repo-group api-libs-group">
+              <h3>Domain API libs <span>08</span></h3>
+              <div class="repo-api-grid">
+                <article>api-auth</article>
+                <article>api-pets</article>
+                <article>api-owners</article>
+                <article>api-events</article>
+                <article>api-reminders</article>
+                <article>api-routines</article>
+                <article>api-uploads</article>
+                <article>api-catalogs</article>
               </div>
+            </section>
+            <section class="repo-group shared-libs-group">
+              <h3>Shared libs <span>04</span></h3>
+              <article>
+                <b>domain-model</b><small>Types, mappers, key builders</small>
+              </article>
+              <article>
+                <b>utils-dynamo</b><small>DynamoDB + HTTP helpers</small>
+              </article>
+              <article>
+                <b>shared-utils</b><small>General-purpose Lambda helpers</small>
+              </article>
+              <article>
+                <b>infra-constructs</b
+                ><small>Reusable AWS CDK constructs</small>
+              </article>
+            </section>
+            <section class="repo-group layers-group">
+              <h3>Lambda layers <span>04</span></h3>
+              <article>cognito-deps</article>
+              <article>ddb-deps</article>
+              <article>s3-deps</article>
+              <article>ses-deps</article>
+            </section>
+          </div>
+          <div
+            class="dependency-graph"
+            role="group"
+            aria-label="Nx project dependencies and CDK source wiring"
+          >
+            <div class="graph-flow">
+              <div class="graph-node">
+                <b>apps/web</b><small>Angular SPA</small>
+              </div>
+              <span class="graph-arrow" aria-hidden="true"></span>
+              <div class="graph-node">
+                <b>domain-model</b
+                ><small>Shared types, mappers, and key builders</small>
+              </div>
+              <span class="graph-arrow" aria-hidden="true"></span>
+              <div class="graph-node">
+                <b>utils-dynamo</b
+                ><small>DynamoDB key and access helpers</small>
+              </div>
+            </div>
+            <div class="graph-flow graph-flow--apis">
+              <div class="graph-node graph-api-source">
+                <b>Eight API libraries</b>
+                <div class="graph-api-pills">
+                  <span>api-auth</span><span>api-pets</span
+                  ><span>api-owners</span><span>api-events</span
+                  ><span>api-reminders</span><span>api-routines</span
+                  ><span>api-uploads</span><span>api-catalogs</span>
+                </div>
+              </div>
+              <span class="graph-arrow" aria-hidden="true"></span>
+              <div
+                class="graph-targets"
+                aria-label="Each API library depends on both shared libraries"
+              >
+                <div class="graph-node">
+                  <b>domain-model</b
+                  ><small>Shared domain types and mappers</small>
+                </div>
+                <div class="graph-node">
+                  <b>utils-dynamo</b><small>Common DynamoDB helpers</small>
+                </div>
+              </div>
+            </div>
+            <div class="graph-flow graph-flow--cdk">
+              <div class="graph-node">
+                <b>apps/cdk</b><small>CDK stacks</small>
+              </div>
+              <span
+                class="graph-arrow graph-arrow--dashed"
+                aria-hidden="true"
+              ></span>
+              <div class="graph-node">
+                <b>API handler paths</b
+                ><small
+                  >Eight source entrypoints bundled by the API stacks</small
+                >
+              </div>
+              <span
+                class="graph-arrow graph-arrow--dashed"
+                aria-hidden="true"
+              ></span>
+              <div class="graph-node">
+                <b>Four Lambda layers</b
+                ><small>cognito-deps · ddb-deps · s3-deps · ses-deps</small>
+              </div>
+            </div>
+            <div class="graph-flow graph-flow--landing">
+              <div class="graph-node">
+                <b>apps/landing</b><small>Standalone static site</small>
+              </div>
+            </div>
+          </div>
+          <ul class="graph-legend">
+            <li>
+              <span class="legend-line"></span>Solid arrows: Nx project
+              dependencies; each API library depends directly on domain-model
+              and utils-dynamo.
+            </li>
+            <li>
+              <span class="legend-line legend-line--dashed"></span>Dashed
+              arrows: CDK source-path and Lambda-layer wiring, which are not
+              static Nx graph edges.
+            </li>
+          </ul>
+          <div class="workspace-value-grid">
+            <article>
+              <span>ONE TOOLCHAIN</span>
+              <h3>Frontend, backend, and IaC</h3>
+              <p>
+                Nx targets and root scripts coordinate project build, test, and
+                lint tasks across the workspace.
+              </p>
             </article>
             <article>
-              <span>B</span>
-              <div>
-                <h3>Contracts show the seams</h3>
-                <p>
-                  Each domain has an OpenAPI contract; handlers stay thin and
-                  domain libraries hold shared rules.
-                </p>
-              </div>
+              <span>SHARED DOMAIN RULES</span>
+              <h3>One model, reused everywhere</h3>
+              <p>
+                Every API uses domain-model and utils-dynamo for shared types,
+                mappers, key builders, and common DynamoDB helpers.
+              </p>
+            </article>
+            <article>
+              <span>CHANGE-AWARE CHECKS</span>
+              <h3>Run affected lint and tests</h3>
+              <p>
+                Root lint:affected and test:affected scripts use Nx affected; CI
+                currently runs workspace lint and test targets with nx run-many.
+              </p>
+            </article>
+            <article>
+              <span>REPEATABLE API SHAPE</span>
+              <h3>Library + stack + path + contract</h3>
+              <p>
+                Each of the eight API domains has a library, a CDK API stack, a
+                mapped base path, and an OpenAPI contract.
+              </p>
             </article>
           </div>
         </div>
       </section>
       <section id="flows" class="wrap section-pad">
         <div class="section-heading">
-          <p class="eyebrow">03 / FOLLOW AN ORDER</p>
+          <p class="eyebrow">05 / FOLLOW AN ORDER</p>
           <h2>From intention<br /><em>to a useful moment.</em></h2>
         </div>
         <div class="flow-grid">
@@ -340,15 +1288,21 @@
             <p class="eyebrow">REMINDER</p>
             <h3>Let the follow-up arrive</h3>
             <ol>
-              <li><b>01</b> An owner schedules a vaccination reminder.</li>
               <li>
-                <b>02</b> EventBridge invokes the daily reminder processor.
+                <b>01</b> An owner saves a vaccination reminder in the Reminders
+                API.
               </li>
               <li>
-                <b>03</b> Lambda queries due reminders through DynamoDB GSI1.
+                <b>02</b> The API creates a one-time EventBridge Scheduler
+                schedule.
               </li>
               <li>
-                <b>04</b> Amazon SES sends an email when a reminder is due.
+                <b>03</b> At the due time, Scheduler invokes a dispatcher
+                Lambda, which queues the reminder in FIFO SQS.
+              </li>
+              <li>
+                <b>04</b> A consumer Lambda validates the reminder and sends its
+                SES template.
               </li>
             </ol>
           </article>
@@ -357,7 +1311,7 @@
       <section id="decisions" class="decisions section-pad">
         <div class="wrap">
           <div class="section-heading">
-            <p class="eyebrow">04 / ENGINEERING NOTES</p>
+            <p class="eyebrow">06 / ENGINEERING NOTES</p>
             <h2>Choices with<br /><em>their edges showing.</em></h2>
           </div>
           <div class="decision-grid">
@@ -365,48 +1319,50 @@
               <span>01 / STORAGE</span>
               <h3>Single table over separate tables</h3>
               <p>
-                It keeps related access patterns together; keys and indexes need
-                careful planning.
+                Alternative: separate tables per domain. The shared table keeps
+                documented access patterns together, at the cost of careful key
+                and index planning.
               </p>
             </article>
             <article>
               <span>02 / BOUNDARIES</span>
               <h3>Domain APIs with OpenAPI</h3>
               <p>
-                Contracts make service boundaries visible; every change needs
-                contract alignment.
+                Alternative: undocumented service coupling. Contracts make
+                boundaries visible, with the cost of keeping each change
+                aligned.
               </p>
             </article>
             <article>
               <span>03 / COMPUTE</span>
               <h3>Serverless AWS services</h3>
               <p>
-                Managed scaling reduces server operations; the design follows
-                provider service limits.
+                Alternative: an always-on server. Managed scaling reduces server
+                operations, while the design follows provider limits.
               </p>
             </article>
             <article>
               <span>04 / DELIVERY</span>
               <h3>Thin handlers, domain libraries</h3>
               <p>
-                Handlers stay predictable; business rules live in shared domain
-                code.
+                Alternative: business rules in each handler. Shared domain code
+                keeps handlers predictable, with an extra layer to navigate.
               </p>
             </article>
             <article>
               <span>05 / SCHEDULED WORK</span>
               <h3>EventBridge for reminders</h3>
               <p>
-                Scheduled processing stays outside request paths; delivery is
-                asynchronous.
+                Alternative: check due reminders during API requests. Scheduled
+                work keeps that processing separate, with asynchronous delivery.
               </p>
             </article>
             <article>
               <span>06 / TOOLING</span>
               <h3>Nx monorepo</h3>
               <p>
-                Shared workspace tooling supports bounded contexts; task
-                boundaries remain explicit.
+                Alternative: separate repositories. Nx shares workspace tooling,
+                while bounded-context boundaries must stay explicit.
               </p>
             </article>
           </div>
@@ -415,7 +1371,7 @@
       <section id="quality" class="quality section-pad">
         <div class="wrap quality-inner">
           <div>
-            <p class="eyebrow">05 / QUALITY IS A FEATURE</p>
+            <p class="eyebrow">07 / QUALITY IS A FEATURE</p>
             <h2>Trust is built<br /><em>into the details.</em></h2>
             <p>
               Contracts, checks, and careful defaults support a system that
@@ -435,7 +1391,7 @@
       </section>
       <section id="docs" class="wrap section-pad docs">
         <div class="section-heading">
-          <p class="eyebrow">06 / THE SOURCE MATERIAL</p>
+          <p class="eyebrow">08 / THE SOURCE MATERIAL</p>
           <h2>Read the<br /><em>working notes.</em></h2>
         </div>
         <div class="doc-grid">
@@ -469,19 +1425,62 @@
           ></a>
         </div>
       </section>
+      <section class="services section-pad">
+        <div class="wrap">
+          <div class="section-heading">
+            <p class="eyebrow">WHAT I DELIVER</p>
+            <h2>From system shape<br /><em>to shipped software.</em></h2>
+          </div>
+          <div class="service-grid">
+            <article>
+              <h3>Serverless backends</h3>
+              <p>
+                Domain APIs on AWS Lambda, API Gateway, EventBridge, and SES.
+              </p>
+            </article>
+            <article>
+              <h3>Infrastructure as code</h3>
+              <p>Deployable AWS resources composed and managed with CDK.</p>
+            </article>
+            <article>
+              <h3>Web applications</h3>
+              <p>Angular interfaces connected to documented API contracts.</p>
+            </article>
+            <article>
+              <h3>Engineering foundations</h3>
+              <p>
+                Architecture documentation, CI checks, and maintainable domain
+                boundaries.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
       <section id="contact" class="contact section-pad">
         <div class="wrap contact-inner">
           <p class="eyebrow">A NOTE TO CLOSE</p>
-          <h2>Thoughtful work<br />starts with <em>a conversation.</em></h2>
+          <h2>Need something like this<br /><em>for your product?</em></h2>
           <p>
-            The product experiment has ended. The questions behind it continue.
+            I design and build cloud-native systems end to end. Looking for
+            someone to build it with you?
           </p>
-          <div>
-            <a class="button button-light" href="https://fjbatresv.com"
-              >Visit fjbatresv.com
-              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M7 17 17 7M7 7h10v10" /></svg></a
-            ><a href="mailto:fjbatresv@gmail.com">fjbatresv@gmail.com</a>
+          <div class="contact-options">
+            <article>
+              <h3>Hiring for a senior engineering role?</h3>
+              <a class="button button-light" href="mailto:fjbatresv@gmail.com"
+                >Email Javier
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M7 17 17 7M7 7h10v10" /></svg
+              ></a>
+              <a href="https://fjbatresv.com">About Javier</a>
+            </article>
+            <article>
+              <h3>Building a product with similar needs?</h3>
+              <a class="button button-light" href="mailto:fjbatresv@gmail.com"
+                >Discuss a project</a
+              >
+              <a href="https://github.com/fjbatresv">GitHub profile</a>
+            </article>
           </div>
         </div>
       </section>
@@ -489,9 +1488,13 @@
     <footer class="footer">
       <div class="wrap footer-inner">
         <a class="brand" href="./"
-          ><img src="logo.svg" alt="" width="28" height="28" /><span
-            >pettzi<span class="brand-dot">.</span></span
-          ></a
+          ><img
+            src="logo-1x.png"
+            srcset="logo-1x.png 1x, logo-2x.png 2x"
+            alt=""
+            width="64"
+            height="77"
+          /><span>pettzi<span class="brand-dot">.</span></span></a
         ><span>Made with care. Kept as a reference.</span
         ><a href="https://github.com/fjbatresv/pettzi">GitHub</a
         ><span>© Javier Batres · 2026</span>

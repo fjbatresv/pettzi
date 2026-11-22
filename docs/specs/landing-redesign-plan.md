@@ -5,6 +5,7 @@ https://sdg19.fjbatresv.com, manteniéndolo como sitio estático (HTML/CSS + JS 
 sin dependencias pesadas y con el build Nx actual (`nx build landing`, `nx lint landing`).
 
 ## Referencia (sdg19)
+
 - Estructura: hero con titular grande + "ficha técnica" (proyecto/hoja/fecha/stack/escala),
   franja de métricas (números grandes), Architecture, Flows ("Follow an order"),
   Decisions, Quality (sección invertida), Docs, Contact (sección invertida), footer con metadatos.
@@ -14,6 +15,7 @@ sin dependencias pesadas y con el build Nx actual (`nx build landing`, `nx lint 
 - SEO: JSON-LD `@graph` (WebSite + WebPage + Person con url), title con "| Portfolio".
 
 ## Brechas del landing actual
+
 1. Sin franja de métricas ni ficha técnica: no comunica escala ni resultados.
 2. Faltan secciones de valor: flujos (p. ej. "sigue un recordatorio": EventBridge → Lambda → SES),
    decisiones de arquitectura (trade-offs), calidad (cobertura ≥80 %, OpenAPI, lint, CI, seguridad),
@@ -26,12 +28,14 @@ sin dependencias pesadas y con el build Nx actual (`nx build landing`, `nx lint 
    fuentes de Google sin `preload`; 404 sólo en inglés; OG image genérica.
 
 ## Dirección de diseño
+
 Mantener la identidad cálida de Pettzi (papel, terracota, Newsreader) pero adoptar el rigor
 "cuaderno técnico" de sdg19: retícula de fondo sutil, ficha de campo como "title block",
 números grandes en mono/display, secciones invertidas (verde oscuro) para Calidad y Contacto.
 Evitar copiar la marca/colores de sdg19 — sólo el nivel de estructura y acabado.
 
 ## Tareas (una por commit, `feat(landing): ...`)
+
 1. Tokens y tipografía: escala 12/14/16/18/24/32/48/72, cuerpo ≥16 px, labels ≥12 px,
    retícula de fondo con CSS, colores del SVG vía variables, toggle de tema con `localStorage` en try/catch.
 2. Header: nav con estado activo, menú móvil accesible (botón con `aria-expanded`), toggle ES/EN y tema.
@@ -49,6 +53,7 @@ Evitar copiar la marca/colores de sdg19 — sólo el nivel de estructura y acaba
    contraste ≥4.5:1, sin overflow horizontal, paridad de contenido EN/ES.
 
 ## Datos reales del repo (para métricas y ficha)
+
 - 8 APIs de dominio con su propio stack CDK: auth, pets, owners, events, reminders, routines, uploads, catalogs.
   (El diagrama actual omite `routines` — añadirlo.)
 - 18 stacks CDK en `apps/cdk/src`, 8 contratos OpenAPI (`libs/api-*/openapi/*.yml`).
@@ -56,6 +61,7 @@ Evitar copiar la marca/colores de sdg19 — sólo el nivel de estructura y acaba
 - Contacto: mismo patrón que sdg19 (CTA a https://fjbatresv.com y el correo público que muestra sdg19).
 
 ## Estado de implementación
+
 - [x] 1. Tokens, tipografía, retícula y tema claro/oscuro persistido.
 - [x] 2. Navegación activa, menú móvil accesible e idiomas.
 - [x] 3. Hero, ficha de proyecto y métricas verificadas en el repositorio.
@@ -66,3 +72,14 @@ Evitar copiar la marca/colores de sdg19 — sólo el nivel de estructura y acaba
 - [x] 8. QA: `nx build landing` y `nx lint landing` pasan; EN/ES se revisaron a 375, 768 y 1440 px en ambos temas, sin overflow horizontal.
 
 Desviación: el diagrama usa HTML/CSS en vez de un SVG escalable; conserva la misma información y evita scroll horizontal entre móvil, tablet y escritorio.
+
+## Posicionamiento
+
+El landing presenta Pettzi como un caso de estudio de ingeniería de extremo a
+extremo para conversaciones de contratación y proyectos de producto. El enfoque
+se apoya en la arquitectura serverless en AWS, APIs de dominio, infraestructura
+con CDK, aplicación Angular y decisiones documentadas en este repositorio. La
+experiencia profesional se describe con el cargo publicado en fjbatresv.com:
+Solutions Architect and Senior Full Stack Engineer. El contacto ofrece rutas
+separadas para oportunidades de empleo y colaboración en proyectos, sin afirmar
+resultados comerciales ni credenciales que no estén documentados.
