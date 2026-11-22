@@ -4,6 +4,12 @@ const root = document.documentElement;
 const themeButton = document.querySelector('.theme-toggle');
 const menuButton = document.querySelector('.menu-toggle');
 const nav = document.querySelector('.nav');
+const masthead = document.querySelector('.masthead');
+
+const updateMasthead = () =>
+  masthead?.classList.toggle('is-scrolled', window.scrollY > 0);
+window.addEventListener('scroll', updateMasthead, { passive: true });
+updateMasthead();
 
 try {
   const savedTheme = localStorage.getItem('pettzi-theme');
