@@ -17,13 +17,13 @@
     "// targets": "to see all targets run: nx show project @pettzi/api-reminders --web"
   },
   "dependencies": {
-    "tslib": "^2.3.0",
+    "tslib": "^2.9.1",
     "@aws-sdk/client-dynamodb": "^3.1000.0",
     "@aws-sdk/lib-dynamodb": "^3.1000.0",
     "@aws-sdk/client-ses": "^3.1000.0",
     "@aws-sdk/client-scheduler": "^3.1000.0",
     "@aws-sdk/client-sqs": "^3.1000.0",
-    "@types/aws-lambda": "^8.10.161",
+    "@types/aws-lambda": "^8.10.164",
     "@pettzi/utils-dynamo": "file:../utils-dynamo",
     "@pettzi/domain-model": "file:../domain-model"
   }
