@@ -24,7 +24,7 @@ jobs:
           cache: npm
       - run: npm ci --legacy-peer-deps --ignore-scripts
       - run: ./node_modules/.bin/nx build landing
-      - uses: actions/upload-pages-artifact@v4
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: dist/landing
 
